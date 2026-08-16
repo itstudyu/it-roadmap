@@ -93,7 +93,7 @@ window.Store = (function () {
   }
 
   function seedBook(s, plan, now) {
-    var book = (window.VOCABULARY_DATA || []).find(function (b) { return b.id === plan.book; });
+    var book = (window.VOCABULARY_INDEX || []).find(function (b) { return b.id === plan.book; });
     if (!book) return;
 
     var i = 0;
@@ -165,22 +165,84 @@ window.Store = (function () {
     return state.terms[termId] || null;
   }
 
+  /* ---------------------------------------------------------- 단어 데이터
+
+     데이터는 두 갈래로 구워진다 (tools/build.py).
+
+         data/index.js         이름과 한 줄 뜻. 항상 읽는다.        66KB
+         data/terms/<권>.js    본문. 단어를 펼칠 때만 읽는다.       권당 39~176KB
+
+     목록·검색·퀴즈·회상은 전부 인덱스만으로 그려진다. 본문을 지고 시작하면
+     단어가 늘어날수록 첫 화면이 늦어지는데, 이 앱은 단어가 계속 늘어난다. */
+
+  function books() {
+    return window.VOCABULARY_INDEX || [];
+  }
+
+  /* allTerms() 는 렌더 한 번에 네 번까지 불린다(nextUp). 매번 227개를 새로
+     만들면 그 비용이 화면 전환마다 붙는다. 목록은 다시 구울 때만 바뀌므로
+     한 번 만들어 두고 재사용한다. 진도는 statusOf() 가 그때그때 읽으니
+     이 배열이 낡을 일은 없다. */
+  var termsCache = null;
+
   function allTerms() {
+    if (termsCache) return termsCache;
     var out = [];
-    (window.VOCABULARY_DATA || []).forEach(function (book) {
+    books().forEach(function (book) {
       book.terms.forEach(function (t) {
         out.push(Object.assign({ bookId: book.id, bookName: book.name }, t));
       });
     });
+    termsCache = out;
     return out;
   }
 
+  var byId = null;
+
   function bookById(id) {
-    return (window.VOCABULARY_DATA || []).find(function (b) { return b.id === id; }) || null;
+    return books().find(function (b) { return b.id === id; }) || null;
   }
 
   function termById(id) {
-    return allTerms().find(function (t) { return t.id === id; }) || null;
+    if (!byId) {
+      byId = {};
+      allTerms().forEach(function (t) { byId[t.id] = t; });
+    }
+    var base = byId[id] || null;
+    if (!base) return null;
+
+    // 본문이 와 있으면 얹어서 준다. 아직이면 인덱스만 — 화면이 알아서 기다린다.
+    var body = (window.VOCAB_TERMS || {})[base.bookId];
+    return body && body[id] ? Object.assign({}, base, body[id]) : base;
+  }
+
+  /* ---------------------------------------------------------- 본문 불러오기 */
+
+  var loading = {};
+
+  function hasBody(bookId) {
+    return !!(window.VOCAB_TERMS && window.VOCAB_TERMS[bookId]);
+  }
+
+  /* fetch 가 아니라 script 태그로 받는다. file:// 로 열었을 때 fetch 는
+     CORS 에 막히지만 script 는 통과한다. 이 앱은 index.html 을 더블클릭해서
+     여는 것도 지원한다. */
+  function loadBody(bookId, done) {
+    if (hasBody(bookId)) { if (done) done(true); return; }
+    if (loading[bookId]) { loading[bookId].push(done); return; }
+    loading[bookId] = [done];
+
+    var el = document.createElement("script");
+    el.src = "data/terms/" + encodeURIComponent(bookId) + ".js";
+    el.onload = function () { finish(bookId, true); };
+    el.onerror = function () { finish(bookId, false); };
+    document.head.appendChild(el);
+  }
+
+  function finish(bookId, ok) {
+    var waiting = loading[bookId] || [];
+    delete loading[bookId];
+    waiting.forEach(function (cb) { if (cb) cb(ok); });
   }
 
   /* 단어장 하나의 진행 상황. 진도 화면과 목록 화면이 같은 숫자를 쓰게 한다. */
@@ -341,9 +403,12 @@ window.Store = (function () {
     statusOf: statusOf,
     dueInDays: dueInDays,
     recordOf: recordOf,
+    books: books,
     allTerms: allTerms,
     bookById: bookById,
     termById: termById,
+    hasBody: hasBody,
+    loadBody: loadBody,
     bookStats: bookStats,
     overallStats: overallStats,
     reviewQueue: reviewQueue,

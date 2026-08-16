@@ -208,7 +208,7 @@
   }
 
   function inProgressBlock() {
-    var books = (window.VOCABULARY_DATA || [])
+    var books = Store.books()
       .map(function (b) { return { book: b, stats: Store.bookStats(b) }; })
       .filter(function (x) { return x.stats.touched > 0 && x.stats.done < x.stats.total; })
       .sort(function (a, b) { return b.stats.touched - a.stats.touched; })
@@ -262,7 +262,7 @@
   /* ---------------------------------------------------------- 단어장 목록 */
 
   App.register("/books", function () {
-    var books = window.VOCABULARY_DATA || [];
+    var books = Store.books();
     var total = Store.overallStats();
 
     return topbar({ title: "단어장", right: themeButton() }) +
@@ -325,6 +325,10 @@
   App.register("/books/:bookId", function (params) {
     var book = Store.bookById(params.bookId);
     if (!book) return emptyState("inbox", "단어장을 찾을 수 없습니다", "단어장 목록에서 다시 선택해 주세요.");
+
+    /* 목록을 보는 사람은 곧 그중 하나를 연다. 지금 본문을 받아두면 탭했을 때
+       기다리는 화면을 안 본다. 이 화면 자체는 인덱스만으로 이미 다 그려진다. */
+    Store.loadBody(book.id);
 
     // 다른 단어장으로 들어오면 검색과 필터를 초기화한다
     if (listState.bookId !== book.id) {
@@ -567,6 +571,21 @@
     };
   }
 
+  /* 본문이 아직 안 온 사이에 내놓는 화면.
+
+     빈 화면 대신 이미 아는 것(제목·한 줄 뜻)을 먼저 보여준다. 인덱스에 들어
+     있으니 공짜다. 본문이 도착하면 App.render() 가 같은 주소를 다시 그린다.
+     같은 권의 다음 단어는 청크가 이미 있어서 이 화면을 두 번 보지 않는다. */
+  function termLoading(term) {
+    return topbar({ back: true }) +
+      '<main class="screen">' +
+      '<h1 class="term__name" data-focus tabindex="-1">' + esc(term.term) + "</h1>" +
+      (term.reading ? '<p class="term__reading">' + esc(term.reading) + "</p>" : "") +
+      '<p class="term__gist">' + UI.markdown(term.summary || "") + "</p>" +
+      '<p class="meta" role="status">본문을 불러오는 중…</p>' +
+      "</main>";
+  }
+
   App.register("/term/:termId", function (params) {
     var term = Store.termById(params.termId);
     if (!term) {
@@ -577,6 +596,16 @@
         emptyState("inbox", "단어를 찾을 수 없습니다", "주소가 잘못됐거나 지워진 단어다.") +
         '<div class="empty__act"><button class="btn btn--primary" data-action="go" data-to="/books">' +
         "단어장으로 가기</button></div></main>";
+    }
+
+    /* 본문은 권 단위로 온다. 아직이면 기다리는 화면을 주고, 도착하면 다시 그린다.
+       markOpened 는 본문을 실제로 보여줄 때만 — 안 그러면 로딩 화면을 스쳐도
+       "읽는 중"으로 기록된다. */
+    if (!Store.hasBody(term.bookId)) {
+      Store.loadBody(term.bookId, function () {
+        if (App.currentPath() === "/term/" + params.termId) App.render();
+      });
+      return termLoading(term);
     }
 
     Store.markOpened(term.id);

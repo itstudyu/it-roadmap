@@ -8,3 +8,5 @@ node_modules/
 # 로컬 도구 상태 (gstack browse, impeccable hook)
 .gstack/
 .impeccable/
+.vercel
+.env*

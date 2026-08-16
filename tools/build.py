@@ -1,8 +1,20 @@
 #!/usr/bin/env python3
-"""content/*.md -> data/vocabulary.js
+"""content/*.md -> data/index.js + data/terms/<book>.js
 
     python3 tools/build.py              # 전체를 굽는다
     python3 tools/build.py --dry-run    # 무엇이 잡히는지만 본다
+
+두 갈래로 굽는다. 목록·검색·퀴즈는 단어의 이름과 한 줄 뜻만 있으면 되는데,
+예전에는 본문까지 한 파일에 담아 앱을 열 때마다 전부 파싱했다. 227단어에서
+이미 1.33MB 였고, 이 앱은 단어가 계속 늘어나는 것을 전제로 한다.
+
+    data/index.js          가벼운 것. 항상 읽는다.        약 50KB
+    data/terms/<book>.js   본문. 단어를 펼칠 때만 읽는다.  권당 39~176KB
+
+무엇을 어느 쪽에 두는지는 소비처가 정한다. aliases 는 관련 용어 링크를 풀 때
+'전 단어'를 뒤지므로 인덱스에 있어야 하고, related 의 단어 이름은 퀴즈가
+전체 풀에서 쓰므로 역시 인덱스에 있어야 한다. 관계 설명(note)은 상세 화면
+전용이라 본문으로 간다.
 
 content/ 가 원본이다. Obsidian vault 를 읽지 않는다 —
 2026년 8월에 vault 를 이 repo 안으로 들여왔고 그 뒤로는 여기가 유일한 사본이다.
@@ -579,9 +591,98 @@ def report(books: list[dict], dropped: list[str]) -> None:
         log(f"제외 {len(dropped)}건: " + ", ".join(dropped[:6]) + (" …" if len(dropped) > 6 else ""))
 
 
+# ---------------------------------------------------------------- 나누기
+
+# 목록·검색·퀴즈 선택이 쓰는 것. 이것만 있으면 상세 화면 밖의 모든 화면이 그려진다.
+#
+# aliases 와 related 는 크기만 보면 본문으로 내리고 싶지만 둘 다 '전 단어'를 훑는다.
+#   aliases  관련 용어 링크를 풀 때 모든 단어의 별칭을 뒤진다 (js/screens.js)
+#   related  관련 용어 퀴즈가 전체 풀에서 문제를 만든다 (js/quiz.js)
+# 한 권만 로드된 상태에서 저 둘이 비면 링크가 끊기고 퀴즈 해설이 사라진다.
+INDEX_FIELDS = ["id", "term", "reading", "category", "summary", "aliases", "related"]
+
+# 단어를 펼쳤을 때만 필요한 것. 전체 무게의 87% 가 여기 있다.
+BODY_FIELDS = ["definition", "analogy", "sections", "figure", "recap", "check"]
+
+BANNER = (
+    "// 이 파일은 tools/build.py 가 content/*.md 에서 생성한다. 직접 고치지 말 것.\n"
+    "// 단어를 고치려면 content/ 의 Markdown 을 고치고 다시 굽는다.\n"
+    "// 전역 변수로 내보낸다. ES module 로 하면 file:// 로 열 때 CORS 에 막힌다.\n\n"
+)
+
+
+def split_payload(books: list[dict]) -> tuple[list[dict], dict[str, dict]]:
+    """책 목록을 (인덱스, 권별 본문) 으로 가른다."""
+    index, bodies = [], {}
+
+    for b in books:
+        idx_terms, body_terms = [], {}
+
+        for t in b["terms"]:
+            idx_terms.append({k: t[k] for k in INDEX_FIELDS if k in t})
+            body_terms[t["id"]] = {k: t[k] for k in BODY_FIELDS if k in t}
+
+        index.append({"id": b["id"], "name": b["name"], "blurb": b["blurb"], "terms": idx_terms})
+        bodies[b["id"]] = body_terms
+
+    return index, bodies
+
+
+def write_js(path: str, statement: str) -> int:
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(BANNER + statement)
+    return os.path.getsize(path)
+
+
+def dumps(obj) -> str:
+    """들여쓰기 없이 굽는다. 생성물이라 사람이 읽을 일이 없고, 13% 가 공백이었다."""
+    return json.dumps(obj, ensure_ascii=False, separators=(",", ":"))
+
+
+def write_bodies(terms_dir: str, bodies: dict[str, dict]) -> int:
+    """권별 본문 청크를 쓴다. 쓰기 전에 옛 청크를 비운다.
+
+    권이 사라졌는데 그 청크가 남아 있으면, 앱은 안 쓰지만 서비스 워커는 계속
+    받아 간다. 오프라인 캐시에 유령이 쌓이는 것을 막는다.
+    """
+    if os.path.isdir(terms_dir):
+        for fn in os.listdir(terms_dir):
+            if fn.endswith(".js"):
+                os.remove(os.path.join(terms_dir, fn))
+
+    total = 0
+    for book_id, terms in bodies.items():
+        total += write_js(
+            os.path.join(terms_dir, f"{book_id}.js"),
+            "window.VOCAB_TERMS = window.VOCAB_TERMS || {};\n"
+            f"window.VOCAB_TERMS[{json.dumps(book_id)}] = " + dumps(terms) + ";\n",
+        )
+    return total
+
+
+def emit(out_dir: str, books: list[dict]) -> None:
+    index, bodies = split_payload(books)
+
+    idx_size = write_js(
+        os.path.join(out_dir, "index.js"),
+        "window.VOCABULARY_INDEX = " + dumps(index) + ";\n",
+    )
+    body_total = write_bodies(os.path.join(out_dir, "terms"), bodies)
+
+    log(f"작성함: data/index.js  ({idx_size / 1024:,.0f} KB)  <- 시작할 때 읽는 전부")
+    log(f"        data/terms/*.js  {len(bodies)}개  ({body_total / 1024:,.0f} KB)  <- 펼칠 때만")
+
+    # 옛 단일 파일이 남아 있으면 index.html 을 안 고쳤을 때 조용히 옛 데이터가 뜬다.
+    legacy = os.path.join(out_dir, "vocabulary.js")
+    if os.path.exists(legacy):
+        os.remove(legacy)
+        log("        data/vocabulary.js 삭제 (인덱스/본문으로 갈렸다)")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--out", default=os.path.join(ROOT, "data", "vocabulary.js"))
+    ap.add_argument("--out-dir", default=os.path.join(ROOT, "data"))
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
@@ -596,17 +697,7 @@ def main() -> int:
     if args.dry_run:
         return 0
 
-    payload = json.dumps(books, ensure_ascii=False, indent=2)
-    banner = (
-        "// 이 파일은 tools/build.py 가 content/*.md 에서 생성한다. 직접 고치지 말 것.\n"
-        "// 단어를 고치려면 content/ 의 Markdown 을 고치고 다시 굽는다.\n"
-        "// 전역 변수로 내보낸다. ES module 로 하면 file:// 로 열 때 CORS 에 막힌다.\n\n"
-    )
-    os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
-    with open(args.out, "w", encoding="utf-8") as f:
-        f.write(banner + "window.VOCABULARY_DATA = " + payload + ";\n")
-    size = os.path.getsize(args.out) / 1024
-    log(f"작성함: {os.path.relpath(args.out, ROOT)}  ({size:,.0f} KB)")
+    emit(args.out_dir, books)
     return 0
 
 

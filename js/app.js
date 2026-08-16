@@ -235,5 +235,6 @@ window.App = (function () {
     on: on,
     start: start,
     render: render,
+    currentPath: currentPath,
   };
 })();

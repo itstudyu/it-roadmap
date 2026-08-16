@@ -66,7 +66,7 @@
       entry("learned", "학습 완료한 단어", "check", learned, "먼저 단어를 읽어주세요"),
     ];
 
-    (window.VOCABULARY_DATA || []).forEach(function (b) {
+    Store.books().forEach(function (b) {
       var targets = pool.filter(function (t) { return t.bookId === b.id; });
       list.push(entry("book:" + b.id, b.name, "book", targets, "출제할 단어 없음"));
     });

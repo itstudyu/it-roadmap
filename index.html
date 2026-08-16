@@ -26,8 +26,10 @@
     <nav id="tabbar" class="tabbar" aria-label="주요 화면"></nav>
   </div>
 
-  <!-- 데이터는 tools/build.py 가 저장소 안의 content/*.md 에서 굽는다 -->
-  <script src="data/vocabulary.js"></script>
+  <!-- 데이터는 tools/build.py 가 저장소 안의 content/*.md 에서 굽는다.
+       여기서 읽는 것은 이름과 한 줄 뜻뿐이다. 본문은 단어를 펼칠 때
+       data/terms/<권>.js 를 그때 받는다 (js/store.js 의 loadBody). -->
+  <script src="data/index.js"></script>
 
   <script src="js/ui.js"></script>
   <script src="js/store.js"></script>
