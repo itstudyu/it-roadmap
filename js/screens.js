@@ -1031,7 +1031,6 @@
 
       '<div style="margin-top:40px;text-align:center">' +
       '<button class="link-btn" data-action="reset-progress">데이터 초기화</button></div>' +
-      resetModal(s, history.length) +
       "</main>";
   });
 
@@ -1048,21 +1047,41 @@
 
      브라우저 기본 confirm() 을 쓰지 않는다. 저건 앱 밖에서 뜨는 회색 상자라
      지금까지 만든 화면과 아무 관계가 없어 보이고, 무엇이 지워지는지 적을 자리도 없다.
-     대신 무엇이 사라지는지를 숫자로 보여주고 고르게 한다 — 이미 있는 시트 어휘를 쓴다. */
+     대신 무엇이 사라지는지를 숫자로 보여주고 고르게 한다.
 
-  var resetOpen = false;
+     상자는 화면 문자열에 끼우지 않고 document.body 에 직접 붙인다. 두 가지 때문이다.
 
-  function resetModal(stats, historyCount) {
-    if (!resetOpen) return "";
+     하나, App.render() 로 열면 그때마다 화면 전체가 다시 그려진다. 그러면
+     .screen-enter 가 다시 걸려 본문이 12px 옆에서 들어오고, 스크롤이 맨 위로 튄다
+     (초기화 단추는 화면 맨 아래에 있어서 누른 자리가 통째로 사라진다).
+
+     둘, 그 애니메이션이 도는 동안 main 에 transform 이 걸린다. transform 이 걸린
+     요소는 그 안의 position: fixed 자식의 기준점이 되므로, 상자가 뷰포트 한가운데가
+     아니라 main 안쪽 어딘가에 놓인다. 실측으로 화면 밖 1129px 자리에 그려졌다.
+     css/app.css 의 화면 전환 주석이 .action-bar 에서 같은 일을 겪었다고 적어 둔
+     바로 그 함정이다. body 에 붙이면 둘 다 애초에 생기지 않는다. */
+
+  var resetBox = null;
+
+  function closeReset() {
+    if (!resetBox) return;
+    resetBox.remove();
+    resetBox = null;
+  }
+
+  function resetModalHtml() {
+    var stats = Store.overallStats();
     var rows = [
       { label: "퀴즈 통과", n: stats.passed },
       { label: "공부한 단어", n: stats.studied },
       { label: "복습 대기", n: stats.review },
-      { label: "학습 기록", n: historyCount },
+      { label: "학습 기록", n: Store.history(999).length },
     ].filter(function (r) { return r.n; });
 
-    return '<div class="modal" data-action="reset-cancel">' +
-      '<div class="modal__box" role="dialog" aria-modal="true" aria-labelledby="reset-title">' +
+    /* 상자에도 data-action 을 단다. 위임이 event.target.closest("[data-action]") 로
+       올라가기 때문에, 이게 없으면 상자 안의 글자를 눌러도 바깥의 reset-cancel 이
+       걸려 상자가 닫힌다. 등록되지 않은 이름은 App.handleClick 이 조용히 넘긴다. */
+    return '<div class="modal__box" data-action="modal-keep" role="dialog" aria-modal="true" aria-labelledby="reset-title">' +
       '<h2 class="modal__title" id="reset-title">기록을 전부 지울까요</h2>' +
       '<p class="modal__body">지우면 되돌릴 수 없습니다. 단어 자체는 그대로 있고, ' +
       "어디까지 공부했는지만 사라집니다.</p>" +
@@ -1074,30 +1093,36 @@
       '<div class="modal__actions">' +
       '<button class="btn btn--secondary" data-action="reset-cancel">그대로 두기</button>' +
       '<button class="btn btn--danger" data-action="reset-confirm">전부 지우기</button>' +
-      "</div></div></div>";
+      "</div></div>";
   }
 
   App.on("reset-progress", function () {
-    resetOpen = true;
-    App.render();
+    closeReset();
+    resetBox = document.createElement("div");
+    resetBox.className = "modal";
+    resetBox.dataset.action = "reset-cancel"; // 바깥을 눌러도 닫힌다
+    resetBox.innerHTML = resetModalHtml(); // security-ok: OWASP-A03-4 — 라벨은 이 파일 안의 상수, 숫자는 Store 가 센 정수다
+    document.body.appendChild(resetBox);
+    var first = resetBox.querySelector(".btn--secondary");
+    if (first) first.focus();
   });
 
-  App.on("reset-cancel", function () {
-    resetOpen = false;
-    App.render();
-  });
+  App.on("reset-cancel", closeReset);
 
   App.on("reset-confirm", function () {
-    resetOpen = false;
+    closeReset();
     Store.reset();
     UI.toast("전부 지웠습니다", "rotate");
     App.render();
   });
 
-  // 화면을 옮기면 열어둔 것을 닫는다. 다음에 들어왔을 때 모달이 떠 있으면 안 된다.
-  document.addEventListener("screen:rendered", function (event) {
-    if (!event.detail || event.detail.path !== "/progress") resetOpen = false;
+  // Esc 로도 닫는다. 상자를 띄워놓고 빠져나갈 길이 하나뿐이면 안 된다.
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") closeReset();
   });
+
+  // 화면을 옮기면 열어둔 것을 닫는다. body 에 붙어 있어서 저절로 사라지지 않는다.
+  document.addEventListener("screen:rendered", closeReset);
 
   // 화면을 옮기면 물어보던 것을 없던 일로 한다. 다음에 들어왔을 때
   // 단추가 "한 번 더 누르면 지워집니다" 인 채로 기다리고 있으면 안 된다.

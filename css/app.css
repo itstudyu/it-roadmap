@@ -433,6 +433,10 @@ a {
 .modal__box {
   width: 100%;
   max-width: 360px;
+  /* 가로로 눕히거나 글자를 키우면 상자가 화면보다 커진다. 그때 잘려 나가면
+     "전부 지우기" 만 남고 "그대로 두기" 가 안 보이는 일이 생긴다. */
+  max-height: 100%;
+  overflow-y: auto;
   padding: var(--sp-6);
   border-radius: var(--r-container);
   background: var(--surface);
