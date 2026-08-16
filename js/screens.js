@@ -673,12 +673,53 @@
     fill.style.width = pct + "%";
   }
 
+  /* 아래 버튼 바 감추기.
+
+     내려 읽으면 비켜주고 올리면 돌아온다. 방향만 보고 판단하되 두 군데서는
+     방향을 무시하고 무조건 보여준다 — 맨 위(아직 안 읽었다)와 맨 아래
+     (다 읽었으니 지금이 누를 때다). 바닥에서 감춰버리면 다 읽고 나서
+     버튼을 찾으려고 위로 올려야 하는 이상한 일이 생긴다.
+
+     THRESHOLD 는 손가락 떨림으로 바가 깜빡이는 것을 막는다. iOS 의 고무줄
+     스크롤은 scrollY 를 음수나 최대치 너머로 보내므로 비교 전에 가둔다. */
+  var THRESHOLD = 10;
+  var BOTTOM_ZONE = 120;
+  var lastY = 0;
+
+  function updateActionBar() {
+    var bar = document.querySelector(".action-bar");
+    if (!bar) return;
+
+    var max = Math.max(0, document.body.scrollHeight - window.innerHeight);
+    var y = Math.min(Math.max(window.scrollY, 0), max);
+    var moved = y - lastY;
+
+    if (y <= 8 || y >= max - BOTTOM_ZONE) {
+      bar.classList.remove("action-bar--tucked");
+    } else if (Math.abs(moved) > THRESHOLD) {
+      bar.classList.toggle("action-bar--tucked", moved > 0);
+    }
+    if (Math.abs(moved) > THRESHOLD) lastY = y;
+  }
+
+  /* 화면이 바뀌면 바는 새로 그려진다. 이전 화면에서 감춰둔 상태가 남아 있으면
+     새 단어를 열자마자 버튼이 없다. 매번 처음부터 시작한다. */
+  document.addEventListener("screen:rendered", function () {
+    lastY = window.scrollY;
+    var bar = document.querySelector(".action-bar");
+    if (!bar) return;
+    bar.classList.add("action-bar--instant");
+    bar.classList.remove("action-bar--tucked");
+    requestAnimationFrame(function () { bar.classList.remove("action-bar--instant"); });
+  });
+
   window.addEventListener("scroll", function () {
     if (rafPending) return;
     rafPending = true;
     requestAnimationFrame(function () {
       rafPending = false;
       updateReadProgress();
+      updateActionBar();
       var bar = document.querySelector(".topbar");
       if (bar) bar.classList.toggle("topbar--bordered", window.scrollY > 8);
     });

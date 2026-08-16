@@ -1498,6 +1498,27 @@ a {
   backdrop-filter: blur(16px);
   border-top: 1px solid var(--line);
   box-shadow: var(--shadow-sheet);
+  transition: transform var(--dur-slow) var(--ease);
+}
+
+/* 내려 읽을 때는 비켜준다. 올리면 돌아온다.
+   긴 단어는 도해와 접이식이 이어져서 화면 아래 88px 이 계속 가려져 있으면
+   읽는 자리가 그만큼 좁아진다. 되돌아오는 조건이 "위로 스크롤" 하나라서
+   버튼을 찾는 동작이 곧 버튼을 부르는 동작이 된다. */
+.action-bar--tucked {
+  transform: translate(-50%, 100%);
+}
+
+/* 화면 전환 애니메이션과 겹치면 바가 아래에서 미끄러져 들어오는 것처럼 보인다.
+   방금 그린 화면에서는 전환 없이 제자리에 둔다. */
+.action-bar--instant {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .action-bar {
+    transition: none;
+  }
 }
 
 @media (min-width: 48rem) {
