@@ -510,8 +510,14 @@
     if (!term.related || !term.related.length) return "";
 
     var items = term.related.map(function (r) {
+      /* 노트끼리 거는 링크는 파일 이름을 가리키는데 화면에 걸리는 건 제목이다.
+         "Index.md" 의 제목이 "인덱스" 인 식이라 제목만 보면 못 찾는다.
+         빌드가 실어 보낸 별칭(제목·원어·파일 이름)으로 찾는다. */
+      var wanted = r.term.toLowerCase();
       var found = Store.allTerms().find(function (t) {
-        return t.term.toLowerCase() === r.term.toLowerCase();
+        return t.aliases
+          ? t.aliases.indexOf(wanted) !== -1
+          : t.term.toLowerCase() === wanted;
       });
       // 이 목업에는 없는 단어도 그대로 보여준다. 원본 노트의 연결을 지우지 않는다.
       if (!found) {
@@ -563,7 +569,15 @@
 
   App.register("/term/:termId", function (params) {
     var term = Store.termById(params.termId);
-    if (!term) return emptyState("inbox", "단어를 찾을 수 없습니다", "단어장에서 다시 선택해 주세요.");
+    if (!term) {
+      /* 이 경로에서는 탭바가 숨는다. 빈 상태만 내놓으면 뒤로 갈 버튼도 탭도 없어서
+         앱 안에서 빠져나갈 길이 사라진다. 상단바와 돌아가는 버튼을 같이 준다. */
+      return topbar({ back: true }) +
+        '<main class="screen">' +
+        emptyState("inbox", "단어를 찾을 수 없습니다", "주소가 잘못됐거나 지워진 단어다.") +
+        '<div class="empty__act"><button class="btn btn--primary" data-action="go" data-to="/books">' +
+        "단어장으로 가기</button></div></main>";
+    }
 
     Store.markOpened(term.id);
     var status = Store.statusOf(term.id);

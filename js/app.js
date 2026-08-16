@@ -33,6 +33,18 @@ window.App = (function () {
     return hash || "/home";
   }
 
+  /* 주소는 사용자가 직접 고칠 수 있는 값이다. "%E0%A4%A" 처럼 반쪽짜리 인코딩이
+     들어오면 decodeURIComponent 가 URIError 를 던지는데, 그게 렌더 밖으로 빠져나가면
+     화면을 그리는 코드에 아예 닿지 못한다. 주소만 바뀌고 화면은 앞의 것이 남아서
+     둘이 어긋난 채 멈춘다. 못 읽으면 원문 그대로 넘겨서 "찾을 수 없다" 로 흐르게 한다. */
+  function decodeParam(raw) {
+    try {
+      return decodeURIComponent(raw);
+    } catch (e) {
+      return raw;
+    }
+  }
+
   /* "/books/:id" 같은 패턴과 실제 경로를 맞춘다. */
   function match(path) {
     var parts = path.split("/").filter(Boolean);
@@ -45,7 +57,7 @@ window.App = (function () {
       var params = {};
       for (var i = 0; i < pp.length; i++) {
         if (pp[i].charAt(0) === ":") {
-          params[pp[i].slice(1)] = decodeURIComponent(parts[i]);
+          params[pp[i].slice(1)] = decodeParam(parts[i]);
         } else if (pp[i] !== parts[i]) {
           return;
         }

@@ -31,8 +31,13 @@ window.Quiz = (function () {
     return a;
   }
 
+  /* 빼는 기준은 id 다. 참조로 비교하면 안 된다 — Store.allTerms() 는 부를 때마다
+     Object.assign 으로 새 객체를 만들기 때문에, 정답과 후보 목록을 서로 다른
+     호출에서 얻으면 같은 단어인데도 다른 객체가 되어 필터를 통과한다.
+     그러면 정답이 오답 자리에 한 번 더 실리고, 보기 둘이 같은 단어가 된다.
+     중복 자체가 정답을 알려주는 힌트가 되어 몰라도 찍을 수 있게 된다. */
   function sample(list, n, exclude) {
-    var pool = list.filter(function (x) { return x !== exclude; });
+    var pool = list.filter(function (x) { return !exclude || x.id !== exclude.id; });
     return shuffle(pool).slice(0, n);
   }
 

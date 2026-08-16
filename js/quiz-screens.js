@@ -235,6 +235,14 @@
       App.navigate("/quiz", true);
       return "";
     }
+    /* 마지막 문제를 풀면 index 가 문제 수와 같아진 채로 결과 화면으로 넘어간다.
+       거기서 뒤로가기를 누르면 이 자리로 돌아오는데, 그때 questions[index] 가
+       undefined 라 아래에서 터진다. 예외가 나면 render 가 innerHTML 을 대입하지
+       못해서 주소는 /quiz/run 인데 화면은 결과 화면인 채로 어긋난다. */
+    if (session.index >= session.questions.length) {
+      App.navigate("/quiz/result", true);
+      return "";
+    }
 
     var q = session.questions[session.index];
     var total = session.questions.length;

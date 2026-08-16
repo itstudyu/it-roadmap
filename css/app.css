@@ -831,9 +831,15 @@ a {
   transition: border-color var(--dur-fast) var(--ease);
 }
 
+/* 안쪽 input 이 outline 을 지운다(테두리를 감싼 label 쪽에 그리려고). 그런데 그
+   대신 쓰던 1px 선은 흰 배경 위에서 대비가 1.55:1 이라 포커스 표시 구실을 못 했다.
+   키보드로만 쓰는 사람에게는 지금 어디에 있는지가 안 보인다는 뜻이다.
+   앱의 다른 포커스와 같은 방식(2px 윤곽선)을 label 에 그려서 3:1 을 넘긴다. */
 .search:focus-within {
   border-color: var(--line-strong);
   background: var(--surface);
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
 }
 
 .search input {
@@ -869,8 +875,13 @@ a {
 }
 
 /* 칩이 오른쪽에 더 있다는 신호. 스크롤바를 숨겼으니 이거라도 있어야 한다.
-   검색창까지 흐려지면 안 되므로 .toolbar 가 아니라 .chips 에만 건다. */
+   검색창까지 흐려지면 안 되므로 .toolbar 가 아니라 .chips 에만 건다.
+
+   흐리는 폭만큼 오른쪽에 자리를 비워 둔다. 안 그러면 끝까지 밀었을 때
+   마지막 칩이 딱 그 자리에 서서, 더 볼 게 없는데도 흐려진 채로 남는다.
+   개수 배지가 붙는 칩이라 흐려지면 숫자를 못 읽는다. */
 .chips {
+  padding-right: 28px;
   -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
   mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
 }
@@ -976,6 +987,13 @@ a {
 
 .empty {
   padding: var(--sp-16) var(--gutter);
+  text-align: center;
+}
+
+/* 빈 상태에서 돌아갈 곳을 주는 자리. 위쪽 padding 이 이미 큰 자리라
+   여기서는 위 여백을 줄여 문구와 버튼이 한 덩어리로 읽히게 둔다. */
+.empty__act {
+  padding: 0 var(--gutter) var(--sp-16);
   text-align: center;
 }
 
@@ -2716,7 +2734,7 @@ a {
    확인 질문처럼 테두리를 두르면 상자가 둘 연달아 서서 무거워진다.
    위에 선 하나만 긋고 본문 리듬을 그대로 잇는다. */
 .recap {
-  margin-top: var(--sp-9);
+  margin-top: var(--sp-8);
   padding-top: var(--sp-6);
   border-top: 1px solid var(--line);
 }

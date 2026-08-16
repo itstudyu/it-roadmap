@@ -15,6 +15,7 @@ from __future__ import annotations
 import os
 import re
 import sys
+import unicodedata
 
 REQUIRED = [
     "📝 정의",
@@ -27,7 +28,11 @@ REQUIRED = [
     "🔗 관련 용어",
 ]
 
-OPTIONAL = ["⚙️ 작동 원리", "📊 비교", "✅ 장단점", "🚨 주의사항", "💻 코드 구현 (간단하게)"]
+# 문서(docs/TERM-TEMPLATE.md)가 적어둔 선택 섹션과 같아야 한다. 한쪽에만 있는 항목이
+# 생기면 문서를 지킨 노트가 검사기에서 떨어지거나 그 반대가 된다.
+# "💻 코드 구현" 은 뺐다. 코드 덤프를 걷어내려고 만든 템플릿이 코드 자리를 열어두면 앞뒤가 안 맞고,
+# 지금 그 자리를 쓰는 노트도 없다.
+OPTIONAL = ["⚙️ 작동 원리", "📊 비교", "✅ 장단점", "🚨 주의사항"]
 
 MYTH_RANGE = (2, 3)
 CHECK_COUNT = 3
@@ -38,6 +43,7 @@ NAME_MAX = 8       # 흐름 마디의 이름
 CELL_MAX = 14      # 대조 한 칸
 FLOW_RANGE = (4, 7)
 LAYER_RANGE = (3, 5)
+COMPARE_RANGE = (3, 4)
 RELATED_RANGE = (3, 5)
 SUMMARY_MAX = 3    # 정리 문장 수
 
@@ -103,6 +109,12 @@ def check_flow(rows: list[str], where: str, bad: list[str]) -> None:
 
 
 def check_compare(rows: list[str], where: str, bad: list[str]) -> None:
+    # 첫 줄은 칸 이름이라 비교 줄 수에서 뺀다. 흐름과 층은 세면서 대조만 안 셌더니
+    # 390px 에서 열 줄짜리 대조가 그대로 통과했다.
+    low, high = COMPARE_RANGE
+    rest = len(rows) - 1
+    if not low <= rest <= high:
+        bad.append(f"{where}: 대조 줄이 {rest}개다 ({low}~{high})")
     if not rows or "::" in rows[0]:
         bad.append(f"{where}: 둘째 줄이 칸 이름이 아니다 ('왼쪽 || 오른쪽')")
         return
@@ -154,6 +166,11 @@ def check_structure(title: str, sections: list[tuple[str, str]], bad: list[str])
             bad.append(f"빈 섹션 — ## {head}")
         if canonical(head) is None:
             bad.append(f"템플릿에 없는 제목 — ## {head}")
+    # 같은 제목이 두 번 나오면 빌드는 앞의 것을, 사람은 대개 뒤의 것을 본다.
+    # 어느 쪽이 실리는지 알 수 없는 상태로 두지 않는다.
+    heads = [h for h, _ in sections]
+    for dup in sorted({h for h in heads if heads.count(h) > 1}):
+        bad.append(f"같은 제목이 {heads.count(dup)}번 나온다 — ## {dup}")
 
 
 def check_definition(body: str, bad: list[str]) -> None:
@@ -162,7 +179,9 @@ def check_definition(body: str, bad: list[str]) -> None:
     gist = re.sub(r"[*`]", "", body.split("\n\n")[0].strip())
     if len(gist) > GIST_MAX:
         bad.append(f"정의 첫 문단이 {len(gist)}자다 ({GIST_MAX}자 이내)")
-    if gist.count(". ") >= 2:
+    # 마침표 뒤에 글이 이어지면 이미 두 문장이다. >= 2 로 두면 세 문장부터 걸려서
+    # "한 문장" 이라고 적어놓고 두 문장을 통과시킨다. 227편 전부 한 문장이라 조여도 오탐이 없다.
+    if gist.count(". ") >= 1:
         bad.append("정의 첫 문단이 한 문장이 아니다")
     if "### 비유" not in body:
         bad.append("정의 안에 '### 비유' 가 없다")
@@ -215,7 +234,11 @@ def check_selfcheck(body: str, bad: list[str]) -> None:
         # "X 란 무엇인가" 는 외웠는지만 확인된다. 이해했는지는 상황을 줘야 나온다.
         # 되묻기는 용어가 문장 맨 앞에 설 때만 성립한다. 앞에 상황을 깔아둔
         # "...하게 만드는 실수는 무엇인가" 는 되묻기가 아니라 적용 문제다.
-        if re.match(r"^\S{1,20}\s*(란|이란|은|는)\s*(무엇|뭔가|뭐)", ask):
+        # 용어가 한 낱말이라는 법이 없다. \S 하나만 보면 "Circuit Breaker 란
+        # 무엇인가" 처럼 띄어쓴 용어는 그냥 빠져나간다. 낱말 셋까지 받는다.
+        # 다만 "무엇" 뒤가 길어지면 되묻기가 아니다 — "A와 B는 무엇이 다른가" 는
+        # 비교를 묻는 좋은 질문이라 여기서 걸리면 안 된다. 그래서 끝을 붙들어 둔다.
+        if re.match(r"^\S{1,20}(\s+\S{1,20}){0,2}\s*(란|이란|은|는|이|가)\s*(무엇|뭔가|뭐)[^?]{0,4}\??$", ask):
             bad.append(f"정의를 되묻는 질문이다 — {ask}")
 
 
@@ -226,7 +249,10 @@ def check_summary(body: str, bad: list[str]) -> None:
 
 
 def check(path: str) -> list[str]:
-    text = open(path, encoding="utf-8").read()
+    # macOS 는 한글을 자모로 풀어 쓴 NFD 로 저장하는 자리가 많다. 눈으로는 같은
+    # "📝 정의" 인데 바이트가 달라서, 정규화 없이 비교하면 멀쩡한 노트에
+    # "필수 섹션이 없다" 가 스무 건 넘게 쏟아진다. build.py 는 이미 NFC 로 맞춘다.
+    text = unicodedata.normalize("NFC", open(path, encoding="utf-8").read())
     title, sections = split_sections(text)
     body_of = {canonical(h): b for h, b in sections if canonical(h)}
     bad: list[str] = []

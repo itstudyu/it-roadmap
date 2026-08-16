@@ -471,12 +471,26 @@ window.UI = (function () {
       .trim();
   }
 
-  /* 검색어 강조. 이스케이프된 결과 위에서 동작하므로 안전하다. */
+  /* 검색어 강조.
+
+     찾기는 원문에서 하고, 이스케이프는 조각마다 따로 한다.
+     이스케이프한 결과 위에서 찾으면 실체 참조 한가운데가 잘린다 —
+     "amp" 를 검색하면 `&amp;` 가 `&<mark>amp</mark>;` 가 되어 `&` 가 글자로
+     풀리지 못하고 화면에 그대로 드러난다. 조각마다 esc 를 거치므로
+     원문에 태그가 있어도 살아나지 않는다. */
   function highlight(text, query) {
-    var safe = esc(plain(text));
-    if (!query) return safe;
-    var needle = esc(query).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    return safe.replace(new RegExp("(" + needle + ")", "ig"), "<mark>$1</mark>");
+    var src = plain(text);
+    if (!query) return esc(src);
+
+    var needle = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    var re = new RegExp(needle, "ig");
+    var out = "", last = 0, m;
+    while ((m = re.exec(src)) !== null) {
+      if (m.index === re.lastIndex) re.lastIndex++; // 빈 매치가 제자리를 맴돌지 않게
+      out += esc(src.slice(last, m.index)) + "<mark>" + esc(m[0]) + "</mark>";
+      last = m.index + m[0].length;
+    }
+    return out + esc(src.slice(last));
   }
 
   var toastTimer = null;

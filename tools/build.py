@@ -29,6 +29,7 @@ content/ 폴더는 그대로 Obsidian vault 로 열 수 있다. 동기화 대신
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -137,8 +138,21 @@ def nfc(s: str) -> str:
 
 
 def slugify(text: str, fallback: str) -> str:
-    """URL 에 쓸 id. 한글만 있는 이름은 ascii 가 남지 않으므로 fallback 을 받는다."""
-    return re.sub(r"[^a-z0-9]+", "-", nfc(text).lower()).strip("-") or fallback
+    """URL 에 쓸 id.
+
+    한글만 있는 이름은 ascii 가 한 글자도 안 남는다. 예전에는 그럴 때 fallback
+    ("term")을 쓰고 겹치면 뒤에 순번을 붙였는데, 그러면 id 가 **목록에서의 자리**에
+    묶인다. 보안 책에 한글 이름 노트를 하나 더 넣으면 sec--term-2 가 가리키던 단어가
+    바뀌고, 그 열쇠로 저장해둔 학습 기록이 엉뚱한 단어에 가서 붙는다.
+
+    그래서 이름에서 바로 뽑아내는 값을 쓴다. 목록이 어떻게 바뀌든 이름이 같으면
+    id 도 같다. 읽어서 뜻을 알 수 있는 값은 아니지만, id 는 열쇠지 읽을거리가 아니다.
+    """
+    slug = re.sub(r"[^a-z0-9]+", "-", nfc(text).lower()).strip("-")
+    if slug:
+        return slug
+    digest = hashlib.sha1(nfc(text).encode("utf-8")).hexdigest()[:8]
+    return f"{fallback}-{digest}"
 
 
 def strip_leading_emoji(h: str) -> str:
@@ -147,15 +161,27 @@ def strip_leading_emoji(h: str) -> str:
 
 
 def split_sections(text: str) -> dict[str, str]:
-    """H2 단위로 본문을 자른다. 원본 순서와 표기를 그대로 보존한다."""
+    """H2 단위로 본문을 자른다. 원본 순서와 표기를 그대로 보존한다.
+
+    코드펜스 안은 건드리지 않는다. 정규식으로만 자르면 ```bash 블록 안의
+    "## 주석" 한 줄이 새 섹션을 열어서 그 아래 본문이 통째로 다른 자리로 간다.
+    검사기(check_template.py)는 펜스를 세고 있어서, 그대로 두면 검사기는
+    통과시키는데 빌드에서만 깨지는 노트가 생긴다.
+    """
     out: dict[str, str] = {}
-    parts = re.split(r"^## (.+)$", text, flags=re.M)
-    # parts[0] = H1 앞부분, 이후 (heading, body) 쌍
-    for i in range(1, len(parts) - 1, 2):
-        heading = nfc(parts[i].strip())
-        body = parts[i + 1].strip()
-        if heading not in out:
-            out[heading] = body
+    heading, buf, fenced = None, [], False
+    for line in text.split("\n"):
+        if line.lstrip().startswith("```"):
+            fenced = not fenced
+        if not fenced and re.match(r"^## (.+)$", line):
+            if heading is not None and heading not in out:
+                out[heading] = "\n".join(buf).strip()
+            heading, buf = nfc(re.sub(r"^##\s+", "", line).strip()), []
+            continue
+        if heading is not None:
+            buf.append(line)
+    if heading is not None and heading not in out:
+        out[heading] = "\n".join(buf).strip()
     return out
 
 
@@ -301,6 +327,11 @@ def split_subsections(body: str) -> tuple[str, list[dict]]:
     for i in range(1, len(parts) - 1, 2):
         label = strip_leading_emoji(nfc(parts[i]))
         chunk = parts[i + 1].strip()
+        if label == "비유":
+            # 비유는 parse_analogy 가 이미 전용 자리로 가져갔다. 여기서 안 빼면
+            # 같은 문장이 정의 밑의 비유 상자와 접이식 패널로 두 번 나온다.
+            # 게다가 접이식 여섯 칸 중 하나를 잡아먹어서 뒤쪽의 주의사항이 밀려난다.
+            continue
         if len(chunk) >= 40:
             subs.append({"slot": guess_slot(label), "label": label, "body": trim(chunk)})
     return lead, subs
@@ -458,12 +489,42 @@ def pick_one(paths: list[str]) -> str:
     return max(paths, key=lambda p: (is_converted(p), os.path.getsize(p)))
 
 
+def title_of(path: str) -> str:
+    """노트가 화면에 내걸 이름. 없으면 파일 이름으로 물러선다.
+
+    중복을 파일 이름으로 세면 "LLM.md" 와 "LLM 1.md" 가 서로 다른 단어가 된다.
+    실제로 그렇게 통과한 두 쌍이 있었고, 앱의 AI 단어장에 이름이 같은 카드가
+    두 장씩 떴다. 사람이 보는 이름은 파일 이름이 아니라 제목이다.
+    """
+    with open(path, encoding="utf-8") as f:
+        head = f.read(400)
+    m = re.search(r"^#\s+(.+)$", head, flags=re.M)
+    name = parse_title(nfc(m.group(1)))[0] if m else nfc(os.path.basename(path)[:-3])
+    return name.strip()
+
+
+def aliases_of(note: dict, path: str) -> list[str]:
+    """이 단어를 부를 수 있는 이름들. `[[...]]` 를 여기에 맞춰 찾는다.
+
+    노트 사이의 링크는 Obsidian 방식이라 **파일 이름**을 가리킨다. 그런데 화면에
+    걸리는 이름은 H1 제목이다. 둘이 다른 노트가 많다 — 파일은 `Index.md` 인데
+    제목은 `인덱스 (Index)` 인 식이다. 제목만 보고 찾으면 관련 용어 1,008개 중
+    94개가 눌리지 않는 회색 글자로 남는다. 파일 이름과 괄호 안 원어까지 함께 싣는다.
+    """
+    names = [note["term"], note.get("reading") or "", nfc(os.path.basename(path)[:-3])]
+    out: list[str] = []
+    for n in names:
+        n = n.strip().lower()
+        if n and n not in out:
+            out.append(n)
+    return out
+
+
 def collect() -> tuple[list[dict], list[str]]:
     by_name: dict[str, list[str]] = {}
     folder_of: dict[str, str] = {}
     for folder, path in note_paths():
-        name = nfc(os.path.basename(path)[:-3])
-        by_name.setdefault(name, []).append(path)
+        by_name.setdefault(title_of(path), []).append(path)
         folder_of.setdefault(path, folder)
 
     dropped = []
@@ -483,6 +544,7 @@ def collect() -> tuple[list[dict], list[str]]:
         for _, path in chosen.get(spec["id"], []):
             parsed = parse_note(path, spec["name"])
             if parsed:
+                parsed["aliases"] = aliases_of(parsed, path)
                 notes.append(parsed)
             else:
                 dropped.append(f"{os.path.basename(path)}: 정의 섹션 없음")
