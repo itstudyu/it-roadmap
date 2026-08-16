@@ -224,25 +224,42 @@ window.Store = (function () {
     return !!(window.VOCAB_TERMS && window.VOCAB_TERMS[bookId]);
   }
 
+  /* 실패한 권을 기억한다. 화면이 "다시 그리면 되겠지" 하고 되돌아오는 것을 막는
+     자리다. 이게 없으면 로드 실패 -> 재렌더 -> 아직 없네 -> 다시 요청 -> 실패로
+     도는 고리가 생긴다. 실측으로 6초에 2만 번 돌았다. */
+  var failed = {};
+
+  function bodyFailed(bookId) {
+    return !!failed[bookId];
+  }
+
   /* fetch 가 아니라 script 태그로 받는다. file:// 로 열었을 때 fetch 는
      CORS 에 막히지만 script 는 통과한다. 이 앱은 index.html 을 더블클릭해서
-     여는 것도 지원한다. */
-  function loadBody(bookId, done) {
+     여는 것도 지원한다.
+
+     retry 를 true 로 주면 실패 기록을 지우고 다시 시도한다. 사용자가 "다시
+     시도" 를 눌렀을 때만 쓴다 — 저절로 다시 시도하지 않는다. */
+  function loadBody(bookId, done, retry) {
+    if (retry) delete failed[bookId];
     if (hasBody(bookId)) { if (done) done(true); return; }
+    if (failed[bookId]) { if (done) done(false); return; }
     if (loading[bookId]) { loading[bookId].push(done); return; }
     loading[bookId] = [done];
 
     var el = document.createElement("script");
     el.src = "data/terms/" + encodeURIComponent(bookId) + ".js";
-    el.onload = function () { finish(bookId, true); };
-    el.onerror = function () { finish(bookId, false); };
+    el.onload = function () { el.remove(); finish(bookId, true); };
+    el.onerror = function () { el.remove(); finish(bookId, false); };
     document.head.appendChild(el);
   }
 
   function finish(bookId, ok) {
+    // 스크립트가 실행됐는데 전역이 안 채워진 경우도 실패로 친다.
+    // (배포 중에 빈 파일이나 HTML 오류 페이지가 200 으로 오는 일이 있다)
+    if (!ok || !hasBody(bookId)) failed[bookId] = true;
     var waiting = loading[bookId] || [];
     delete loading[bookId];
-    waiting.forEach(function (cb) { if (cb) cb(ok); });
+    waiting.forEach(function (cb) { if (cb) cb(hasBody(bookId)); });
   }
 
   /* 단어장 하나의 진행 상황. 진도 화면과 목록 화면이 같은 숫자를 쓰게 한다. */
@@ -409,6 +426,7 @@ window.Store = (function () {
     termById: termById,
     hasBody: hasBody,
     loadBody: loadBody,
+    bodyFailed: bodyFailed,
     bookStats: bookStats,
     overallStats: overallStats,
     reviewQueue: reviewQueue,

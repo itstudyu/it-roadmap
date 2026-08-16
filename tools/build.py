@@ -679,43 +679,94 @@ def emit(out_dir: str, books: list[dict]) -> None:
         os.remove(legacy)
         log("        data/vocabulary.js 삭제 (인덱스/본문으로 갈렸다)")
 
-    bump_cache_version(index)
+    bump_cache_version()
 
 
-def bump_cache_version(index: list[dict]) -> None:
-    """sw.js 의 CACHE_VERSION 을 데이터 내용에서 뽑은 해시로 맞춘다.
+def precache_paths(sw_text: str) -> list[str]:
+    """sw.js 의 PRECACHE 배열에 적힌 경로들."""
+    block = re.search(r"var PRECACHE = \[(.*?)\];", sw_text, re.S)
+    if not block:
+        return []
+    return [p for p in re.findall(r'"([^"]+)"', block.group(1)) if p != "./"]
+
+
+def precache_digest(paths: list[str]) -> str:
+    """precache 대상 파일들의 바이트를 전부 넣어 해시를 만든다.
+
+    처음에는 인덱스만 해싱했는데, 그건 무게의 13% 밖에 안 덮는다. 단어 본문만
+    고치면(data/terms/*.js 는 바뀌고 data/index.js 는 안 바뀜) 해시가 그대로라
+    sw.js 도 그대로고, 서비스 워커가 재설치되지 않는다. fetch 핸들러가 캐시
+    우선이라 홈 화면에 설치한 사람은 **영원히 옛 본문을 본다.** css·js 를 고쳐도
+    마찬가지였다.
+
+    그래서 서비스 워커가 실제로 담는 것을 그대로 해싱한다. 무엇이 바뀌든
+    담기는 것이 바뀌면 버전이 오른다.
+
+    파일이 없으면 여기서 크게 실패한다. PRECACHE 는 손으로 적은 목록이고
+    build.py 가 굽는 파일 이름과 어긋날 수 있는데, 그대로 배포되면 install 의
+    addAll 이 통째로 실패해서 **서비스 워커가 아예 설치되지 않는다.** 사용자에게는
+    "오프라인이 안 되네" 정도로만 보이는 조용한 실패다. 빌드에서 잡는 게 맞다.
+    """
+    h = hashlib.sha1()
+    for rel in sorted(paths):
+        full = os.path.join(ROOT, rel)
+        if not os.path.exists(full):
+            raise FileNotFoundError(
+                f"sw.js 의 PRECACHE 에 있는 {rel} 이 없다. "
+                "이대로 배포하면 서비스 워커가 설치되지 않아 오프라인이 통째로 죽는다."
+            )
+        h.update(rel.encode("utf-8"))
+        with open(full, "rb") as f:
+            h.update(f.read())
+    return h.hexdigest()[:12]
+
+
+def replace_version(text: str, digest: str) -> str:
+    new_text, n = re.subn(
+        r'(CACHE_VERSION = ")[^"]*(")',
+        lambda m: m.group(1) + digest + m.group(2),
+        text,
+        count=1,
+    )
+    if not n:
+        raise ValueError(
+            "sw.js 에서 CACHE_VERSION 을 못 찾았다. 이대로 두면 데이터를 새로 구워도 "
+            "설치된 앱에는 영원히 안 보인다."
+        )
+    return new_text
+
+
+def bump_cache_version() -> None:
+    """sw.js 의 CACHE_VERSION 을 precache 대상 전체의 해시로 맞춘다.
 
     서비스 워커는 '그 파일의 바이트'가 바뀌어야 재설치된다. 데이터만 새로 굽고
     이 값을 그대로 두면, 홈 화면에 설치한 앱에는 새 단어가 영원히 안 보인다.
     사람이 기억해서 올리는 방식은 언젠가 잊는다 — 특히 이걸 굽는 게 사람이
     아니라 주 3회 도는 루틴이 되면 반드시 잊는다. 그래서 굽는 김에 같이 고친다.
 
-    내용 해시라서 단어가 안 바뀌면 값도 안 바뀐다. 의미 없는 커밋이 안 생긴다.
+    내용 해시라서 아무것도 안 바뀌면 값도 안 바뀐다. 의미 없는 커밋이 안 생긴다.
     """
     sw = os.path.join(ROOT, "sw.js")
     if not os.path.exists(sw):
-        return  # 아직 PWA 를 안 붙인 저장소에서도 빌드는 돌아야 한다
+        log("  ⚠️ sw.js 가 없다 — 오프라인 갱신 표시를 건너뛴다")
+        return
 
-    digest = hashlib.sha1(dumps(index).encode("utf-8")).hexdigest()[:12]
     with open(sw, encoding="utf-8") as f:
         text = f.read()
 
-    new_text, n = re.subn(
-        r'(var CACHE_VERSION = ")[^"]*(";)',
-        lambda m: m.group(1) + digest + m.group(2),
-        text,
-        count=1,
-    )
-    if not n:
-        log("  ⚠️ sw.js 에서 CACHE_VERSION 을 못 찾았다 — 오프라인 갱신이 막힌다")
-        return
+    paths = precache_paths(text)
+    if not paths:
+        raise ValueError("sw.js 에서 PRECACHE 목록을 못 찾았다. 오프라인 갱신이 막힌다")
+
+    digest = precache_digest(paths)
+    new_text = replace_version(text, digest)
     if new_text == text:
-        log(f"        sw.js CACHE_VERSION 그대로 ({digest})")
+        log(f"        sw.js CACHE_VERSION 그대로 ({digest}, precache {len(paths)}개)")
         return
 
     with open(sw, "w", encoding="utf-8") as f:
         f.write(new_text)
-    log(f"        sw.js CACHE_VERSION -> {digest}")
+    log(f"        sw.js CACHE_VERSION -> {digest} (precache {len(paths)}개)")
 
 
 def main() -> int:

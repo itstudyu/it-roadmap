@@ -586,6 +586,29 @@
       "</main>";
   }
 
+  /* 본문을 못 받았을 때. 저절로 다시 시도하지 않는다 — 되풀이해서 실패할 뿐이고,
+     그 사이 화면은 아무 말도 안 한다. 무슨 일이 있었는지 말하고 사용자에게 맡긴다.
+     제목과 한 줄 뜻은 인덱스에 있으니 그것만이라도 보여준다. */
+  function termLoadFailed(term) {
+    return topbar({ back: true }) +
+      '<main class="screen">' +
+      '<h1 class="term__name" data-focus tabindex="-1">' + esc(term.term) + "</h1>" +
+      (term.reading ? '<p class="term__reading">' + esc(term.reading) + "</p>" : "") +
+      '<p class="term__gist">' + UI.markdown(term.summary || "") + "</p>" +
+      emptyState("inbox", "본문을 불러오지 못했습니다",
+        "연결이 끊겼거나 파일을 받지 못했습니다. 한 줄 뜻은 위에 그대로 있습니다.") +
+      '<div class="empty__act"><button class="btn btn--primary" data-action="retry-body" data-book="' +
+      esc(term.bookId) + '" data-id="' + esc(term.id) + '">다시 시도</button></div>' +
+      "</main>";
+  }
+
+  App.on("retry-body", function (data) {
+    Store.loadBody(data.book, function () {
+      if (App.currentPath() === "/term/" + data.id) App.render();
+    }, true);
+    App.render();
+  });
+
   App.register("/term/:termId", function (params) {
     var term = Store.termById(params.termId);
     if (!term) {
@@ -600,9 +623,16 @@
 
     /* 본문은 권 단위로 온다. 아직이면 기다리는 화면을 주고, 도착하면 다시 그린다.
        markOpened 는 본문을 실제로 보여줄 때만 — 안 그러면 로딩 화면을 스쳐도
-       "읽는 중"으로 기록된다. */
+       "읽는 중"으로 기록된다.
+
+       실패는 반드시 성공과 갈라서 다뤄야 한다. 실패했는데 그냥 다시 그리면
+       hasBody 가 여전히 false 라 또 요청하고, 또 실패하고, 또 그린다.
+       처음에 ok 를 안 보고 무조건 App.render() 를 불렀다가 6초에 2만 번을 돌았다. */
+    if (Store.bodyFailed(term.bookId)) return termLoadFailed(term);
+
     if (!Store.hasBody(term.bookId)) {
-      Store.loadBody(term.bookId, function () {
+      Store.loadBody(term.bookId, function (ok) {
+        if (!ok && !Store.bodyFailed(term.bookId)) return;
         if (App.currentPath() === "/term/" + params.termId) App.render();
       });
       return termLoading(term);
