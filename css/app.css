@@ -1645,29 +1645,8 @@ a {
   max-width: 30rem;
 }
 
-/* 한 판 길이. 범위를 고르기 전에 지나가는 한 줄이라 범위 카드보다 가볍게 둔다.
-   .chips 를 그대로 쓰지 않는다 — 저건 가로로 넘치는 필터 줄이라 오른쪽에
-   흐림 마스크와 28px 여백이 붙어 있는데, 여기는 셋뿐이라 넘칠 일이 없다.
-   대신 알약(.chip) 모양은 그대로 빌린다. 같은 동작에 같은 모양을 쓴다. */
-.quiz-len {
-  display: flex;
-  align-items: center;
-  /* 글자 크기를 키운 기기에서 라벨과 알약이 한 줄에 안 들어가면 아래로 접힌다.
-     390px 에서 가로로 밀리는 것보다 두 줄이 되는 편이 낫다. */
-  flex-wrap: wrap;
-  gap: var(--sp-3);
-  margin-top: var(--sp-5);
-}
 
-.quiz-len__label {
-  font-size: var(--fs-13);
-  color: var(--ink-3);
-}
 
-.quiz-len__opts {
-  display: flex;
-  gap: var(--sp-2);
-}
 
 .scope {
   display: flex;

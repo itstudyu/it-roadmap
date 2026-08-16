@@ -82,73 +82,23 @@
 
   /* ---------------------------------------------------------- 한 판 길이
 
-     8문제 고정이었다. 권 하나가 34편인데 8문제만 나오면 범위를 고른 의미가 없다.
-     그렇다고 30문제로 못 박을 수도 없다 — 두 정거장 사이에 한 판을 끝내려는 사람은
-     30문제짜리 화면을 보면 아예 시작하지 않는다. 길이는 그날 사정이라 고르게 둔다.
+     나누지 않는다. 그 범위에 있는 문제를 전부 낸다.
 
-     고른 값은 localStorage 에 직접 담는다. Store 가 지키는 것은 학습 기록이고
-     이건 화면 설정이라, 같은 칸에 넣으면 기록을 지울 때 설정까지 따라 지워진다.
-     키도 학습 기록 키(it-vocab-mockup:v1)와 겹치지 않게 따로 판다. */
+     8문제 고정이었다가 짧게 8 · 보통 15 · 길게 30 으로 고르게 만들어 봤는데,
+     어느 쪽이든 화면에는 고른 숫자가 열두 줄에 똑같이 찍혔다. 권마다 재고가
+     98~372문제로 크게 다른데 그 차이가 사라지고, 읽는 사람은 그 숫자를 판 길이가
+     아니라 "이 단어장에 있는 문제 수" 로 읽는다 — "8개뿐이네" 가 된다.
 
-  var LENGTHS = [
-    { n: 8, label: "짧게" },
-    { n: 15, label: "보통" },
-    { n: 30, label: "길게" },
-  ];
+     길이를 미리 정할 이유도 없다. 언제든 상단바에서 그만둘 수 있고, 그만둔 자리까지가
+     그날의 한 판이다. 몇 문제를 풀지는 시작 전에 고르는 것이 아니라 풀면서 정해진다.
+     그래서 범위마다 진짜 재고를 적고, 상한은 두지 않는다. */
 
-  var LENGTH_KEY = "it-vocab-mockup:quiz-length";
+  // countQuestions·build 는 상한을 받게 되어 있다. 재고보다 큰 수를 주면 전부 낸다.
+  var NO_LIMIT = 100000;
 
-  function isLength(n) {
-    return LENGTHS.some(function (l) { return l.n === n; });
-  }
-
-  function loadLength() {
-    try {
-      var saved = parseInt(localStorage.getItem(LENGTH_KEY), 10);
-      // 저장된 값을 그대로 믿지 않는다. 사람이 고칠 수 있는 칸이고, 여기서 나온 숫자가
-      // 그대로 출제 개수가 된다. 아는 값이 아니면 기본값으로 되돌린다.
-      if (isLength(saved)) return saved;
-    } catch (err) {
-      /* 저장소를 못 쓰면(시크릿 모드 등) 기본값으로 간다. 앱은 그대로 돌아간다. */
-    }
-    return LENGTHS[0].n;
-  }
-
-  var limit = loadLength();
-
-  function setLength(n) {
-    if (!isLength(n)) return;
-    limit = n;
-    try {
-      localStorage.setItem(LENGTH_KEY, String(n));
-    } catch (err) {
-      /* 저장에 실패해도 이번 세션에는 적용된다 */
-    }
-  }
-
-  /* 길이 고르기. 카드로 만들지 않는다 — 먼저 고를 것은 "무엇을" 이고
-     "몇 문제" 는 그 다음이다. 범위 카드와 같은 무게로 두면 순서가 헷갈린다.
-     필터 줄(.chips)을 그대로 쓰지 않는 이유는 저건 가로로 넘치는 목록이라
-     오른쪽을 흐리는 마스크가 붙어 있어서다. 여기는 셋뿐이라 넘칠 일이 없다. */
-  function lengthPicker() {
-    var opts = LENGTHS.map(function (l) {
-      return '<button class="chip" data-action="quiz-length" data-n="' + l.n +
-        '" aria-pressed="' + (l.n === limit) + '">' + esc(l.label) +
-        '<span class="chip__count num">' + l.n + "</span></button>";
-    }).join("");
-
-    return '<div class="quiz-len">' +
-      '<span class="quiz-len__label" id="quiz-len-label">한 판 길이</span>' +
-      '<div class="quiz-len__opts" role="group" aria-labelledby="quiz-len-label">' +
-      opts + "</div></div>";
-  }
-
-  /* ---------------------------------------------------------- 범위 고르기 */
-
-  /* 범위마다 실제 문항 수를 미리 센다.
-     시작하기 전에 얼마나 걸릴지 알려주는 건 Duolingo 가 진행 막대로 하는 일이다.
-     여기서는 게임 장치 없이 숫자 하나로 같은 일을 한다.
-     이게 없으면 눌러보고 나서야 1문제짜리였다는 걸 알게 된다. */
+  /* 범위마다 재고를 미리 센다. 눌러보고 나서야 몇 문제짜리인지 알게 되면 안 된다.
+     상한이 없으니 이 숫자가 곧 그 범위의 크기다 — 권마다 98~372문제로 다르고,
+     그 차이가 어느 단어장을 고를지 정하는 정보가 된다. */
   function scopeOptions() {
     var pool = Store.allTerms();
     var review = Store.reviewQueue();
@@ -158,9 +108,9 @@
     });
 
     var entry = function (key, name, icon, targets, emptyNote) {
-      // 고른 길이로 센다. 길이를 바꾸면 이 숫자도 같이 움직여야
-      // 화면이 코드가 하지 않는 말을 하지 않는다.
-      var n = window.Quiz.countQuestions(targets, pool, limit);
+      // 상한 없이 센다. 여기 적힌 수가 그대로 그 범위의 재고이고, 시작하면
+      // 그만큼 나온다. 화면이 코드가 하지 않는 말을 하지 않게 하려면 둘이 같아야 한다.
+      var n = window.Quiz.countQuestions(targets, pool, NO_LIMIT);
       return {
         key: key,
         name: name,
@@ -225,18 +175,12 @@
       '<h1 class="screen-title">무엇을 확인할까요</h1>' +
       '<p class="quiz-intro__lead">뜻을 외웠는지가 아니라 개념을 구분할 수 있는지 묻습니다. ' +
       "선택지는 같은 분야에서 뽑기 때문에 대충 찍기는 어렵습니다.</p>" +
-      lengthPicker() +
       '<div class="stack" style="margin-top:28px">' + suggested.map(scopeCard).join("") + "</div>" +
       '<section class="block"><h2 class="section-title" style="margin-bottom:4px">단어장에서 고르기</h2>' +
       '<div class="scope-rows">' + books.map(scopeRow).join("") + "</div></section>" +
       "</div></main>";
   });
 
-  App.on("quiz-length", function (data) {
-    setLength(parseInt(data.n, 10));
-    // 길이가 바뀌면 범위마다 붙은 "N문제"도 다시 세어야 한다. 화면을 다시 그린다.
-    App.render();
-  });
 
   App.on("start-scope", function (data) {
     var pool = Store.allTerms();
@@ -260,7 +204,7 @@
     }
 
     withBodies(targets, function () {
-      startSession(window.Quiz.build(targets, pool, limit), label);
+      startSession(window.Quiz.build(targets, pool, NO_LIMIT), label);
     });
   });
 
@@ -269,7 +213,7 @@
     var pool = Store.allTerms();
     var targets = Store.reviewQueue();
     withBodies(targets, function () {
-      startSession(window.Quiz.build(targets, pool, limit), "복습");
+      startSession(window.Quiz.build(targets, pool, NO_LIMIT), "복습");
     });
   });
 
