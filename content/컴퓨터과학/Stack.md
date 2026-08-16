@@ -2,465 +2,82 @@
 
 ## 📝 정의
 
-Stack(스택)은 **LIFO(Last In First Out)** 원칙을 따르는 자료구조로, 가장 나중에 들어간 데이터가 가장 먼저 나오는 구조입니다. 접시를 쌓는 것처럼 위에서만 넣고 빼낼 수 있습니다.
+Stack은 **마지막에 넣은 것을 먼저 꺼내는 자료구조**다.
 
-### 핵심 개념
+넣는 것도 꺼내는 것도 한쪽 끝에서만 한다. 중간에 있는 것을 바로 꺼낼 수 없고, 위에 쌓인 것을 다 치워야 아래가 나온다.
 
-- **무엇인가?**: 후입선출(LIFO) 자료구조
-- **왜 필요한가?**: 함수 호출, 실행 취소 등에 사용
-- **어떻게 작동하나?**: push(넣기), pop(빼기) 연산
+### 비유
+접시 더미. 씻은 접시를 위에 얹고 꺼낼 때도 위에서 집는다. 맨 아래 접시를 쓰려면 위의 것을 전부 옮겨야 한다.
 
-### Stack이 해결하는 문제
+## 🖼️ 그림으로 보기
 
-**문제 상황**:
-```
-😱 시나리오 1: 함수 호출 관리
-함수 A → 함수 B → 함수 C 호출
-→ 어떤 순서로 돌아가야 할까?
-→ C 끝 → B로? A로? 😱
-
-😱 시나리오 2: 괄호 검증
-"((a+b) * (c-d))" 올바른가?
-"((a+b) * (c-d)" 올바른가?
-→ 어떻게 확인하지? 😱
-
-😱 시나리오 3: 브라우저 뒤로 가기
-페이지 1 → 2 → 3 → 4
-뒤로 가기 클릭
-→ 어디로 가야 할까? 😱
+```도해
+흐름: 함수가 함수를 부르면 무엇이 쌓이나
+main :: 실행이 시작된다. 스택 맨 아래
+main :: `계산()` 을 부른다. 그 위에 쌓인다
+계산 :: `합치기()` 를 부른다. 또 그 위에
+합치기 :: 끝났다. 맨 위에서 빠진다
+< 계산 :: 멈춰 있던 자리에서 이어서 실행된다
+= 마지막에 부른 것이 먼저 끝나야 앞의 것이 이어진다
 ```
 
-**Stack의 해결**:
-```
-✅ 시나리오 1: 콜 스택
-A 호출 → Stack: [A]
-B 호출 → Stack: [A, B]
-C 호출 → Stack: [A, B, C]
-C 끝   → Stack: [A, B] ← B로 복귀
-B 끝   → Stack: [A]   ← A로 복귀
-→ 정확한 순서로 돌아감! ✅
+## ⚠️ 해결하는 문제
 
-✅ 시나리오 2: 괄호 매칭
-'(' 만나면 push
-')' 만나면 pop
-마지막에 스택이 비었으면 올바름
-→ 간단하게 검증! ✅
-
-✅ 시나리오 3: 히스토리
-페이지 이동마다 push
-뒤로 가기는 pop
-→ Stack: [1, 2, 3, 4]
-→ 뒤로: Stack: [1, 2, 3] ← 3으로!
-→ 완벽한 탐색! ✅
+```도해
+대조: "돌아갈 자리" 를 어떻게 기억하나
+스택 없이 || 스택으로
+중첩 호출 :: 어디로 돌아갈지 잃음 || 순서대로 쌓임
+되돌리기 :: 직전 상태만 || 여러 단계
+구현 :: 복잡해진다 || 넣기와 꺼내기 둘뿐
+= 순서를 뒤집어 꺼내야 하는 일이 생각보다 많다
 ```
 
-## 📊 Stack 구조
+함수가 함수를 부르고 그것이 또 함수를 부르면, 각각이 끝난 뒤 어디로 돌아가야 하는지 기억해야 한다. 이 기억은 반드시 역순으로 필요하다. 가장 최근에 부른 것이 가장 먼저 끝나기 때문이다.
 
+스택은 그 역순을 공짜로 준다. 넣은 순서를 관리할 필요 없이 위에서 꺼내기만 하면 항상 맞다.
 
-### Stack 연산
+## ⚙️ 작동 원리
 
-**Push (삽입)**:
-```
-스택의 맨 위에 데이터 추가
-Stack: [1, 2]
-Push(3)
-Stack: [1, 2, 3]
-```
+연산이 세 가지뿐이라 전부 O(1)이다.
 
-**Pop (제거)**:
-```
-스택의 맨 위 데이터 제거 및 반환
-Stack: [1, 2, 3]
-Pop() → 3 반환
-Stack: [1, 2]
-```
+| 연산 | 하는 일 |
+|---|---|
+| push | 맨 위에 넣는다 |
+| pop | 맨 위에서 꺼내며 없앤다 |
+| peek | 맨 위를 보기만 한다 |
 
-**Peek/Top (조회)**:
-```
-스택의 맨 위 데이터 조회 (제거 안 함)
-Stack: [1, 2, 3]
-Peek() → 3 반환
-Stack: [1, 2, 3] (그대로)
-```
+프로그램의 실행 자체가 스택 위에서 돈다. 함수를 부를 때마다 지역 변수와 돌아갈 주소가 한 덩어리로 쌓이고, 끝나면 그 덩어리가 통째로 사라진다.
 
-## 💡 Python 구현
+## 💡 실제 사례
 
-### 리스트로 Stack 구현
+- **되돌리기** 편집기의 실행 취소는 작업을 스택에 쌓아두고 위에서 꺼낸다.
+- **괄호 검사** 여는 괄호를 쌓고 닫는 괄호에서 꺼내 짝이 맞는지 본다.
+- **뒤로 가기** 브라우저의 방문 기록이 스택으로 동작한다.
 
-```python
-class Stack:
-    """Stack 자료구조"""
+## 🚫 흔한 오해
 
-    def __init__(self):
-        self.items = []
+- **스택은 배열과 같다** — 배열은 아무 위치나 바로 읽지만 스택은 맨 위만 만진다. 그 제약이 실수를 막아주는 장점이다.
+- **스택 오버플로는 메모리가 부족한 것이다** — 전체 메모리와 무관하다. 스택 영역에 정해진 크기가 있고, 재귀가 너무 깊어지면 그 영역을 넘는다.
+- **꺼내면 값이 사라진다** — `pop`은 값을 돌려주고 스택에서만 지운다. 받아두면 계속 쓸 수 있다.
 
-    def push(self, item):
-        """스택에 추가"""
-        self.items.append(item)
+## 🚨 주의사항
 
-    def pop(self):
-        """스택에서 제거"""
-        if self.is_empty():
-            raise IndexError("Stack is empty")
-        return self.items.pop()
-
-    def peek(self):
-        """맨 위 확인"""
-        if self.is_empty():
-            raise IndexError("Stack is empty")
-        return self.items[-1]
-
-    def is_empty(self):
-        """비었는지 확인"""
-        return len(self.items) == 0
-
-    def size(self):
-        """스택 크기"""
-        return len(self.items)
-
-    def __str__(self):
-        return f"Stack({self.items})"
-
-# 사용
-stack = Stack()
-stack.push(1)
-stack.push(2)
-stack.push(3)
-
-print(stack)           # Stack([1, 2, 3])
-print(stack.peek())    # 3
-print(stack.pop())     # 3
-print(stack)           # Stack([1, 2])
-```
-
-### Python 내장 자료구조 활용
-
-```python
-# 리스트를 Stack처럼 사용
-stack = []
-
-# Push
-stack.append(1)
-stack.append(2)
-stack.append(3)
-
-# Peek
-top = stack[-1]  # 3
-
-# Pop
-item = stack.pop()  # 3
-
-# Size
-size = len(stack)
-
-print(stack)  # [1, 2]
-```
-
-## 🎯 실전 활용
-
-### 1. 괄호 검증
-
-```python
-def is_valid_parentheses(s):
-    """괄호가 올바른지 검증"""
-    stack = []
-    pairs = {')': '(', '}': '{', ']': '['}
-
-    for char in s:
-        if char in '({[':
-            # 여는 괄호: push
-            stack.append(char)
-        elif char in ')}]':
-            # 닫는 괄호: pop하여 매칭 확인
-            if not stack or stack[-1] != pairs[char]:
-                return False
-            stack.pop()
-
-    # 스택이 비어야 올바름
-    return len(stack) == 0
-
-# 테스트
-print(is_valid_parentheses("()"))          # True
-print(is_valid_parentheses("()[]{}"))      # True
-print(is_valid_parentheses("(]"))          # False
-print(is_valid_parentheses("([)]"))        # False
-print(is_valid_parentheses("{[]}"))        # True
-```
-
-### 2. 함수 호출 스택
-
-```python
-def function_a():
-    """함수 A"""
-    print("A 시작")
-    function_b()
-    print("A 끝")
-
-def function_b():
-    """함수 B"""
-    print("B 시작")
-    function_c()
-    print("B 끝")
-
-def function_c():
-    """함수 C"""
-    print("C 시작")
-    print("C 끝")
-
-# 실행
-function_a()
-
-# 출력:
-# A 시작
-# B 시작
-# C 시작
-# C 끝     ← C 종료, Stack에서 pop, B로 복귀
-# B 끝     ← B 종료, Stack에서 pop, A로 복귀
-# A 끝     ← A 종료, Stack에서 pop
-
-# 콜 스택 변화:
-# [A]
-# [A, B]
-# [A, B, C]
-# [A, B]    ← C pop
-# [A]       ← B pop
-# []        ← A pop
-```
-
-### 3. 실행 취소 (Undo)
-
-```python
-class TextEditor:
-    """실행 취소 기능이 있는 텍스트 에디터"""
-
-    def __init__(self):
-        self.text = ""
-        self.history = []  # 실행 취소용 스택
-
-    def write(self, text):
-        """텍스트 추가"""
-        # 현재 상태를 스택에 저장
-        self.history.append(self.text)
-        self.text += text
-
-    def undo(self):
-        """실행 취소"""
-        if self.history:
-            self.text = self.history.pop()
-        else:
-            print("실행 취소할 내용이 없습니다")
-
-    def show(self):
-        """현재 텍스트 출력"""
-        print(f"텍스트: '{self.text}'")
-
-# 사용
-editor = TextEditor()
-editor.write("Hello ")
-editor.show()  # "Hello "
-
-editor.write("World")
-editor.show()  # "Hello World"
-
-editor.undo()
-editor.show()  # "Hello "
-
-editor.undo()
-editor.show()  # ""
-```
-
-### 4. 브라우저 히스토리
-
-```python
-class Browser:
-    """뒤로 가기/앞으로 가기 기능"""
-
-    def __init__(self):
-        self.back_stack = []     # 뒤로 가기용
-        self.forward_stack = []  # 앞으로 가기용
-        self.current = None
-
-    def visit(self, url):
-        """페이지 방문"""
-        if self.current:
-            self.back_stack.append(self.current)
-
-        self.current = url
-        self.forward_stack = []  # 새 페이지 방문 시 앞으로 가기 초기화
-
-        print(f"방문: {url}")
-
-    def back(self):
-        """뒤로 가기"""
-        if not self.back_stack:
-            print("뒤로 갈 페이지가 없습니다")
-            return
-
-        self.forward_stack.append(self.current)
-        self.current = self.back_stack.pop()
-
-        print(f"뒤로 가기: {self.current}")
-
-    def forward(self):
-        """앞으로 가기"""
-        if not self.forward_stack:
-            print("앞으로 갈 페이지가 없습니다")
-            return
-
-        self.back_stack.append(self.current)
-        self.current = self.forward_stack.pop()
-
-        print(f"앞으로 가기: {self.current}")
-
-# 사용
-browser = Browser()
-browser.visit("google.com")
-browser.visit("youtube.com")
-browser.visit("github.com")
-
-browser.back()      # github → youtube
-browser.back()      # youtube → google
-browser.forward()   # google → youtube
-```
-
-**실행 결과**:
-```
-방문: google.com
-방문: youtube.com
-방문: github.com
-뒤로 가기: youtube.com
-뒤로 가기: google.com
-앞으로 가기: youtube.com
-```
-
-### 5. 역순 문자열
-
-```python
-def reverse_string(s):
-    """Stack을 사용한 문자열 뒤집기"""
-    stack = []
-
-    # 모든 문자를 stack에 push
-    for char in s:
-        stack.append(char)
-
-    # stack에서 pop하여 역순으로
-    reversed_str = ""
-    while stack:
-        reversed_str += stack.pop()
-
-    return reversed_str
-
-# 테스트
-print(reverse_string("Hello"))  # "olleH"
-print(reverse_string("Python"))  # "nohtyP"
-```
-
-### 6. 표현식 평가 (후위 표기법)
-
-```python
-def evaluate_postfix(expression):
-    """후위 표기법 계산
-    예: "3 4 +" → 3 + 4 = 7
-    """
-    stack = []
-
-    for token in expression.split():
-        if token.isdigit():
-            # 숫자면 push
-            stack.append(int(token))
-        else:
-            # 연산자면 두 개 pop하여 계산
-            b = stack.pop()
-            a = stack.pop()
-
-            if token == '+':
-                result = a + b
-            elif token == '-':
-                result = a - b
-            elif token == '*':
-                result = a * b
-            elif token == '/':
-                result = a / b
-
-            stack.append(result)
-
-    return stack[0]
-
-# 테스트
-print(evaluate_postfix("3 4 +"))      # 7
-print(evaluate_postfix("3 4 + 2 *"))  # 14 ((3+4)*2)
-print(evaluate_postfix("5 1 2 + 4 * + 3 -"))  # 14
-```
-
-## 🔍 Stack vs Queue
-
-| 특성 | Stack | Queue |
-|------|-------|-------|
-| **원칙** | LIFO (후입선출) | FIFO (선입선출) |
-| **비유** | 접시 쌓기 | 줄 서기 |
-| **삽입** | Top에서 | Rear에서 |
-| **제거** | Top에서 | Front에서 |
-| **용도** | 함수 호출, Undo | 작업 대기열, BFS |
-
-**비유**:
-```
-Stack = 접시 쌓기
-→ 위에 놓은 접시를 먼저 꺼냄
-
-Queue = 줄 서기
-→ 먼저 선 사람이 먼저 나감
-```
-
-## 🚨 Stack Overflow
-
-```python
-def recursive_function():
-    """무한 재귀 → Stack Overflow"""
-    print("호출")
-    recursive_function()  # 자기 자신 계속 호출
-
-# 실행하면 RecursionError 발생!
-# Python은 재귀 깊이 제한이 있음 (기본 1000)
-
-import sys
-print(f"재귀 한도: {sys.getrecursionlimit()}")
-
-# 재귀 한도 변경 (주의!)
-# sys.setrecursionlimit(2000)
-```
-
-## 🔗 관련 용어
-
-- [[Queue]]: FIFO 자료구조
-- [[Heap]]: 우선순위 기반 자료구조
-- [[Process]]: 콜 스택을 가진 실행 단위
-- [[Recursion]]: Stack을 사용하는 재귀 호출
+- **재귀 깊이를 확인한다.** 종료 조건이 잘못되면 스택이 순식간에 넘친다. 깊이가 예측 불가하면 반복문으로 바꾼다.
+- **큰 데이터를 스택에 두지 않는다.** 스택 영역은 힙보다 훨씬 작다. 큰 배열은 힙에 둔다.
 
 ## 📝 정리
 
-**Stack의 핵심**:
-```
-Stack = LIFO (Last In First Out)
-→ 가장 나중에 들어간 것이 먼저 나옴
-→ push: 추가, pop: 제거
-→ 함수 호출, Undo 등에 사용
-```
+Stack은 마지막에 넣은 것을 먼저 꺼내는 구조다. 넣기와 꺼내기가 모두 O(1)이고, 함수 호출과 되돌리기처럼 역순이 필요한 곳에 맞는다.
 
-**시간 복잡도**:
-```
-Push: O(1)
-Pop: O(1)
-Peek: O(1)
-```
+## ❓ 이해했는지
 
-**비유로 기억하기**:
-```
-Stack = 접시 쌓기
-→ 위에서만 넣고 빼기
-→ 마지막 것이 먼저 나옴
-```
+- 함수가 끝난 뒤 어디로 돌아갈지를 스택이 어떻게 알려주나?
+- 스택 오버플로가 메모리 부족과 다른 이유는?
+- 배열 대신 스택을 쓰면 얻는 것은 무엇인가?
 
----
-*카테고리: 컴퓨터과학*
-*생성일: 2026-02-15*
+## 🔗 관련 용어
+
+- [[Queue]] — 먼저 넣은 것을 먼저 꺼내는 반대 구조
+- [[Heap]] — 스택과 나뉘어 쓰이는 다른 메모리 영역
+- [[Recursion]] — 스택 깊이를 가장 빨리 쓰는 방식
+- [[Memory]] — 스택 영역이 놓이는 자리

@@ -146,44 +146,65 @@ window.VOCABULARY_DATA = [
         "term": "Big O 표기법",
         "reading": "Big O Notation",
         "category": "컴퓨터과학 기초",
-        "summary": "Big O 표기법은 알고리즘의 시간 복잡도와 공간 복잡도를 나타내는 수학적 표기법입니다. 입력 데이터의 크기(n)가 증가할 때 알고리즘이 얼마나 빠르게 성능이 저하되는지를 분석합니다.",
-        "definition": "단순히 실행 시간을 측정하는 것이 아니라, 입력 크기에 따른 알고리즘의 상대적 성능 변화를 파악하는 것이 핵심입니다.\n\nBig O 표기법은 '최악의 경우(Worst Case)'를 기준으로 합니다. 즉, 가장 오래 걸리는 경우의 시간 복잡도를 나타냅니다. 이를 통해 알고리즘의 성능 상한을 명확히 할 수 있으며, 대규모 데이터셋에서의 예측 가능한 성능을 파악할 수 있습니다. 개발자는 Big O 표기법을 통해 서로 다른 알고리즘을 객관적으로 비교하고, 실제 상황에 맞는 최적의 알고리즘을 선택할 수 있습니다.\n\n> Big O 표기법 = 입력 크기에 따른 알고리즘 성능의 상대적 변화를 수학적으로 나타낸 표기법\n\n**비유 1**: Big O는 마치 자동차의 가속도 같습니다. 처음 1km 달리는 데 10초가 걸렸다고 해서 10km를 예측할 수 없습니다. 입력이 10배 늘어났을 때 시간이 10배, 100배, 또는 1000배 늘어나는지 파악하는 것이 Big O입니다.\n\n**비유 2**: Big O는 병원 대기시간과 같습니다. 환자 1명일 때 5분, 10명일 때 50분이면 O(n)이고, 10명일 때 100분이면 O(n²)입니다. 시스템이 얼마나 효율적으로 확장하는가를 나타냅니다.",
-        "analogy": "",
-        "figure": "```도해\n층: Big O 표기법, 어떻게 나뉘어 있나\nFastLayer :: O(1) 상수 · O(log n) 로그\nMediumLayer :: O(n) 선형 · O(n log n) 선형 로그\nSlowLayer :: O(n²) 이차 · O(n³) 삼차\nVerySlowLayer :: O(2ⁿ) 지수 · O(n!) 팩토리얼\n```",
-        "check": [],
+        "summary": "Big O는 **데이터가 늘어날 때 시간이 얼마나 늘어나는지 적는 표기**다.",
+        "definition": "지금 몇 초 걸리는지가 아니라, 데이터가 열 배가 되면 시간이 몇 배가 되는지를 말한다. 컴퓨터 성능이 달라도 이 관계는 바뀌지 않기 때문에 비교 기준이 된다.",
+        "analogy": "연비 표기. \"지금 기름이 얼마 남았나\"가 아니라 \"1리터로 몇 킬로 가나\"다. 차에 짐을 더 실었을 때 어떻게 되는지를 알려준다.",
+        "figure": "```도해\n층: 데이터가 100배로 늘면 시간은 몇 배가 되나\nO(1) :: 그대로. 몇 개든 상관없다\nO(log n) :: 약 7배. 반씩 줄여 나가는 검색\nO(n) :: 100배. 전부 한 번씩 훑는 것\nO(n log n) :: 약 700배. 좋은 정렬\nO(n²) :: 10,000배. 이중 반복문\n= 아래로 내려갈수록 데이터가 늘 때 무너진다\n```",
+        "check": [
+          "O(n²) 코드가 O(n log n) 코드보다 빠를 수 있는 상황은?",
+          "반복문 안에 반복문을 보면 왜 먼저 의심하나?",
+          "데이터가 100배로 늘 때 O(n²)은 몇 배가 되나?"
+        ],
         "sections": [
           {
             "slot": "why",
             "label": "왜 필요한가",
-            "body": "### 문제 1: 알고리즘 성능 예측 불가능\n프로그래머가 단순히 '몇 초가 걸린다'는 경험적 정보만으로는 데이터가 10배, 100배 증가했을 때의 성능을 예측할 수 없습니다. Big O를 통해 입력 크기 증가에 따른 성능 변화를 수학적으로 예측할 수 있습니다.\n\n### 문제 2: 알고리즘 비교의 객관성 부족\n서로 다른 두 알고리즘 중 어느 것이 더 효율적인지 판단할 때, 단순 실행 시간 비교는 하드웨어, 환경, 데이터 크기에 따라 결과가 달라집니다. Big O는 이론적, 객관적 기준을 제공합니다.\n\n### 문제 3: 프로젝트 규모 결정의 어려움\n초기 개발 시 몇 백 개 데이터로는 문제없던 알고리즘도, 데이터가 백만 개로 증가하면 치명적으로 느려질 수 있습니다. Big O를 미리 분석하면 이러한 스케일링 문제를 사전에 파악할 수 있습니다."
+            "body": "```도해\n대조: 두 코드 중 무엇이 빠른지 어떻게 아나\n실행 시간 재기 || Big O\n컴퓨터가 다르면 :: 결과가 달라진다 || 그대로다\n데이터가 100배면 :: 다시 재야 안다 || 계산으로 안다\n비교 :: 같은 환경 필요 || 코드만 보면 된다\n= 지금 빠른 것과 커져도 버티는 것은 다른 질문이다\n```\n\n데이터 100건으로 재면 대부분의 코드가 빠르다. 문제는 100만 건이 됐을 때다. O(n)짜리는 1만 배 느려지고 O(n²)짜리는 1억 배 느려진다. 처음에는 둘 다 괜찮아 보였는데 하나만 무너진다.\n\nBig O는 그 차이를 미리 알려준다. 실행해보지 않고도 어느 쪽이 커졌을 때 살아남는지 판단할 수 있다."
           },
           {
             "slot": "how",
             "label": "어떻게 작동하나",
-            "body": "Big O 표기법의 계산 방법은 다음과 같습니다:\n\n**1단계: 기본 연산 식별**\n알고리즘의 모든 연산을 나열하고, 각 연산이 입력 크기 n에 따라 몇 번 실행되는지 파악합니다. 예를 들어, `for i in range(n):`이면 n번 실행됩니다.\n\n**2단계: 총 연산 횟수 계산**\n중첩된 루프나 조건문을 고려하여 총 연산 횟수를 식으로 표현합니다. 이중 루프라면 n × n = n² 번입니다.\n\n**3단계: 지배항(Dominant Term) 추출**\n3n² + 2n + 5 같은 식에서 가장 큰 영향을 미치는 항 3n²를 선택합니다.\n\n**4단계: 계수 제거**\n3n²에서 상수 계수 3을 제거하여 O(n²)로 표현합니다. n이 무한대에 가까워질수록 상수의 영향은 미미해지기 때문입니다.\n\n**예시: 이중 루프 분석**\n```\nfor i in range(n):\n    for j in range(n):\n        print(i, j)\n```\n외부 루프: n번, 내부 루프: n번 → 총 n × n = n² → **O(n²)**"
+            "body": "두 가지를 버린다. 상수와 낮은 차수다.\n\n```\n2n + 100  →  O(n)        상수 2와 100 을 버린다\nn² + n    →  O(n²)       n 은 n² 에 묻힌다\n```\n\n버리는 이유는 n이 커질수록 그것들이 무의미해지기 때문이다. n이 백만이면 n²과 n의 차이가 압도적이라 뒤의 n은 없는 것과 같다.\n\n같은 이유로 **작은 데이터에서는 Big O가 틀린 답을 준다.** O(n²)인 삽입 정렬이 항목 20개에서는 O(n log n)인 퀵 정렬보다 빠르다. 상수가 작기 때문이고, 실제 정렬 라이브러리들이 작은 구간에서 삽입 정렬로 갈아타는 이유다."
           },
           {
             "slot": "concept",
-            "label": "핵심 개념",
-            "body": "### 1. 주요 시간 복잡도 계층\nBig O 표기법은 가장 빠른 O(1)부터 가장 느린 O(n!)까지 여러 단계로 나뉩니다. 각 단계는 입력 크기가 증가할 때 성능 저하의 정도를 나타내며, 알고리즘 선택의 중요한 기준이 됩니다.\n\n### 2. 상수항과 계수 무시\nBig O 표기법에서는 O(2n)과 O(n)을 같은 O(n)으로 표현합니다. 상수 계수와 낮은 차수 항은 무시하고, 가장 영향력 있는 항만 고려합니다. 이는 n이 충분히 커질 때 상수의 영향이 미미해지기 때문입니다.\n\n### 3. 최악의 경우 분석\nBig O는 항상 '최악의 경우'를 기준으로 합니다. 평균적인 경우(Theta)나 최선의 경우(Omega)와는 다르며, 알고리즘이 보장할 수 있는 최대 성능 저하를 나타냅니다."
-          },
-          {
-            "slot": "compare",
-            "label": "무엇과 비교되나",
-            "body": "| 표기법 | 이름 | n=100일 때 연산 수 | 대표 알고리즘 | 실용성 |\n|--------|------|-----------------|----------|--------|\n| O(1) | 상수 | 1 | 배열 인덱싱, 해시맵 조회 | 매우 우수 ⭐⭐⭐⭐⭐ |\n| O(log n) | 로그 | 약 7 | 이진탐색, 이진 트리 | 매우 우수 ⭐⭐⭐⭐⭐ |\n| O(n) | 선형 | 100 | 선형 탐색, 배열 순회 | 우수 ⭐⭐⭐⭐ |\n| O(n log n) | 선형 로그 | 약 700 | 병합 정렬, 퀵 정렬 | 우수 ⭐⭐⭐⭐ |\n| O(n²) | 이차 | 10,000 | 버블 정렬, 삽입 정렬 | 보통 ⭐⭐⭐ |\n| O(n³) | 삼차 | 1,000,000 | 삼중 루프 | 나쁨 ⭐⭐ |\n| O(2ⁿ) | 지수 | 약 1.27 × 10³⁰ | 부분집합 생성 | 매우 나쁨 ⭐ |\n| O(n!) | 팩토리얼 | 약 9.33 × 10¹⁵⁷ | 전순열 생성 | 사용 불가능 ❌ |"
+            "label": "비유",
+            "body": "연비 표기. \"지금 기름이 얼마 남았나\"가 아니라 \"1리터로 몇 킬로 가나\"다. 차에 짐을 더 실었을 때 어떻게 되는지를 알려준다."
           },
           {
             "slot": "example",
             "label": "실제 사례",
-            "body": "**사례 1: 배열 탐색**\n```\n// 선형 탐색 - O(n)\nfunction linearSearch(arr, target) {\n    for (let i = 0; i < arr.length; i++) {\n        if (arr[i] === target) return i;\n    }\n    return -1;\n}\n\n// 해시맵 탐색 - O(1)\nconst map = new Map();\n// 전처리: O(n)\narr.forEach(item => map.set(item, true));\n// 조회: O(1)\nmap.has(target);\n```\n데이터가 100개일 때는 선형 탐색(100회)과 해시맵(1회) 모두 충분하지만, 1,000만 개 데이터에서는 선형 탐색(1,000만 회)은 불가능하고 해시맵(1회)은 순식간에 결과를 반환합니다.\n\n**사례 2: 정렬 알고리즘 선택**\n초기에 1,000개 데이터는 버블 정렬 O(n²) = 1,000,000 연산으로도 충분하지만, 데이터가 100,000개로 증가하면 버블 정렬은 10,000,000,000 연산이 필요합니다. 반면 병합 정렬 O(n log n) = 1,600,000 연산으로 훨씬 빠릅니다.\n\n**사례 3: 데이터베이스 인덱스**\n인덱스 없이 100만 건의 레코드를 탐색하면 O(n)으로 평균 500,000번 조회가 필요합니다. B-tree 인덱스를 사용하면 O(log n)으로 약 20번의 조회만 필요합니다."
+            "body": "- **자료구조 선택** 배열에서 값 찾기는 O(n), 해시 테이블은 O(1)이다. 조회가 많으면 답이 정해진다.\n- **중첩 반복문 발견** 반복문 안의 반복문은 O(n²)이다. 코드 리뷰에서 가장 먼저 보는 신호다.\n- **인덱스** DB 인덱스는 전체 훑기 O(n)을 O(log n)으로 바꾸는 장치다."
           },
           {
-            "slot": "tradeoff",
-            "label": "장단점",
-            "body": "**장점:**\n- 알고리즘의 성능을 객관적으로 비교할 수 있습니다.\n- 데이터 크기 증가에 따른 성능 변화를 수학적으로 예측합니다.\n- 개발 초기 단계에서 병목 지점을 파악하고 최적화할 수 있습니다.\n- 프로그래밍 언어나 하드웨어와 무관하게 통용되는 표준입니다.\n- 면접에서 알고리즘 이해도를 평가하는 중요한 기준입니다.\n\n**단점:**\n- 상수 계수를 무시하므로, 실제 성능은 다를 수 있습니다. (예: O(100n)과 O(n)은 같지만 실제로는 100배 차이)\n- 최악의 경우만 고려하므로, 평균 성능이 훨씬 좋을 수 있습니다.\n- 공간 복잡도까지 완전히 설명하지 못합니다.\n- 아주 작은 데이터셋에서는 Big O 분석이 의미가 없을 수 있습니다."
+            "slot": "myth",
+            "label": "흔히 잘못 아는 것",
+            "body": "- **O(1)이 항상 O(n)보다 빠르다** — 데이터가 작으면 상수가 큰 O(1)이 더 느릴 수 있다. Big O는 커졌을 때의 이야기다.\n- **Big O는 실행 시간이다** — 시간이 아니라 증가율이다. 초 단위 값을 알려주지 않는다.\n- **최악의 경우만 뜻한다** — 보통 최악을 적지만 평균과 최선이 다른 경우도 있다. 해시는 평균 O(1), 최악 O(n)이다."
+          },
+          {
+            "slot": "caution",
+            "label": "주의할 점",
+            "body": "- **작은 데이터에서 성급하게 최적화하지 않는다.** 항목 50개짜리 목록을 O(n²)에서 O(n log n)으로 바꾸는 데 쓰는 시간이 아깝다.\n- **메모리도 같이 본다.** 시간을 줄이려고 O(n) 메모리를 더 쓰는 거래가 흔하다. 어느 쪽이 부족한지 먼저 확인한다."
           }
         ],
-        "related": [],
+        "related": [
+          {
+            "term": "Algorithm",
+            "note": "— Big O로 비교하는 대상"
+          },
+          {
+            "term": "Hash",
+            "note": "— 평균 O(1) 조회를 만드는 대표적인 방법"
+          },
+          {
+            "term": "Index",
+            "note": "— 전체 훑기를 O(log n)으로 바꾸는 장치"
+          },
+          {
+            "term": "자료구조",
+            "note": "— 무엇을 고르느냐가 곧 Big O를 정한다"
+          }
+        ],
         "id": "cs--big-o"
       },
       {
@@ -455,47 +476,68 @@ window.VOCABULARY_DATA = [
         "id": "cs--concurrency"
       },
       {
-        "term": "Hash / 해시",
-        "reading": "",
+        "term": "Hash",
+        "reading": "해시",
         "category": "컴퓨터과학 기초",
-        "summary": "해시(Hash)는 임의의 크기를 가진 데이터를 입력받아 고정된 크기의 값(해시값)으로 변환하는 함수이자, 그 결과값을 의미합니다.",
-        "definition": "해시 함수는 일방향 함수로서 같은 입력에는 항상 같은 출력을 생성하지만, 출력으로부터 원래 입력을 복원할 수 없습니다. 해시는 컴퓨터 과학의 가장 기본적이면서도 강력한 개념 중 하나로, 데이터 검색, 저장, 보안, 검증 등 거의 모든 분야에서 사용됩니다.\n\n해시 함수의 핵심 특성은 결정론적(Deterministic)입니다. 동일한 입력에는 항상 동일한 해시값을 반환해야 하며, 입력의 아주 작은 부분만 변경되어도 완전히 다른 해시값이 생성됩니다. 이를 통해 데이터의 무결성을 검증할 수 있으며, 대용량 데이터를 효율적으로 저장하고 검색할 수 있습니다. 현대 정보 보안의 기초가 되는 핵심 기술입니다.\n\n> 해시 = 임의 크기 데이터를 고정 크기 값으로 변환하는 일방향 함수, 암호화와 검색에 필수\n\n**비유 1**: 해시는 마치 도서관의 책 분류 체계와 같습니다. 책의 제목과 내용을 보고 특정 섹션(해시값)을 결정하지만, 섹션 번호만 가지고는 원래 책의 내용을 복원할 수 없습니다. 그러나 같은 책은 항상 같은 섹션에 분류됩니다.\n\n**비유 2**: 해시는 신분증 사진과 같습니다. 사진으로 본인을 확인할 수 있지만(검증), 사진만으로 신분증의 다른 정보를 알 수 없으며, 사진은 일정하게 유지되어야 합니다(결정론적).",
-        "analogy": "",
-        "figure": "```도해\n흐름: Hash / 해시, 어떤 순서로 이어지나\n입력 데이터 · 텍스트 · 파일… :: 입력 데이터 · 텍스트 · 파일…\n해시 함수 · MD5 · SHA… :: 해시 함수 · MD5 · SHA…\n고정 길이 출력 16진수 고정… :: 고정 길이 출력 16진수 고정…\n```",
-        "check": [],
+        "summary": "Hash는 **아무 길이의 값을 정해진 길이의 숫자로 바꾸는 계산**이다.",
+        "definition": "한 글자짜리든 1기가짜리 파일이든 결과 길이가 같다. 같은 입력은 항상 같은 결과를 내고, 그 결과에서 원래 값을 되돌릴 수는 없다.",
+        "analogy": "지문. 사람마다 다르고 같은 사람은 항상 같은 지문이 나오지만, 지문만 보고 얼굴을 그릴 수는 없다. 짧지만 그 사람을 특정한다.",
+        "figure": "```도해\n흐름: 해시 테이블에서 값을 찾을 때 무슨 계산을 하나\n프로그램 :: \"email\" 이라는 열쇠로 값을 찾는다\n해시 함수 :: 그 글자를 숫자로 바꾼다\n계산 :: 숫자를 칸 개수로 나눈 나머지를 본다\n결과 :: 7번 칸이다. 거기로 바로 간다\n< 값 :: 찾았다. 앞의 칸들을 훑지 않았다\n= 어디 있는지 계산으로 알기 때문에 개수가 늘어도 시간이 그대로다\n```",
+        "check": [
+          "백만 개 중 하나를 찾는데 비교를 한 번만 하는 것이 어떻게 가능한가?",
+          "비밀번호 해시는 왜 빠르면 안 되나?",
+          "충돌이 잦아지면 조회 성능이 어떻게 되나?"
+        ],
         "sections": [
           {
             "slot": "why",
             "label": "왜 필요한가",
-            "body": "### 문제 1: 대용량 데이터 효율적 검색\n파일이나 데이터베이스에서 특정 데이터를 찾을 때, 전체를 순회하면 시간이 많이 걸립니다. 해시 테이블을 사용하면 O(n)의 선형 탐색을 O(1)의 상수 시간 탐색으로 단축할 수 있습니다.\n\n### 문제 2: 비밀번호 안전한 저장\n사용자 비밀번호를 평문으로 저장하면 해킹 시 모든 계정이 노출됩니다. 비밀번호를 해시화하여 저장하면, 해킹되어도 원본 비밀번호는 알 수 없습니다. 사용자가 로그인할 때는 입력한 비밀번호를 해시화하여 저장된 값과 비교합니다.\n\n### 문제 3: 데이터 무결성 검증\n다운로드한 파일이 손상되었는지 확인해야 합니다. 파일의 해시값을 계산하고 제공처의 해시값과 비교하면, 파일의 변조 여부를 즉시 파악할 수 있습니다."
+            "body": "```도해\n대조: 백만 개 중에서 하나를 찾을 때 어떻게 되나\n목록에서 찾기 || 해시 테이블\n비교 횟수 :: 평균 50만 번 || 한 번\n데이터 100배 :: 시간도 100배 || 그대로\n필요한 것 :: 없음 || 여분의 빈 칸\n= 메모리를 조금 더 쓰고 검색 시간을 사는 거래다\n```\n\n목록에서 값을 찾으려면 앞에서부터 하나씩 비교해야 한다. 백만 개면 평균 오십만 번이다. 데이터가 늘면 그만큼 느려진다.\n\n해시는 비교를 없앤다. 열쇠를 계산해서 어느 칸인지 바로 구하므로 개수와 상관없이 한 번에 간다. 대신 칸을 넉넉히 잡아둬야 해서 메모리를 더 쓴다."
           },
           {
             "slot": "how",
             "label": "어떻게 작동하나",
-            "body": "**해시 함수의 동작 과정:**\n\n**1단계: 입력 데이터 처리**\n사용자가 제공한 데이터(문자열, 파일, 숫자 등)가 해시 함수의 입력으로 들어옵니다. 입력의 크기는 제한이 없습니다.\n\n**2단계: 비트 조작(Bitwise Operations)**\n해시 함수는 입력 데이터의 각 비트를 복잡한 수학 연산으로 처리합니다. XOR, 회전, 치환, 덧셈 등 다양한 연산을 통해 입력의 특성을 섞습니다.\n\n**3단계: 고정 크기 축약**\n계산된 결과를 정해진 크기로 축약합니다. SHA-256은 256비트(32바이트)의 고정 크기로 축약합니다.\n\n**4단계: 16진수 표현**\n최종 해시값을 16진수 문자열로 표현합니다. 예: `a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3`\n\n**해시 테이블에서의 활용:**\n\n해시 테이블은 키-값 쌍을 빠르게 검색하기 위해 해시 함수를 사용합니다. 예를 들어, 사용자 ID를 키로 하여 사용자 정보를 저장할 때:\n1. 사용자 ID → 해시 함수 → 배열 인덱스 도출\n2. 해당 인덱스의 버킷에 (사용자 ID, 사용자 정보) 저장\n3. 검색 시 같은 방식으로 해시 값을 계산하여 O(1)에 찾음"
+            "body": "다른 입력이 같은 칸으로 계산되는 일이 반드시 생긴다. 이걸 충돌이라고 하고, 칸 수가 유한하므로 피할 수 없다.\n\n```도해\n층: 충돌을 어떻게 처리하나\n체이닝 :: 같은 칸에 목록으로 이어 붙인다\n개방 주소법 :: 다음 빈 칸을 찾아 들어간다\n재해싱 :: 칸이 너무 차면 전체를 더 큰 표로 옮긴다\n= 충돌이 잦아지면 조회가 O(1) 에서 O(n) 으로 무너진다\n```\n\n용도에 따라 요구가 다르다. 자료구조에 쓰는 해시는 빠른 것이 중요하고, 비밀번호에 쓰는 해시는 **의도적으로 느린 것**이 중요하다. 빠르면 공격자가 초당 수억 번 대입할 수 있기 때문이다."
           },
           {
             "slot": "concept",
-            "label": "핵심 개념",
-            "body": "### 1. 단방향성(One-Way Function)\n해시 함수의 가장 중요한 특성은 되돌릴 수 없다는 것입니다. 원본 데이터 → 해시값 방향은 쉽지만, 해시값 → 원본 데이터는 사실상 불가능합니다. 이를 통해 비밀번호를 안전하게 저장할 수 있으며, 데이터의 기밀성을 보장합니다.\n\n### 2. 결정론적(Deterministic)과 고정 길이\n같은 입력에는 항상 같은 해시값이 나와야 하며, 입력의 크기와 관계없이 출력은 항상 고정 길이입니다. SHA-256이면 항상 256비트, MD5면 항상 128비트의 해시값이 생성됩니다. 이를 통해 데이터의 변조를 감지하고 검색을 최적화할 수 있습니다.\n\n### 3. 충돌 최소화(Collision Resistance)\n서로 다른 두 입력이 같은 해시값을 생성하는 '충돌'이 발생할 수 있습니다. 좋은 해시 함수는 충돌을 최소화하도록 설계됩니다. 암호용 해시는 의도적으로 충돌을 찾기가 사실상 불가능하도록 만들어집니다."
-          },
-          {
-            "slot": "compare",
-            "label": "무엇과 비교되나",
-            "body": "| 항목 | Hash Table | Array | Binary Search Tree | LinkedList |\n|------|-----------|-------|------------------|-----------|\n| 평균 조회 | O(1) | O(1) | O(log n) | O(n) |\n| 평균 삽입 | O(1) | O(n) | O(log n) | O(n) |\n| 평균 삭제 | O(1) | O(n) | O(log n) | O(n) |\n| 순서 보장 | 없음 | 예 | 정렬 순서 | 삽입 순서 |\n| 메모리 효율 | 중간 | 우수 | 중간 | 낮음 |\n| 최악 조회 | O(n) | O(1) | O(n) | O(n) |\n| 캐시 친화성 | 낮음 | 높음 | 중간 | 낮음 |\n| 범위 검색 | 어려움 | 쉬움 | 쉬움 | 쉬움 |"
+            "label": "비유",
+            "body": "지문. 사람마다 다르고 같은 사람은 항상 같은 지문이 나오지만, 지문만 보고 얼굴을 그릴 수는 없다. 짧지만 그 사람을 특정한다."
           },
           {
             "slot": "example",
             "label": "실제 사례",
-            "body": "**사례 1: 비밀번호 저장 (bcrypt)**\n```\n원본 비밀번호: \"MySecurePass123\"\nbcrypt 해시: \"$2b$12$N9qo8uLOickgx2ZMRZoHK...\"\n\n로그인 시:\n입력된 비밀번호 → bcrypt 해시 → 저장된 해시와 비교\n```\n사용자가 입력한 비밀번호를 bcrypt로 해시하여 저장된 값과 비교합니다. 서버 해킹 시에도 원본 비밀번호는 노출되지 않습니다.\n\n**사례 2: Git 커밋 ID (SHA-1)**\n```\n커밋 내용: 변경된 코드 + 작성자 정보 + 타임스탬프\n↓\nSHA-1 해시\n↓\n40자 16진수 문자열\n예: a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0\n```\n각 Git 커밋은 해시값으로 고유하게 식별되며, 커밋 내용이 조금이라도 변경되면 해시값도 완전히 달라집니다.\n\n**사례 3: 파일 다운로드 무결성 확인**\n```\n다운로드 전:\n제공처: \"파일 SHA-256: 3a7f8b2c...\"\n\n다운로드 후:\n내 파일 SHA-256 계산: 3a7f8b2c...\n\n비교:\n동일 → 파일 손상 없음 ✓\n다름 → 파일 손상 또는 위변조 ✗\n```\n대용량 파일 다운로드 시 네트워크 오류로 파일이 손상되었는지 확인합니다."
+            "body": "- **딕셔너리** 대부분 언어의 map과 dict가 해시 테이블이다.\n- **파일 검증** 내려받은 파일의 해시를 원본과 비교해 손상이나 변조를 확인한다.\n- **비밀번호 저장** 원문 대신 해시를 저장한다. DB가 털려도 비밀번호 자체는 나가지 않는다."
           },
           {
-            "slot": "tradeoff",
-            "label": "장단점",
-            "body": "**장점:**\n- 평균적으로 O(1)의 매우 빠른 조회, 삽입, 삭제가 가능합니다.\n- 대용량 데이터를 효율적으로 관리할 수 있습니다.\n- 데이터의 무결성을 검증하는 데 매우 효과적입니다.\n- 암호화를 통해 데이터 보안을 강화할 수 있습니다.\n- 구현이 비교적 간단하고 실용적입니다.\n\n**단점:**\n- 해시 충돌이 발생할 수 있으며, 이를 처리하기 위해 추가 메모리가 필요합니다.\n- 해시 테이블은 저장된 데이터의 순서를 보장하지 않습니다.\n- 최악의 경우(많은 충돌) 성능이 O(n)으로 떨어질 수 있습니다.\n- 범위 검색(예: 10~20 사이의 값)을 효율적으로 처리할 수 없습니다.\n- 해시 테이블이 가득 찬 경우 리사이징 비용이 많이 들 수 있습니다."
+            "slot": "myth",
+            "label": "흔히 잘못 아는 것",
+            "body": "- **해시는 암호화다** — 암호화는 되돌릴 수 있지만 해시는 되돌릴 수 없다. 되돌릴 필요가 없는 곳에만 쓴다.\n- **해시하면 비밀번호가 안전하다** — 빠른 해시(MD5, SHA-256)를 그냥 쓰면 대입 공격에 뚫린다. bcrypt처럼 느리게 설계된 것에 소금값을 섞어 써야 한다.\n- **충돌은 설계 실수다** — 입력은 무한이고 출력은 유한하므로 반드시 생긴다. 처리 방법이 있느냐가 문제다."
+          },
+          {
+            "slot": "caution",
+            "label": "주의할 점",
+            "body": "- **비밀번호에 SHA-256을 쓰지 않는다.** 너무 빠르다. bcrypt, scrypt, argon2 중에서 고르고 소금값을 반드시 붙인다.\n- **해시 테이블의 열쇠를 도중에 바꾸지 않는다.** 열쇠가 바뀌면 계산 결과가 달라져서 넣어둔 값을 영영 못 찾는다."
           }
         ],
-        "related": [],
+        "related": [
+          {
+            "term": "Dictionary",
+            "note": "— 해시 테이블로 만들어진 자료구조"
+          },
+          {
+            "term": "Big O 표기법",
+            "note": "— 해시가 왜 빠른지를 적는 방법"
+          },
+          {
+            "term": "암호화",
+            "note": "— 되돌릴 수 있다는 점이 해시와 다르다"
+          },
+          {
+            "term": "Index",
+            "note": "— DB에서 조회를 빠르게 하는 다른 장치"
+          }
+        ],
         "id": "cs--hash"
       },
       {
@@ -981,59 +1023,63 @@ window.VOCABULARY_DATA = [
         "term": "Queue",
         "reading": "큐",
         "category": "컴퓨터과학 기초",
-        "summary": "Queue(큐)는 **FIFO(First In First Out)** 원칙을 따르는 자료구조로, 가장 먼저 들어간 데이터가 가장 먼저 나오는 구조입니다. 줄을 서서 기다리는 것처럼 작동합니다.",
-        "definition": "",
-        "analogy": "",
-        "figure": "",
-        "check": [],
+        "summary": "Queue는 **먼저 넣은 것을 먼저 꺼내는 자료구조**다.",
+        "definition": "넣는 곳과 꺼내는 곳이 반대편이다. 들어온 순서가 그대로 처리 순서가 되므로 아무도 새치기당하지 않는다.",
+        "analogy": "매표소 줄. 먼저 온 사람이 먼저 표를 산다. 뒤에 온 사람이 앞으로 갈 방법이 없고, 그래서 기다리는 시간을 예상할 수 있다.",
+        "figure": "```도해\n흐름: 작업 요청이 어떤 순서로 처리되나\n요청 A :: 큐 뒤쪽에 들어간다\n요청 B :: A 뒤에 붙는다\n요청 C :: B 뒤에 붙는다\n처리기 :: 앞쪽에서 A 를 꺼내 처리한다\n처리기 :: 다음은 B. 그다음은 C\n= 넣는 쪽과 꺼내는 쪽이 달라서 순서가 뒤집히지 않는다\n```",
+        "check": [
+          "큐를 붙였는데 처리 속도가 그대로인 것이 정상인가?",
+          "배열 앞에서 꺼내는 구현이 왜 느려지나?",
+          "큐 길이가 계속 늘고 있다면 무엇을 뜻하나?"
+        ],
         "sections": [
           {
             "slot": "why",
-            "label": "Queue가 해결하는 문제",
-            "body": "**문제 상황**:\n```\n😱 시나리오 1: 작업 순서 관리\n3개의 작업이 동시에 도착\n→ 어떤 순서로 처리하지?\n→ 늦게 온 게 먼저 처리되면 불공평! 😱\n\n😱 시나리오 2: 프린터 대기열\n여러 문서가 프린터로 전송\n→ 순서 없이 처리하면?\n→ 나중에 보낸 게 먼저 인쇄됨! 😱\n\n😱 시나리오 3: BFS 탐색\n그래프를 레벨별로 탐색하고 싶음\n→ 어떤 자료구조를 써야 하지? 😱\n```\n\n**Queue의 해결**:\n```\n✅ 시나리오 1: 공정한 처리\n작업 A 도착 → Queue: [A]\n작업 B 도착 → Queue: [A, B]\n작업 C 도착 → Queue: [A, B, C]\n처리 시작   → A 먼저! (공정함) ✅\n\n✅ 시나리오 2: 순서 보장\n문서1 전송 → Queue: [문서1]\n문서2 전송 → Queue: [문서1, 문서2]\n인쇄 시작  → 문서1 먼저! ✅\n\n✅ 시나리오 3: BFS\nQueue 사용!\n→ 레벨 0 노드들 먼저\n→ 레벨 1 노드들 다음\n→ 순서대로 탐색! ✅\n```"
+            "label": "왜 필요한가",
+            "body": "```도해\n대조: 요청이 처리 속도보다 빨리 들어오면 어떻게 되나\n큐 없이 || 큐로\n넘치는 요청 :: 버려진다 || 줄에 쌓인다\n처리 순서 :: 뒤죽박죽 || 들어온 순서대로\n대기 시간 :: 알 수 없다 || 줄 길이로 계산\n= 들어오는 속도와 처리하는 속도를 따로 둘 수 있게 만든다\n```\n\n요청이 오는 속도와 처리하는 속도는 다르다. 몰릴 때는 처리기가 감당 못 하고, 한가할 때는 처리기가 논다. 큐가 없으면 몰리는 순간의 요청은 그냥 버려진다.\n\n큐는 그 사이에 완충 지대를 둔다. 몰리면 줄이 길어질 뿐이고 처리기는 자기 속도로 계속 꺼낸다. 줄 길이를 보면 얼마나 밀렸는지도 바로 안다."
           },
           {
             "slot": "how",
             "label": "어떻게 작동하나",
-            "body": "### Queue 연산\n\n**Enqueue (삽입)**:\n```\n큐의 뒤(Rear)에 데이터 추가\nQueue: [1, 2]\nEnqueue(3)\nQueue: [1, 2, 3]\n```\n\n**Dequeue (제거)**:\n```\n큐의 앞(Front)에서 데이터 제거 및 반환\nQueue: [1, 2, 3]\nDequeue() → 1 반환\nQueue: [2, 3]\n```\n\n**Peek/Front (조회)**:\n```\n큐의 앞 데이터 조회 (제거 안 함)\nQueue: [1, 2, 3]\nPeek() → 1 반환\nQueue: [1, 2, 3] (그대로)\n```"
+            "body": "넣기와 꺼내기 모두 O(1)이어야 한다. 배열로 순진하게 만들면 앞에서 꺼낼 때마다 나머지를 한 칸씩 당겨야 해서 O(n)이 된다.\n\n```도해\n층: 큐를 어떻게 만드나\n연결 리스트 :: 앞뒤 포인터만 옮기면 끝. O(1)\n원형 배열 :: 앞뒤 위치만 옮긴다. 당기지 않는다\n단순 배열 :: 꺼낼 때마다 전부 당긴다. O(n). 쓰지 않는다\n= 앞에서 꺼내는 구조라서 \"당기지 않는 방법\" 이 구현의 핵심이다\n```\n\n변형이 몇 가지 있다. 양쪽에서 넣고 꺼내는 덱, 우선순위가 높은 것이 먼저 나오는 우선순위 큐가 대표적이다."
           },
           {
             "slot": "concept",
-            "label": "핵심 개념",
-            "body": "- **무엇인가?**: 선입선출(FIFO) 자료구조\n- **왜 필요한가?**: 순서대로 처리해야 하는 작업 관리\n- **어떻게 작동하나?**: enqueue(넣기), dequeue(빼기) 연산"
-          },
-          {
-            "slot": "concept",
-            "label": "Queue 종류",
-            "body": "### 1. Simple Queue (일반 큐)\n\n```python\nfrom collections import deque\n\nqueue = deque()\nqueue.append(1)  # Enqueue\nqueue.popleft()  # Dequeue\n```\n\n### 2. Circular Queue (순환 큐)\n\n```python\n# 고정 크기, 꼬리가 앞으로 연결\n# 버퍼, 스트리밍에 사용\n```\n\n### 3. Priority Queue (우선순위 큐)\n\n```python\nimport heapq\n\n# 우선순위에 따라 Dequeue\n# 작업 스케줄링에 사용\n```\n\n### 4. Deque (양방향 큐)\n\n```python\nfrom collections import deque\n\ndq = deque()\ndq.append(1)       # 뒤에 추가\ndq.appendleft(2)   # 앞에 추가\ndq.pop()           # 뒤에서 제거\ndq.popleft()       # 앞에서 제거\n```"
-          },
-          {
-            "slot": "compare",
-            "label": "Queue vs Stack",
-            "body": "| 특성 | Queue | Stack |\n|------|-------|-------|\n| **원칙** | FIFO (선입선출) | LIFO (후입선출) |\n| **비유** | 줄 서기 | 접시 쌓기 |\n| **추가** | Rear | Top |\n| **제거** | Front | Top |\n| **용도** | 작업 대기열, BFS | 함수 호출, DFS |\n\n**비유**:\n```\nQueue = 줄 서기\n→ 먼저 온 사람이 먼저 나감\n\nStack = 접시 쌓기\n→ 나중에 놓은 접시를 먼저 꺼냄\n```"
+            "label": "비유",
+            "body": "매표소 줄. 먼저 온 사람이 먼저 표를 산다. 뒤에 온 사람이 앞으로 갈 방법이 없고, 그래서 기다리는 시간을 예상할 수 있다."
           },
           {
             "slot": "example",
-            "label": "Python 구현",
-            "body": "### collections.deque 사용 (권장)\n\n```python\nfrom collections import deque\n\n# Queue 생성\nqueue = deque()\n\n# Enqueue (추가)\nqueue.append(1)\nqueue.append(2)\nqueue.append(3)\n\nprint(queue)  # deque([1, 2, 3])\n\n# Peek (조회)\nfront = queue[0]  # 1\n\n# Dequeue (제거)\nitem = queue.popleft()  # 1\nprint(queue)  # deque([2, 3])\n\n# 크기\nsize = len(queue)\n\n# 비었는지 확인\nis_empty = len(queue) == 0\n```\n\n### 리스트로 구현 (비권장 - 느림)\n\n```python\n# ❌ 리스트로 Queue (O(n) 시간)\nqueue = []\n\nqueue.append(1)  # Enqueue\nqueue.append(2)\nqueue.append(3)\n\nitem = queue.pop(0)  # Dequeue - O(n) 느림!\n\n# ✅ deque 사용 (O(1) 시간)\nfrom collections import deque\nqueue = deque([1, 2, 3])\nitem = queue.popleft()  # O(1) 빠름!\n```\n\n### Queue 클래스 구현\n\n```python\nfrom collections import deque\n\nclass Queue:\n    \"\"\"Queue 자료구조\"\"\"\n\n    def __init__(self):\n        self.items = deque()\n\n    def enqueue(self, item):\n        \"\"\"큐에 추가\"\"\"\n        self.items.append(item)\n\n    def dequeue(self):\n        \"\"\"큐에서 제거\"\"\"\n        if self.is_empty():\n            raise IndexError(\"Queue is empty\")\n        return self.items.popleft()\n\n    def peek(self):\n        \"\"\"앞 확인\"\"\"\n        if self.is_empty():\n            raise IndexError(\"Queue is empty\")\n        return self.items[0]\n\n    def is_empty(self):\n        \"\"\"비었는지 확인\"\"\"\n        return len(self.items) == 0\n\n    def size(self):\n        \"\"\"큐 크기\"\"\"\n        return len(self.items)"
+            "label": "실제 사례",
+            "body": "- **작업 대기열** 메일 발송이나 이미지 변환을 순서대로 처리한다.\n- **프린터** 인쇄 요청이 들어온 순서대로 출력된다.\n- **너비 우선 탐색** 그래프를 가까운 곳부터 훑을 때 다음에 볼 노드를 큐에 담는다."
+          },
+          {
+            "slot": "myth",
+            "label": "흔히 잘못 아는 것",
+            "body": "- **큐는 무한히 쌓을 수 있다** — 메모리에는 끝이 있다. 처리보다 들어오는 게 계속 빠르면 결국 넘친다. 상한을 정하고 넘칠 때 무엇을 할지 정해야 한다.\n- **큐를 쓰면 처리가 빨라진다** — 처리 속도는 그대로다. 달라지는 건 순서가 보장되고 몰려도 안 잃는다는 점이다.\n- **[[Message Queue]]와 같은 것이다** — 개념은 같지만 다른 층이다. 이쪽은 프로그램 안의 자료구조이고, 저쪽은 서버 사이에 두는 시스템이다."
+          },
+          {
+            "slot": "caution",
+            "label": "주의할 점",
+            "body": "- **줄 길이를 지켜본다.** 길이가 계속 늘면 처리기가 부족하다는 신호다. 이 숫자가 가장 빠른 경보다.\n- **배열로 직접 만들지 않는다.** 앞에서 꺼낼 때마다 당기는 구현은 항목이 늘수록 급격히 느려진다."
           }
         ],
         "related": [
           {
             "term": "Stack",
-            "note": "LIFO 자료구조"
+            "note": "— 마지막에 넣은 것을 먼저 꺼내는 반대 구조"
           },
           {
-            "term": "Heap",
-            "note": "우선순위 큐에 사용"
+            "term": "Message Queue",
+            "note": "— 같은 개념을 서버 사이에 둔 것"
           },
           {
-            "term": "Deque",
-            "note": "양방향 큐"
+            "term": "자료구조",
+            "note": "— 큐가 속한 갈래"
           },
           {
-            "term": "BFS",
-            "note": "Queue를 사용하는 탐색 알고리즘"
+            "term": "Algorithm",
+            "note": "— 큐를 쓰는 대표적인 탐색 방법이 여기 있다"
           }
         ],
         "id": "cs--queue"
@@ -1111,59 +1157,63 @@ window.VOCABULARY_DATA = [
         "term": "Stack",
         "reading": "스택",
         "category": "컴퓨터과학 기초",
-        "summary": "Stack(스택)은 **LIFO(Last In First Out)** 원칙을 따르는 자료구조로, 가장 나중에 들어간 데이터가 가장 먼저 나오는 구조입니다. 접시를 쌓는 것처럼 위에서만 넣고 빼낼 수 있습니다.",
-        "definition": "",
-        "analogy": "",
-        "figure": "",
-        "check": [],
+        "summary": "Stack은 **마지막에 넣은 것을 먼저 꺼내는 자료구조**다.",
+        "definition": "넣는 것도 꺼내는 것도 한쪽 끝에서만 한다. 중간에 있는 것을 바로 꺼낼 수 없고, 위에 쌓인 것을 다 치워야 아래가 나온다.",
+        "analogy": "접시 더미. 씻은 접시를 위에 얹고 꺼낼 때도 위에서 집는다. 맨 아래 접시를 쓰려면 위의 것을 전부 옮겨야 한다.",
+        "figure": "```도해\n흐름: 함수가 함수를 부르면 무엇이 쌓이나\nmain :: 실행이 시작된다. 스택 맨 아래\nmain :: `계산()` 을 부른다. 그 위에 쌓인다\n계산 :: `합치기()` 를 부른다. 또 그 위에\n합치기 :: 끝났다. 맨 위에서 빠진다\n< 계산 :: 멈춰 있던 자리에서 이어서 실행된다\n= 마지막에 부른 것이 먼저 끝나야 앞의 것이 이어진다\n```",
+        "check": [
+          "함수가 끝난 뒤 어디로 돌아갈지를 스택이 어떻게 알려주나?",
+          "스택 오버플로가 메모리 부족과 다른 이유는?",
+          "배열 대신 스택을 쓰면 얻는 것은 무엇인가?"
+        ],
         "sections": [
           {
             "slot": "why",
-            "label": "Stack이 해결하는 문제",
-            "body": "**문제 상황**:\n```\n😱 시나리오 1: 함수 호출 관리\n함수 A → 함수 B → 함수 C 호출\n→ 어떤 순서로 돌아가야 할까?\n→ C 끝 → B로? A로? 😱\n\n😱 시나리오 2: 괄호 검증\n\"((a+b) * (c-d))\" 올바른가?\n\"((a+b) * (c-d)\" 올바른가?\n→ 어떻게 확인하지? 😱\n\n😱 시나리오 3: 브라우저 뒤로 가기\n페이지 1 → 2 → 3 → 4\n뒤로 가기 클릭\n→ 어디로 가야 할까? 😱\n```\n\n**Stack의 해결**:\n```\n✅ 시나리오 1: 콜 스택\nA 호출 → Stack: [A]\nB 호출 → Stack: [A, B]\nC 호출 → Stack: [A, B, C]\nC 끝   → Stack: [A, B] ← B로 복귀\nB 끝   → Stack: [A]   ← A로 복귀\n→ 정확한 순서로 돌아감! ✅\n\n✅ 시나리오 2: 괄호 매칭\n'(' 만나면 push\n')' 만나면 pop\n마지막에 스택이 비었으면 올바름\n→ 간단하게 검증! ✅\n\n✅ 시나리오 3: 히스토리\n페이지 이동마다 push\n뒤로 가기는 pop\n→ Stack: [1, 2, 3, 4]\n→ 뒤로: Stack: [1, 2, 3] ← 3으로!\n→ 완벽한 탐색! ✅\n```"
+            "label": "왜 필요한가",
+            "body": "```도해\n대조: \"돌아갈 자리\" 를 어떻게 기억하나\n스택 없이 || 스택으로\n중첩 호출 :: 어디로 돌아갈지 잃음 || 순서대로 쌓임\n되돌리기 :: 직전 상태만 || 여러 단계\n구현 :: 복잡해진다 || 넣기와 꺼내기 둘뿐\n= 순서를 뒤집어 꺼내야 하는 일이 생각보다 많다\n```\n\n함수가 함수를 부르고 그것이 또 함수를 부르면, 각각이 끝난 뒤 어디로 돌아가야 하는지 기억해야 한다. 이 기억은 반드시 역순으로 필요하다. 가장 최근에 부른 것이 가장 먼저 끝나기 때문이다.\n\n스택은 그 역순을 공짜로 준다. 넣은 순서를 관리할 필요 없이 위에서 꺼내기만 하면 항상 맞다."
           },
           {
             "slot": "how",
             "label": "어떻게 작동하나",
-            "body": "### Stack 연산\n\n**Push (삽입)**:\n```\n스택의 맨 위에 데이터 추가\nStack: [1, 2]\nPush(3)\nStack: [1, 2, 3]\n```\n\n**Pop (제거)**:\n```\n스택의 맨 위 데이터 제거 및 반환\nStack: [1, 2, 3]\nPop() → 3 반환\nStack: [1, 2]\n```\n\n**Peek/Top (조회)**:\n```\n스택의 맨 위 데이터 조회 (제거 안 함)\nStack: [1, 2, 3]\nPeek() → 3 반환\nStack: [1, 2, 3] (그대로)\n```"
+            "body": "연산이 세 가지뿐이라 전부 O(1)이다.\n\n| 연산 | 하는 일 |\n|---|---|\n| push | 맨 위에 넣는다 |\n| pop | 맨 위에서 꺼내며 없앤다 |\n| peek | 맨 위를 보기만 한다 |\n\n프로그램의 실행 자체가 스택 위에서 돈다. 함수를 부를 때마다 지역 변수와 돌아갈 주소가 한 덩어리로 쌓이고, 끝나면 그 덩어리가 통째로 사라진다."
           },
           {
             "slot": "concept",
-            "label": "핵심 개념",
-            "body": "- **무엇인가?**: 후입선출(LIFO) 자료구조\n- **왜 필요한가?**: 함수 호출, 실행 취소 등에 사용\n- **어떻게 작동하나?**: push(넣기), pop(빼기) 연산"
-          },
-          {
-            "slot": "compare",
-            "label": "Stack vs Queue",
-            "body": "| 특성 | Stack | Queue |\n|------|-------|-------|\n| **원칙** | LIFO (후입선출) | FIFO (선입선출) |\n| **비유** | 접시 쌓기 | 줄 서기 |\n| **삽입** | Top에서 | Rear에서 |\n| **제거** | Top에서 | Front에서 |\n| **용도** | 함수 호출, Undo | 작업 대기열, BFS |\n\n**비유**:\n```\nStack = 접시 쌓기\n→ 위에 놓은 접시를 먼저 꺼냄\n\nQueue = 줄 서기\n→ 먼저 선 사람이 먼저 나감\n```"
+            "label": "비유",
+            "body": "접시 더미. 씻은 접시를 위에 얹고 꺼낼 때도 위에서 집는다. 맨 아래 접시를 쓰려면 위의 것을 전부 옮겨야 한다."
           },
           {
             "slot": "example",
-            "label": "Python 구현",
-            "body": "### 리스트로 Stack 구현\n\n```python\nclass Stack:\n    \"\"\"Stack 자료구조\"\"\"\n\n    def __init__(self):\n        self.items = []\n\n    def push(self, item):\n        \"\"\"스택에 추가\"\"\"\n        self.items.append(item)\n\n    def pop(self):\n        \"\"\"스택에서 제거\"\"\"\n        if self.is_empty():\n            raise IndexError(\"Stack is empty\")\n        return self.items.pop()\n\n    def peek(self):\n        \"\"\"맨 위 확인\"\"\"\n        if self.is_empty():\n            raise IndexError(\"Stack is empty\")\n        return self.items[-1]\n\n    def is_empty(self):\n        \"\"\"비었는지 확인\"\"\"\n        return len(self.items) == 0\n\n    def size(self):\n        \"\"\"스택 크기\"\"\"\n        return len(self.items)\n\n    def __str__(self):\n        return f\"Stack({self.items})\"\n\n# 사용\nstack = Stack()\nstack.push(1)\nstack.push(2)\nstack.push(3)\n\nprint(stack)           # Stack([1, 2, 3])\nprint(stack.peek())    # 3\nprint(stack.pop())     # 3\nprint(stack)           # Stack([1, 2])\n```\n\n### Python 내장 자료구조 활용\n\n```python\n# 리스트를 Stack처럼 사용\nstack = []\n\n# Push\nstack.append(1)\nstack.append(2)\nstack.append(3)\n\n# Peek\ntop = stack[-1]  # 3\n\n# Pop\nitem = stack.pop()  # 3\n\n# Size\nsize = len(stack)\n\nprint(stack)  # [1, 2]\n```"
+            "label": "실제 사례",
+            "body": "- **되돌리기** 편집기의 실행 취소는 작업을 스택에 쌓아두고 위에서 꺼낸다.\n- **괄호 검사** 여는 괄호를 쌓고 닫는 괄호에서 꺼내 짝이 맞는지 본다.\n- **뒤로 가기** 브라우저의 방문 기록이 스택으로 동작한다."
           },
           {
-            "slot": "example",
-            "label": "실전 활용",
-            "body": "### 1. 괄호 검증\n\n```python\ndef is_valid_parentheses(s):\n    \"\"\"괄호가 올바른지 검증\"\"\"\n    stack = []\n    pairs = {')': '(', '}': '{', ']': '['}\n\n    for char in s:\n        if char in '({[':\n            # 여는 괄호: push\n            stack.append(char)\n        elif char in ')}]':\n            # 닫는 괄호: pop하여 매칭 확인\n            if not stack or stack[-1] != pairs[char]:\n                return False\n            stack.pop()\n\n    # 스택이 비어야 올바름\n    return len(stack) == 0\n\n# 테스트\nprint(is_valid_parentheses(\"()\"))          # True\nprint(is_valid_parentheses(\"()[]{}\"))      # True\nprint(is_valid_parentheses(\"(]\"))          # False\nprint(is_valid_parentheses(\"([)]\"))        # False\nprint(is_valid_parentheses(\"{[]}\"))        # True\n```\n\n### 2. 함수 호출 스택\n\n```python\ndef function_a():\n    \"\"\"함수 A\"\"\"\n    print(\"A 시작\")\n    function_b()\n    print(\"A 끝\")\n\ndef function_b():\n    \"\"\"함수 B\"\"\"\n    print(\"B 시작\")\n    function_c()\n    print(\"B 끝\")\n\ndef function_c():\n    \"\"\"함수 C\"\"\"\n    print(\"C 시작\")\n    print(\"C 끝\")\n\n# 실행\nfunction_a()\n\n# 출력:\n# A 시작\n# B 시작\n# C 시작\n# C 끝     ← C 종료, Stack에서 pop, B로 복귀\n# B 끝     ← B 종료, Stack에서 pop, A로 복귀\n# A 끝     ← A 종료, Stack에서 pop\n\n# 콜 스택 변화:\n# [A]\n# [A, B]\n# [A, B, C]\n# [A, B]    ← C pop\n# [A]       ← B pop\n# []        ← A pop\n```\n\n### 3. 실행 취소 (Undo)\n\n```python\nclass TextEditor:\n    \"\"\"실행 취소 기능이 있는 텍스트 에디터\"\"\""
+            "slot": "myth",
+            "label": "흔히 잘못 아는 것",
+            "body": "- **스택은 배열과 같다** — 배열은 아무 위치나 바로 읽지만 스택은 맨 위만 만진다. 그 제약이 실수를 막아주는 장점이다.\n- **스택 오버플로는 메모리가 부족한 것이다** — 전체 메모리와 무관하다. 스택 영역에 정해진 크기가 있고, 재귀가 너무 깊어지면 그 영역을 넘는다.\n- **꺼내면 값이 사라진다** — `pop`은 값을 돌려주고 스택에서만 지운다. 받아두면 계속 쓸 수 있다."
+          },
+          {
+            "slot": "caution",
+            "label": "주의할 점",
+            "body": "- **재귀 깊이를 확인한다.** 종료 조건이 잘못되면 스택이 순식간에 넘친다. 깊이가 예측 불가하면 반복문으로 바꾼다.\n- **큰 데이터를 스택에 두지 않는다.** 스택 영역은 힙보다 훨씬 작다. 큰 배열은 힙에 둔다."
           }
         ],
         "related": [
           {
             "term": "Queue",
-            "note": "FIFO 자료구조"
+            "note": "— 먼저 넣은 것을 먼저 꺼내는 반대 구조"
           },
           {
             "term": "Heap",
-            "note": "우선순위 기반 자료구조"
-          },
-          {
-            "term": "Process",
-            "note": "콜 스택을 가진 실행 단위"
+            "note": "— 스택과 나뉘어 쓰이는 다른 메모리 영역"
           },
           {
             "term": "Recursion",
-            "note": "Stack을 사용하는 재귀 호출"
+            "note": "— 스택 깊이를 가장 빨리 쓰는 방식"
+          },
+          {
+            "term": "Memory",
+            "note": "— 스택 영역이 놓이는 자리"
           }
         ],
         "id": "cs--stack"
@@ -1172,55 +1222,63 @@ window.VOCABULARY_DATA = [
         "term": "Thread",
         "reading": "스레드",
         "category": "컴퓨터과학 기초",
-        "summary": "Thread(스레드)는 **프로세스 내에서 실행되는 작업의 단위**로, 하나의 프로그램이 여러 작업을 동시에 처리할 수 있게 합니다.",
-        "definition": "",
-        "analogy": "",
-        "figure": "```도해\n층: Thread, 어떻게 나뉘어 있나\nProcess :: 메모리 공간 독립적\nT1 :: Stack · Register\nT2 :: Stack · Register\nT3 :: Stack · Register\n```",
-        "check": [],
+        "summary": "Thread는 **한 프로그램 안에서 따로 도는 실행 흐름**이다.",
+        "definition": "프로세스가 집이라면 스레드는 그 안의 사람이다. 여러 명이 같은 집에 살면서 같은 냉장고를 함께 쓴다. 각자 하던 일을 동시에 진행하지만 물건은 공유한다.",
+        "analogy": "주방의 요리사 여러 명. 같은 재료와 도구를 함께 쓰면서 각자 다른 요리를 만든다. 빠르지만, 두 사람이 같은 칼을 동시에 잡으려 하면 사고가 난다.",
+        "figure": "```도해\n층: 프로세스와 스레드는 무엇을 나눠 갖나\n프로세스 :: 독립된 메모리 공간. 서로 못 본다\n스레드 A :: 그 안에서 실행. 메모리를 공유한다\n스레드 B :: 같은 메모리를 본다. 같은 변수를 만진다\n각자 갖는 것 :: 스택과 지역 변수만\n= 공유하기 때문에 빠르고, 공유하기 때문에 위험하다\n```",
+        "check": [
+          "잔액에서 두 번 빠져야 할 금액이 한 번만 빠지는 일이 왜 생기나?",
+          "스레드를 코어 수보다 훨씬 많이 띄우면 무엇이 일어나나?",
+          "교착 상태를 만드는 잠금 순서 문제는 무엇인가?"
+        ],
         "sections": [
           {
             "slot": "why",
-            "label": "Thread가 해결하는 문제",
-            "body": "**문제 상황**:\n```\n😱 시나리오: 단일 스레드 프로그램\n웹 서버 → 요청 1개 처리 중\n→ 요청 2가 도착\n→ 요청 1 완료까지 대기\n→ 느린 응답! 😱\n```\n\n**Thread의 해결**:\n```\n✅ 동시 처리:\n웹 서버 → 스레드 1: 요청 1 처리\n         → 스레드 2: 요청 2 처리\n→ 동시에 처리\n→ 빠른 응답! ✅\n```\n\n**비유**:\n- **단일 스레드** = 은행 창구 1개 (한 명씩 처리)\n- **멀티 스레드** = 은행 창구 여러 개 (동시 처리)"
+            "label": "왜 필요한가",
+            "body": "```도해\n대조: 여러 일을 동시에 하려면 무엇을 쓰나\n프로세스 여러 개 || 스레드 여러 개\n생성 비용 :: 무겁다 || 가볍다\n데이터 공유 :: 별도 통로 필요 || 변수를 그냥 공유\n하나가 죽으면 :: 나머지는 멀쩡 || 전체가 죽을 수 있다\n= 싸고 편한 대신, 하나가 잘못되면 같이 넘어진다\n```\n\n프로세스를 여러 개 띄워도 동시 처리는 된다. 다만 무겁다. 메모리 공간을 새로 잡아야 하고, 데이터를 주고받으려면 별도의 통로를 만들어야 한다.\n\n스레드는 같은 프로세스 안에서 나뉘므로 만드는 비용이 훨씬 싸고 변수를 그냥 함께 쓴다. 그 편함이 곧 위험이기도 하다. 두 스레드가 같은 변수를 동시에 고치면 결과가 어긋난다."
+          },
+          {
+            "slot": "how",
+            "label": "어떻게 작동하나",
+            "body": "두 스레드가 같은 값을 동시에 고칠 때 생기는 문제를 경쟁 상태라고 한다.\n\n```도해\n흐름: 잔액 100원을 두 스레드가 동시에 줄이면 어떻게 되나\n스레드 A :: 잔액을 읽는다. 100\n스레드 B :: 잔액을 읽는다. 아직 100\n스레드 A :: 30을 빼고 70을 쓴다\n스레드 B :: 자기가 읽은 100에서 30을 빼고 70을 쓴다\n< 결과 :: 60이어야 하는데 70이 남았다\n= 읽고 고치고 쓰는 사이에 남이 끼어들면 하나가 사라진다\n```\n\n이걸 막으려면 한 번에 한 스레드만 그 구간에 들어가게 잠근다. 대신 잠금을 잘못 걸면 서로가 서로를 기다리다 멈추는 교착 상태가 된다."
           },
           {
             "slot": "concept",
-            "label": "핵심 개념",
-            "body": "- **무엇인가?**: 프로그램 실행의 최소 단위\n- **왜 필요한가?**: 여러 작업을 동시에 수행\n- **어떻게 작동하나?**: 프로세스 내 메모리 공유하며 독립 실행"
-          },
-          {
-            "slot": "compare",
-            "label": "Thread vs Process vs Async",
-            "body": "| 항목 | Thread | Process | Async |\n|------|--------|---------|-------|\n| **메모리** | 공유 | 독립 | 공유 |\n| **생성 비용** | 낮음 | 높음 | 매우 낮음 |\n| **GIL** | 영향 있음 | 영향 없음 | 영향 있음 |\n| **용도** | I/O 작업 | CPU 작업 | I/O 작업 |\n| **복잡도** | 중간 | 높음 | 중간 |"
+            "label": "비유",
+            "body": "주방의 요리사 여러 명. 같은 재료와 도구를 함께 쓰면서 각자 다른 요리를 만든다. 빠르지만, 두 사람이 같은 칼을 동시에 잡으려 하면 사고가 난다."
           },
           {
             "slot": "example",
             "label": "실제 사례",
-            "body": "### 웹 크롤러\n```python\nimport requests\nfrom concurrent.futures import ThreadPoolExecutor\n\ndef fetch_url(url):\n    \"\"\"URL 가져오기\"\"\"\n    print(f\"Fetching {url}\")\n    response = requests.get(url)\n    return {\n        'url': url,\n        'status': response.status_code,\n        'length': len(response.content)\n    }\n\nurls = [\n    'https://www.google.com',\n    'https://www.github.com',\n    'https://www.stackoverflow.com',\n    'https://www.python.org',\n    'https://www.wikipedia.org'\n]\n\n# 병렬 다운로드\nwith ThreadPoolExecutor(max_workers=5) as executor:\n    results = list(executor.map(fetch_url, urls))\n\nfor result in results:\n    print(f\"{result['url']}: {result['status']} ({result['length']} bytes)\")\n```\n\n### 주기적 작업\n```python\ndef periodic_task(interval, task_func):\n    \"\"\"주기적으로 실행되는 스레드\"\"\"\n    def wrapper():\n        while not stop_event.is_set():\n            task_func()\n            time.sleep(interval)\n    \n    return wrapper\n\nstop_event = threading.Event()\n\ndef check_status():\n    \"\"\"상태 체크\"\"\"\n    print(f\"[{time.strftime('%H:%M:%S')}] 상태 체크\")\n\n# 5초마다 실행\nthread = threading.Thread(\n    target=periodic_task(5, check_status)\n)\nthread.start()\n\n# 20초 후 종료\ntime.sleep(20)\nstop_event.set()\nthread.join()\n```"
+            "body": "- **웹 서버** 요청마다 스레드를 하나씩 배정해 동시에 처리한다.\n- **화면 응답 유지** 무거운 계산을 다른 스레드로 넘겨 화면이 멈추지 않게 한다.\n- **병렬 계산** CPU 코어 수만큼 스레드를 띄워 큰 작업을 나눈다."
           },
           {
-            "slot": "example",
-            "label": "Python Threading",
-            "body": "### 기본 사용법\n```python\nimport threading\nimport time\n\ndef task(name, duration):\n    \"\"\"스레드에서 실행될 작업\"\"\"\n    print(f\"[{name}] 시작\")\n    time.sleep(duration)\n    print(f\"[{name}] 완료\")\n\n# 스레드 생성\nthread1 = threading.Thread(target=task, args=(\"Thread-1\", 2))\nthread2 = threading.Thread(target=task, args=(\"Thread-2\", 3))\n\n# 스레드 시작\nthread1.start()\nthread2.start()\n\n# 메인 스레드는 계속 실행\nprint(\"메인 스레드 실행 중...\")\n\n# 스레드 종료 대기\nthread1.join()\nthread2.join()\n\nprint(\"모든 스레드 완료\")\n\n# 출력:\n# [Thread-1] 시작\n# [Thread-2] 시작\n# 메인 스레드 실행 중...\n# [Thread-1] 완료\n# [Thread-2] 완료\n# 모든 스레드 완료\n```\n\n### 클래스로 Thread 생성\n```python\nclass WorkerThread(threading.Thread):\n    \"\"\"커스텀 스레드 클래스\"\"\"\n    \n    def __init__(self, name, task_id):\n        super().__init__()\n        self.name = name\n        self.task_id = task_id\n    \n    def run(self):\n        \"\"\"스레드 실행 시 호출됨\"\"\"\n        print(f\"[{self.name}] Task {self.task_id} 시작\")\n        time.sleep(2)\n        print(f\"[{self.name}] Task {self.task_id} 완료\")\n\n# 사용\nworkers = []\nfor i in range(3):\n    worker = WorkerThread(f\"Worker-{i}\", i)\n    worker.start()\n    workers.append(worker)\n\n# 모든 워커 대기\nfor worker in workers:\n    worker.join()\n```"
+            "slot": "myth",
+            "label": "흔히 잘못 아는 것",
+            "body": "- **스레드를 늘리면 늘린 만큼 빨라진다** — 코어 수를 넘으면 번갈아 쓰느라 전환 비용만 늘어난다. 오히려 느려지는 지점이 있다.\n- **읽기만 하면 안전하다** — 읽는 동안 남이 고치면 중간 상태를 읽는다. 읽기도 보호가 필요한 경우가 있다.\n- **잠금을 많이 걸면 안전하다** — 잠금이 많아질수록 교착 상태 위험이 커지고 동시 처리 이득도 사라진다."
           },
           {
-            "slot": "example",
-            "label": "Thread 동기화",
-            "body": "### 1. Lock (뮤텍스)\n```python\nimport threading\n\ncounter = 0\nlock = threading.Lock()\n\ndef increment():\n    \"\"\"카운터 증가 (Race Condition 위험)\"\"\"\n    global counter\n    \n    # ❌ Lock 없이 (문제 발생 가능)\n    # for _ in range(100000):\n    #     counter += 1\n    \n    # ✅ Lock 사용 (안전)\n    for _ in range(100000):\n        with lock:  # 또는 lock.acquire() ... lock.release()\n            counter += 1\n\nthreads = []\nfor _ in range(10):\n    thread = threading.Thread(target=increment)\n    thread.start()\n    threads.append(thread)\n\nfor thread in threads:\n    thread.join()\n\nprint(f\"Counter: {counter}\")\n# Lock 없이: 예측 불가 (Race Condition)\n# Lock 사용: 1,000,000 (정확)\n```\n\n### 2. Semaphore (세마포어)\n```python\n# 동시 접속 제한 (예: 최대 3개 스레드만)\nsemaphore = threading.Semaphore(3)\n\ndef limited_access(thread_id):\n    \"\"\"동시에 3개까지만 실행\"\"\"\n    print(f\"Thread {thread_id} 대기 중...\")\n    \n    with semaphore:\n        print(f\"Thread {thread_id} 실행 중\")\n        time.sleep(2)\n        print(f\"Thread {thread_id} 완료\")\n\nthreads = []\nfor i in range(10):\n    thread = threading.Thread(target=limited_access, args=(i,))\n    thread.start()\n    threads.append(thread)\n\nfor thread in threads:\n    thread.join()\n```\n\n### 3. Event (이벤트)\n```python\nevent = threading.Event()\n\ndef waiter():\n    \"\"\"이벤트 대기\"\"\"\n    print(\"이벤트 대기 중...\")\n    event.wait()  # 블로킹\n    print(\"이벤트 발생! 작업 시작\")"
+            "slot": "caution",
+            "label": "주의할 점",
+            "body": "- **공유 상태를 최소로 만든다.** 가장 확실한 동시성 대책은 잠금을 잘 거는 게 아니라 공유할 것을 줄이는 것이다.\n- **잠그는 순서를 통일한다.** A 다음 B로 잠그는 스레드와 B 다음 A로 잠그는 스레드가 만나면 교착 상태가 된다."
           }
         ],
         "related": [
           {
-            "term": "Multi-thread",
-            "note": "여러 스레드 사용"
-          },
-          {
             "term": "Process",
-            "note": "프로그램 실행 단위"
+            "note": "— 스레드를 담고 있는 독립된 실행 단위"
           },
           {
             "term": "Concurrency",
-            "note": "동시성"
+            "note": "— 여러 일을 번갈아 진행하는 개념"
+          },
+          {
+            "term": "Parallelism",
+            "note": "— 실제로 동시에 도는 것. 코어가 여럿이어야 한다"
+          },
+          {
+            "term": "Multi-thread",
+            "note": "— 스레드를 여러 개 쓰는 방식"
           }
         ],
         "id": "cs--thread"
