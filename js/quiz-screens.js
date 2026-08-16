@@ -250,7 +250,7 @@
       Parts.progressBar(percent) +
       "</div>" +
 
-      '<main class="screen quiz-run' + (session.picked ? "" : " quiz-run--asking") + '">' +
+      '<main class="screen quiz-run">' +
       '<div class="question">' +
       '<p class="question__kind">' + esc(q.kind) + "</p>" +
       '<h1 class="question__text">' + esc(q.prompt) + "</h1>" +
@@ -289,6 +289,7 @@
     }
 
     App.render();
+    revealFeedback();
   });
 
   App.on("next-question", function () {
@@ -307,6 +308,22 @@
     session = null;
     App.navigate("/quiz");
   });
+
+  /* 해설이 나타나면 그 자리까지 내려준다.
+
+     해설은 흐름 안에 있으면서 sticky 로 바닥에 붙는데, 스크롤이 맨 위에 있으면
+     붙어 있는 동안 마지막 보기를 25px 쯤 덮는다. 스크롤을 끝까지 내리면
+     제자리로 돌아가 겹치지 않는다. 답을 고른 뒤 읽어야 할 것은 아래에 있으니
+     시선을 따라가게 하는 편이 맞다.
+
+     App.render() 가 매번 맨 위로 올리므로 그 뒤에 실행되어야 한다. */
+  function revealFeedback() {
+    var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: reduce ? "auto" : "smooth",
+    });
+  }
 
   App.on("open-term", function (data) {
     App.navigate("/term/" + data.id);

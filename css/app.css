@@ -178,6 +178,13 @@ a {
   min-height: 100dvh;
   background: var(--paper);
   position: relative;
+  /* 화면 전환이 본문을 12px 옆에서 들여오는 동안 그만큼 가로로 넘친다.
+     260ms 짜리지만 그동안 손가락으로 옆으로 밀 수 있다.
+
+     hidden 이 아니라 clip 을 쓴다. hidden 은 스크롤 컨테이너를 만들어서
+     안쪽 position: sticky 가 뷰포트가 아니라 .app 을 기준으로 붙어버린다.
+     clip 은 잘라내기만 하고 스크롤 컨테이너를 만들지 않는다. */
+  overflow-x: clip;
 }
 
 @media (min-width: 48rem) {
@@ -1744,23 +1751,17 @@ a {
    읽는 건 위에서, 누르는 건 엄지가 닿는 아래에서 끝나야 한다.
 
    .screen 의 하단 패딩은 탭바 자리인데 이 화면에는 탭바가 없다.
-   그대로 두면 죽은 여백이 flex 의 남는 공간을 다 먹어서 아래로 밀리지 않는다. */
+
+   보기를 화면 아래로 밀지 않는다. 한때 엄지가 닿는 자리를 만들겠다고
+   flex 로 아래에 붙였는데, 화면이 길어지면 질문과 보기 사이가 그만큼 벌어졌다
+   (1600px 높이에서 913px). 아래쪽 빈 공간은 아무 해가 없지만
+   가운데 빈 공간은 질문과 답의 관계를 끊는다.
+
+   Duolingo 도 Anki 도 보기를 내리지 않는다. 고정하는 건 콘텐츠가 아니라
+   지속적으로 필요한 버튼 하나다. 보기는 콘텐츠라서 질문을 따라간다. */
 .quiz-run {
   padding-inline: 0;
   padding-bottom: var(--sp-8);
-}
-
-/* 아래로 미는 건 답을 고르기 전까지만.
-   고른 뒤에는 해설 시트가 아래에서 올라오는데, 보기를 내려두면 시트가 덮어버린다.
-   무엇을 골랐고 무엇이 정답이었는지는 해설과 같이 보여야 한다. */
-.quiz-run--asking {
-  display: flex;
-  flex-direction: column;
-  min-height: calc(100dvh - 96px);
-}
-
-.quiz-run--asking .options {
-  margin-top: auto;
 }
 
 .question {
@@ -1932,32 +1933,17 @@ a {
   to { opacity: 0.45; filter: blur(0.4px); }
 }
 
-/* 정답/오답 피드백 시트. 아래에서 올라온다. */
-/* 시트 뒤를 덮는 막. 보기 위에 올라온다는 것을 공간적으로 알려준다. */
-.feedback::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  bottom: 100%;
-  background: color-mix(in srgb, var(--paper) 55%, transparent);
-  backdrop-filter: blur(1.5px);
-  pointer-events: none;
-  animation: veil var(--dur-slow) var(--ease);
-}
+/* 정답/오답 해설. 아래에서 올라온다.
 
-@keyframes veil {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
+   fixed 로 뷰포트 바닥에 못 박지 않는다. 화면이 세로로 길면 보기와 해설 사이가
+   그만큼 벌어져서 (1600px 높이에서 829px) 둘이 남남처럼 보였다.
+   sticky 는 스크롤이 없으면 그냥 흐르고, 길어져서 밀려날 때만 바닥에 붙는다.
+   방금 고른 보기 바로 아래에서 읽는 게 원래 맞다. */
 .feedback {
-  position: fixed;
+  position: sticky;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: var(--app-max);
   z-index: var(--z-sheet);
+  margin-top: var(--sp-5);
   padding: var(--sp-5) var(--gutter) calc(var(--sp-4) + env(safe-area-inset-bottom));
   background: var(--surface);
   border-top: 1px solid var(--line);
@@ -1966,18 +1952,16 @@ a {
   animation: sheet-in var(--dur-slow) var(--ease);
 }
 
-@media (min-width: 48rem) {
-  .feedback {
-    max-width: 40rem;
-  }
-}
-
+/* 흐름 안에 있으므로 .app 이 폭을 정해준다. 따로 가운데 맞출 일이 없다.
+   translate 에 -50% 를 물고 있던 것도 fixed 시절의 잔재라 같이 걷어낸다. */
 @keyframes sheet-in {
   from {
-    transform: translate(-50%, 100%);
+    opacity: 0;
+    transform: translateY(16px);
   }
   to {
-    transform: translate(-50%, 0);
+    opacity: 1;
+    transform: none;
   }
 }
 
@@ -2264,11 +2248,20 @@ a {
    화면 전환 — 앞으로 갈 때와 뒤로 올 때의 방향이 다르다
    ============================================================ */
 
-.screen-enter {
+/* 화면 전환은 본문에만 건다. 화면 전체(#view)에 걸면 안 된다.
+
+   transform 이 걸린 요소는 그 안의 position: fixed 자식들의 기준점이 된다.
+   #view 를 260ms 동안 움직이면 그동안 .action-bar 와 .feedback 이
+   뷰포트가 아니라 #view 바닥에 붙었다가, 애니메이션이 끝나는 순간 제자리로
+   툭 떨어진다. 화면이 길수록 낙차가 커진다 (1200px 높이에서 246px).
+
+   본문만 움직이는 게 원래 맞기도 하다. 네이티브 내비게이션도 상단 바와
+   하단 바는 가만히 있고 콘텐츠만 미끄러진다. */
+.screen-enter main {
   animation: screen-forward var(--dur-slow) var(--ease);
 }
 
-.screen-enter--back {
+.screen-enter--back main {
   animation: screen-back var(--dur-slow) var(--ease);
 }
 
