@@ -1,7 +1,10 @@
 /* ============================================================
    학습 상태 저장소
-   목업이므로 서버도 DB 도 없다. localStorage 에 넣어서 앱을 껐다 켜도
+   서버도 DB 도 없다. localStorage 에 넣어서 앱을 껐다 켜도
    "내가 어디까지 했는지"가 남아 있게 한다.
+
+   저장 키는 바꾸지 않는다. 키가 바뀌면 이미 공부해 둔 기록이
+   그 자리에 남은 채로 앱에서만 사라진다.
    ============================================================ */
 
 window.Store = (function () {
@@ -41,15 +44,6 @@ window.Store = (function () {
     return BOXES[Math.min(Math.max(box, 1), BOXES.length) - 1];
   }
 
-  var SEED_PLAN = [
-    { book: "net", passed: 3, learned: 1, reading: 1 },
-    { book: "arch", passed: 1, learned: 1, reading: 0 },
-    { book: "ai", passed: 2, learned: 1, reading: 1 },
-  ];
-
-  /* 이 아래로는 초기화 순서가 걸려 있다. load() 가 seed() 를 부르고
-     seed() 가 위의 상수들을 읽으므로, 상수 선언이 반드시 여기보다 위에 있어야 한다.
-     함수 선언은 끌어올려지지만 var 에 담긴 값은 그렇지 않다. */
   var state = load();
 
   function blank() {
@@ -59,13 +53,13 @@ window.Store = (function () {
   function load() {
     try {
       var raw = localStorage.getItem(KEY);
-      if (!raw) return seed();
+      if (!raw) return blank();
       var parsed = JSON.parse(raw);
-      if (!parsed || typeof parsed !== "object" || !parsed.terms) return seed();
+      if (!parsed || typeof parsed !== "object" || !parsed.terms) return blank();
       return Object.assign(blank(), parsed);
     } catch (err) {
       // 저장소를 쓸 수 없어도(시크릿 모드 등) 앱은 돌아가야 한다.
-      return seed();
+      return blank();
     }
   }
 
@@ -75,64 +69,6 @@ window.Store = (function () {
     } catch (err) {
       /* 저장 실패는 조용히 넘긴다. 메모리 상태로는 계속 동작한다. */
     }
-  }
-
-  /* seed 한 건. 통과한 단어는 실제 스케줄 규칙대로 상자와 기한을 채운다.
-     여기서 규칙을 벗어나면 화면이 코드가 하지 않는 일을 말하게 된다. */
-  function seedTerm(s, term, status, at) {
-    var isPassed = status === "passed";
-    s.terms[term.id] = {
-      status: status,
-      readAt: at,
-      passedAt: isPassed ? at : null,
-      box: isPassed ? 2 : 0,
-      dueAt: isPassed ? at + intervalDays(2) * DAY : null,
-      wrong: 0,
-    };
-    s.history.unshift({ termId: term.id, term: term.term, action: status, at: at });
-  }
-
-  function seedBook(s, plan, now) {
-    var book = (window.VOCABULARY_INDEX || []).find(function (b) { return b.id === plan.book; });
-    if (!book) return;
-
-    var i = 0;
-    [
-      { n: plan.passed, status: "passed", ageDays: 5 },
-      { n: plan.learned, status: "learned", ageDays: 2 },
-      { n: plan.reading, status: "reading", ageDays: 0 },
-    ].forEach(function (group) {
-      for (var k = 0; k < group.n && i < book.terms.length; k++, i++) {
-        seedTerm(s, book.terms[i], group.status, now - group.ageDays * DAY - k * 3600000);
-      }
-    });
-  }
-
-  /* 첫 실행이 빈 화면이면 디자인을 판단할 수 없다.
-     "며칠 써본 사람"의 상태를 만들어 둔다. 목업에서만 하는 일이다. */
-  function seed() {
-    var s = blank();
-    var now = Date.now();
-
-    SEED_PLAN.forEach(function (plan) { seedBook(s, plan, now); });
-
-    /* 통과 항목 대부분은 아직 기한이 안 된 상태로 밀어둔다.
-       앞의 두 개만 기한이 지나 스스로 복습으로 돌아오게 둔다 —
-       상태를 "review" 로 박아 넣지 않는다. statusOf 가 날짜를 보고 판정해야
-       스케줄이 실제로 도는지 화면에서 확인할 수 있다. */
-    Object.keys(s.terms)
-      .filter(function (id) { return s.terms[id].status === "passed"; })
-      .forEach(function (id, n) {
-        if (n < 2) return;
-        s.terms[id].box = 3;
-        s.terms[id].dueAt = now + (2 + n) * DAY;
-      });
-
-    s.history.sort(function (a, b) { return b.at - a.at; });
-    s.history = s.history.slice(0, 12);
-    s.studyDays = [4, 3, 2, 1, 0].map(function (d) { return dayKey(now - d * DAY); });
-    s.lastSeenAt = now;
-    return s;
   }
 
   function dayKey(ts) {
@@ -365,10 +301,15 @@ window.Store = (function () {
   }
 
   /* 단어를 열면 자동으로 "읽는 중"이 된다. 사용자가 따로 누를 일이 아니다. */
+  /* 단어를 처음 열었을 때. 여기서도 기록을 남긴다.
+     예전에는 안 남겼는데, 화면의 "최근에 본 단어" 와 "읽기 시작" 줄은 목업
+     seed 가 넣어둔 가짜였다. 그걸 걷어내고 나니 실제로 읽어도 그 자리가
+     영영 비어 있었다. 읽은 것도 학습이므로 연속 일수에도 들어가야 한다. */
   function markOpened(termId) {
     if (statusOf(termId) !== STATUS.NEW) return;
     var rec = touch(termId, STATUS.READING);
     rec.readAt = Date.now();
+    logHistory(termId, "reading");
     save();
   }
 
@@ -407,10 +348,12 @@ window.Store = (function () {
     save();
   }
 
+  /* 전부 지운다. 예전에는 지운 뒤 "며칠 써본 사람" 을 흉내 낸 가짜 진도를
+     다시 채웠는데, 그건 화면을 판단하려고 목업 시절에 넣은 장치였다.
+     실제로 공부하는 자리에서 그러면 지웠다고 말해놓고 남의 기록을 보여주는 셈이다.
+     되돌릴 수 없으므로 부르는 쪽에서 한 번 더 묻는다. */
   function reset() {
     state = blank();
-    save();
-    state = seed();
     save();
   }
 

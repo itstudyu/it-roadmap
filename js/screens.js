@@ -965,10 +965,13 @@
   App.register("/progress", function () {
     var s = Store.overallStats();
     var streak = Store.streak();
-    var books = window.VOCABULARY_DATA || [];
+    /* 데이터를 인덱스와 본문으로 가를 때 window.VOCABULARY_DATA 가 없어졌는데
+       여기만 남아 있었다. 늘 빈 배열이라 "단어장별 진행률" 이 제목만 뜨고
+       아래가 통째로 비어 있었다. 전역을 직접 읽지 말고 Store 를 거친다. */
+    var books = Store.books();
     var history = Store.history(8);
 
-    // seed 가 남기는 "reading" 까지 포함한다. 빠뜨리면 화면에 영문 키가 그대로 나온다.
+    // 읽기 시작도 기록에 남는다. 빠뜨리면 화면에 영문 키가 그대로 나온다.
     var ACTION_COPY = {
       reading: "읽기 시작",
       learned: "학습 완료",
@@ -1027,7 +1030,9 @@
       nextStepBlock() +
 
       '<div style="margin-top:40px;text-align:center">' +
-      '<button class="link-btn" data-action="reset-progress">목업 데이터 초기화</button></div>' +
+      '<button class="link-btn" data-action="reset-progress">' +
+      (resetArmed ? "정말 지울까요? 한 번 더 누르면 지워집니다" : "데이터 초기화") +
+      "</button></div>" +
       "</main>";
   });
 
@@ -1039,10 +1044,40 @@
       '<div class="today" style="overflow:hidden">' + step + "</div></section>";
   }
 
+  /* 초기화는 되돌릴 수 없다. 읽은 것 · 퀴즈 통과 · 복습 일정 · 학습 기록이
+     한 번에 사라지고 돌려놓을 방법이 없다. 그런 단추가 한 번 눌러 끝나면 안 된다.
+     기본 confirm() 을 띄우는 대신 단추 자신이 물어보게 한다 — 화면을 벗어나지 않고,
+     다른 데를 누르거나 잠깐 두면 저절로 없던 일이 된다. */
+  var resetArmed = false;
+  var resetTimer = null;
+
+  function disarmReset() {
+    if (!resetArmed) return;
+    resetArmed = false;
+    clearTimeout(resetTimer);
+  }
+
   App.on("reset-progress", function () {
+    if (!resetArmed) {
+      resetArmed = true;
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(function () {
+        resetArmed = false;
+        App.render();
+      }, 5000);
+      App.render();
+      return;
+    }
+    disarmReset();
     Store.reset();
-    UI.toast("초기 상태로 되돌렸습니다", "rotate");
+    UI.toast("전부 지웠습니다", "rotate");
     App.render();
+  });
+
+  // 화면을 옮기면 물어보던 것을 없던 일로 한다. 다음에 들어왔을 때
+  // 단추가 "한 번 더 누르면 지워집니다" 인 채로 기다리고 있으면 안 된다.
+  document.addEventListener("screen:rendered", function (event) {
+    if (!event.detail || event.detail.path !== "/progress") disarmReset();
   });
 
   // 다른 화면에서 쓰는 조각들을 공개한다
