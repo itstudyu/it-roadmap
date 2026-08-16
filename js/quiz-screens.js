@@ -74,26 +74,41 @@
     return list;
   }
 
+  function scopeCard(o) {
+    var disabled = o.count < 1;
+    return '<button class="scope" data-action="start-scope" data-key="' + esc(o.key) + '"' +
+      (disabled ? " disabled" : "") + ">" +
+      UI.icon(o.icon, 20) +
+      '<span class="scope__body">' +
+      '<span class="scope__name">' + esc(o.name) + "</span>" +
+      '<span class="scope__meta">' + esc(o.meta) + "</span></span>" +
+      '<span class="scope__check">' + UI.icon("right", 18) + "</span></button>";
+  }
+
+  function scopeRow(o) {
+    return '<button class="scope-row" data-action="start-scope" data-key="' + esc(o.key) + '">' +
+      '<span class="scope-row__name">' + esc(o.name) + "</span>" +
+      '<span class="scope-row__count num">' + o.count + "</span>" +
+      '<span class="row__chevron">' + UI.icon("right", 16) + "</span></button>";
+  }
+
   App.register("/quiz", function () {
-    var options = scopeOptions();
+    var all = scopeOptions();
+    // 상태로 고르는 두 가지가 대부분의 경우 정답이므로 앞에 크게 둔다.
+    // 단어장 목록은 그 다음이라 가벼운 줄로 내린다.
+    // 같은 크기 카드를 여덟 개 늘어놓으면 무엇을 먼저 눌러야 할지 알 수 없다.
+    var suggested = all.slice(0, 2);
+    var books = all.slice(2);
 
     return Parts.topbar({ title: "퀴즈", right: Parts.themeButton() }) +
       '<main class="screen"><div class="quiz-intro">' +
       '<h1 class="screen-title">무엇을 확인할까요</h1>' +
       '<p class="quiz-intro__lead">뜻을 외웠는지가 아니라 개념을 구분할 수 있는지 묻습니다. ' +
       "선택지는 같은 분야에서 뽑기 때문에 대충 찍기는 어렵습니다.</p>" +
-      '<div class="stack" style="margin-top:28px">' +
-      options.map(function (o) {
-        var disabled = o.count < 1;
-        return '<button class="scope" data-action="start-scope" data-key="' + esc(o.key) + '"' +
-          (disabled ? " disabled" : "") + ">" +
-          UI.icon(o.icon, 20) +
-          '<span class="scope__body">' +
-          '<span class="scope__name">' + esc(o.name) + "</span>" +
-          '<span class="scope__meta">' + esc(o.meta) + "</span></span>" +
-          '<span class="scope__check">' + UI.icon("right", 18) + "</span></button>";
-      }).join("") +
-      "</div></div></main>";
+      '<div class="stack" style="margin-top:28px">' + suggested.map(scopeCard).join("") + "</div>" +
+      '<section class="block"><h2 class="section-title" style="margin-bottom:4px">단어장에서 고르기</h2>' +
+      '<div class="scope-rows">' + books.map(scopeRow).join("") + "</div></section>" +
+      "</div></main>";
   });
 
   App.on("start-scope", function (data) {
@@ -157,8 +172,9 @@
         }
       }
 
-      return '<button class="' + cls + '" data-action="answer" data-id="' + esc(opt.id) + '"' +
-        (picked ? " disabled" : "") + ">" +
+      // --i 는 물러나는 순서를 매기는 데 쓴다
+      return '<button class="' + cls + '" style="--i:' + i + '" data-action="answer" data-id="' +
+        esc(opt.id) + '"' + (picked ? " disabled" : "") + ">" +
         '<span class="option__key">' + keys[i] + "</span>" +
         '<span class="option__text">' + esc(opt.text) + "</span>" +
         (mark || '<span class="option__mark"></span>') + "</button>";

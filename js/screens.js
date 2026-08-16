@@ -128,8 +128,8 @@
     if (!due.length) return "";
     return '<button class="review-call" data-action="start-review">' +
       '<span class="review-call__icon">' + UI.icon("rotate", 22) + "</span>" +
-      "<span>" +
-      '<span class="review-call__title">복습할 단어 ' + due.length + "개</span><br>" +
+      '<span style="flex:1;min-width:0">' +
+      '<span class="review-call__title">복습할 단어 ' + due.length + "개</span>" +
       '<span class="review-call__sub">퀴즈에서 틀렸거나 본 지 오래된 단어입니다</span>' +
       "</span>" + UI.icon("right", 18) + "</button>";
   }
