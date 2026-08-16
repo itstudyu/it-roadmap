@@ -72,6 +72,11 @@ SECTION_MAP = [
     ("related", ["🔗 관련 용어"]),
 ]
 
+# 슬롯 이름 -> 그 슬롯이 받아주는 원본 제목들. 구조를 굽는 파서들이 이걸 통해
+# 절을 찾는다. 제목 목록을 두 벌 두면 SECTION_MAP 에 표기를 하나 더해도
+# 구조 쪽은 못 찾는 일이 생긴다 — 화면에는 보이는데 퀴즈에는 안 나오는 절이 된다.
+SLOT_NAMES = {slot: names for slot, names in SECTION_MAP}
+
 # 표제어 아래 접어서 보여줄 순서. UI 의 progressive disclosure 순서와 같다.
 # figure 와 check 는 여기 없다 — 펼쳐진 채로 두는 자리라서 접이식에 들어가면 안 된다.
 DISCLOSURE_ORDER = ["why", "how", "concept", "compare", "example", "tradeoff", "myth", "caution"]
@@ -415,12 +420,18 @@ def parse_analogy(definition: str) -> str:
     return re.sub(r"^\s*[-*]\s*", "", first).strip()
 
 
-# 도해는 통째로 옮기기만 한다. 안쪽 줄을 읽는 코드가 이 파일에 없으므로 표기가
-# 늘어도(반복 마디 "@", 중립 대조 "|=|") 여기는 손댈 게 없다 — 그리는 쪽은 js/ui.js 다.
+# 도해 원문은 통째로 옮긴다 — 그리는 쪽은 js/ui.js 이고 figure 필드가 그 입력이다.
+# 안쪽 줄까지 읽는 코드가 아래에 하나 생겼다(dia_parse). 퀴즈가 그림을 문제로
+# 만들려면 마디를 낱개로 들어야 하는데, 화면 쪽에서 다시 파싱하면 두 파서가
+# 갈라져서 화면과 퀴즈가 서로 다른 그림을 말하게 된다. 그래서 여기서 한 번 굽는다.
+# 표기가 늘면 js/ui.js 의 diaParse 와 **함께** 고쳐야 한다.
+#
 # 도해 안에는 빈 줄이 없어서 한 덩어리가 한 문단으로 남고, clean_body 의 어떤
 # 정규식도 여기에 걸리지 않는다. 다만 trim 은 길이로 자르니, 도해가 든 절이
 # 1400자를 넘기면 펜스가 반토막 날 수 있다 (지금은 가장 긴 것이 665자다).
-DIA_BLOCK = re.compile(r"```도해\r?\n.*?\r?\n```\n?", re.S)
+# 안쪽을 따로 잡는 정규식을 하나 더 두지 않고 이 하나에 괄호만 씌운다.
+# 펜스를 찾는 길이 둘이면 언젠가 서로 다른 것을 찾는다.
+DIA_BLOCK = re.compile(r"```도해\r?\n(.*?)\r?\n```\n?", re.S)
 
 # 대표 그림을 어디서 먼저 찾을지. 작동 원리에 있는 그림이 그 단어를 가장 잘 말한다.
 LIFT_FROM = ["⚙️ 작동 원리", "🏗️ 구조", "📊 구조", "🔄 작동 원리", "🎯 핵심 개념", "⚠️ 해결하는 문제"]
@@ -443,6 +454,102 @@ def lift_figure(sections: dict[str, str]) -> str:
     return ""
 
 
+# 도해의 모양 셋. js/ui.js 는 이걸 CSS 클래스용 영문("flow"/"compare"/"layer")으로
+# 바꿔 들지만 여기서는 원문 그대로 싣는다. 데이터에 화면 사정을 섞지 않는다.
+DIA_SHAPES = ("흐름", "대조", "층")
+DIA_HEAD = re.compile(r"^\s*(" + "|".join(DIA_SHAPES) + r")\s*:\s*(.*)$")
+
+
+def dia_row(raw: str) -> dict:
+    """도해 한 줄을 마디로 가른다. js/ui.js 의 diaRow 를 그대로 옮긴 것이다.
+
+    표기 순서까지 같아야 한다 — 되돌아오는 표시(<)를 먼저 떼고, 이름(::)을 가르고,
+    그다음에 두 칸(||)을 나눈다. 순서가 어긋나면 "< A :: B || C" 같은 줄에서
+    두 파서가 다른 결과를 낸다.
+    """
+    text = raw.strip()
+    back = bool(re.match(r"^<\s", text)) or text == "<"
+    if back:
+        text = re.sub(r"^<\s*", "", text)
+
+    who = ""
+    cut = text.find("::")
+    if cut != -1:
+        who = text[:cut].strip()
+        text = text[cut + 2:].strip()
+
+    # 중립 대조의 "A |=| B". 구분자가 다르니 그대로 "||" 로 가르면 한 칸도
+    # 갈라지지 않는다. 우열을 뗄지 여부만 even 으로 남기고 구분자는 "||" 로 되돌린다.
+    even = "|=|" in text
+    if even:
+        text = text.replace("|=|", "||")
+
+    halves = text.split("||")  # 대조에서만 뜻이 있다
+    row = {"who": who, "what": text}
+    if back:
+        row["back"] = True
+    if len(halves) > 1:
+        # 가른 두 칸은 대조 문제를 낼 때 쓴다. what 에도 "||" 가 그대로 남으므로
+        # 원문이 필요한 쪽은 여전히 what 을 본다.
+        row["left"] = halves[0].strip()
+        row["right"] = halves[1].strip()
+        if even:
+            row["even"] = True
+    return row
+
+
+def dia_parse(source: str) -> dict | None:
+    """도해 원문을 {shape, title, rows, sum, loop} 로 굽는다. js/ui.js 의 diaParse 와 같다.
+
+    모양 선언이 없거나 마디가 하나도 없으면 도해가 아니다. 그럴 때 화면은
+    코드블록으로 떨어뜨리는데, 여기서는 아예 싣지 않는다 — 퀴즈는 문법이 맞는
+    그림만 문제로 낸다.
+    """
+    lines = [l for l in str(source).split("\n") if l.strip()]
+    if not lines:
+        return None
+
+    head = DIA_HEAD.match(lines[0])
+    if not head:
+        return None  # 모양 선언이 없으면 도해가 아니다
+
+    dia = {"shape": head.group(1), "title": head.group(2).strip(), "rows": [], "sum": ""}
+    for raw in lines[1:]:
+        line = raw.strip()
+        end = re.match(r"^=\s*(.+)$", line)
+        if end:
+            dia["sum"] = end.group(1).strip()
+            continue
+        # @ 는 마디가 아니라 흐름 전체에 붙는 말이다 — "여기까지 오면 다시 처음으로".
+        # 그래서 = 요약과 같은 방식으로 줄 목록에서 빼내 따로 든다.
+        # 여러 줄이면 마지막 것만 남는다. 되돌아가는 길이 둘이면 그림은 길로 안 읽힌다.
+        mark = re.match(r"^@\s+(.+)$", line)
+        if mark:
+            it = dia_row(mark.group(1))
+            dia["loop"] = {"who": it["who"], "what": it["what"]}
+            continue
+        dia["rows"].append(dia_row(line))
+    return dia if dia["rows"] else None
+
+
+def parse_dia(figure: str, path: str) -> dict | None:
+    """대표 그림 안의 도해를 구조로 굽는다. figure(원문 문자열)는 그대로 남긴다.
+
+    화면이 그리는 것은 어디까지나 원문이고, 이건 퀴즈용 사본이다.
+    """
+    if not figure:
+        return None
+    found = DIA_BLOCK.search(figure)
+    if not found:
+        return None  # 그림 자리에 표나 문단만 있는 노트가 있다. 잘못은 아니다.
+    dia = dia_parse(found.group(1))
+    if dia is None:
+        # 펜스는 있는데 안 풀렸다 = 문법이 어긋났다는 뜻이다. 화면에서는 코드블록으로
+        # 떨어져 있어서 눈에 잘 안 띈다. 굽는 자리에서 말해주는 편이 낫다.
+        log(f"  ⚠️ {short_path(path)}: 도해 문법이 어긋나 구조로 못 굽는다")
+    return dia
+
+
 def parse_check(body: str) -> list[dict]:
     """'❓ 이해했는지' 의 질문 목록. {"q": 물음, "at": 답이 있는 자리}.
 
@@ -463,6 +570,48 @@ def parse_check(body: str) -> list[dict]:
         out.append({"q": question.strip(), "at": at.strip()} if arrow
                    else {"q": text, "at": ""})
     return out
+
+
+# "- **앞** — 뒤" 한 줄. js/screens.js 의 parseMyths 와 **같은 정규식**이다.
+# 대시는 em(—)·en(–)·하이픈 셋을 다 받는다. 저자가 셋을 섞어 쓰는데, 화면이
+# 받아주는 줄을 여기서 못 받으면 같은 노트를 두고 화면과 퀴즈가 다른 말을 한다.
+BOLD_PAIR = re.compile(r"^\s*-\s*\*\*(.+?)\*\*\s*[—–-]\s*(.+)$")
+
+
+def parse_pairs(body: str) -> list[tuple[str, str]]:
+    """'- **앞** — 뒤' 목록을 (앞, 뒤) 로 모은다.
+
+    형식을 벗어난 줄은 건너뛴다. 슬롯에는 목록 말고도 문단·표·코드가 섞여 들어오고,
+    그것까지 억지로 가르면 반쪽짜리 항목이 나온다. 한 줄도 못 뽑은 경우는
+    부르는 쪽에서 알린다 — 여기서 조용히 빈 목록을 돌려주면 슬롯이 비었는지
+    형식이 어긋났는지 구별할 수가 없다.
+    """
+    out = []
+    for line in str(body or "").split("\n"):
+        m = BOLD_PAIR.match(line)
+        if m:
+            out.append((m.group(1).strip(), m.group(2).strip()))
+    return out
+
+
+def structured_pairs(sections: dict[str, str], slot: str,
+                     keys: tuple[str, str], path: str) -> list[dict]:
+    """슬롯의 Markdown 목록을 구조로 굽는다. sections 는 손대지 않는다.
+
+    화면은 지금도 이 슬롯의 **원문 Markdown** 을 받아 그린다(js/screens.js 의 mythPanel).
+    여기서 뽑는 것은 그것과 별개로 퀴즈가 쓸 사본이다. 원문을 지우고 구조만
+    남기면 파싱이 어긋나는 날 그 절이 화면에서 통째로 사라진다. 더하기만 한다.
+    """
+    raw = pick(sections, SLOT_NAMES[slot])
+    if not raw:
+        return []
+    pairs = parse_pairs(raw)
+    if not pairs:
+        # 조용히 넘기면 형식이 어긋난 노트가 그대로 굳는다. 퀴즈에서 그 단어만
+        # 안 나오는 것은 앱을 켜도 보이지 않는 종류의 고장이다.
+        log(f"  ⚠️ {short_path(path)}: {slot} 에서 '- **앞** — 뒤' 를 한 줄도 못 뽑았다")
+        return []
+    return [{keys[0]: a, keys[1]: b} for a, b in pairs]
 
 
 def split_definition(sections: dict[str, str]) -> tuple[str, str, str] | None:
@@ -528,7 +677,7 @@ def parse_note(path: str, category: str) -> dict | None:
     lead, subs = split_subsections(rest)
     term, reading = parse_title(nfc(title.group(1)))
 
-    return {
+    note = {
         "term": term,
         "reading": reading,
         "category": category,
@@ -538,6 +687,19 @@ def parse_note(path: str, category: str) -> dict | None:
         "sections": ordered_sections(subs, sections, path)[:MAX_SECTIONS],
         **pinned,
     }
+
+    # 퀴즈가 쓰는 구조 사본. 셋 다 sections·figure 의 원문에서 뽑아낸 것이고
+    # 원문은 그대로 남는다 — 화면은 지금도 원문으로 그린다.
+    # 비면 아예 싣지 않는다. 빈 배열을 실어도 소비처가 하는 일은 같은데
+    # 권별 본문만 무거워진다.
+    for key, value in (
+        ("myths", structured_pairs(sections, "myth", ("wrong", "right"), path)),
+        ("cases", structured_pairs(sections, "example", ("label", "note"), path)),
+        ("dia", parse_dia(pinned["figure"], path)),
+    ):
+        if value:
+            note[key] = value
+    return note
 
 
 # ---------------------------------------------------------------- 수집
@@ -655,12 +817,38 @@ def assign_ids(books: list[dict]) -> list[dict]:
     return books
 
 
+def report_stock(books: list[dict]) -> None:
+    """퀴즈가 쓸 재료가 몇 편에 실렸는지 센다.
+
+    이 셋은 비어도 빌드가 통과한다(필드를 안 실을 뿐이다). 그래서 숫자를 안 찍으면
+    파싱이 반쯤 깨진 채로 오래 간다 — 앱을 켜도 "그 유형이 안 나오네" 정도로만
+    보이고, 그건 문제가 원래 적은 것과 구별이 안 된다. 편수는 사람이 노트를 세어
+    맞춰볼 수 있는 유일한 값이라 여기서 매번 내놓는다.
+    """
+    terms = [t for b in books for t in b["terms"]]
+    myth_notes = sum(1 for t in terms if t.get("myths"))
+    myth_items = sum(len(t.get("myths", ())) for t in terms)
+    case_notes = sum(1 for t in terms if t.get("cases"))
+    case_items = sum(len(t.get("cases", ())) for t in terms)
+
+    shapes: dict[str, int] = {}
+    for t in terms:
+        if t.get("dia"):
+            shapes[t["dia"]["shape"]] = shapes.get(t["dia"]["shape"], 0) + 1
+    drawn = sum(shapes.values())
+    detail = " ".join(f"{s} {n}" for s, n in sorted(shapes.items(), key=lambda kv: -kv[1]))
+
+    log(f"  퀴즈 재료      오해 {myth_notes}편 {myth_items}항목 · "
+        f"사례 {case_notes}편 {case_items}항목 · 도해 {drawn}편 ({detail})")
+
+
 def report(books: list[dict], dropped: list[str]) -> None:
     total = sum(len(b["terms"]) for b in books)
     log(f"단어장 {len(books)}권, 단어 {total}개")
     for b in books:
         drawn = sum(1 for t in b["terms"] if t["figure"])
         log(f"  {b['name']:14} {len(b['terms']):3}개   그림 {drawn}개")
+    report_stock(books)
     if dropped:
         # 조용히 버리지 않는다. 무엇이 빠졌는지 말하지 않으면 다 들어간 것처럼 읽힌다.
         log(f"제외 {len(dropped)}건: " + ", ".join(dropped[:6]) + (" …" if len(dropped) > 6 else ""))
@@ -677,7 +865,13 @@ def report(books: list[dict], dropped: list[str]) -> None:
 INDEX_FIELDS = ["id", "term", "reading", "category", "summary", "aliases", "related"]
 
 # 단어를 펼쳤을 때만 필요한 것. 전체 무게의 87% 가 여기 있다.
-BODY_FIELDS = ["definition", "analogy", "sections", "figure", "recap", "check"]
+#
+# myths·cases·dia 는 퀴즈가 쓰는데도 여기 있다. 퀴즈가 인덱스에서 문제를 만드는
+# 유형(한 줄 뜻·관련 용어)과 달리, 이 셋으로 내는 문제는 **고른 범위의 권**을
+# 이미 읽어놓은 상태에서만 만들면 된다. 인덱스로 올리면 시작할 때 항상 읽는
+# 파일에 오해 687항목과 도해 229개가 얹혀 첫 화면이 그만큼 늦어진다.
+BODY_FIELDS = ["definition", "analogy", "sections", "figure", "recap", "check",
+               "myths", "cases", "dia"]
 
 BANNER = (
     "// 이 파일은 tools/build.py 가 content/*.md 에서 생성한다. 직접 고치지 말 것.\n"

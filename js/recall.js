@@ -13,6 +13,10 @@
    스스로 떠올린 다음 확인한다. 자가 평가는 두 갈래로만 둔다 —
    네 갈래는 고르는 데 시간이 걸리고, 목업에서 그 차이를 쓸 데가 없다.
 
+   카드에는 이름과 함께 저자가 노트에 적어둔 확인 질문 하나가 같이 나온다.
+   이름만 보고 떠올릴 수 있는 건 뜻 한 줄인데, 노트는 그것보다 두껍다.
+   채점은 여전히 안 한다 — 질문을 내밀고 답이 어디 있는지 알려주는 데서 멈춘다.
+
    이 단계는 간격 반복 일정을 건드리지 않는다. 예약은 퀴즈가 한다.
    읽기 -> 떠올리기(학습 완료) -> 퀴즈(통과 + 다음 복습 예약) -> 복습
    ============================================================ */
@@ -51,7 +55,12 @@
       done: [],      // 떠올린 단어
       again: [],     // 다시 볼 단어 (중복 없이 센다)
       shown: false,  // 답을 폈는가
+      rot: {},       // 단어별로 몇 번째 확인 질문을 낼 차례인가
     };
+    turnTo(queue[0]);
+    // 첫 카드의 본문을 지금 부른다. navigate 는 hashchange 를 한 박자 뒤에 부르는데,
+    // 그때 시작하면 첫 질문만 늦게 끼어들어 이미 읽던 화면이 눈앞에서 바뀐다.
+    ensureBody(queue[0]);
     App.navigate("/recall/run");
   }
 
@@ -64,6 +73,92 @@
     if (term) start([term], term.term);
   });
 
+  /* ---------------------------------------------------------- 저자의 확인 질문
+
+     노트마다 저자가 "이 셋에 답할 수 있으면 이해한 것이다" 라며 질문을 셋씩 적어뒀다
+     (229편 · 687문항). 상세 화면은 이미 그걸 쓰는데 여기는 안 썼다 — 단어 이름만
+     보여주고 "떠올랐나" 를 물었다. 이름만 보고 떠올릴 수 있는 건 뜻 한 줄이지만
+     저자의 질문은 "왜 그런가" 를 묻는다. 같은 카드에서 더 깊은 걸 물을 수 있는데
+     안 쓸 이유가 없었다.
+
+     기계가 답을 채점하지는 않는다. 스스로 답하고 스스로 확인하는 게 회상이고,
+     서술형을 채점하려 드는 순간 맞는 답도 틀렸다고 하기 시작한다.
+     여기서 하는 일은 질문을 내밀고, 답이 어디 있는지 알려주는 것까지다. */
+
+  /* 질문 한 줄을 { q, at } 로 세운다. at 은 답이 적힌 칸의 이름이다.
+     빌드가 "→ 뒤" 를 떼어내기 전에 구워둔 데이터에는 질문 문자열만 들어 있어서
+     두 모양을 다 받는다. js/screens.js 의 asked() 와 같은 판정을 여기서도 한다 —
+     같은 데이터를 두 화면이 다르게 읽으면 한쪽만 조용히 비어 보인다. */
+  function asked(item) {
+    if (typeof item === "string") return { q: item, at: "" };
+    return { q: (item && item.q) || "", at: (item && item.at) || "" };
+  }
+
+  /* 카드에 들어설 때 몇 번째 질문을 낼지 정해 둔다. 그리는 동안에는 바뀌지 않아야 한다 —
+     답을 펴거나 본문이 늦게 도착해서 다시 그릴 때마다 질문이 갈리면 읽던 사람이 길을 잃는다.
+
+     시작 자리는 판마다 새로 뽑고, 같은 단어가 "아직" 으로 되돌아오면 다음 것으로 넘긴다.
+     늘 첫 번째만 내면 셋 중 하나만 외우게 되고, 그건 저자가 셋을 적어둔 뜻을 버리는 것이다. */
+  function turnTo(term) {
+    if (!session || !term) return;
+    if (typeof session.rot[term.id] === "number") {
+      session.rot[term.id] += 1;
+      return;
+    }
+    // security-ok: OWASP-A02-2 — 셋 중 몇 번째 질문부터 낼지 고르는 값이다. 비밀이 아니다.
+    session.rot[term.id] = Math.floor(Math.random() * ((term.check && term.check.length) || 3));
+  }
+
+  /* 이번 카드에 낼 질문. 확인 질문이 없는 단어는 null 이고, 그러면 화면은
+     예전처럼 이름과 뜻만 다룬다. 없는 게 깨짐이 아니라 그냥 덜 물어보는 것이다. */
+  function askOf(term) {
+    var list = (term && term.check) || [];
+    if (!list.length) return null;
+    var rot = (session && session.rot) || {};
+    var turn = typeof rot[term.id] === "number" ? rot[term.id] : 0;
+    var ask = asked(list[turn % list.length]);
+    return ask.q ? ask : null;
+  }
+
+  /* 확인 질문은 본문 파일(data/terms/<권>.js)에 실려 있고 본문은 권 단위로 따로 온다.
+     회상 큐는 여러 권에 걸칠 수 있으니 카드가 바뀔 때마다 그 권을 챙긴다.
+     못 받아도 카드는 그대로 돈다 — 질문은 덤이고 단어가 본체다.
+
+     실패했을 때 다시 그리지 않는 것이 중요하다. 다시 그리면 본문이 여전히 없으니
+     또 부르고 또 실패한다. screens.js 가 이 고리로 6초에 2만 번을 돌았다. */
+  function ensureBody(term) {
+    if (!term || Store.hasBody(term.bookId) || Store.bodyFailed(term.bookId)) return;
+    Store.loadBody(term.bookId, function (ok) {
+      if (!ok) return;
+      if (App.currentPath() === "/recall/run") App.render();
+    });
+  }
+
+  /* 다음 카드의 권은 미리 받아둔다. 안 그러면 카드를 넘길 때마다 질문이 한 박자 늦게
+     끼어들어, 이미 읽기 시작한 화면이 눈앞에서 바뀐다.
+     콜백을 걸지 않는 건 지금 보고 있는 화면과 상관없는 일이기 때문이다. */
+  function prefetchNext() {
+    var next = session && session.queue[1];
+    if (!next || Store.hasBody(next.bookId) || Store.bodyFailed(next.bookId)) return;
+    Store.loadBody(next.bookId);
+  }
+
+  /* 답을 편 자리에서 "답이 어디 있는지" 를 알려주는 칸.
+     한 줄 뜻은 저자의 질문에 대한 답이 아니다. 답은 본문 어느 칸에 흩어져 있고,
+     그 자리를 안 알려주면 "떠올랐다" 를 누를 근거가 없다.
+
+     상세 화면에는 그 칸으로 바로 뛰는 단추가 있지만(screens.js 의 selfcheck__jump)
+     여기엔 뛸 칸이 화면에 없다. 어디인지 글로 말하고, 가겠다면 상세 화면으로 보낸다. */
+  function whereBlock(term, ask) {
+    if (!ask) return "";
+    return '<p class="recall__where">' +
+      (ask.at
+        ? "이 질문의 답은 〈" + esc(ask.at) + "〉에 있습니다"
+        : "이 질문의 답은 본문에 있습니다") + "</p>" +
+      '<button class="link-btn recall__reread" data-action="go" data-to="/term/' +
+      esc(term.id) + '">다시 읽기</button>';
+  }
+
   /* ---------------------------------------------------------- 카드 */
 
   App.register("/recall/run", function () {
@@ -72,7 +167,15 @@
       return "";
     }
 
-    var term = session.queue[0];
+    var card = session.queue[0];
+    ensureBody(card);
+    prefetchNext();
+
+    // 큐에 담긴 건 인덱스뿐이다. 본문이 와 있으면 확인 질문이 딸려 온다.
+    // 아직이면 인덱스만 쓴다 — 이름과 한 줄 뜻은 거기 다 있다.
+    var term = Store.termById(card.id) || card;
+    var ask = askOf(term);
+
     // 진행률은 "떠올린 개수"로 잰다. 카드를 몇 장 넘겼는지가 아니라
     // 얼마나 남았는지를 알고 싶은 것이기 때문이다.
     var percent = session.total ? Math.round((session.done.length / session.total) * 100) : 0;
@@ -93,9 +196,16 @@
       '<h1 class="recall__term">' + esc(term.term) + "</h1>" +
       (term.reading ? '<p class="recall__reading">' + esc(term.reading) + "</p>" : "") +
 
+      // 질문은 답을 편 뒤에도 자리에 남는다. 무엇을 물었는지 보면서 확인해야
+      // 자기 답과 견줄 수 있다. 질문이 사라지면 견줄 대상이 없다.
+      (ask ? '<p class="recall__ask">' + esc(ask.q) + "</p>" : "") +
+
       (session.shown
-        ? '<div class="recall__answer prose">' + UI.markdown(term.summary) + "</div>"
-        : '<p class="recall__cue">이 말이 무슨 뜻인지<br>머릿속으로 먼저 말해 보세요</p>') +
+        ? '<div class="recall__answer prose">' + UI.markdown(term.summary) + "</div>" +
+          whereBlock(term, ask)
+        : '<p class="recall__cue">' +
+          (ask ? "뜻을 말해 보고<br>이 질문에도 답해 보세요"
+               : "이 말이 무슨 뜻인지<br>머릿속으로 먼저 말해 보세요") + "</p>") +
       "</main>" +
 
       '<div class="action-bar">' +
@@ -105,7 +215,9 @@
           '<button class="btn btn--primary" style="flex:1" data-action="recall-got">' +
           UI.icon("check", 18) + "떠올랐다</button>"
         : '<button class="btn btn--primary btn--block" data-action="recall-show">' +
-          "뜻 확인하기</button>") +
+          // 질문이 붙은 카드에서 "뜻 확인하기" 는 절반만 말한다. 펴는 쪽에는
+          // 한 줄 뜻과 "답이 어디 있는지" 가 같이 있으므로 이름을 넓게 잡는다.
+          (ask ? "확인하기" : "뜻 확인하기") + "</button>") +
       "</div>";
   });
 
@@ -155,6 +267,9 @@
       App.navigate("/recall/done");
       return;
     }
+    // 다음 카드로 들어서는 지점. 여기서만 질문을 넘긴다 —
+    // 되돌아온 단어는 아까와 다른 질문을 받는다.
+    turnTo(session.queue[0]);
     App.render();
   }
 

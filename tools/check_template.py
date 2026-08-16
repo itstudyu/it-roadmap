@@ -191,10 +191,10 @@ def check_flow(rows: list[str], where: str, bad: list[str], warn: list[str]) -> 
             continue
         said = [w for w in REPEATING if w in row]
         if said:
-            warn.append(
+            warn.append(("back",
                 f"{where}: 응답 줄에 '{said[0]}' 가 있다 — 되돌아가는 마디면 "
                 f"'@' 로 적어야 순환으로 보인다 — {row[:30]}"
-            )
+            ))
 
 
 def check_compare(rows: list[str], where: str, bad: list[str], warn: list[str]) -> None:
@@ -228,10 +228,10 @@ def check_layer(rows: list[str], where: str, bad: list[str], warn: list[str]) ->
         name = row.split("::")[0].strip()
         said = [w for w in STAGING if w in name]
         if said or STEP_NAME.match(name):
-            warn.append(
+            warn.append(("layer",
                 f"{where}: 층 이름이 순서를 가리킨다 — {name} "
                 "(시간이 흐르면 층이 아니라 흐름이다)"
-            )
+            ))
 
 
 SHAPE_CHECK = {"흐름": check_flow, "대조": check_compare, "층": check_layer}
@@ -250,17 +250,17 @@ def check_marks(shape: str, rows: list[str], where: str, warn: list[str]) -> Non
     steps = [i for i, r in enumerate(rows) if not r.startswith("=")]
 
     if loops and shape != "흐름":
-        warn.append(f"{where}: '{LOOP_MARK}' 는 흐름의 반복 마디다 — {shape} 도해에는 쓰지 않는다")
+        warn.append(("loop", f"{where}: '{LOOP_MARK}' 는 흐름의 반복 마디다 — {shape} 도해에는 쓰지 않는다"))
     elif loops:
         if len(loops) > 1:
-            warn.append(f"{where}: '{LOOP_MARK}' 줄이 {len(loops)}개다 — 반복 마디는 하나뿐이다")
+            warn.append(("loop", f"{where}: '{LOOP_MARK}' 줄이 {len(loops)}개다 — 반복 마디는 하나뿐이다"))
         if steps and loops[-1] != steps[-1]:
-            warn.append(f"{where}: '{LOOP_MARK}' 줄이 마지막 마디가 아니다 — '= 요약' 바로 앞에 둔다")
+            warn.append(("loop", f"{where}: '{LOOP_MARK}' 줄이 마지막 마디가 아니다 — '= 요약' 바로 앞에 둔다"))
 
     if evens and shape != "대조":
-        warn.append(f"{where}: '{EVEN_MARK}' 는 대조의 칸 이름 줄에만 쓴다 — {shape} 도해에 있다")
+        warn.append(("even", f"{where}: '{EVEN_MARK}' 는 대조의 칸 이름 줄에만 쓴다 — {shape} 도해에 있다"))
     elif evens and evens != [0]:
-        warn.append(f"{where}: '{EVEN_MARK}' 가 칸 이름 줄(제목 다음 첫 줄)이 아닌 곳에 있다")
+        warn.append(("even", f"{where}: '{EVEN_MARK}' 가 칸 이름 줄(제목 다음 첫 줄)이 아닌 곳에 있다"))
 
 
 def check_diagram(lines: list[str], where: str, bad: list[str], warn: list[str]) -> None:
@@ -385,7 +385,7 @@ def check_example(body: str, warn: list[str]) -> None:
     items = ITEM_LINE.findall(body)
     bullets = len(re.findall(r"^\s*-\s+", body, re.M))
     if bullets > len(items):
-        warn.append(f"실제 사례 {bullets - len(items)}줄이 '**어디서** — 설명' 형식이 아니다")
+        warn.append(("examples", f"실제 사례 {bullets - len(items)}줄이 '**어디서** — 설명' 형식이 아니다"))
 
 
 def aim_of(ask: str) -> tuple[str, str]:
@@ -439,7 +439,7 @@ def check_selfcheck(body: str, targets: set[str], bad: list[str], warn: list[str
         if not at:
             aimless += 1
         elif re.sub(r"\s+", "", at) not in targets:
-            warn.append(f"확인 질문이 없는 자리를 가리킨다 — → {at}")
+            warn.append(("aim", f"확인 질문이 없는 자리를 가리킨다 — → {at}"))
         if len(ask) < CHECK_MIN:
             bad.append(f"확인 질문이 너무 짧다 — {ask}")
         # "X 란 무엇인가" 는 외웠는지만 확인된다. 이해했는지는 상황을 줘야 나온다.
@@ -455,7 +455,7 @@ def check_selfcheck(body: str, targets: set[str], bad: list[str], warn: list[str
     # 질문만 던져놓고 끝나면 회상 연습이 절반만 된다. 답의 절반은 접힌 칸 안에
     # 있어서, 스스로 답해본 사람이 맞았는지 확인할 길이 없다.
     if aimless:
-        warn.append(f"확인 질문 {aimless}개에 '→ 답이 있는 자리' 가 없다")
+        warn.append(("aim", f"확인 질문 {aimless}개에 '→ 답이 있는 자리' 가 없다"))
 
 
 def check_summary(body: str, bad: list[str]) -> None:
@@ -464,8 +464,14 @@ def check_summary(body: str, bad: list[str]) -> None:
         bad.append(f"정리가 {len(sentences)}문장이다 ({SUMMARY_MAX}문장 이내)")
 
 
-def check(path: str) -> tuple[list[str], list[str]]:
-    """(실패, 경고) 를 돌려준다. 실패만 종료 코드에 걸린다."""
+def check(path: str) -> tuple[list[str], list[tuple[str, str]]]:
+    """(실패, 경고) 를 돌려준다. 실패만 종료 코드에 걸린다.
+
+    경고는 (규칙 이름, 문장) 이다. 이름이 붙어 있는 이유는 --require 로 골라
+    실패로 올리기 위해서다. 규칙마다 성질이 다르다 — 'examples' 나 'aim' 은
+    형식을 그대로 재는 결정적인 규칙이라 올려도 안전하지만, 'back' 이나 'layer' 는
+    낱말을 보고 짐작하는 휴리스틱이라 올리면 멀쩡한 노트가 걸린다.
+    """
     # macOS 는 한글을 자모로 풀어 쓴 NFD 로 저장하는 자리가 많다. 눈으로는 같은
     # "📝 정의" 인데 바이트가 달라서, 정규화 없이 비교하면 멀쩡한 노트에
     # "필수 섹션이 없다" 가 스무 건 넘게 쏟아진다. build.py 는 이미 NFC 로 맞춘다.
@@ -473,7 +479,7 @@ def check(path: str) -> tuple[list[str], list[str]]:
     title, sections = split_sections(text)
     body_of = {canonical(h): b for h, b in sections if canonical(h)}
     bad: list[str] = []
-    warn: list[str] = []
+    warn: list[tuple[str, str]] = []
 
     check_structure(title, sections, bad)
     check_panels(sections, bad)
@@ -524,7 +530,7 @@ def notes(raw: str) -> list[str]:
     return sorted(found)
 
 
-def report(path: str, strict: bool) -> tuple[bool, int, int]:
+def report(path: str, strict: bool, require: set[str]) -> tuple[bool, int, int]:
     """한 편을 검사하고 결과를 찍는다. (실패했나, 실패 건수, 경고 건수)"""
     name = os.path.basename(path)
     try:
@@ -537,25 +543,60 @@ def report(path: str, strict: bool) -> tuple[bool, int, int]:
         say(f"✓ {name}")
         return False, 0, 0
 
-    # --strict 는 경고도 막아 세운다. 사람이 전수로 훑을 때 쓴다.
-    down = bool(bad) or (strict and bool(warn))
+    # --strict 는 경고를 전부 막아 세운다. 사람이 전수로 훑을 때 쓴다.
+    # --require 는 고른 규칙만 막아 세운다. 자동 루틴이 새 단어에 쓴다.
+    hit = [w for w in warn if w[0] in require]
+    down = bool(bad) or (strict and bool(warn)) or bool(hit)
     counts = f"실패 {len(bad)}건" if bad else ""
     if warn:
         counts += (" · " if counts else "") + f"경고 {len(warn)}건"
     say(f"{'✗' if down else '△'} {name} — {counts}")
     for line in bad:
         say(f"    ✗ {line}")
-    for line in warn:
-        say(f"    △ {line}")
+    for rule, line in warn:
+        say(f"    {'✗' if (strict or rule in require) else '△'} {line}")
     return down, len(bad), len(warn)
 
 
-def main(argv: list[str]) -> int:
+# --require 로 올릴 수 있는 규칙. 형식을 그대로 재는 것만 넣었다.
+# 낱말로 짐작하는 'back'(< 에 반복어) 과 'layer'(층 이름이 시간말) 는 일부러 뺐다 —
+# 오탐이 있는 규칙을 실패로 올리면 멀쩡한 새 단어가 새벽에 조용히 버려진다.
+REQUIRABLE = {"examples", "aim", "loop", "even"}
+
+
+def parse_args(argv: list[str]) -> tuple[bool, set[str], list[str]] | None:
+    """(strict, require, 경로들). 인자가 틀렸으면 None 을 돌려준다."""
     strict = "--strict" in argv[1:]
-    args = [a for a in argv[1:] if a != "--strict"]
+    require: set[str] = set()
+    args = []
+    for a in argv[1:]:
+        if a == "--strict":
+            continue
+        if a.startswith("--require="):
+            require |= {r.strip() for r in a.split("=", 1)[1].split(",") if r.strip()}
+            continue
+        args.append(a)
+
+    unknown = require - REQUIRABLE
+    if unknown:
+        sys.stderr.write(f"모르는 규칙: {', '.join(sorted(unknown))}\n")
+        sys.stderr.write(f"올릴 수 있는 것: {', '.join(sorted(REQUIRABLE))}\n")
+        return None
+
     if not args or any(a.startswith("-") for a in args):
-        sys.stderr.write(f"쓰는 법: {argv[0]} [--strict] <노트.md | 폴더> [...]\n")
+        sys.stderr.write(
+            f"쓰는 법: {argv[0]} [--strict] [--require={','.join(sorted(REQUIRABLE))}]"
+            " <노트.md | 폴더> [...]\n")
+        return None
+
+    return strict, require, args
+
+
+def main(argv: list[str]) -> int:
+    parsed = parse_args(argv)
+    if parsed is None:
         return 2
+    strict, require, args = parsed
 
     paths = [p for raw in args for p in notes(raw)]
     if not paths:
@@ -566,7 +607,7 @@ def main(argv: list[str]) -> int:
 
     files = failed = warned = bad_lines = warn_lines = 0
     for path in paths:
-        down, nbad, nwarn = report(path, strict)
+        down, nbad, nwarn = report(path, strict, require)
         files += 1
         failed += 1 if down else 0
         warned += 1 if nwarn else 0
@@ -578,7 +619,12 @@ def main(argv: list[str]) -> int:
         say(
             f"\n{files}편 — 실패 {bad_lines}건 · 경고 {warn_lines}건"
             f"  (통과 {files - failed}편 · 걸린 {failed}편 · 경고 있는 편 {warned}"
-            + (", --strict 라 경고도 걸린다)" if strict and warn_lines else ")")
+            + (
+                ", --strict 라 경고도 걸린다)" if strict and warn_lines
+                else f", --require={','.join(sorted(require))} 라 그 경고는 걸린다)"
+                if require and warn_lines
+                else ")"
+            )
         )
 
     return 1 if failed else 0

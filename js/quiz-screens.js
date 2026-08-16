@@ -34,9 +34,116 @@
     App.navigate("/quiz/run");
   }
 
-  /* ---------------------------------------------------------- 범위 고르기 */
+  /* ---------------------------------------------------------- 본문 미리 받기
 
-  var LIMIT = 8;
+     새 유형이 쓰는 재료(흔한 오해 · 실제 사례 · 대표 도해 · 비유)는 인덱스가 아니라
+     본문(data/terms/<권>.js)에 실린다. js/quiz.js 는 본문이 없으면 그 유형을 조용히
+     건너뛰므로, 본문을 안 받아두면 화면은 "30문제" 라 적어 놓고 12문제를 내게 된다.
+     세는 쪽과 내는 쪽이 같은 재료를 봐야 그 어긋남이 없다. 받아두는 일은 화면 몫이다 —
+     build() 를 기다리게 만들면 문제 만들기가 비동기가 되고 계약이 통째로 바뀐다.
+
+     서비스워커가 설치할 때 12권을 이미 받아 두므로 대개 디스크에서 바로 온다. */
+
+  function loadBooks(ids, done) {
+    if (!ids.length) { done(); return; }
+    var left = ids.length;
+    ids.forEach(function (id) {
+      // 실패해도 콜백은 온다(Store 가 실패를 기억한다). 못 받은 권은 유형이 줄어든 채로 낸다.
+      Store.loadBody(id, function () {
+        left--;
+        if (left === 0) done();
+      });
+    });
+  }
+
+  /* 범위 화면에 들어오면 12권을 통째로 받아둔다. 여기서 세는 숫자가 12권 전부에
+     걸쳐 있기 때문이다(복습 · 학습 완료는 권을 가리지 않는다).
+
+     받을 게 없으면 아무것도 부르지 않고 돌아간다. 여기서 done 을 부르면 다시 그리기가
+     또 이 함수를 부르고 그게 또 다시 그리기를 불러서 스택이 넘친다. 실제로 넘겨봤다. */
+  function warmBodies(done) {
+    var missing = Store.books().filter(function (b) {
+      return !Store.hasBody(b.id) && !Store.bodyFailed(b.id);
+    });
+    if (!missing.length) return;
+
+    loadBooks(missing.map(function (b) { return b.id; }), done);
+  }
+
+  /* 한 판을 시작하기 전에는 그 범위가 걸친 권만 받는다. 홈의 복습 알림처럼
+     범위 화면을 거치지 않고 바로 들어오는 길이 있어서, 여기서 한 번 더 확인한다. */
+  function withBodies(targets, done) {
+    var need = [];
+    targets.forEach(function (t) {
+      if (!Store.hasBody(t.bookId) && need.indexOf(t.bookId) === -1) need.push(t.bookId);
+    });
+    loadBooks(need, done);
+  }
+
+  /* ---------------------------------------------------------- 한 판 길이
+
+     8문제 고정이었다. 권 하나가 34편인데 8문제만 나오면 범위를 고른 의미가 없다.
+     그렇다고 30문제로 못 박을 수도 없다 — 두 정거장 사이에 한 판을 끝내려는 사람은
+     30문제짜리 화면을 보면 아예 시작하지 않는다. 길이는 그날 사정이라 고르게 둔다.
+
+     고른 값은 localStorage 에 직접 담는다. Store 가 지키는 것은 학습 기록이고
+     이건 화면 설정이라, 같은 칸에 넣으면 기록을 지울 때 설정까지 따라 지워진다.
+     키도 학습 기록 키(it-vocab-mockup:v1)와 겹치지 않게 따로 판다. */
+
+  var LENGTHS = [
+    { n: 8, label: "짧게" },
+    { n: 15, label: "보통" },
+    { n: 30, label: "길게" },
+  ];
+
+  var LENGTH_KEY = "it-vocab-mockup:quiz-length";
+
+  function isLength(n) {
+    return LENGTHS.some(function (l) { return l.n === n; });
+  }
+
+  function loadLength() {
+    try {
+      var saved = parseInt(localStorage.getItem(LENGTH_KEY), 10);
+      // 저장된 값을 그대로 믿지 않는다. 사람이 고칠 수 있는 칸이고, 여기서 나온 숫자가
+      // 그대로 출제 개수가 된다. 아는 값이 아니면 기본값으로 되돌린다.
+      if (isLength(saved)) return saved;
+    } catch (err) {
+      /* 저장소를 못 쓰면(시크릿 모드 등) 기본값으로 간다. 앱은 그대로 돌아간다. */
+    }
+    return LENGTHS[0].n;
+  }
+
+  var limit = loadLength();
+
+  function setLength(n) {
+    if (!isLength(n)) return;
+    limit = n;
+    try {
+      localStorage.setItem(LENGTH_KEY, String(n));
+    } catch (err) {
+      /* 저장에 실패해도 이번 세션에는 적용된다 */
+    }
+  }
+
+  /* 길이 고르기. 카드로 만들지 않는다 — 먼저 고를 것은 "무엇을" 이고
+     "몇 문제" 는 그 다음이다. 범위 카드와 같은 무게로 두면 순서가 헷갈린다.
+     필터 줄(.chips)을 그대로 쓰지 않는 이유는 저건 가로로 넘치는 목록이라
+     오른쪽을 흐리는 마스크가 붙어 있어서다. 여기는 셋뿐이라 넘칠 일이 없다. */
+  function lengthPicker() {
+    var opts = LENGTHS.map(function (l) {
+      return '<button class="chip" data-action="quiz-length" data-n="' + l.n +
+        '" aria-pressed="' + (l.n === limit) + '">' + esc(l.label) +
+        '<span class="chip__count num">' + l.n + "</span></button>";
+    }).join("");
+
+    return '<div class="quiz-len">' +
+      '<span class="quiz-len__label" id="quiz-len-label">한 판 길이</span>' +
+      '<div class="quiz-len__opts" role="group" aria-labelledby="quiz-len-label">' +
+      opts + "</div></div>";
+  }
+
+  /* ---------------------------------------------------------- 범위 고르기 */
 
   /* 범위마다 실제 문항 수를 미리 센다.
      시작하기 전에 얼마나 걸릴지 알려주는 건 Duolingo 가 진행 막대로 하는 일이다.
@@ -51,7 +158,9 @@
     });
 
     var entry = function (key, name, icon, targets, emptyNote) {
-      var n = window.Quiz.countQuestions(targets, pool, LIMIT);
+      // 고른 길이로 센다. 길이를 바꾸면 이 숫자도 같이 움직여야
+      // 화면이 코드가 하지 않는 말을 하지 않는다.
+      var n = window.Quiz.countQuestions(targets, pool, limit);
       return {
         key: key,
         name: name,
@@ -94,6 +203,16 @@
   }
 
   App.register("/quiz", function () {
+    /* 본문이 도착하면 문항 수를 다시 센다. 다시 그리는 건 한 번뿐이다 —
+       두 번째부터는 받을 게 없어서 여기서 그냥 돌아간다.
+       보던 자리는 지켜준다. 숫자가 바뀌었다고 목록이 맨 위로 튀면 안 된다. */
+    warmBodies(function () {
+      if (App.currentPath() !== "/quiz") return;
+      var y = window.scrollY;
+      App.render();
+      window.scrollTo(0, y);
+    });
+
     var all = scopeOptions();
     // 상태로 고르는 두 가지가 대부분의 경우 정답이므로 앞에 크게 둔다.
     // 단어장 목록은 그 다음이라 가벼운 줄로 내린다.
@@ -106,10 +225,17 @@
       '<h1 class="screen-title">무엇을 확인할까요</h1>' +
       '<p class="quiz-intro__lead">뜻을 외웠는지가 아니라 개념을 구분할 수 있는지 묻습니다. ' +
       "선택지는 같은 분야에서 뽑기 때문에 대충 찍기는 어렵습니다.</p>" +
+      lengthPicker() +
       '<div class="stack" style="margin-top:28px">' + suggested.map(scopeCard).join("") + "</div>" +
       '<section class="block"><h2 class="section-title" style="margin-bottom:4px">단어장에서 고르기</h2>' +
       '<div class="scope-rows">' + books.map(scopeRow).join("") + "</div></section>" +
       "</div></main>";
+  });
+
+  App.on("quiz-length", function (data) {
+    setLength(parseInt(data.n, 10));
+    // 길이가 바뀌면 범위마다 붙은 "N문제"도 다시 세어야 한다. 화면을 다시 그린다.
+    App.render();
   });
 
   App.on("start-scope", function (data) {
@@ -133,13 +259,18 @@
       label = book ? book.name : "단어장";
     }
 
-    startSession(window.Quiz.build(targets, pool, 8), label);
+    withBodies(targets, function () {
+      startSession(window.Quiz.build(targets, pool, limit), label);
+    });
   });
 
   // 홈의 복습 알림에서 바로 들어오는 길
   App.on("start-review", function () {
     var pool = Store.allTerms();
-    startSession(window.Quiz.build(Store.reviewQueue(), pool, 8), "복습");
+    var targets = Store.reviewQueue();
+    withBodies(targets, function () {
+      startSession(window.Quiz.build(targets, pool, limit), "복습");
+    });
   });
 
   // 단어 상세에서 그 단어 하나만 확인하고 싶을 때
@@ -147,7 +278,11 @@
     var pool = Store.allTerms();
     var term = Store.termById(data.id);
     if (!term) return;
-    startSession(window.Quiz.build([term], pool, 1), term.term);
+    /* 여기서는 길이를 따르지 않는다. 읽던 단어 하나를 짚고 넘어가는 자리라
+       30문제가 나오면 읽기가 끊긴다. 한 판은 범위 화면에서 시작한다. */
+    withBodies([term], function () {
+      startSession(window.Quiz.build([term], pool, 1), term.term);
+    });
   });
 
   /* ---------------------------------------------------------- 문제 풀기 */
@@ -178,10 +313,25 @@
       // --i 는 물러나는 순서를 매기는 데 쓴다
       return '<button class="' + cls + '" style="--i:' + i + '" data-action="answer" data-id="' +
         esc(opt.id) + '"' + (picked ? " disabled" : "") + ">" +
-        '<span class="option__key">' + keys[i] + "</span>" +
+        // 계약은 보기 넷이지만 그 약속은 이 파일 밖에서 지켜진다.
+        // 다섯 번째가 오면 글자 자리에 undefined 가 찍히므로 숫자로 받아둔다.
+        '<span class="option__key">' + (keys[i] || i + 1) + "</span>" +
         '<span class="option__text">' + esc(opt.text) + "</span>" +
         (mark || '<span class="option__mark"></span>') + "</button>";
     }).join("");
+  }
+
+  /* 유형마다 "고른 것" 의 정체가 다르다. 용어 이름을 고른 문제에서는 "고른 답" 이면
+     충분하지만, 보기가 문장인 문제에서는 그 문장이 무엇이었는지를 말해줘야 한다.
+     여기 없는 유형은 마지막 줄로 떨어진다 — 유형이 늘어도 이 화면은 깨지지 않는다.
+
+     조사 병기("은(는)")를 만들지 않는 문장으로 쓴다. 영문 용어 뒤에 붙는 조사는
+     한글 읽기의 받침을 알아야 정해지는데, 그 정보가 노트에 없다. */
+  function contrastLead(kind, name) {
+    var K = window.Quiz.KINDS;
+    if (kind === K.DEFINE) return "고른 설명은 " + name + "의 것입니다";
+    if (kind === K.MYTH_PICK) return "고른 문장은 " + name + " 쪽 이야기입니다";
+    return "고른 답: " + name;
   }
 
   /* 틀렸을 때 정답 설명만 다시 보여주는 건 도움이 안 된다 —
@@ -193,11 +343,7 @@
     var source = Store.termById(chosen.sourceId);
     if (!source || source.id === question.termId) return "";
 
-    // 조사 병기("은(는)")를 만들지 않는 문장으로 쓴다. 영문 용어 뒤에 붙는 조사는
-    // 한글 읽기의 받침을 알아야 정해지는데, 그 정보가 노트에 없다.
-    var line = question.kind === window.Quiz.KINDS.DEFINE
-      ? "고른 설명은 " + source.term + "의 것입니다"
-      : "고른 답: " + source.term;
+    var line = contrastLead(question.kind, source.term);
 
     return '<div class="feedback__contrast">' +
       '<p class="feedback__contrast-head">' + esc(line) + "</p>" +
@@ -284,7 +430,14 @@
     var right = !!(chosen && chosen.correct);
 
     session.picked = data.id;
-    session.answers.push({ termId: q.termId, correct: right, unsure: data.id === UNSURE });
+    // 유형을 같이 적어 둔다. 한 판이 30문제까지 길어지면 결과 화면에서
+    // "어디서 틀렸나" 를 물을 수 있어야 하는데, 그 답이 여기 없으면 셀 수가 없다.
+    session.answers.push({
+      termId: q.termId,
+      kind: q.kind,
+      correct: right,
+      unsure: data.id === UNSURE,
+    });
     if (right) session.correct++;
 
     /* 학습 상태를 바로 반영한다. 맞으면 통과, 틀리면 복습 대기열로.
@@ -349,6 +502,46 @@
     return { title: "다시 읽을 때입니다", note: "틀린 단어를 복습 목록에 넣었습니다. 급하지 않습니다, 하나씩 보면 됩니다." };
   }
 
+  /* 30문제짜리 한 판에서 "18 / 30" 만으로는 무엇을 다시 읽어야 할지 알 수 없다.
+     틀린 문제가 어느 유형에 몰렸는지가 그 답이다 — 뜻 고르기에서 몰렸으면 정의를,
+     순서에서 몰렸으면 도해를 다시 볼 일이다.
+
+     표로 펼치지 않는다. 유형별 정답률표는 성적표이지 다음에 할 일이 아니고,
+     이 화면이 하려는 말은 "다음에 무엇을 하라" 하나다. 그래서 한 줄로 둔다. */
+  function missedByKind(answers) {
+    var groups = [];
+    answers.forEach(function (a) {
+      if (a.correct || !a.kind) return;
+      var hit = groups.find(function (g) { return g.kind === a.kind; });
+      if (hit) hit.n++;
+      else groups.push({ kind: a.kind, n: 1 });
+    });
+    if (!groups.length) return "";
+
+    groups.sort(function (x, y) { return y.n - x.n; });
+    // 세 가지까지만 적는다. 여섯 유형을 다 늘어놓으면 한 줄이 세 줄이 된다.
+    var head = groups.slice(0, 3).map(function (g) { return g.kind + " " + g.n; }).join(" · ");
+    var rest = groups.length - 3;
+    return "틀린 곳 — " + head + (rest > 0 ? " 외 " + rest + "가지" : "");
+  }
+
+  /* 한 단어를 여러 각도로 물으면 같은 이름이 답안에 여러 번 들어온다.
+     목록에 같은 이름이 두 번 뜨면 왜 두 번인지부터 생각하게 되므로 한 번만 싣는다.
+     한 번이라도 틀린 단어는 복습 쪽에만 둔다 — Store 가 매기는 상태와도 그게 맞다. */
+  function splitTerms(answers) {
+    var missed = {};
+    answers.forEach(function (a) { if (!a.correct) missed[a.termId] = true; });
+
+    var seen = {};
+    var out = { wrong: [], right: [] };
+    answers.forEach(function (a) {
+      if (seen[a.termId]) return;
+      seen[a.termId] = true;
+      out[missed[a.termId] ? "wrong" : "right"].push(a.termId);
+    });
+    return out;
+  }
+
   App.register("/quiz/result", function () {
     if (!session) {
       App.navigate("/quiz", true);
@@ -357,13 +550,15 @@
 
     var total = session.questions.length;
     var copy = resultCopy(session.correct, total);
+    var missed = missedByKind(session.answers);
 
-    var wrong = session.answers.filter(function (a) { return !a.correct; });
-    var right = session.answers.filter(function (a) { return a.correct; });
+    var split = splitTerms(session.answers);
+    var wrong = split.wrong;
+    var right = split.right;
 
     var rowsFor = function (list, iconName) {
-      return list.map(function (a) {
-        var t = Store.termById(a.termId);
+      return list.map(function (termId) {
+        var t = Store.termById(termId);
         if (!t) return "";
         return '<button class="result-row" data-action="go" data-to="/term/' + esc(t.id) + '">' +
           Parts.statusDot(Store.statusOf(t.id)) +
@@ -379,6 +574,7 @@
       '<span class="result__of"> / ' + total + "</span></p>" +
       '<h1 class="result__title">' + esc(copy.title) + "</h1>" +
       '<p class="result__note">' + esc(copy.note) + "</p>" +
+      (missed ? '<p class="result__missed">' + esc(missed) + "</p>" : "") +
       "</div>" +
 
       '<div class="stack" style="margin-top:36px">' +

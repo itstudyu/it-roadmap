@@ -110,11 +110,28 @@ def new_term_files() -> list[str]:
     return out
 
 
+# 새 단어에서만 실패로 올리는 규칙.
+#
+# 기존 229편은 경고인 채로 두고 새로 들어오는 것만 조인다. 이유가 둘이다.
+# 하나, 퀴즈가 이 자리들을 직접 먹는다 — 💡 실제 사례의 `**라벨** — 설명` 은
+# "사례에서 용어 찾기" 문제가 되고, 확인 질문의 `→ 답이 있는 자리` 는 회상 화면이
+# 답을 어디서 찾을지 알려주는 근거다. 형식이 어긋나면 나쁜 문제가 조용히 만들어진다.
+# 둘, 이 넷은 형식을 그대로 재는 결정적인 규칙이라 잘 쓴 노트가 걸릴 일이 없다.
+# 낱말로 짐작하는 규칙(< 에 반복어, 층 이름이 시간말)은 일부러 뺐다 —
+# 오탐 있는 규칙으로 새벽에 결과를 버리면 안 된다.
+REQUIRE = "examples,aim,loop,even"
+
+
 def check_template(paths: list[str]) -> tuple[bool, str]:
     bad = []
     for p in paths:
         r = subprocess.run(
-            [sys.executable, os.path.join(ROOT, "tools", "check_template.py"), p],
+            [
+                sys.executable,
+                os.path.join(ROOT, "tools", "check_template.py"),
+                "--require=" + REQUIRE,
+                p,
+            ],
             cwd=ROOT, capture_output=True, text=True,
         )
         if r.returncode != 0:
