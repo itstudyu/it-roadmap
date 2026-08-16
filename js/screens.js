@@ -431,9 +431,32 @@
     return text.length > limit ? text.slice(0, limit).trim() + "…" : text;
   }
 
+  /* 흔한 오해. 틀린 문장을 앞에 세우고 그 밑에서 부순다.
+     순서가 중요하다 — 맞는 말을 먼저 하면 읽는 사람은 자기가 뭘 잘못
+     알고 있었는지 모르고 지나간다. 그래서 평범한 목록으로 두지 않는다. */
+  function mythPanel(body) {
+    var items = [];
+    body.split("\n").forEach(function (line) {
+      var m = line.match(/^\s*-\s*\*\*(.+?)\*\*\s*[—–-]\s*(.+)$/);
+      if (m) items.push({ wrong: m[1].trim(), right: m[2].trim() });
+    });
+    if (!items.length) return UI.markdown(body);
+
+    return '<ul class="myth">' + items.map(function (it) {
+      return '<li class="myth__item">' +
+        '<b class="myth__wrong"><span class="myth__x" aria-hidden="true">✕</span>' +
+        UI.markdown(it.wrong).replace(/^<p>|<\/p>$/g, "") + "</b>" +
+        '<span class="myth__right">' +
+        UI.markdown(it.right).replace(/^<p>|<\/p>$/g, "") + "</span></li>";
+    }).join("") + "</ul>";
+  }
+
+  var PANEL = { myth: mythPanel };
+
   function disclosureSections(term) {
     return term.sections.map(function (s, i) {
       var hint = peek(s.body, 46);
+      var draw = PANEL[s.slot] || UI.markdown;
       /* 첫 섹션은 열어둔다. 전부 접혀 있으면 들어왔을 때 읽을 게 요약 한 장뿐이라
          "자주 필요한 건 처음부터 보여라"는 원칙을 어기게 된다. */
       return "<details class=\"disclose\"" + (i === 0 ? " open" : "") +
@@ -444,8 +467,34 @@
         "</span>" +
         '<span class="disclose__icon">' + UI.icon("chevron", 18) + "</span>" +
         "</summary>" +
-        '<div class="disclose__panel prose">' + UI.markdown(s.body) + "</div></details>";
+        '<div class="disclose__panel prose">' + draw(s.body) + "</div></details>";
     }).join("");
+  }
+
+  /* 그림. 접지 않는다 — 이 화면에서 가장 빨리 이해를 만드는 요소를
+     한 번 더 누르게 하면 아무도 안 본다. */
+  function figureSection(term) {
+    if (!term.figure) return "";
+    return '<section class="figure-slot">' + UI.markdown(term.figure) + "</section>";
+  }
+
+  function analogyBlock(term) {
+    if (!term.analogy) return "";
+    return '<aside class="analogy"><b class="analogy__k">비유</b>' +
+      UI.markdown(term.analogy).replace(/^<p>|<\/p>$/g, "") + "</aside>";
+  }
+
+  /* 이해했는지. 맨 아래, 펼쳐진 채로, 다음 버튼 바로 위에 둔다.
+     읽기가 끝나는 지점이자 "학습 완료" 를 누르기 직전의 마지막 관문이다. */
+  function checkSection(term) {
+    if (!term.check || !term.check.length) return "";
+    return '<section class="selfcheck">' +
+      '<h2 class="selfcheck__head">이 셋에 답할 수 있으면 이해한 것이다</h2>' +
+      '<ol class="selfcheck__list">' +
+      term.check.map(function (q, i) {
+        return '<li><span class="selfcheck__n" aria-hidden="true">' + (i + 1) + "</span>" +
+          '<span class="selfcheck__q">' + esc(q) + "</span></li>";
+      }).join("") + "</ol></section>";
   }
 
   function relatedSection(term) {
@@ -536,9 +585,12 @@
       "</header>" +
       '<div class="gist">' + UI.markdown(term.summary).replace(/^<p>|<\/p>$/g, "") + "</div>" +
       (term.definition
-        ? '<div class="prose" style="margin-top:24px">' + UI.markdown(term.definition) + "</div>"
+        ? '<div class="prose prose--def">' + UI.markdown(term.definition) + "</div>"
         : "") +
-      '<div style="margin-top:32px">' + disclosureSections(term) + relatedSection(term) + "</div>" +
+      analogyBlock(term) +
+      figureSection(term) +
+      '<div class="panels">' + disclosureSections(term) + relatedSection(term) + "</div>" +
+      checkSection(term) +
       "</article></main>" +
       '<div class="action-bar">' + stepBtn(near.prev, "prev") +
       primaryAction(term, status) + stepBtn(near.next, "next") + "</div>";

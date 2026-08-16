@@ -236,11 +236,145 @@ window.UI = (function () {
       '<ol class="diagram__flow">' + body + "</ol></figure>";
   }
 
+  /* ------------------------------------------------------------
+     도해 — ```도해 블록을 그림으로 바꾼다
+
+     원문이 먼저다. Obsidian 에서 그냥 열어도 읽히는 평문이어야 해서
+     표기는 다섯 개뿐이고, 렌더링 없이도 뜻이 통한다.
+     모양은 셋 — 흐름 / 대조 / 층. 노트에서 반복되는 설명 형태가 이 셋이다.
+     mermaid 를 쓰지 않는 이유: graph 는 가로로 넓어져 390px 에서 못 읽는다.
+     문법은 docs/TERM-TEMPLATE.md 에 있다.
+     ------------------------------------------------------------ */
+
+  var DIA_SHAPES = { "흐름": "flow", "대조": "compare", "층": "layer" };
+  var DIA_MAX_DEPTH = 5; // 층 배경 단계
+
+  function diaRow(raw) {
+    var text = raw.trim();
+    var back = /^<\s/.test(text) || text === "<";
+    if (back) text = text.replace(/^<\s*/, "");
+
+    var who = "";
+    var cut = text.indexOf("::");
+    if (cut !== -1) {
+      who = text.slice(0, cut).trim();
+      text = text.slice(cut + 2).trim();
+    }
+
+    var halves = text.split("||"); // 대조에서만 뜻이 있다
+    return {
+      back: back, who: who, what: text,
+      left: halves[0].trim(), right: (halves[1] || "").trim(),
+    };
+  }
+
+  function diaParse(source) {
+    var lines = String(source).split("\n").filter(function (l) { return l.trim(); });
+    if (!lines.length) return null;
+
+    var head = lines[0].match(/^\s*(흐름|대조|층)\s*:\s*(.*)$/);
+    if (!head) return null; // 모양 선언이 없으면 도해가 아니다
+
+    var dia = { shape: DIA_SHAPES[head[1]], title: head[2].trim(), rows: [], sum: "" };
+    for (var i = 1; i < lines.length; i++) {
+      var line = lines[i].trim();
+      var end = line.match(/^=\s*(.+)$/);
+      if (end) { dia.sum = end[1].trim(); continue; }
+      dia.rows.push(diaRow(line));
+    }
+    return dia.rows.length ? dia : null;
+  }
+
+  var DIA_BACK_ICON =
+    '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" ' +
+    'stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">' +
+    '<path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>';
+
+  /* 흐름. 왼쪽 척추선을 따라 번호가 내려간다.
+     응답 구간(<)은 척추 색이 바뀌고 한 번 접힌 표시가 들어간다.
+     화살표를 위로 돌리지 않는다 — 목록은 어차피 아래로 읽히고,
+     방향을 거스르는 화살표는 그림을 설명이 필요한 물건으로 만든다. */
+  function diaFlow(dia) {
+    var out = "", step = 0, turned = false;
+    for (var i = 0; i < dia.rows.length; i++) {
+      var row = dia.rows[i];
+      if (row.back && !turned) {
+        turned = true;
+        out += '<li class="dia__turn"><span class="dia__turnmark" aria-hidden="true">' +
+          DIA_BACK_ICON + "</span><span>여기서부터 돌아오는 길</span></li>";
+      }
+      step++;
+      out += '<li class="dia__step' + (row.back ? " is-back" : "") + '">' +
+        '<span class="dia__mark" aria-hidden="true">' + step + "</span>" +
+        '<span class="dia__body">' +
+        (row.who ? '<b class="dia__who">' + inline(row.who) + "</b>" : "") +
+        '<span class="dia__what">' + inline(row.what) + "</span></span></li>";
+    }
+    return '<ol class="dia__steps">' + out + "</ol>";
+  }
+
+  /* 대조. 두 칸을 항상 나란히 둔다. 위아래로 쌓으면 각 칸은 편해지지만
+     비교가 기억력 문제가 되어버린다. 값어치는 눈이 좌우로 한 번 움직이는 데 있다. */
+  function diaCompare(dia) {
+    var rows = dia.rows.slice();
+    var left = "이전", right = "이후";
+    // 첫 줄이 이름 없이 두 칸만 가지고 있으면 그게 칸 이름이다
+    if (rows.length > 1 && !rows[0].who && rows[0].right) {
+      left = rows[0].left; right = rows[0].right; rows.shift();
+    }
+
+    var head = '<div class="dia__vshead">' +
+      '<span class="dia__col dia__col--bad"><span class="dia__sign" aria-hidden="true">✕</span>' +
+      esc(left) + "</span>" +
+      '<span class="dia__col dia__col--good"><span class="dia__sign" aria-hidden="true">✓</span>' +
+      esc(right) + "</span></div>";
+
+    var body = rows.map(function (row) {
+      return '<div class="dia__vsrow">' +
+        (row.who ? '<b class="dia__k">' + inline(row.who) + "</b>" : "") +
+        '<span class="dia__cell dia__cell--bad">' + inline(row.left) + "</span>" +
+        '<span class="dia__cell dia__cell--good">' + inline(row.right) + "</span></div>";
+    }).join("");
+
+    return '<div class="dia__vs">' + head + body + "</div>";
+  }
+
+  /* 층. 위에서 아래로 깊어진다. 깊이는 배경 농도로만 말한다 —
+     계단처럼 들여쓰면 아래층일수록 폭이 깎여 정작 설명이 긴 층이 가장 좁아진다. */
+  function diaLayer(dia) {
+    var body = dia.rows.map(function (row, i) {
+      return '<li class="dia__layer dia__layer--d' + Math.min(i, DIA_MAX_DEPTH) + '">' +
+        '<b class="dia__who">' + inline(row.who || String(i + 1)) + "</b>" +
+        '<span class="dia__what">' + inline(row.what) + "</span></li>";
+    }).join("");
+    return '<ol class="dia__layers">' + body + "</ol>";
+  }
+
+  var DIA_DRAW = { flow: diaFlow, compare: diaCompare, layer: diaLayer };
+
+  function renderDohae(source) {
+    var dia = diaParse(source);
+    if (!dia) return null;
+    return '<figure class="dia dia--' + dia.shape + '">' +
+      (dia.title ? '<figcaption class="dia__cap">' + inline(dia.title) + "</figcaption>" : "") +
+      DIA_DRAW[dia.shape](dia) +
+      (dia.sum ? '<p class="dia__sum">' + inline(dia.sum) + "</p>" : "") +
+      "</figure>";
+  }
+
   function takeFence(lines, i) {
-    var lang = (lines[i].match(/^\s*```\s*([a-zA-Z0-9_+-]*)/) || [])[1] || "";
+    /* 한글도 받는다. 언어 태그를 ascii 로만 읽으면 ```도해 의 태그가 빈 문자열이 되어
+       도해가 아니라 일반 블록으로 떨어진다. */
+    var lang = (lines[i].match(/^\s*```\s*([a-zA-Z0-9_+\-가-힣]*)/) || [])[1] || "";
     var block = takeWhile(lines, i + 1, function (l) { return !/^\s*```/.test(l); });
     var body = block.lines.join("\n");
     var next = block.next + 1;
+
+    /* 문법이 틀린 도해는 코드블록으로 떨어뜨린다. 원문이 사라지는 것보다는 낫다. */
+    if (lang === "도해") {
+      var drawn = renderDohae(body);
+      return { html: drawn || renderCode(body, ""), next: next };
+    }
 
     if (lang || looksLikeCode(body)) return { html: renderCode(body, lang), next: next };
 
@@ -376,6 +510,7 @@ window.UI = (function () {
     plain: plain,
     icon: icon,
     markdown: markdown,
+    dohae: renderDohae,
     highlight: highlight,
     toast: toast,
   };

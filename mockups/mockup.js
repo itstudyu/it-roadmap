@@ -2,7 +2,7 @@
    목업 조립기
 
    템플릿대로 쓴 Markdown 한 편을 앱의 단어 화면으로 옮긴다.
-   실제 앱은 tools/obsidian_adapter.py 가 미리 JSON 으로 굽지만,
+   실제 앱은 tools/build.py 가 content/*.md 를 미리 JSON 으로 굽지만,
    여기서는 "이 원문이 이 화면이 된다"를 눈으로 확인하는 게 목적이라
    브라우저에서 곧바로 파싱한다.
    ============================================================ */
@@ -81,7 +81,7 @@
     DIA.lastIndex = 0;
     while ((m = DIA.exec(md))) {
       out += UI.markdown(md.slice(last, m.index));
-      out += Dohae.render(m[1]) || UI.markdown("```\n" + m[1] + "\n```");
+      out += UI.dohae(m[1]) || UI.markdown("```\n" + m[1] + "\n```");
       last = DIA.lastIndex;
     }
     return out + UI.markdown(md.slice(last));
@@ -89,11 +89,18 @@
 
   /* 접기 버튼의 미리보기. 안에 도해가 있으면 그 그림이 던지는 질문을 그대로 쓴다 —
      열기 전에 "여기 무슨 그림이 있다"까지 알려주는 편이 낫다. */
+  // 도해의 제목 한 줄. 미리보기에 쓴다.
+  function dohaeTitle(source) {
+    var first = String(source).split("\n").find(function (l) { return l.trim(); }) || "";
+    var m = first.match(/^\s*(?:흐름|대조|층)\s*:\s*(.+)$/);
+    return m ? { title: m[1].trim() } : null;
+  }
+
   function peek(md, limit) {
     DIA.lastIndex = 0;
     var dia = DIA.exec(md);
     if (dia) {
-      var parsed = Dohae.parse(dia[1]);
+      var parsed = UI.dohae && dohaeTitle(dia[1]);
       if (parsed && parsed.title) return parsed.title;
     }
     var text = md
