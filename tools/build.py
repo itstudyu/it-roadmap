@@ -640,12 +640,43 @@ def dumps(obj) -> str:
     return json.dumps(obj, ensure_ascii=False, separators=(",", ":"))
 
 
+def is_ours(path: str) -> bool:
+    """이 저장소가 굽는 생성물 자리인가.
+
+    비어 있으면 우리 것으로 친다(처음 굽는 경우). 아니면 안에 있는 .js 가
+    전부 build.py 가 쓴 배너를 달고 있어야 한다. 사람이 쓴 파일이 하나라도
+    섞여 있으면 여기는 우리 자리가 아니다.
+    """
+    names = [n for n in os.listdir(path) if n.endswith(".js")]
+    if not names:
+        return True
+    marker = "tools/build.py 가"
+    for n in names:
+        try:
+            with open(os.path.join(path, n), encoding="utf-8") as f:
+                if marker not in f.read(400):
+                    return False
+        except (OSError, UnicodeDecodeError):
+            return False
+    return True
+
+
 def write_bodies(terms_dir: str, bodies: dict[str, dict]) -> int:
     """권별 본문 청크를 쓴다. 쓰기 전에 옛 청크를 비운다.
 
     권이 사라졌는데 그 청크가 남아 있으면, 앱은 안 쓰지만 서비스 워커는 계속
     받아 간다. 오프라인 캐시에 유령이 쌓이는 것을 막는다.
+
+    지우기 전에 이 디렉터리가 우리 것인지 확인한다. --out-dir 은 그냥 문자열이라
+    오타 하나로 엉뚱한 곳을 가리킬 수 있는데, 그러면 그 안의 .js 를 확장자만 보고
+    전부 지운다. 남의 소스 디렉터리에서 이 일이 벌어지면 되돌릴 수 없다.
     """
+    if os.path.isdir(terms_dir) and not is_ours(terms_dir):
+        raise ValueError(
+            f"{terms_dir} 는 이 저장소의 생성물 디렉터리가 아니다. "
+            "여기 있는 .js 를 지우지 않는다 — --out-dir 을 확인해라."
+        )
+
     if os.path.isdir(terms_dir):
         for fn in os.listdir(terms_dir):
             if fn.endswith(".js"):

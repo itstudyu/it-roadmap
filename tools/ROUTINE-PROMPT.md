@@ -154,11 +154,7 @@ verify_new_terms.py 가 빌드 제외 0건, 단어 수 정확히 +2, 새 파일�
 애매한 것을 통과시키는 것보다 이번 주에 한 개만 넣는 편이 낫다.
 (그럴 때는 --expect 를 실제 개수로 바꿔서 다시 검증해라.)
 
-### 7. 커밋
-
-    git pull --rebase
-    python3 tools/build.py     # 리베이스 후 다시 굽는다. CACHE_VERSION 이 여기서 갱신된다
-    python3 tools/verify_new_terms.py --expect <실제 개수>
+### 7. 실행 기록
 
 logs/routine-<YYYY-MM-DD>-<전략>.md 를 만들어 다음을 적어라:
   - 후보로 검토한 단어와 고른 이유
@@ -166,8 +162,42 @@ logs/routine-<YYYY-MM-DD>-<전략>.md 를 만들어 다음을 적어라:
   - 각 단어의 인용 출처 URL
   - 권별 단어 수 (1번에서 기록한 것)
   - 이번에 추가한 단어와 그 id
+  - 이번 실행에서 이 문서나 도구가 틀렸다고 느낀 점 (있으면)
 
-그리고 커밋해서 main 에 push 한다. 커밋 메시지는 무엇을 왜 넣었는지 한국어로 쓴다.
+마지막 항목이 중요하다. 너는 이 도구들을 실제로 써 보는 유일한 자리에 있다.
+지시가 검사기와 어긋나거나, 검사기가 잘못 통과시키거나, 문서가 낡았으면
+적어 둬라. tools/ 를 직접 고치지는 말고 기록만 남긴다 — 사람이 읽고 고친다.
+
+### 8. 커밋과 push
+
+**순서가 중요하다.** 아래를 그대로 따라라.
+
+    git add -A
+    git commit -m "..."        # 커밋을 먼저 한다. 아래 설명 참조
+    git pull --rebase
+    python3 tools/build.py     # 리베이스로 남의 단어가 들어왔을 수 있으니 다시 굽는다
+    git diff --quiet || (git add -A && git commit --amend --no-edit)
+    git push
+
+**커밋을 pull 보다 먼저 하는 이유.** 6단계에서 이미 build.py 를 돌렸으므로
+data/index.js, data/terms/*.js, sw.js 가 수정된 상태다. 그 상태로 pull --rebase 를
+부르면 git 이 거부한다 — `git add` 만 해도 마찬가지다:
+
+    error: cannot pull with rebase: You have unstaged changes.
+    error: cannot pull with rebase: Your index contains uncommitted changes.
+
+작업트리가 깨끗해야 리베이스가 된다. 그래서 먼저 커밋하고, 리베이스한 뒤
+다시 구워서, 달라진 게 있을 때만 그 커밋에 amend 로 접어 넣는다.
+
+검증(6단계)은 커밋 전에 이미 끝났다. 여기서 다시 부르지 마라 —
+verify_new_terms.py 는 HEAD 와 비교하는데 커밋 뒤에는 HEAD 가 이미 새 단어를
+품고 있어서 +0 이 나온다.
+
+리베이스에서 충돌이 나면 **직접 풀려고 하지 마라.** `git rebase --abort` 로
+되돌리고, logs/ 에 충돌 사실만 적고 이번 실행을 끝내라. 다음 실행이 다시 한다.
+자동으로 도는 자리에서 충돌 해결을 시도하는 것은 남의 단어를 지울 위험이 있다.
+
+커밋 메시지는 무엇을 왜 넣었는지 한국어로 쓴다.
 
 ## 아무것도 못 넣었을 때
 

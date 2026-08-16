@@ -1,0 +1,366 @@
+/* ============================================================
+   개선안 전용 스타일 — 아직 앱에 없는 것만 둔다.
+
+   여기 있는 것들은 docs/TEMPLATE-UPGRADE-PLAN.md 의 제안이다.
+   승인되면 css/app.css 로 옮기고 이 파일은 지운다.
+   mockup.css 와 같은 규칙 — 앱에 이미 있는 스타일은 절대 여기 베끼지 않는다.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   @ — 흐름의 반복 표기                              [계획 1묶음]
+
+   IT 개념의 큰 갈래 하나가 "한 바퀴 돈다"인데(이벤트 루프, 에이전트 루프,
+   차단기, 스프린트) 흐름은 직선뿐이라 42블록이 루프를 직선으로 펴고 있다.
+   되돌아가는 길을 가로로 그리지 않는다 — 390px 에서 가로는 곧 죽음이다.
+   왼쪽 바깥에 점선 난간을 세우고 위쪽 끝에 화살촉을 얹는다.
+   그림이 늘어나는 건 줄 하나와 폭 16px 뿐이다.
+   ------------------------------------------------------------ */
+
+.dia__steps--loop {
+  padding-left: var(--sp-4);
+}
+
+/* 난간. 마지막 줄의 원 중심에서 첫 줄 위로 올라간다.
+   높이는 스크립트가 실측해 --loop-gap 으로 넣는다. */
+.dia__steps--loop::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: var(--loop-gap, 26px);
+  width: 9px;
+  border: 1.5px dashed var(--st-reading);
+  border-right: none;
+  border-radius: 6px 0 0 6px;
+}
+
+/* 척추도 마디 원 중심을 따라 padding 만큼 밀린다. 16 + 13 - 1 = 28 */
+.dia__steps--loop::before {
+  left: 28px;
+}
+
+/* 화살촉. 난간이 위를 향한다는 표시. 첫 마디 안에 넣어 마크업을 지킨다
+   — ol 의 직계 자식은 li 뿐이어야 한다. */
+.dia__loopcap {
+  position: absolute;
+  left: -16px;
+  top: 2px;
+  width: 0;
+  height: 0;
+  border-left: 4.5px solid transparent;
+  border-right: 4.5px solid transparent;
+  border-bottom: 6px solid var(--st-reading);
+}
+
+.dia__loop {
+  position: relative;
+  display: flex;
+  gap: var(--sp-3);
+  align-items: flex-start;
+  padding-block: var(--sp-2);
+}
+
+.dia__loopmark {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--r-full);
+  background: var(--st-reading-bg);
+  color: var(--st-reading);
+  display: grid;
+  place-items: center;
+  font-size: var(--fs-13);
+}
+
+.dia__loop .dia__who {
+  color: var(--st-reading);
+}
+
+/* ------------------------------------------------------------
+   |=| — 판정 없는 대조                              [계획 1묶음]
+
+   렌더러는 대조의 왼쪽 칸에 무조건 ✕ 를 찍는다. "있고 없고"라면 맞는 말이지만
+   세션과 JWT 처럼 둘 다 정당한 선택에서는 그림이 한쪽을 틀렸다고 선고한다.
+   JWT 노트의 "즉시 로그아웃 :: 지우면 끝 || 만료까지 유효" 는 왼쪽이 이기는
+   줄인데 ✕ 아래 놓인다. 결론 줄은 거래라고 말하는데 그림은 승패를 말한다.
+
+   판정을 뗀다. 색도 기호도 붙이지 않는 것 자체가 이 그림이 하려는 말이다.
+   ------------------------------------------------------------ */
+
+.dia__col--even {
+  background: var(--surface-sunken);
+  color: var(--ink);
+}
+
+.dia__col--even .dia__sign {
+  color: var(--ink-3);
+  font-weight: 400;
+}
+
+.dia__cell--even {
+  background: var(--surface-sunken);
+  color: var(--ink-2);
+}
+
+.dia__vsrow .dia__cell--even:first-of-type {
+  border-radius: var(--r-chip) 0 0 var(--r-chip);
+}
+
+.dia__vsrow .dia__cell--even:last-of-type {
+  border-radius: 0 var(--r-chip) var(--r-chip) 0;
+}
+
+/* 320px 에서는 두 칸이 위아래로 쌓인다. app.css 가 --bad / --good 에 하는 일을
+   --even 에도 똑같이 해준다. */
+@media (max-width: 22.5rem) {
+  .dia__vsrow .dia__cell--even:first-of-type {
+    border-radius: var(--r-chip) var(--r-chip) 0 0;
+  }
+
+  .dia__vsrow .dia__cell--even:last-of-type {
+    border-radius: 0 0 var(--r-chip) var(--r-chip);
+  }
+}
+
+/* ------------------------------------------------------------
+   확인 질문의 답 위치                               [계획 2묶음]
+
+   지금은 질문 681개 전부에 답 확인 경로가 없다. 답의 절반은 접힌 칸 안에 있고
+   앱은 첫 칸 하나만 열어둔다. 답을 못 찾으면 회상 연습은 자기 오답을 굳히는 일이 된다.
+   원문에 "- 질문 → 주의할 점" 한 줄이면 여기가 생긴다.
+   ------------------------------------------------------------ */
+
+.selfcheck__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.selfcheck__jump {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-1) var(--sp-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-full);
+  background: transparent;
+  font-size: var(--fs-12);
+  color: var(--ink-3);
+  transition: border-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease);
+}
+
+.selfcheck__jump:hover {
+  border-color: var(--st-reading);
+  color: var(--st-reading);
+}
+
+/* 건너뛴 칸이 어디인지 잠깐 알려준다. 열리기만 하면 어디로 왔는지 모른다. */
+.disclose.is-landed {
+  animation: landed 1.6s var(--ease);
+}
+
+@keyframes landed {
+  0%,
+  70% {
+    background: var(--st-reading-bg);
+  }
+  100% {
+    background: transparent;
+  }
+}
+
+/* ------------------------------------------------------------
+   접힌 오해의 ✕                                     [계획 4묶음]
+
+   지금 미리보기는 46자에서 잘리면서 정정문 앞부분이 어중간하게 붙는다.
+   훑고 지나가는 사람이 틀린 명제를 사실로 주워 담는다.
+   틀린 문장 앞부분만 ✕ 를 달아 잇고 정정문은 미리보기에서 아예 뺀다.
+   ------------------------------------------------------------ */
+
+.disclose__peek--myth {
+  color: var(--danger);
+}
+
+.disclose__peek--myth .x {
+  font-size: var(--fs-11);
+}
+
+/* ------------------------------------------------------------
+   본문 안 [[링크]]                                  [계획 3묶음]
+
+   지금 js/ui.js 88행은 [[TCP]] 를 <em> 으로 바꿔버린다. 선행 용어에 막힌 독자를
+   구할 장치가 화면 맨 아래 관련 용어뿐이다. 별칭으로 단어를 찾는 코드는
+   relatedSection 에 이미 있다 — 본문에 연결만 하면 된다.
+   ------------------------------------------------------------ */
+
+.xref {
+  display: inline;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1.5px;
+  transition: text-decoration-color var(--dur-fast) var(--ease);
+}
+
+.xref:hover {
+  text-decoration-color: var(--st-reading);
+}
+
+.xref__arrow {
+  font-size: 0.8em;
+  color: var(--ink-3);
+}
+
+/* ------------------------------------------------------------
+   목업에만 있는 장치 — 노트 바꾸기와 바뀐 곳 표시
+   ------------------------------------------------------------ */
+
+.switch {
+  display: flex;
+  gap: var(--sp-2);
+  padding: var(--sp-3) 0 0;
+  flex-wrap: wrap;
+}
+
+.switch__btn {
+  padding: var(--sp-2) var(--sp-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-full);
+  background: transparent;
+  font-size: var(--fs-13);
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease);
+}
+
+.switch__btn:hover {
+  border-color: var(--line-strong);
+  color: var(--ink-2);
+}
+
+.switch__btn[aria-pressed="true"] {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--ink-inverse);
+}
+
+.switch__why {
+  margin: var(--sp-3) 0 0;
+  font-size: var(--fs-13);
+  line-height: var(--lh-snug);
+  color: var(--ink-3);
+}
+
+.reveal {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-full);
+  background: transparent;
+  font-size: var(--fs-13);
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease);
+}
+
+.reveal:hover {
+  border-color: var(--line-strong);
+  color: var(--ink-2);
+}
+
+.reveal__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--r-full);
+  border: 1.5px solid currentColor;
+  transition: background var(--dur-fast) var(--ease);
+}
+
+.reveal[aria-pressed="true"] {
+  border-color: var(--st-reading);
+  color: var(--st-reading);
+}
+
+.reveal[aria-pressed="true"] .reveal__dot {
+  background: currentColor;
+}
+
+/* 바뀐 자리에 테만 두른다. 글자 라벨은 붙이지 않는다 —
+   390px 안에서 넘치고, 어차피 아래 목록이 이름을 부른다. */
+.is-revealed .mark {
+  outline: 1.5px dashed var(--st-reading);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.changes {
+  margin-top: var(--sp-12);
+  padding-top: var(--sp-5);
+  border-top: 1px solid var(--line);
+}
+
+.changes__head {
+  margin: 0 0 var(--sp-4);
+  font-size: var(--fs-13);
+  font-weight: 650;
+  color: var(--ink-2);
+  letter-spacing: 0.02em;
+}
+
+.changes__list {
+  display: grid;
+  gap: var(--sp-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.changes__list li {
+  padding-left: var(--sp-4);
+  border-left: 2px solid var(--st-reading);
+}
+
+.changes__t {
+  display: block;
+  font-size: var(--fs-14);
+  font-weight: 600;
+  color: var(--ink);
+  line-height: var(--lh-snug);
+}
+
+.changes__d {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--fs-13);
+  color: var(--ink-3);
+  line-height: var(--lh-snug);
+}
+
+.changes__d code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  padding: 1px 4px;
+  border-radius: 5px;
+  background: var(--surface-sunken);
+  color: var(--ink-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .disclose.is-landed {
+    animation: none;
+  }
+}
