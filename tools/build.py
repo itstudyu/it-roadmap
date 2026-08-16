@@ -679,6 +679,44 @@ def emit(out_dir: str, books: list[dict]) -> None:
         os.remove(legacy)
         log("        data/vocabulary.js 삭제 (인덱스/본문으로 갈렸다)")
 
+    bump_cache_version(index)
+
+
+def bump_cache_version(index: list[dict]) -> None:
+    """sw.js 의 CACHE_VERSION 을 데이터 내용에서 뽑은 해시로 맞춘다.
+
+    서비스 워커는 '그 파일의 바이트'가 바뀌어야 재설치된다. 데이터만 새로 굽고
+    이 값을 그대로 두면, 홈 화면에 설치한 앱에는 새 단어가 영원히 안 보인다.
+    사람이 기억해서 올리는 방식은 언젠가 잊는다 — 특히 이걸 굽는 게 사람이
+    아니라 주 3회 도는 루틴이 되면 반드시 잊는다. 그래서 굽는 김에 같이 고친다.
+
+    내용 해시라서 단어가 안 바뀌면 값도 안 바뀐다. 의미 없는 커밋이 안 생긴다.
+    """
+    sw = os.path.join(ROOT, "sw.js")
+    if not os.path.exists(sw):
+        return  # 아직 PWA 를 안 붙인 저장소에서도 빌드는 돌아야 한다
+
+    digest = hashlib.sha1(dumps(index).encode("utf-8")).hexdigest()[:12]
+    with open(sw, encoding="utf-8") as f:
+        text = f.read()
+
+    new_text, n = re.subn(
+        r'(var CACHE_VERSION = ")[^"]*(";)',
+        lambda m: m.group(1) + digest + m.group(2),
+        text,
+        count=1,
+    )
+    if not n:
+        log("  ⚠️ sw.js 에서 CACHE_VERSION 을 못 찾았다 — 오프라인 갱신이 막힌다")
+        return
+    if new_text == text:
+        log(f"        sw.js CACHE_VERSION 그대로 ({digest})")
+        return
+
+    with open(sw, "w", encoding="utf-8") as f:
+        f.write(new_text)
+    log(f"        sw.js CACHE_VERSION -> {digest}")
+
 
 def main() -> int:
     ap = argparse.ArgumentParser()

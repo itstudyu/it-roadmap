@@ -8,14 +8,21 @@
   <meta name="color-scheme" content="light dark">
   <title>IT 단어 학습</title>
 
-  <!-- 웹폰트는 있으면 쓰고 없으면 시스템 폰트로 떨어진다.
-       오프라인에서 열어도 화면은 그대로 동작한다. -->
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-  <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+  <!-- 홈 화면에 추가하면 독립 앱으로 뜬다.
+       theme-color 를 밝기별로 나눠 둬야 상태표시줄이 배경과 이어진다.
+       apple-touch-icon 은 iOS 가 manifest 대신 이걸 본다. -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#fbfaf8" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#141310" media="(prefers-color-scheme: dark)">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="IT 단어">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+  <!-- 폰트는 저장소에서 받는다(css/tokens.css 의 @font-face). CDN 을 타면
+       지하철에서 글꼴만 시스템 폰트로 바뀌어 같은 앱이 달라 보인다.
+       본문용 Pretendard 는 첫 화면에 바로 쓰이므로 미리 받아둔다. -->
+  <link rel="preload" href="fonts/pretendard-subset.woff2" as="font" type="font/woff2" crossorigin>
 
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/app.css">
@@ -40,6 +47,17 @@
   <script src="js/quiz-screens.js"></script>
   <script>
     window.App.start();
+
+    /* 오프라인 준비. file:// 로 열면 navigator.serviceWorker 가 없거나 등록이
+       막히므로 조용히 건너뛴다 — 앱 자체는 그래도 그대로 돌아간다. */
+    if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("sw.js").catch(function () {
+          /* 등록에 실패해도 앱은 온라인으로 계속 쓸 수 있다. 사용자에게
+             알릴 것이 없다 — 고칠 방법이 없는 경고는 소음일 뿐이다. */
+        });
+      });
+    }
   </script>
 </body>
 </html>
