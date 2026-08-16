@@ -58,9 +58,9 @@ cat app.log | grep ERROR | wc -l
 
 ## 💡 실제 사례
 
-- **버전 관리** `git status` 로 바뀐 파일을 보고 `git commit` 으로 묶어 남긴다.
-- **컨테이너 관리** `docker ps` 로 도는 것을 보고 `docker logs` 로 그 안의 기록을 꺼낸다.
-- **장애 확인** `tail -f logs/app.log` 로 쌓이는 기록을 실시간으로 보고 `grep ERROR` 로 걸러낸다.
+- **버전 관리** — `git status` 로 바뀐 파일을 보고 `git commit` 으로 묶어 남긴다.
+- **컨테이너 관리** — `docker ps` 로 도는 것을 보고 `docker logs` 로 그 안의 기록을 꺼낸다.
+- **장애 확인** — `tail -f logs/app.log` 로 쌓이는 기록을 실시간으로 보고 `grep ERROR` 로 걸러낸다.
 
 ## 🚫 흔한 오해
 

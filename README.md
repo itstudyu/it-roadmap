@@ -252,13 +252,14 @@ js/app.js                 라우터, 탭 바, 화면 전환
 js/screens.js             홈, 단어장, 목록, 상세, 진도
 js/recall.js              떠올리기 (회상 단계)
 js/quiz-screens.js        퀴즈 흐름
-data/vocabulary.js        어댑터가 만든 데이터 (직접 고치지 말 것)
+data/index.js             목록·검색에 필요한 것만 (시작할 때 읽는다)
+data/terms/<권>.js        단어 본문 (그 권을 열 때만 읽는다)
 content/                  단어 원본 Markdown (Obsidian vault 로 열 수 있다)
-tools/build.py            content/*.md -> data/vocabulary.js
+tools/build.py            content/*.md -> data/index.js + data/terms/*.js
 tools/import_vault.py     vault 이전 도구 (한 번 쓰고 기록으로 남김)
 tools/check_template.py   노트가 템플릿을 지켰는지 검사 (읽기만 한다)
 docs/TERM-TEMPLATE.md     새 단어를 쓸 때 따르는 형식
-mockups/term-dns.html     원문과 화면을 나란히 보는 목업
+mockups/term.html         원문과 화면을 나란히 보는 목업
 DESIGN.md                 디자인 시스템
 ```
 
@@ -277,14 +278,18 @@ DESIGN.md                 디자인 시스템
 
 화면에서 펼쳐진 채로 두는 건 **정의 · 그림 · 정리 · 이해했는지** 넷이다.
 그림으로 들어와서 확인 질문으로 나가고, 그 사이의 설명은 접힌다.
+확인 질문에는 `→ 답이 있는 자리` 가 붙어서, 누르면 답이 든 칸이 열리고 그리로 데려간다.
 
 ```bash
 python3 tools/check_template.py content/네트워크/DNS.md
-open mockups/term-dns.html    # 원문과 화면을 나란히 본다
+python3 tools/check_template.py --strict content/    # 경고까지 실패로 세어 본다
+open mockups/term.html                               # 원문과 화면을 나란히 본다
 ```
 
-**단어 227개가 모두 이 템플릿을 지킨다.** 검사기가 227편 전부를 통과시키고,
+**단어 229개가 모두 이 템플릿을 지킨다.** 검사기가 229편 전부를 통과시키고,
 앱이 그 형식을 그대로 그린다. 새로 쓰는 단어도 같은 형식을 따른다.
+검사기는 **실패(✕)** 와 **경고(△)** 두 단계로 말한다 — 실패는 고쳐야 하고,
+경고는 "이게 맞나" 를 묻는 것이다.
 
 ## 확인한 것
 

@@ -32,7 +32,7 @@ content/ 폴더는 그대로 Obsidian vault 로 열 수 있다. 동기화 대신
     ## 🚫 흔한 오해         -> myth
     ## 🚨 주의사항          -> caution
     ## 📝 정리             -> summary
-    ## ❓ 이해했는지         -> check    (접지 않는다)
+    ## ❓ 이해했는지         -> check    (접지 않는다. "- 물음 → 답이 있는 절" 로 자리를 가리킬 수 있다)
     ## 🔗 관련 용어         -> related
 
 새 단어를 쓰는 형식은 docs/TERM-TEMPLATE.md 에 있다.
@@ -141,6 +141,15 @@ def log(message: str) -> None:
     sys.stderr.write(message + "\n")
 
 
+def short_path(path: str) -> str:
+    """경고에 적을 경로. 저장소 안이면 'content/네트워크/DNS.md' 로 줄인다.
+
+    밖이면 relpath 가 '../../..' 를 길게 늘어놓아 오히려 못 읽는다. 그럴 땐 그대로 쓴다.
+    """
+    rel = os.path.relpath(path, ROOT)
+    return path if rel.startswith("..") else rel
+
+
 # ---------------------------------------------------------------- 파싱
 
 
@@ -197,17 +206,28 @@ def split_sections(text: str) -> dict[str, str]:
     return out
 
 
-def pick(sections: dict[str, str], names: list[str]) -> str | None:
+def pick_entry(sections: dict[str, str], names: list[str]) -> tuple[str, str] | None:
+    """(원본 제목, 본문). 어느 제목이 걸렸는지까지 알아야 하는 자리가 있다.
+
+    접이식 칸은 원문 제목을 함께 싣는다. 확인 질문의 "→ 작동 원리" 는 저자가
+    마크다운 제목으로 쓰는데 화면 이름표는 "어떻게 작동하나" 라, 두 이름을 다
+    들고 있어야 그 질문이 실제 칸으로 이어진다.
+    """
     for n in names:
         if n in sections:
-            return sections[n]
+            return n, sections[n]
     # 접두 매칭 (예: "📊 RAG 작동 원리" 같이 용어명이 낀 제목)
     for n in names:
         key = n.split(" ", 1)[-1] if " " in n else n
         for h, body in sections.items():
             if key in h:
-                return body
+                return h, body
     return None
+
+
+def pick(sections: dict[str, str], names: list[str]) -> str | None:
+    entry = pick_entry(sections, names)
+    return entry[1] if entry else None
 
 
 def clean_body(body: str) -> str:
@@ -293,25 +313,12 @@ def guess_slot(label: str) -> str:
     return "example"
 
 
-def collect_disclosure_sections(sections: dict[str, str]) -> list[dict]:
-    """접어서 보여줄 섹션들을 UI 노출 순서대로 모은다."""
-    found, used = [], set()
-    for slot, names in SECTION_MAP:
-        raw = pick(sections, names)
-        if slot in PINNED:
-            # 정의·그림·확인 질문·관련 용어는 접이식 밖에 따로 자리가 있다.
-            # 여기서 안 빼면 같은 내용이 두 번 나오고, 접기 이름표도 없어서 터진다.
-            used.update(h for h, b in sections.items() if raw is not None and b == raw)
-            continue
-        if raw is None:
-            continue
-        used.update(h for h, b in sections.items() if b == raw)
-        cleaned = clean_body(raw)
-        if len(cleaned) >= 12:
-            found.append({"slot": slot, "label": SLOT_LABELS[slot], "body": trim(cleaned)})
+def own_sections(sections: dict[str, str], used: set[str]) -> list[dict]:
+    """노트가 자기만의 제목을 쓰는 경우(예: "## 💡 HTTP 메서드")를 그대로 살린다.
 
-    # 노트가 자기만의 제목을 쓰는 경우(예: "## 💡 HTTP 메서드")를 그대로 살린다.
-    # 매핑에 없다고 버리면 그 노트는 읽을 게 정의밖에 남지 않는다.
+    매핑에 없다고 버리면 그 노트는 읽을 게 정의밖에 남지 않는다.
+    """
+    found = []
     for heading, raw in sections.items():
         if heading in used or heading.startswith("📚"):
             continue
@@ -319,10 +326,53 @@ def collect_disclosure_sections(sections: dict[str, str]) -> list[dict]:
         if len(cleaned) < 40:
             continue
         label = strip_leading_emoji(heading)
-        found.append({"slot": guess_slot(label), "label": label, "body": trim(cleaned)})
+        found.append({"slot": guess_slot(label), "label": label,
+                      "head": heading, "body": trim(cleaned)})
+    return found
 
+
+def warn_overflow(path: str, found: list[dict]) -> None:
+    """상한을 넘겨 잘려나가는 칸이 있으면 말한다.
+
+    조용히 버리면 저자는 자기가 쓴 절이 화면에 아예 없다는 것을 모른다.
+    229편 중 199편에서 '정리'가 통째로 잘려 나갔던 것도 아무도 못 봤기 때문이다.
+    경고일 뿐이라 종료 코드는 건드리지 않고, stdout 도 비워둔다 —
+    거기로는 산출물 경로가 나갈 수 있다.
+    """
+    if len(found) <= MAX_SECTIONS:
+        return
+    where = short_path(path) if path else "(경로 모름)"
+    log(f"  ⚠️ {where}: 접이식 {MAX_SECTIONS}칸을 넘어 잘림 — "
+        + ", ".join(s["label"] for s in found[MAX_SECTIONS:]))
+
+
+def collect_disclosure_sections(sections: dict[str, str], path: str = "") -> list[dict]:
+    """접어서 보여줄 섹션들을 UI 노출 순서대로 모은다.
+
+    각 칸은 화면 이름표(label)와 원문 제목(head)을 함께 들고 나간다.
+    head 가 필요한 이유는 pick_entry 에 적었다.
+    """
+    found, used = [], set()
+    for slot, names in SECTION_MAP:
+        entry = pick_entry(sections, names)
+        raw = entry[1] if entry else None
+        if slot in PINNED:
+            # 정의·그림·확인 질문·관련 용어는 접이식 밖에 따로 자리가 있다.
+            # 여기서 안 빼면 같은 내용이 두 번 나오고, 접기 이름표도 없어서 터진다.
+            used.update(h for h, b in sections.items() if raw is not None and b == raw)
+            continue
+        if entry is None:
+            continue
+        used.update(h for h, b in sections.items() if b == raw)
+        cleaned = clean_body(raw)
+        if len(cleaned) >= 12:
+            found.append({"slot": slot, "label": SLOT_LABELS[slot],
+                          "head": entry[0], "body": trim(cleaned)})
+
+    found += own_sections(sections, used)
     order = {s: i for i, s in enumerate(DISCLOSURE_ORDER)}
     found.sort(key=lambda s: order.get(s["slot"], 99))
+    warn_overflow(path, found)
     return found[:MAX_SECTIONS]
 
 
@@ -337,7 +387,10 @@ def split_subsections(body: str) -> tuple[str, list[dict]]:
     lead = parts[0].strip()
     subs = []
     for i in range(1, len(parts) - 1, 2):
-        label = strip_leading_emoji(nfc(parts[i]))
+        # 접이식과 같은 모양으로 낸다. head 가 있어야 확인 질문의 "→ 핵심 개념" 이
+        # 정의 밑에서 접힌 하위 절에도 가서 닿는다.
+        heading = nfc(parts[i]).strip()
+        label = strip_leading_emoji(heading)
         chunk = parts[i + 1].strip()
         if label == "비유":
             # 비유는 parse_analogy 가 이미 전용 자리로 가져갔다. 여기서 안 빼면
@@ -345,7 +398,8 @@ def split_subsections(body: str) -> tuple[str, list[dict]]:
             # 게다가 접이식 여섯 칸 중 하나를 잡아먹어서 뒤쪽의 주의사항이 밀려난다.
             continue
         if len(chunk) >= 40:
-            subs.append({"slot": guess_slot(label), "label": label, "body": trim(chunk)})
+            subs.append({"slot": guess_slot(label), "label": label,
+                         "head": heading, "body": trim(chunk)})
     return lead, subs
 
 
@@ -361,6 +415,11 @@ def parse_analogy(definition: str) -> str:
     return re.sub(r"^\s*[-*]\s*", "", first).strip()
 
 
+# 도해는 통째로 옮기기만 한다. 안쪽 줄을 읽는 코드가 이 파일에 없으므로 표기가
+# 늘어도(반복 마디 "@", 중립 대조 "|=|") 여기는 손댈 게 없다 — 그리는 쪽은 js/ui.js 다.
+# 도해 안에는 빈 줄이 없어서 한 덩어리가 한 문단으로 남고, clean_body 의 어떤
+# 정규식도 여기에 걸리지 않는다. 다만 trim 은 길이로 자르니, 도해가 든 절이
+# 1400자를 넘기면 펜스가 반토막 날 수 있다 (지금은 가장 긴 것이 665자다).
 DIA_BLOCK = re.compile(r"```도해\r?\n.*?\r?\n```\n?", re.S)
 
 # 대표 그림을 어디서 먼저 찾을지. 작동 원리에 있는 그림이 그 단어를 가장 잘 말한다.
@@ -384,13 +443,26 @@ def lift_figure(sections: dict[str, str]) -> str:
     return ""
 
 
-def parse_check(body: str) -> list[str]:
-    """'❓ 이해했는지' 의 질문 목록."""
-    return [
-        re.sub(r"^\s*[-*]\s*", "", l).strip()
-        for l in body.split("\n")
-        if re.match(r"^\s*[-*]\s+\S", l)
-    ]
+def parse_check(body: str) -> list[dict]:
+    """'❓ 이해했는지' 의 질문 목록. {"q": 물음, "at": 답이 있는 자리}.
+
+    "- DNS 캐시는 왜 필요한가 → 작동 원리" 처럼 저자가 답이 있는 절을 적어두면
+    갈라서 싣는다. 질문만 던지고 끝내면 회상 연습이 절반만 된다 — 답이 맞았는지
+    확인할 길이 없고, 답의 절반은 접힌 칸 안에 있다. 화면은 at 을 보고 그 칸으로
+    건너뛰는 단추를 붙인다.
+
+    화살표는 **마지막** 것으로 자른다. 질문 본문에도 화살표가 들어간다
+    ("요청 → 응답 사이에 무엇이 끼나 → 작동 원리").
+    """
+    out = []
+    for line in body.split("\n"):
+        if not re.match(r"^\s*[-*]\s+\S", line):
+            continue
+        text = re.sub(r"^\s*[-*]\s*", "", line).strip()
+        question, arrow, at = text.rpartition("→")
+        out.append({"q": question.strip(), "at": at.strip()} if arrow
+                   else {"q": text, "at": ""})
+    return out
 
 
 def split_definition(sections: dict[str, str]) -> tuple[str, str, str] | None:
@@ -409,9 +481,12 @@ def split_definition(sections: dict[str, str]) -> tuple[str, str, str] | None:
     return summary, rest, definition
 
 
-def ordered_sections(subs: list[dict], sections: dict[str, str]) -> list[dict]:
-    """접이식 섹션을 화면에 나올 순서대로 세운다. 왜 -> 어떻게 -> 개념 -> ... 순이다."""
-    found = subs + collect_disclosure_sections(sections)
+def ordered_sections(subs: list[dict], sections: dict[str, str], path: str = "") -> list[dict]:
+    """접이식 섹션을 화면에 나올 순서대로 세운다. 왜 -> 어떻게 -> 개념 -> ... 순이다.
+
+    path 는 잘려나가는 칸을 경고할 때 어느 노트인지 말하려고 들고 다닌다.
+    """
+    found = subs + collect_disclosure_sections(sections, path)
     order = {s: i for i, s in enumerate(DISCLOSURE_ORDER)}
     found.sort(key=lambda s: order.get(s["slot"], 99))
     return found
@@ -460,7 +535,7 @@ def parse_note(path: str, category: str) -> dict | None:
         "summary": summary,
         "definition": lead,
         "analogy": parse_analogy(definition),
-        "sections": ordered_sections(subs, sections)[:MAX_SECTIONS],
+        "sections": ordered_sections(subs, sections, path)[:MAX_SECTIONS],
         **pinned,
     }
 

@@ -435,15 +435,42 @@
     return text.length > limit ? text.slice(0, limit).trim() + "…" : text;
   }
 
+  function plainPeek(body) {
+    var text = peek(body, 46);
+    return text ? '<span class="disclose__peek">' + esc(text) + "</span>" : "";
+  }
+
+  /* "- **틀린 말** — 실은 이렇다" 한 줄을 둘로 가른다.
+     접힌 줄의 미리보기와 펼친 뒤의 목록이 같은 판단을 써야 해서 따로 세운다. */
+  function parseMyths(body) {
+    var items = [];
+    String(body || "").split("\n").forEach(function (line) {
+      var m = line.match(/^\s*-\s*\*\*(.+?)\*\*\s*[—–-]\s*(.+)$/);
+      if (m) items.push({ wrong: m[1].trim(), right: m[2].trim() });
+    });
+    return items;
+  }
+
+  /* 오해 칸의 미리보기는 따로 만든다.
+     여느 칸처럼 앞 46자를 자르면 틀린 명제 뒤에 정정문 앞부분이 어중간하게 붙는다.
+     훑고 지나가는 사람은 그 조각을 사실로 주워 담는다. 틀린 문장만 ✕ 를 달아 잇고
+     정정문은 미리보기에서 아예 뺀다 — 정정은 열어야 볼 수 있는 것이 맞다.
+
+     한 줄도 안 풀리면 미리보기를 비운다. 그때 평범한 자르기로 되돌리면
+     방금 막은 위험이 그대로 돌아온다. */
+  function mythPeek(body) {
+    var wrongs = parseMyths(body).map(function (it) {
+      return '<span class="x" aria-hidden="true">✕</span> ' + esc(UI.plain(it.wrong));
+    });
+    if (!wrongs.length) return "";
+    return '<span class="disclose__peek disclose__peek--myth">' + wrongs.join(" · ") + "</span>";
+  }
+
   /* 흔한 오해. 틀린 문장을 앞에 세우고 그 밑에서 부순다.
      순서가 중요하다 — 맞는 말을 먼저 하면 읽는 사람은 자기가 뭘 잘못
      알고 있었는지 모르고 지나간다. 그래서 평범한 목록으로 두지 않는다. */
   function mythPanel(body) {
-    var items = [];
-    body.split("\n").forEach(function (line) {
-      var m = line.match(/^\s*-\s*\*\*(.+?)\*\*\s*[—–-]\s*(.+)$/);
-      if (m) items.push({ wrong: m[1].trim(), right: m[2].trim() });
-    });
+    var items = parseMyths(body);
     if (!items.length) return UI.markdown(body);
 
     return '<ul class="myth">' + items.map(function (it) {
@@ -457,17 +484,65 @@
 
   var PANEL = { myth: mythPanel };
 
+  /* ---- 확인 질문이 건너뛸 자리 ----
+
+     원문의 "→ 뒤" 를 화면의 실제 칸으로 잇는 표. 저자는 마크다운 제목으로 생각하고
+     쓰지만("→ 🚨 주의사항") 화면에 걸린 이름은 "주의할 점" 이다. 셋 다 같은 자리로
+     가야 해서 한 칸에 세 이름을 등록한다 — 화면 이름, 이모지 뗀 원문 제목, 원문 제목.
+     비교할 때 공백을 지우는 건 "그림 으로 보기" 처럼 띄어쓰기만 다른 표기를 살리기 위해서다.
+     화면을 그릴 때마다 비운다. 앞 단어의 자리가 남아 있으면 엉뚱한 칸으로 데려간다. */
+  var TARGETS = {};
+
+  function slugOf(label) {
+    return "p-" + String(label).replace(/\s+/g, "-");
+  }
+
+  /* "🚫 흔한 오해" -> "흔한 오해". build.py 의 strip_leading_emoji 와 같은 규칙이라
+     저자가 이모지를 떼고 쓰든 붙여 쓰든 같은 칸으로 간다. */
+  function bare(head) {
+    return String(head || "").trim().replace(/^[^\w가-힣(]+/, "").trim();
+  }
+
+  function aim(name, id) {
+    if (name) TARGETS[String(name).replace(/\s+/g, "")] = id;
+  }
+
+  function findTarget(name) {
+    return TARGETS[String(name).replace(/\s+/g, "")] || "";
+  }
+
+  /* 한 칸이 받아 주는 이름을 전부 건다.
+     저자는 "📊 비교: 세션 vs JWT" 를 "→ 비교" 라고 줄여 쓴다. 검사기도 부제를
+     떼어 그 이름을 통과시키므로, 화면이 부제 붙은 원문만 알고 있으면 검사기는
+     조용히 통과시키고 단추는 조용히 안 생긴다. 양쪽이 같은 이름을 알아야 한다. */
+  function aimAll(names, id) {
+    names.forEach(function (name) {
+      if (!name) return;
+      aim(name, id);
+      aim(bare(name), id);
+      var cut = String(name).indexOf(":");
+      if (cut !== -1) {
+        var stem = String(name).slice(0, cut).trim();
+        aim(stem, id);
+        aim(bare(stem), id);
+      }
+    });
+  }
+
   function disclosureSections(term) {
     return term.sections.map(function (s, i) {
-      var hint = peek(s.body, 46);
+      var id = slugOf(s.label);
+      var hint = s.slot === "myth" ? mythPeek(s.body) : plainPeek(s.body);
       var draw = PANEL[s.slot] || UI.markdown;
+
+      aimAll([s.label, s.head], id);
+
       /* 첫 섹션은 열어둔다. 전부 접혀 있으면 들어왔을 때 읽을 게 요약 한 장뿐이라
          "자주 필요한 건 처음부터 보여라"는 원칙을 어기게 된다. */
-      return "<details class=\"disclose\"" + (i === 0 ? " open" : "") +
+      return '<details class="disclose" id="' + esc(id) + '"' + (i === 0 ? " open" : "") +
         '><summary class="disclose__btn">' +
         '<span class="disclose__text">' +
-        '<span class="disclose__label">' + esc(s.label) + "</span>" +
-        (hint ? '<span class="disclose__peek">' + esc(hint) + "</span>" : "") +
+        '<span class="disclose__label">' + esc(s.label) + "</span>" + hint +
         "</span>" +
         '<span class="disclose__icon">' + UI.icon("chevron", 18) + "</span>" +
         "</summary>" +
@@ -475,11 +550,16 @@
     }).join("");
   }
 
-  /* 그림. 접지 않는다 — 이 화면에서 가장 빨리 이해를 만드는 요소를
-     한 번 더 누르게 하면 아무도 안 본다. */
+  /* 접이식 밖에 그려지는 세 자리도 답이 있는 자리가 될 수 있다.
+     "→ 정리" 나 "→ 그림" 은 저자가 실제로 쓰는 말이고, 검사기도 통과시킨다.
+     화면이 이 이름들을 모르면 검사기는 조용히 통과시키고 단추는 조용히 안 생긴다. */
+  var DEFINITION_NAMES = ["정의", "📝 정의", "한 줄 정의"];
+  var FIGURE_NAMES = ["그림", "그림으로 보기", "🖼️ 그림으로 보기", "도해"];
+
   function figureSection(term) {
     if (!term.figure) return "";
-    return '<section class="figure-slot">' + UI.markdown(term.figure) + "</section>";
+    FIGURE_NAMES.forEach(function (name) { aim(name, "p-그림"); });
+    return '<section class="figure-slot" id="p-그림">' + UI.markdown(term.figure) + "</section>";
   }
 
   function analogyBlock(term) {
@@ -492,11 +572,33 @@
      읽기가 끝나는 지점이자 "학습 완료" 를 누르기 직전의 마지막 관문이다. */
   /* 마무리 문단. 접이식에 두면 6칸 상한에 밀려 대부분의 단어에서 잘려 나간다.
      되짚고 나서 스스로 물어보는 순서라 확인 질문 바로 앞에 붙인다. */
+  var RECAP_NAMES = ["한 번 더 정리", "정리", "📝 정리"];
+
   function recapBlock(term) {
     if (!term.recap) return "";
-    return '<section class="recap">' +
+    aimAll(RECAP_NAMES, "p-정리");
+    return '<section class="recap" id="p-정리">' +
       '<h2 class="recap__head">한 번 더 정리</h2>' +
       '<div class="prose">' + UI.markdown(term.recap) + "</div></section>";
+  }
+
+  /* 질문 한 줄을 { 질문, 답이 있는 자리 } 로 세운다.
+     빌드가 "→ 뒤" 를 떼어내기 전에 구워둔 데이터에는 질문 문자열만 들어 있다.
+     그때도 화면은 질문을 그대로 보여줘야 하므로 두 모양을 다 받는다. */
+  function asked(item) {
+    if (typeof item === "string") return { q: item, at: "" };
+    return { q: (item && item.q) || "", at: (item && item.at) || "" };
+  }
+
+  /* 답이 있는 자리로 가는 단추. 질문만 던져놓고 끝나면 회상 연습은 절반만 된다 —
+     자기 답이 맞았는지 알 길이 없고, 답의 절반은 접힌 칸 안에 있다.
+     원문이 가리킨 이름이 표에서 안 풀리면 단추를 달지 않는다.
+     아무 데도 못 가는 단추는 없는 것만 못하다. */
+  function jumpButton(at) {
+    var id = at ? findTarget(at) : "";
+    if (!id) return "";
+    return '<button class="selfcheck__jump" type="button" data-jump="' + esc(id) + '">' +
+      '답이 있는 자리 <span aria-hidden="true">→</span> ' + esc(at) + "</button>";
   }
 
   function checkSection(term) {
@@ -504,25 +606,34 @@
     return '<section class="selfcheck">' +
       '<h2 class="selfcheck__head">이 셋에 답할 수 있으면 이해한 것이다</h2>' +
       '<ol class="selfcheck__list">' +
-      term.check.map(function (q, i) {
+      term.check.map(function (item, i) {
+        var ask = asked(item);
         return '<li><span class="selfcheck__n" aria-hidden="true">' + (i + 1) + "</span>" +
-          '<span class="selfcheck__q">' + esc(q) + "</span></li>";
+          '<span class="selfcheck__body">' +
+          '<span class="selfcheck__q">' + esc(ask.q) + "</span>" +
+          jumpButton(ask.at) + "</span></li>";
       }).join("") + "</ol></section>";
+  }
+
+  /* 노트끼리 거는 링크는 파일 이름을 가리키는데 화면에 걸리는 건 제목이다.
+     "Index.md" 의 제목이 "인덱스" 인 식이라 제목만 보면 못 찾는다.
+     빌드가 실어 보낸 별칭(제목·원어·파일 이름)으로 찾는다.
+     관련 용어 칸과 본문 [[링크]] 가 같은 판정을 써야 해서 여기 하나로 둔다. */
+  function termByName(name) {
+    var wanted = String(name || "").trim().toLowerCase();
+    if (!wanted) return null;
+    return Store.allTerms().find(function (t) {
+      return t.aliases
+        ? t.aliases.indexOf(wanted) !== -1
+        : t.term.toLowerCase() === wanted;
+    }) || null;
   }
 
   function relatedSection(term) {
     if (!term.related || !term.related.length) return "";
 
     var items = term.related.map(function (r) {
-      /* 노트끼리 거는 링크는 파일 이름을 가리키는데 화면에 걸리는 건 제목이다.
-         "Index.md" 의 제목이 "인덱스" 인 식이라 제목만 보면 못 찾는다.
-         빌드가 실어 보낸 별칭(제목·원어·파일 이름)으로 찾는다. */
-      var wanted = r.term.toLowerCase();
-      var found = Store.allTerms().find(function (t) {
-        return t.aliases
-          ? t.aliases.indexOf(wanted) !== -1
-          : t.term.toLowerCase() === wanted;
-      });
+      var found = termByName(r.term);
       // 이 목업에는 없는 단어도 그대로 보여준다. 원본 노트의 연결을 지우지 않는다.
       if (!found) {
         return '<div class="related__item related__item--plain">' +
@@ -642,6 +753,17 @@
     var status = Store.statusOf(term.id);
     var near = neighbours(term);
 
+    /* 조각을 미리 만들어 둔다. 확인 질문의 단추는 나머지 자리들이 등록해 둔 표를
+       읽어야 하므로 반드시 마지막에 만들어져야 한다. 문자열을 이어 붙이는 자리에
+       그냥 두면 평가 순서가 곧 등록 순서가 되어, 나중에 줄을 옮겼을 때
+       단추만 조용히 사라진다. */
+    TARGETS = {};
+    aimAll(DEFINITION_NAMES, "p-정의");
+    var figureHtml = figureSection(term);
+    var panelsHtml = disclosureSections(term) + relatedSection(term);
+    var recapHtml = recapBlock(term);
+    var checkHtml = checkSection(term);
+
     var stepBtn = function (t, dir) {
       var label = dir === "prev" ? "이전 단어" : "다음 단어";
       if (!t) {
@@ -665,15 +787,18 @@
       (term.reading ? '<p class="detail__reading">' + esc(term.reading) + "</p>" : "") +
       '<p class="detail__status">' + badge(status) + "</p>" +
       "</header>" +
-      '<div class="gist">' + UI.markdown(term.summary).replace(/^<p>|<\/p>$/g, "") + "</div>" +
+      '<div class="gist" id="p-정의">' + UI.markdown(term.summary).replace(/^<p>|<\/p>$/g, "") + "</div>" +
+      /* 비유가 배경 문단을 앞지른다. 한 줄 뜻 다음에 배경 산문을 두면, 구체적인
+         앵커인 비유가 유래 설명 뒤로 밀린다. 비유는 한 문장·일상 사물 규칙이라
+         배경에 기대지 않는다. 원문은 그대로 두고 그리는 순서만 바꾼다. */
+      analogyBlock(term) +
       (term.definition
         ? '<div class="prose prose--def">' + UI.markdown(term.definition) + "</div>"
         : "") +
-      analogyBlock(term) +
-      figureSection(term) +
-      '<div class="panels">' + disclosureSections(term) + relatedSection(term) + "</div>" +
-      recapBlock(term) +
-      checkSection(term) +
+      figureHtml +
+      '<div class="panels">' + panelsHtml + "</div>" +
+      recapHtml +
+      checkHtml +
       "</article></main>" +
       '<div class="action-bar">' + stepBtn(near.prev, "prev") +
       primaryAction(term, status) + stepBtn(near.next, "next") + "</div>";
@@ -690,6 +815,78 @@
     UI.toast("복습 목록에 넣었습니다", "rotate");
     App.render();
   });
+
+  /* ---- 확인 질문에서 답이 있는 자리로 ----
+
+     그 칸을 열고 거기로 데려간다. 열기만 하면 어디로 왔는지 모르므로 도착한 자리의
+     이름을 잠깐 물들인다. 그 이름이 방금 누른 단추에 적혀 있던 말이라 둘이 이어진다.
+     같은 칸을 다시 누를 수 있으니 앞 타이머를 지우고 시작한다 —
+     안 지우면 먼저 걸린 타이머가 두 번째 착지 도중에 표시를 꺼버린다.
+
+     화면은 통째로 다시 그려지므로 단추마다 리스너를 달지 않는다.
+     다시 그릴 때마다 리스너도 같이 사라지고, 새 단추에는 아무것도 안 붙는다. */
+  var LAND_MS = 1600;
+
+  function land(target) {
+    if (target.tagName === "DETAILS") target.open = true;
+    clearTimeout(target.__land);
+    target.classList.add("is-landed");
+    target.__land = setTimeout(function () {
+      target.classList.remove("is-landed");
+    }, LAND_MS);
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  document.addEventListener("click", function (event) {
+    var btn = event.target.closest(".selfcheck__jump");
+    if (!btn) return;
+    var target = document.getElementById(btn.dataset.jump);
+    if (target) land(target);
+  });
+
+  /* ---- 본문 안 [[링크]] ----
+
+     선행 용어에 막힌 사람을 구할 장치가 화면 맨 아래 관련 용어뿐이었다.
+     관련 용어에 안 오른 이름도 본문에는 나오므로, 갈 수 있는지는 Store 조회 하나로 정한다.
+     못 찾으면 페이지를 옮기지 않는다 — 없는 주소로 보내면 "찾을 수 없다" 화면에서
+     읽던 자리를 잃는다. */
+  document.addEventListener("click", function (event) {
+    var btn = event.target.closest(".xref");
+    if (!btn) return;
+    var found = termByName(btn.dataset.term);
+    if (!found) {
+      UI.toast("아직 단어장에 없는 단어입니다");
+      return;
+    }
+    App.navigate("/term/" + found.id);
+  });
+
+  /* @ 난간이 마지막 마디의 원 중심에서 끝나게 한다.
+     끝까지 내려오면 그림 바닥으로 삐져나가 길이 이어지는 것처럼 보인다.
+     21 = 위 여백 8 + 원 반지름 13. 실측이라 글자 크기가 바뀌면 다시 재야 한다. */
+  function fitLoopRails() {
+    Array.prototype.forEach.call(document.querySelectorAll(".dia__steps--loop"), function (list) {
+      var last = list.querySelector(".dia__loop");
+      if (!last) return;
+      /* 접힌 칸 안은 레이아웃이 없어 높이가 전부 0 으로 나온다. 그 값을 쓰면
+         0px 가 인라인으로 박혀 CSS 기본값을 이기고, 재지 않는 것보다 나빠진다.
+         못 잴 때는 손대지 않고 기본값에 맡긴다. */
+      if (!list.clientHeight) return;
+      var gap = list.clientHeight - last.offsetTop - 21;
+      list.style.setProperty("--loop-gap", Math.max(gap, 0) + "px");
+    });
+  }
+
+  document.addEventListener("screen:rendered", fitLoopRails);
+  window.addEventListener("resize", fitLoopRails);
+  /* 접이식이 열리는 순간이 처음으로 잴 수 있게 되는 순간이다.
+     details 의 toggle 은 버블하지 않으므로 캡처 단계에서 받는다. */
+  document.addEventListener("toggle", fitLoopRails, true);
+
+  /* 폰트가 늦게 오면 줄 높이가 바뀐다. 난간은 실측값이라 그때 다시 맞춰야 한다. */
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(fitLoopRails);
+  }
 
   /* 읽기 진행 표시. 스크롤 이벤트 대신 IntersectionObserver 를 쓰고 싶지만
      연속 값이 필요하므로 rAF 로 눌러서 프레임당 한 번만 계산한다. */

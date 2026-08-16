@@ -1,9 +1,37 @@
-/* 목업 전용. 앱에 들어간 스타일(.dia / .analogy / .figure-slot / .myth /
-   .selfcheck)은 css/app.css 로 옮겼다. 여기 사본을 두면 반드시 갈라진다. */
+/* 목업 전용. 화면을 이루는 스타일(.dia / .analogy / .figure-slot / .myth /
+   .selfcheck / .disclose)은 전부 css/app.css 것을 그대로 쓴다.
+   여기 사본을 두면 반드시 갈라진다 — 목업에서 멀쩡하던 것이 앱에서 깨진다.
+   이 파일에는 앱에 없는 장치, 즉 노트 고르기와 원문 보기만 둔다. */
 
 /* ------------------------------------------------------------
-   원문 보기 — 목업에만 있는 장치.
-   "이 글자들이 저 화면이 된다"를 확인하는 용도.
+   노트 고르기 — 한 페이지에서 세 편을 갈아 끼운다.
+   주소의 #note-cb 로 바로 열 수도 있다. "이 그림 좀 보라"고
+   링크를 건네려면 이게 있어야 한다.
+   ------------------------------------------------------------ */
+.switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-5);
+}
+
+.switch__btn {
+  padding: var(--sp-2) var(--sp-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-chip);
+  background: var(--surface);
+  font-size: var(--fs-13);
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.switch__btn[aria-pressed="true"] {
+  border-color: var(--st-reading);
+  color: var(--st-reading);
+}
+
+/* ------------------------------------------------------------
+   원문 보기 — "이 글자들이 저 화면이 된다"를 확인하는 용도.
    ------------------------------------------------------------ */
 .source {
   margin-top: var(--sp-12);

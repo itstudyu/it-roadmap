@@ -85,7 +85,15 @@ window.UI = (function () {
       return OPEN + (codes.length - 1) + CLOSE;
     });
     out = out.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
-    out = out.replace(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g, "<em>$1</em>");
+    /* 노트끼리 거는 [[링크]] 는 누를 수 있어야 한다. 기울임으로 눕혀 두면
+       선행 용어에 막힌 사람이 화면 맨 아래 관련 용어까지 내려가야 빠져나간다.
+       이름은 이미 위에서 esc 를 통과했으므로 여기서 또 씌우지 않는다 —
+       한 번 더 씌우면 & 가 &amp;amp; 로 굳어 글자와 data 값이 같이 망가진다.
+       [[표시|별칭]] 이면 앞의 표시를 쓴다. 누르는 일은 화면 쪽이 위임으로 받는다. */
+    out = out.replace(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g, function (_, name) {
+      return '<button class="xref" type="button" data-term="' + name + '">' + name +
+        '<span class="xref__arrow" aria-hidden="true"> ↗</span></button>';
+    });
     return out.replace(CODE_SLOT, function (_, i) {
       return "<code>" + codes[Number(i)] + "</code>";
     });
@@ -261,9 +269,15 @@ window.UI = (function () {
       text = text.slice(cut + 2).trim();
     }
 
+    /* 중립 대조의 "A |=| B". 구분자가 다르니 그대로 "||" 로 가르면 한 칸도 갈라지지
+       않는다. 판정을 뗄지 여부만 플래그로 남기고 구분자는 "||" 로 되돌린다 —
+       두 칸을 나누는 길이 하나여야 기존 229블록이 지금 모양 그대로 남는다. */
+    var even = text.indexOf("|=|") !== -1;
+    if (even) text = text.replace(/\|=\|/g, "||");
+
     var halves = text.split("||"); // 대조에서만 뜻이 있다
     return {
-      back: back, who: who, what: text,
+      back: back, who: who, what: text, even: even,
       left: halves[0].trim(), right: (halves[1] || "").trim(),
     };
   }
@@ -275,11 +289,21 @@ window.UI = (function () {
     var head = lines[0].match(/^\s*(흐름|대조|층)\s*:\s*(.*)$/);
     if (!head) return null; // 모양 선언이 없으면 도해가 아니다
 
-    var dia = { shape: DIA_SHAPES[head[1]], title: head[2].trim(), rows: [], sum: "" };
+    var dia = { shape: DIA_SHAPES[head[1]], title: head[2].trim(), rows: [], sum: "", loop: null };
     for (var i = 1; i < lines.length; i++) {
       var line = lines[i].trim();
       var end = line.match(/^=\s*(.+)$/);
       if (end) { dia.sum = end[1].trim(); continue; }
+      /* @ 는 마디가 아니라 흐름 전체에 붙는 말이다 — "여기까지 오면 다시 처음으로".
+         그래서 = 요약과 같은 방식으로 줄 목록에서 빼내 따로 든다.
+         여러 줄이면 마지막 것만 남긴다. 되돌아가는 길이 둘이면 그림은 길로 안 읽힌다.
+         자리(마지막 줄)를 강요하는 일은 검사기가 한다. 여기서는 관대하게 받는다. */
+      var mark = line.match(/^@\s+(.+)$/);
+      if (mark) {
+        var it = diaRow(mark[1]);
+        dia.loop = { who: it.who, what: it.what };
+        continue;
+      }
       dia.rows.push(diaRow(line));
     }
     return dia.rows.length ? dia : null;
@@ -290,10 +314,19 @@ window.UI = (function () {
     'stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">' +
     '<path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>';
 
+  var DIA_LOOP_ICON = "↻";
+  var DIA_EVEN_SIGN = "◆"; // 판정 없는 대조. ✕ / ✓ 자리에 우열 없이 놓인다
+
   /* 흐름. 왼쪽 척추선을 따라 번호가 내려간다.
      응답 구간(<)은 척추 색이 바뀌고 한 번 접힌 표시가 들어간다.
      화살표를 위로 돌리지 않는다 — 목록은 어차피 아래로 읽히고,
-     방향을 거스르는 화살표는 그림을 설명이 필요한 물건으로 만든다. */
+     방향을 거스르는 화살표는 그림을 설명이 필요한 물건으로 만든다.
+
+     한 바퀴 도는 흐름(@)은 마지막에 번호 없는 마디가 하나 붙고, 왼쪽 바깥에
+     난간이 선다. 되돌아가는 길에 번호를 주지 않는 이유는 그게 새 단계가 아니라
+     이미 지나온 첫 마디로 돌아간다는 표시이기 때문이다.
+     난간과 화살촉은 CSS 가 그린다 — 화살촉은 ol 의 직계 자식이 li 뿐이어야 해서
+     첫 마디 안에 얹는다. */
   function diaFlow(dia) {
     var out = "", step = 0, turned = false;
     for (var i = 0; i < dia.rows.length; i++) {
@@ -305,35 +338,54 @@ window.UI = (function () {
       }
       step++;
       out += '<li class="dia__step' + (row.back ? " is-back" : "") + '">' +
+        (dia.loop && step === 1 ? '<span class="dia__loopcap" aria-hidden="true"></span>' : "") +
         '<span class="dia__mark" aria-hidden="true">' + step + "</span>" +
         '<span class="dia__body">' +
         (row.who ? '<b class="dia__who">' + inline(row.who) + "</b>" : "") +
         '<span class="dia__what">' + inline(row.what) + "</span></span></li>";
     }
-    return '<ol class="dia__steps">' + out + "</ol>";
+    if (dia.loop) {
+      out += '<li class="dia__loop"><span class="dia__loopmark" aria-hidden="true">' +
+        DIA_LOOP_ICON + "</span>" +
+        '<span class="dia__body">' +
+        (dia.loop.who ? '<b class="dia__who">' + inline(dia.loop.who) + "</b>" : "") +
+        '<span class="dia__what">' + inline(dia.loop.what) + "</span></span></li>";
+    }
+    return '<ol class="dia__steps' + (dia.loop ? " dia__steps--loop" : "") + '">' + out + "</ol>";
   }
 
   /* 대조. 두 칸을 항상 나란히 둔다. 위아래로 쌓으면 각 칸은 편해지지만
      비교가 기억력 문제가 되어버린다. 값어치는 눈이 좌우로 한 번 움직이는 데 있다. */
   function diaCompare(dia) {
     var rows = dia.rows.slice();
-    var left = "이전", right = "이후";
+    var left = "이전", right = "이후", even = false;
     // 첫 줄이 이름 없이 두 칸만 가지고 있으면 그게 칸 이름이다
     if (rows.length > 1 && !rows[0].who && rows[0].right) {
-      left = rows[0].left; right = rows[0].right; rows.shift();
+      left = rows[0].left; right = rows[0].right; even = rows[0].even; rows.shift();
     }
 
+    /* 판정은 칸 이름 줄이 정한다. |=| 면 둘 다 정당한 선택이라는 뜻이라
+       색도 기호도 한쪽 편을 들지 않는다 — 세션과 JWT 처럼 거래를 설명하는
+       그림에 ✕ 를 찍으면 그림이 본문과 반대되는 말을 한다.
+       기존 대조는 왼쪽이 문제, 오른쪽이 해결이라는 전제가 그대로 남는다. */
+    var leftCol = even ? "dia__col--even" : "dia__col--bad";
+    var rightCol = even ? "dia__col--even" : "dia__col--good";
+    var leftCell = even ? "dia__cell--even" : "dia__cell--bad";
+    var rightCell = even ? "dia__cell--even" : "dia__cell--good";
+    var leftSign = even ? DIA_EVEN_SIGN : "✕";
+    var rightSign = even ? DIA_EVEN_SIGN : "✓";
+
     var head = '<div class="dia__vshead">' +
-      '<span class="dia__col dia__col--bad"><span class="dia__sign" aria-hidden="true">✕</span>' +
+      '<span class="dia__col ' + leftCol + '"><span class="dia__sign" aria-hidden="true">' + leftSign + "</span>" +
       esc(left) + "</span>" +
-      '<span class="dia__col dia__col--good"><span class="dia__sign" aria-hidden="true">✓</span>' +
+      '<span class="dia__col ' + rightCol + '"><span class="dia__sign" aria-hidden="true">' + rightSign + "</span>" +
       esc(right) + "</span></div>";
 
     var body = rows.map(function (row) {
       return '<div class="dia__vsrow">' +
         (row.who ? '<b class="dia__k">' + inline(row.who) + "</b>" : "") +
-        '<span class="dia__cell dia__cell--bad">' + inline(row.left) + "</span>" +
-        '<span class="dia__cell dia__cell--good">' + inline(row.right) + "</span></div>";
+        '<span class="dia__cell ' + leftCell + '">' + inline(row.left) + "</span>" +
+        '<span class="dia__cell ' + rightCell + '">' + inline(row.right) + "</span></div>";
     }).join("");
 
     return '<div class="dia__vs">' + head + body + "</div>";

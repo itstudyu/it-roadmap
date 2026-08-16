@@ -1095,6 +1095,33 @@ a {
   font-weight: 650;
 }
 
+/* 본문 안 [[링크]]. 선행 용어에 막힌 사람을 구할 장치가 화면 맨 아래 관련 용어뿐이라,
+   읽다 막힌 자리에서 바로 건너갈 수 있게 한다.
+   단추지만 단추처럼 안 보이게 둔다 — 문장 한가운데에 칩이 박히면 글이 끊긴다.
+   밑줄과 작은 ↗ 만으로 "여기서 나갈 수 있다"고 말한다. */
+.xref {
+  display: inline;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1.5px;
+  transition: text-decoration-color var(--dur-fast) var(--ease);
+}
+
+.xref:hover {
+  text-decoration-color: var(--st-reading);
+}
+
+.xref__arrow {
+  font-size: 0.8em;
+  color: var(--ink-3);
+}
+
 .prose h3 {
   font-size: var(--fs-15);
   font-weight: 650;
@@ -1411,6 +1438,17 @@ a {
 
 .disclose[open] .disclose__peek {
   display: none;
+}
+
+/* 오해 칸의 미리보기는 틀린 문장만 ✕ 를 달아 잇는다(정정문은 열어야 보인다).
+   여기서만 색을 danger 로 두는 것은, 접힌 줄에 보이는 문장이 전부 "틀린 말"이기
+   때문이다. 본문 색으로 두면 훑는 사람이 그대로 주워 담는다. */
+.disclose__peek--myth {
+  color: var(--danger);
+}
+
+.disclose__peek--myth .x {
+  font-size: var(--fs-11);
 }
 
 .disclose__icon {
@@ -2533,6 +2571,82 @@ a {
 }
 
 /* ------------------------------------------------------------
+   흐름의 반복 마디 — 원문의 "@ 무엇"
+
+   IT 개념의 큰 갈래 하나가 "한 바퀴 돈다"인데(이벤트 루프, 에이전트 루프,
+   차단기, 스프린트) 흐름은 직선뿐이라 루프를 직선으로 펴고 있었다.
+   되돌아가는 길을 가로로 그리지 않는다 — 390px 에서 가로는 곧 죽음이다.
+   왼쪽 바깥에 점선 난간을 세우고 위쪽 끝에 화살촉을 얹는다.
+   그림이 늘어나는 건 줄 하나와 폭 16px 뿐이다.
+   ------------------------------------------------------------ */
+
+.dia__steps--loop {
+  padding-left: var(--sp-4);
+}
+
+/* 되돌아가는 길. 마지막 줄의 원에서 왼쪽으로 빠져 올라가서, 첫 줄의 원으로
+   다시 들어간다. 위아래 팔의 높이를 두 원의 중심에 정확히 맞춘다 —
+   어긋나면 길이 원을 비껴가고, 그러면 그림이 아니라 장식이 된다.
+   20px = 위 여백 8 + 원 반지름 13 - 선 굵기 절반 1. 아래는 스크립트가 실측한다. */
+.dia__steps--loop::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 20px;
+  bottom: var(--loop-gap, 26px);
+  width: 13px;
+  border: 1.5px dashed var(--st-reading);
+  border-right: none;
+  border-radius: 6px 0 0 6px;
+}
+
+/* 척추도 마디 원 중심을 따라 padding 만큼 밀린다. 16 + 13 - 1 = 28 */
+.dia__steps--loop::before {
+  left: 28px;
+}
+
+/* 화살촉. 길이 첫 마디로 들어간다는 표시라 위가 아니라 오른쪽을 가리킨다.
+   촉 끝이 원의 왼쪽 가장자리(ol 기준 x=16)에 정확히 닿는다 — 파고들면 찔린 것처럼,
+   모자라면 끊긴 것처럼 보인다. 첫 마디 안에 넣어 마크업을 지킨다
+   — ol 의 직계 자식은 li 뿐이어야 한다. */
+.dia__loopcap {
+  position: absolute;
+  left: -6px;
+  top: 16px;
+  width: 0;
+  height: 0;
+  border-top: 4.5px solid transparent;
+  border-bottom: 4.5px solid transparent;
+  border-left: 6px solid var(--st-reading);
+}
+
+.dia__loop {
+  position: relative;
+  display: flex;
+  gap: var(--sp-3);
+  align-items: flex-start;
+  padding-block: var(--sp-2);
+}
+
+.dia__loopmark {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--r-full);
+  background: var(--st-reading-bg);
+  color: var(--st-reading);
+  display: grid;
+  place-items: center;
+  font-size: var(--fs-13);
+}
+
+.dia__loop .dia__who {
+  color: var(--st-reading);
+}
+
+/* ------------------------------------------------------------
    대조 — 두 칸을 나란히
    ------------------------------------------------------------ */
 
@@ -2609,6 +2723,53 @@ a {
 }
 
 /* ------------------------------------------------------------
+   판정 없는 대조 — 원문의 "A |=| B"
+
+   대조의 왼쪽 칸에는 늘 ✕ 가 찍힌다. "있고 없고"라면 맞는 말이지만
+   세션과 JWT 처럼 둘 다 정당한 선택에서는 그림이 한쪽을 틀렸다고 선고한다.
+   "즉시 로그아웃 :: 지우면 끝 || 만료까지 유효" 는 왼쪽이 이기는 줄인데 ✕ 아래 놓인다.
+   결론 줄은 거래라고 말하는데 그림은 승패를 말하는 것이다.
+
+   판정을 뗀다. 색도 기호도 붙이지 않는 것 자체가 이 그림이 하려는 말이다.
+   ------------------------------------------------------------ */
+
+/* 판정은 떼되 두 칸이라는 것은 남아야 한다.
+   --surface-sunken 을 그대로 쓰면 접이식 안에서 도해 배경과 같은 색이 되어
+   두 칸이 한 덩어리로 뭉갠다(패널 안 .dia 는 이미 sunken 이다).
+   그래서 바탕에 --line 을 섞어 제 자리를 만든다 — 두 칸이 같은 색이므로
+   여전히 어느 쪽도 이기지 않고, 사이의 2px 틈이 경계가 된다. */
+.dia__col--even,
+.dia__cell--even {
+  background: color-mix(in srgb, var(--line) 55%, var(--surface));
+}
+
+.disclose__panel .dia__col--even,
+.disclose__panel .dia__cell--even {
+  background: color-mix(in srgb, var(--line) 55%, var(--surface-sunken));
+}
+
+.dia__col--even {
+  color: var(--ink);
+}
+
+.dia__col--even .dia__sign {
+  color: var(--ink-3);
+  font-weight: 400;
+}
+
+.dia__cell--even {
+  color: var(--ink-2);
+}
+
+.dia__vsrow .dia__cell--even:first-of-type {
+  border-radius: var(--r-chip) 0 0 var(--r-chip);
+}
+
+.dia__vsrow .dia__cell--even:last-of-type {
+  border-radius: 0 var(--r-chip) var(--r-chip) 0;
+}
+
+/* ------------------------------------------------------------
    층 — 위에서 아래로 깊어진다
    ------------------------------------------------------------ */
 
@@ -2654,6 +2815,15 @@ a {
   }
 
   .dia__cell--good {
+    border-radius: 0 0 var(--r-chip) var(--r-chip);
+  }
+
+  /* 판정 없는 대조도 같이 쌓인다. --bad / --good 에 해주는 일을 그대로 해준다. */
+  .dia__vsrow .dia__cell--even:first-of-type {
+    border-radius: var(--r-chip) var(--r-chip) 0 0;
+  }
+
+  .dia__vsrow .dia__cell--even:last-of-type {
     border-radius: 0 0 var(--r-chip) var(--r-chip);
   }
 }
@@ -2839,4 +3009,63 @@ a {
   line-height: var(--lh-body);
   color: var(--ink-2);
   word-break: keep-all;
+}
+
+/* 답이 있는 자리로 가는 단추. 질문 아래 한 줄로 세운다 —
+   질문 옆에 두면 390px 에서 질문이 그만큼 좁아져 두 줄씩 더 늘어난다. */
+.selfcheck__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.selfcheck__jump {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-1) var(--sp-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-full);
+  background: transparent;
+  font-size: var(--fs-12);
+  color: var(--ink-3);
+  transition: border-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease);
+}
+
+.selfcheck__jump:hover {
+  border-color: var(--st-reading);
+  color: var(--st-reading);
+}
+
+/* 상단 바가 sticky 라, 그냥 scrollIntoView 하면 도착한 칸의 제목이 그 바 뒤로 들어간다.
+   화면 맨 위에 남는 건 제목이 아니라 본문 중간이고, 유저는 자기가 어디로 왔는지 모른다.
+   바 높이만큼 미리 비워둔다 — 스크립트에서 좌표를 계산하지 않는다.
+   그건 바 높이가 바뀔 때마다 조용히 틀려진다. */
+.disclose,
+.figure-slot,
+.recap,
+.gist {
+  scroll-margin-top: calc(var(--navbar-h) + var(--sp-3));
+}
+
+/* 건너뛴 칸이 어디인지 잠깐 알려준다. 열리기만 하면 어디로 왔는지 모른다.
+
+   물들이는 것은 본문이 아니라 제목이다. 패널 배경을 칠하면 "이 블록이 선택됐다"로
+   읽히고 정작 눈은 어디부터 읽어야 할지 모른다. 도착한 자리의 이름을 짚어주는 편이
+   정확하고, 그 이름이 곧 방금 누른 단추에 적혀 있던 말이라 둘이 이어진다.
+
+   애니메이션이 아니라 클래스 + transition 으로 한다 — 색만 바뀌므로 모션을 줄인
+   환경에서도 안전하다. 사라지는 것은 스크립트가 1.6초 뒤에 클래스를 떼는 일이 맡는다. */
+.disclose__label,
+.dia__cap {
+  transition: color var(--dur-slow) var(--ease);
+}
+
+.is-landed > .disclose__btn .disclose__label,
+.is-landed > .disclose__btn .disclose__icon,
+.figure-slot.is-landed .dia__cap {
+  color: var(--st-reading);
 }
