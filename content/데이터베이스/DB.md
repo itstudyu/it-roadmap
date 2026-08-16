@@ -2,321 +2,82 @@
 
 ## 📝 정의
 
-DB(Database, 데이터베이스)는 **체계적으로 구조화된 데이터의 집합**으로, 효율적으로 저장, 검색, 수정할 수 있는 시스템입니다.
+DB는 **데이터를 구조에 맞춰 맡아두고 지키는 시스템**이다.
 
-### 핵심 개념
+파일에 그냥 적어두면 여러 사람이 동시에 고칠 때 무엇이 맞는지 알 수 없고, 지운 사용자의 주문이 주인 없이 남는다. DB는 그런 일이 생기지 않게 규칙을 걸어두고 데이터를 맡는다.
 
-- **무엇인가?**: 구조화된 데이터 저장소
-- **왜 필요한가?**: 파일로 데이터 관리 → 비효율, 중복, 무결성 문제
-- **어떻게 작동하나?**: DBMS(Database Management System)로 관리
+### 비유
+도서관. 책을 아무 데나 쌓아두는 게 아니라 분류하고 색인을 만들어두어서, 누가 무엇을 언제 빌려갔는지까지 어긋나지 않는다.
 
-### DB가 해결하는 문제
+## 🖼️ 그림으로 보기
 
-**문제 상황**:
-```
-😱 시나리오: 파일로 데이터 관리
-사용자 정보: users.txt
-주문 정보: orders.txt
-→ 사용자 삭제 시 주문은?
-→ 동시 수정 시 충돌
-→ 데이터 일관성 보장 불가! 😱
-```
-
-**DB의 해결**:
-```
-✅ 체계적 관리:
-관계형 DB → 테이블 간 관계 설정
-→ 사용자 삭제 시 관련 주문 자동 처리
-→ 트랜잭션으로 일관성 보장
-→ 동시성 제어
-→ 안전하고 효율적! ✅
+```도해
+흐름: 조회 문장 하나를 던지면 DB 는 무엇을 하나
+연결 :: 누가 보냈는지 확인하고 자리를 연다
+해석 :: 문장을 읽고 무엇을 원하는지 알아낸다
+계획 :: 인덱스를 탈지 전부 훑을지 정한다
+읽기 :: 정한 대로 메모리나 디스크에서 꺼낸다
+< 응답 :: 행 목록을 돌려주고 자리를 정리한다
+= 같은 문장이어도 셋째 마디에서 무엇을 고르느냐로 속도가 갈린다
 ```
 
-**비유**:
-- **파일** = 서랍에 서류 무작위 보관
-- **DB** = 도서관 시스템 (분류, 색인, 대출 관리)
+## ⚠️ 해결하는 문제
 
-## 💡 관계형 DB (RDBMS)
-
-### 테이블 구조
-```sql
--- 사용자 테이블
-CREATE TABLE users (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- 주문 테이블
-CREATE TABLE orders (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NOT NULL,
-    product VARCHAR(100),
-    amount DECIMAL(10, 2),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-);
+```도해
+대조: 데이터를 파일에 그냥 적어두면 어떻게 되나
+파일로 || DB 로
+동시 수정 :: 나중 것이 덮음 || 순서를 정리함
+사용자 삭제 :: 주문이 남는다 || 같이 정리된다
+중간에 실패 :: 절반만 반영됨 || 통째로 되돌림
+= 데이터가 어긋나지 않게 지키는 일을 대신 해주는 게 DB 다
 ```
 
-### CRUD 연산
-```sql
--- Create (생성)
-INSERT INTO users (username, email)
-VALUES ('john', 'john@example.com');
+파일 두 개에 사용자와 주문을 나눠 적어두면, 사용자를 지웠을 때 그 사람의 주문은 주인이 없는 채로 남는다. 계좌에서 돈을 빼고 넣는 두 줄 중 하나만 실행된 채로 프로그램이 죽으면 돈이 사라진다.
 
--- Read (조회)
-SELECT * FROM users WHERE username = 'john';
+DB는 이런 자리를 규칙으로 막는다. 다른 표를 가리키는 열에는 없는 값을 넣지 못하게 하고, 묶어둔 작업은 전부 되거나 전부 안 된 상태 중 하나로만 끝나게 한다. 뒤쪽을 트랜잭션이라고 부른다.
 
--- Update (수정)
-UPDATE users
-SET email = 'newemail@example.com'
-WHERE id = 1;
+## ⚙️ 작동 원리
 
--- Delete (삭제)
-DELETE FROM users WHERE id = 1;
-```
+표에서 값 하나를 찾을 때 아무 준비가 없으면 처음부터 끝까지 전부 훑는다. 행이 백만 개면 백만 번 본다.
 
-### 관계 (Relationship)
-```sql
--- 1:N 관계 (한 사용자, 여러 주문)
-SELECT u.username, o.product, o.amount
-FROM users u
-JOIN orders o ON u.id = o.user_id
-WHERE u.id = 1;
+인덱스는 그 열의 값만 따로 뽑아 정렬해둔 목록이다. 반씩 좁혀 들어가면 스무 번 남짓에 자리를 찾는다. 대신 행을 넣고 고칠 때마다 이 목록도 같이 고쳐야 해서, 인덱스를 많이 걸면 읽기가 빨라지는 만큼 쓰기가 느려진다.
 
--- 집계
-SELECT u.username, COUNT(o.id) as order_count, SUM(o.amount) as total
-FROM users u
-LEFT JOIN orders o ON u.id = o.user_id
-GROUP BY u.id;
-```
+## 📊 비교
 
-## 💡 NoSQL DB
+| | 관계형 (RDBMS) | NoSQL |
+|---|---|---|
+| 표 모양 | 미리 정해두고 지킨다 | 문서마다 달라도 된다 |
+| 표 사이 관계 | JOIN으로 이어 본다 | 대개 직접 묶어 넣는다 |
+| 일관성 | 그 자리에서 맞춘다 | 잠시 어긋날 수 있다 |
+| 늘릴 때 | 서버를 키운다 | 대수를 늘린다 |
+| 쓰는 곳 | 금융, 주문, 정산 | 로그, 캐시, 피드 |
 
-### 문서형 (MongoDB)
-```javascript
-// 유연한 스키마
-db.users.insertOne({
-  username: "john",
-  email: "john@example.com",
-  profile: {
-    age: 30,
-    address: {
-      city: "Seoul",
-      country: "Korea"
-    }
-  },
-  tags: ["developer", "python"]
-});
+## 💡 실제 사례
 
-// 조회
-db.users.find({ "profile.age": { $gt: 25 } });
+- **주문과 사용자** 주문 표에는 사용자 번호만 두고, 이름이 바뀌면 사용자 표의 한 줄만 고친다.
+- **송금** 출금과 입금을 한 묶음으로 걸어두어, 중간에 끊겨도 돈이 한쪽에서만 사라지지 않는다.
+- **로그인 조회** 이메일 열에 인덱스를 걸어두면 회원이 백만 명이어도 조회가 느려지지 않는다.
 
-// 중첩된 객체 저장 가능
-```
+## 🚫 흔한 오해
 
-### Key-Value (Redis)
-```python
-import redis
+- **DB는 데이터를 담아두는 통이다** — 담기만 하는 건 파일도 한다. DB가 하는 일은 여럿이 동시에 건드려도 데이터가 어긋나지 않게 지키는 쪽이다.
+- **인덱스를 많이 걸면 빨라진다** — 읽기는 빨라지고 쓰기는 느려진다. 넣고 고칠 때마다 인덱스 목록까지 같이 고쳐야 하기 때문이다.
+- **NoSQL은 SQL의 다음 세대다** — 대체가 아니라 다른 선택이다. 표 사이의 관계와 즉시 일관성이 필요한 자리에서는 관계형이 여전히 맞다.
 
-r = redis.Redis()
+## 📝 정리
 
-# 저장
-r.set('user:1:name', 'John')
-r.set('user:1:email', 'john@example.com')
+DB는 데이터를 구조에 맞춰 맡아두고, 여럿이 동시에 건드려도 어긋나지 않게 지키는 시스템이다. 관계형은 표 사이의 관계와 트랜잭션에 강하고, NoSQL은 모양이 제각각인 데이터와 대수를 늘리는 확장에 강하다.
 
-# 조회
-name = r.get('user:1:name')
+## ❓ 이해했는지
 
-# 만료 시간 설정 (캐싱)
-r.setex('session:abc123', 3600, 'user_data')
-
-# Hash
-r.hset('user:1', mapping={
-    'name': 'John',
-    'email': 'john@example.com'
-})
-```
-
-## 💡 Python으로 DB 사용
-
-### MySQL (관계형)
-```python
-import mysql.connector
-
-# 연결
-conn = mysql.connector.connect(
-    host='localhost',
-    user='root',
-    password='password',
-    database='mydb'
-)
-
-cursor = conn.cursor()
-
-# 데이터 삽입
-cursor.execute(
-    "INSERT INTO users (username, email) VALUES (%s, %s)",
-    ('john', 'john@example.com')
-)
-conn.commit()
-
-# 조회
-cursor.execute("SELECT * FROM users WHERE username = %s", ('john',))
-user = cursor.fetchone()
-print(user)
-
-# 닫기
-cursor.close()
-conn.close()
-```
-
-### SQLAlchemy (ORM)
-```python
-from sqlalchemy import create_engine, Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-
-Base = declarative_base()
-
-class User(Base):
-    """사용자 모델"""
-    __tablename__ = 'users'
-    
-    id = Column(Integer, primary_key=True)
-    username = Column(String(50), unique=True)
-    email = Column(String(100))
-
-# DB 연결
-engine = create_engine('mysql://user:pass@localhost/mydb')
-Session = sessionmaker(bind=engine)
-session = Session()
-
-# Create
-user = User(username='john', email='john@example.com')
-session.add(user)
-session.commit()
-
-# Read
-user = session.query(User).filter_by(username='john').first()
-print(user.email)
-
-# Update
-user.email = 'newemail@example.com'
-session.commit()
-
-# Delete
-session.delete(user)
-session.commit()
-```
-
-### MongoDB (NoSQL)
-```python
-from pymongo import MongoClient
-
-# 연결
-client = MongoClient('mongodb://localhost:27017/')
-db = client['mydb']
-users = db['users']
-
-# Create
-users.insert_one({
-    'username': 'john',
-    'email': 'john@example.com',
-    'age': 30
-})
-
-# Read
-user = users.find_one({'username': 'john'})
-
-# Update
-users.update_one(
-    {'username': 'john'},
-    {'$set': {'age': 31}}
-)
-
-# Delete
-users.delete_one({'username': 'john'})
-
-# 복잡한 쿼리
-results = users.find({
-    'age': {'$gte': 25},
-    'email': {'$regex': '@example.com$'}
-})
-```
-
-## 💡 트랜잭션 (ACID)
-
-```python
-# 은행 송금 예시
-def transfer(from_account, to_account, amount):
-    """트랜잭션: 모두 성공 or 모두 실패"""
-    
-    try:
-        # 트랜잭션 시작
-        conn.start_transaction()
-        
-        # 출금
-        cursor.execute(
-            "UPDATE accounts SET balance = balance - %s WHERE id = %s",
-            (amount, from_account)
-        )
-        
-        # 입금
-        cursor.execute(
-            "UPDATE accounts SET balance = balance + %s WHERE id = %s",
-            (amount, to_account)
-        )
-        
-        # 커밋 (둘 다 성공)
-        conn.commit()
-        print("Transfer successful")
-        
-    except Exception as e:
-        # 롤백 (하나라도 실패 시 모두 취소)
-        conn.rollback()
-        print(f"Transfer failed: {e}")
-```
-
-## 🎯 관계형 vs NoSQL
-
-| 항목 | 관계형 (RDBMS) | NoSQL |
-|------|---------------|-------|
-| **스키마** | 고정 (엄격) | 유연 |
-| **확장** | 수직 (서버 성능) | 수평 (서버 수) |
-| **관계** | 강력 (JOIN) | 약함 |
-| **일관성** | 강력 (ACID) | 결과적 일관성 |
-| **사용 사례** | 금융, ERP | SNS, 로그, 캐시 |
-
-## 💡 인덱스 (Index)
-
-```sql
--- 인덱스 없이
-SELECT * FROM users WHERE email = 'john@example.com';
--- → 100만 행 전체 스캔 (느림)
-
--- 인덱스 생성
-CREATE INDEX idx_email ON users(email);
-
--- 인덱스 사용
-SELECT * FROM users WHERE email = 'john@example.com';
--- → 인덱스로 즉시 찾기 (빠름)
-
--- 복합 인덱스
-CREATE INDEX idx_name_age ON users(username, age);
-
--- 설명 보기
-EXPLAIN SELECT * FROM users WHERE email = 'john@example.com';
-```
+- 송금 도중에 프로그램이 죽었는데도 돈이 사라지지 않는 이유는?
+- 인덱스를 다섯 개 걸었더니 저장이 느려졌다면 무엇 때문인가?
+- 사용자 이름이 바뀌었는데 주문 표를 하나도 안 고쳐도 되는 이유는?
 
 ## 🔗 관련 용어
 
-- [[SQL]]: 관계형 DB 쿼리 언어
-- [[ORM]]: 객체-관계 매핑
-- [[NoSQL]]: 비관계형 DB
-- [[인덱스]]: 검색 성능 향상
-
----
-*카테고리: 데이터베이스*
-*생성일: 2026-02-14*
+- [[SQL]] — 관계형 DB에 무엇을 원하는지 적어 보내는 언어
+- [[ORM]] — DB의 행을 프로그램의 객체로 바꿔주는 계층
+- [[Index]] — 찾는 속도를 위해 따로 만들어두는 정렬 목록
+- [[Transaction]] — 여러 작업을 전부 되거나 전부 안 되게 묶는 단위
+- [[NoSQL]] — 표 모양을 미리 정하지 않는 쪽의 DB

@@ -2,518 +2,87 @@
 
 ## 📝 정의
 
-Product Roadmap은 **제품의 비전, 방향, 우선순위를 시간 순으로 보여주는 전략 문서**입니다. 제품의 미래를 계획하고 이해관계자와 소통하는 핵심 도구입니다.
+Product Roadmap 은 **무엇을 왜 먼저 하는지 적어 공유하는 문서**다.
 
-### 핵심 개념
+기능 목록이 아니라 순서와 이유를 담는 자리다. 그래서 잘 쓰인 로드맵은 새 요청이 들어왔을 때 무엇을 뒤로 미룰지 답하는 데 쓰인다.
 
-- **무엇인가?**: 제품 개발 계획의 시각적 표현
-- **왜 필요한가?**: 팀 정렬, 우선순위 결정, 기대치 관리
-- **누가 만드나?**: Product Manager, PDMO
+### 비유
+여행 일정표. 며칠에 어디를 간다까지는 적지만, 몇 시 몇 분에 무엇을 한다까지는 적지 않는다.
 
-### Product Roadmap이 해결하는 문제
+## 🖼️ 그림으로 보기
 
-**문제 상황**:
-```
-😱 시나리오 1: 방향성 부재
-개발팀: "다음에 뭐 만들어야 하죠?"
-디자이너: "어떤 기능이 우선순위인가요?"
-경영진: "올해 목표가 뭐죠?"
-→ 팀이 뿔뿔이 흩어짐! 😱
-
-😱 시나리오 2: 요청 폭주
-영업팀: "고객이 A 기능 요청했어요!"
-마케팅: "B 기능 급해요!"
-CEO: "C 기능 먼저 해주세요!"
-→ 우선순위 없이 모든 것 동시 진행! 😱
-
-😱 시나리오 3: 기대치 불일치
-경영진: "Q1에 완성될 거죠?"
-개발팀: "그건 Q3 계획인데요..."
-→ 커뮤니케이션 실패! 😱
+```도해
+흐름: 로드맵 한 장은 어떻게 만들어지나
+비전 :: 1~3년 뒤 제품이 어떤 모습인지 정한다
+목표 :: 그 모습에 닿기 위한 숫자를 잡는다
+테마 :: 분기마다 무엇에 집중할지 묶는다
+후보 :: 하고 싶은 일들을 늘어놓는다
+우선순위 :: 효과와 드는 품으로 줄을 세운다
+< 공유 :: 팀과 이해관계자가 같은 그림을 본다
+= 기능 목록부터 나오면 왜 하는지가 빠진 채로 굳는다
 ```
 
-**Roadmap의 해결**:
-```
-✅ 시나리오 1: 명확한 방향
-로드맵으로 모두가 같은 그림 확인
-Q1: 사용자 인증 강화
-Q2: 결제 시스템 개선
-Q3: AI 추천 기능
-→ 전체 팀이 같은 방향! ✅
+## ⚠️ 해결하는 문제
 
-✅ 시나리오 2: 우선순위 명확
-로드맵에 우선순위 표시
-지금: MVP 기능
-다음: 성장 기능
-나중: Nice-to-have
-→ 집중 가능! ✅
-
-✅ 시나리오 3: 현실적 기대
-로드맵으로 일정 공유
-Q1: 기본 기능 (80%)
-Q2: 고급 기능 (20%)
-→ 일정 투명성! ✅
+```도해
+대조: 로드맵이 없으면 팀에서 무슨 일이 벌어지나
+로드맵 없이 || 로드맵으로
+다음 할 일 :: 물어봐야 안다 || 문서에 있다
+요청이 몰릴 때 :: 다 받는다 || 순서를 댄다
+일정 질문 :: 답이 사람마다 || 한 곳을 본다
+= 우선순위를 매번 말로 정하면 말한 사람 수만큼 우선순위가 생긴다
 ```
 
-## 💡 Roadmap 유형
+영업은 고객이 요청한 기능을, 마케팅은 캠페인에 필요한 기능을, 대표는 어제 본 경쟁사 기능을 먼저 해달라고 한다. 기준이 문서로 없으면 목소리 큰 순서가 우선순위가 되고, 개발팀은 셋을 동시에 시작한다.
 
-### 1. Feature-based Roadmap (기능 중심)
+로드맵은 그 판단을 한 곳에 모아 적어둔다. 새 요청이 들어오면 "지금 것 대신 이것을 할지"를 묻는 대화로 바뀌고, 일정 질문에는 문서 한 곳을 가리키면 된다.
 
-```
-시간축에 따라 출시될 기능 나열
+## ⚙️ 작동 원리
 
-Q1 2024:
-  ✓ 소셜 로그인
-  ✓ 프로필 사진 업로드
-  ✓ 알림 기능
+우선순위는 대개 두 축으로 잡는다. 이 일이 얼마나 효과가 있는지와 품이 얼마나 드는지다. 효과가 크고 품이 적은 것부터 하고, 품이 많이 드는 큰 건은 분기 하나를 통째로 잡아 계획한다.
 
-Q2 2024:
-  → 친구 추가
-  → 메시지 기능
-  → 그룹 생성
+RICE 처럼 점수를 매기는 방식도 쓴다. 얼마나 많은 사용자에게 닿는지, 얼마나 큰 변화인지, 그 추정을 얼마나 믿는지를 곱하고 드는 품으로 나눈다. 숫자가 정답을 주지는 않지만 왜 이 순서인지 설명할 근거는 된다.
 
-장점: 구체적, 이해하기 쉬움
-단점: 유연성 낮음, 변경 시 혼란
-```
+## 📊 비교
 
-### 2. Theme-based Roadmap (테마 중심)
+| 유형 | 적는 방식 | 강점 | 약점 |
+|---|---|---|---|
+| 기능 중심 | 분기별 기능 목록 | 구체적이다 | 바뀌면 흔들린다 |
+| 테마 중심 | 분기별 집중 주제 | 유연하다 | 덜 구체적이다 |
+| Now-Next-Later | 시간 대신 순서 | 변화에 강하다 | 일정이 흐리다 |
+| 결과 중심 | 목표 숫자와 방법 | 이유가 분명하다 | 실행이 추상적이다 |
 
-```
-전략적 목표를 테마로 표현
+## 💡 실제 사례
 
-Q1: "사용자 참여도 향상"
-  - 알림 시스템
-  - 게임화 요소
-  - 소셜 기능
+- **분기 테마** 한 분기를 "유지율 개선"으로 묶고 그 아래에 서너 가지 일을 둔다.
+- **Now-Next-Later** 날짜를 못 박지 않고 지금 하는 일, 다음에 할 일, 나중에 볼 일로 나눠 적는다.
+- **월 단위 갱신** 매달 한 번 진척을 보고 순서를 다시 잡은 뒤 바뀐 내용을 팀에 알린다.
 
-Q2: "수익화"
-  - 프리미엄 구독
-  - 광고 시스템
-  - 기업 요금제
+## 🚫 흔한 오해
 
-장점: 유연함, 전략적
-단점: 덜 구체적
-```
+- **로드맵은 날짜가 박힌 일정표다** — 날짜를 못 박을수록 오래 산다. 분기나 Now/Next/Later 로 적는 곳이 많은 이유다.
+- **한 번 정하면 그대로 간다** — 상황이 바뀌면 고치는 문서다. 몇 달째 그대로인 로드맵은 아무도 안 보고 있다는 뜻이다.
+- **기능을 많이 적을수록 좋은 로드맵이다** — 항목이 늘면 무엇이 중요한지가 사라진다. 한 구간에 서너 개로 줄이는 편이 낫다.
 
-### 3. Now-Next-Later Roadmap
+## 🚨 주의사항
 
-```
-시간보다 우선순위 중심
-
-NOW (진행 중):
-  ✓ 모바일 앱 성능 개선
-  ✓ 버그 수정
-
-NEXT (다음):
-  → AI 추천 기능
-  → 다크 모드
-
-LATER (향후):
-  → VR 지원
-  → 블록체인 연동
-
-장점: 유연성 최고, 애자일 친화적
-단점: 일정 불명확
-```
-
-### 4. Outcome-based Roadmap (결과 중심)
-
-```
-비즈니스 결과에 집중
-
-목표: "사용자 유지율 20% 증가"
-방법:
-  - 개인화 기능
-  - 푸시 알림 최적화
-  - 리워드 프로그램
-
-목표: "매출 50% 증가"
-방법:
-  - 프리미엄 기능
-  - 기업용 패키지
-  - 마켓플레이스
-
-장점: 비즈니스 가치 명확
-단점: 실행 계획 추상적
-```
-
-## 🎯 Roadmap 작성 프로세스
-
-### 1. 전략 수립
-
-```python
-# 로드맵 작성 단계
-
-class RoadmapPlanning:
-    """로드맵 계획 프로세스"""
-
-    def step1_vision(self):
-        """1단계: 비전 정의"""
-        vision = """
-        향후 1-3년 제품의 모습
-
-        예시:
-        "전 세계 1억 사용자가 사용하는
-         AI 기반 개인 생산성 플랫폼"
-        """
-        return vision
-
-    def step2_goals(self):
-        """2단계: 목표 설정"""
-        goals = [
-            "사용자 기반 확대 (100만 → 500만)",
-            "매출 성장 (3배 증가)",
-            "시장 점유율 1위"
-        ]
-        return goals
-
-    def step3_themes(self):
-        """3단계: 테마 선정"""
-        themes = {
-            "Q1": "사용자 경험 개선",
-            "Q2": "AI 기능 강화",
-            "Q3": "글로벌 확장",
-            "Q4": "수익화"
-        }
-        return themes
-
-    def step4_initiatives(self):
-        """4단계: 이니셔티브 정의"""
-        initiatives = [
-            {
-                "theme": "사용자 경험 개선",
-                "initiatives": [
-                    "UI 리뉴얼",
-                    "성능 최적화",
-                    "접근성 개선"
-                ]
-            },
-            {
-                "theme": "AI 기능 강화",
-                "initiatives": [
-                    "AI 추천 알고리즘",
-                    "자동 분류",
-                    "스마트 검색"
-                ]
-            }
-        ]
-        return initiatives
-
-    def step5_prioritize(self, initiatives):
-        """5단계: 우선순위 결정"""
-        # RICE 스코어링
-        scored_initiatives = []
-        for init in initiatives:
-            rice_score = (
-                init['reach'] *
-                init['impact'] *
-                init['confidence']
-            ) / init['effort']
-
-            scored_initiatives.append({
-                'name': init['name'],
-                'score': rice_score
-            })
-
-        # 점수순 정렬
-        return sorted(
-            scored_initiatives,
-            key=lambda x: x['score'],
-            reverse=True
-        )
-```
-
-### 2. 우선순위 매트릭스
-
-```python
-import matplotlib.pyplot as plt
-import numpy as np
-
-# Impact vs Effort 매트릭스
-features = [
-    {"name": "AI 추천", "impact": 9, "effort": 8},
-    {"name": "다크 모드", "impact": 5, "effort": 2},
-    {"name": "소셜 로그인", "impact": 7, "effort": 3},
-    {"name": "VR 지원", "impact": 3, "effort": 9},
-    {"name": "알림 기능", "impact": 8, "effort": 4}
-]
-
-# 시각화
-plt.figure(figsize=(10, 8))
-
-for feature in features:
-    plt.scatter(
-        feature['effort'],
-        feature['impact'],
-        s=200
-    )
-    plt.annotate(
-        feature['name'],
-        (feature['effort'], feature['impact']),
-        ha='center'
-    )
-
-# 사분면 구분선
-plt.axvline(x=5.5, color='gray', linestyle='--')
-plt.axhline(y=5.5, color='gray', linestyle='--')
-
-# 사분면 레이블
-plt.text(2, 8.5, "Quick Wins", fontsize=12, color='green')
-plt.text(7, 8.5, "Big Bets", fontsize=12, color='blue')
-plt.text(2, 2, "Fill-ins", fontsize=12, color='orange')
-plt.text(7, 2, "Time Sinks", fontsize=12, color='red')
-
-plt.xlabel("Effort (낮음 → 높음)")
-plt.ylabel("Impact (낮음 → 높음)")
-plt.title("Feature Prioritization Matrix")
-plt.grid(True, alpha=0.3)
-plt.savefig("prioritization.png")
-
-"""
-Quick Wins (낮은 노력, 높은 임팩트): 먼저!
-Big Bets (높은 노력, 높은 임팩트): 계획적으로
-Fill-ins (낮은 노력, 낮은 임팩트): 여유 시
-Time Sinks (높은 노력, 낮은 임팩트): 피하기
-"""
-```
-
-## 🔍 실전 예시
-
-### Notion 스타일 Roadmap
-
-```markdown
-# 2024 제품 로드맵
-
-## Q1: Foundation (기반 구축)
-**목표**: 사용자 경험 개선 및 안정성 확보
-
-| 기능 | 우선순위 | 상태 | 담당자 |
-|------|----------|------|--------|
-| 성능 최적화 | P0 | ✅ 완료 | 개발팀 |
-| 모바일 반응형 | P0 | 🚧 진행중 | 디자인팀 |
-| 다크 모드 | P1 | 📋 계획 | 디자인팀 |
-
-## Q2: Growth (성장)
-**목표**: 사용자 확대 및 참여도 증가
-
-| 기능 | 우선순위 | 상태 | 담당자 |
-|------|----------|------|--------|
-| 소셜 공유 | P0 | 📋 계획 | 개발팀 |
-| 추천 시스템 | P1 | 📋 계획 | AI팀 |
-| 게임화 요소 | P2 | 📋 계획 | 기획팀 |
-
-## Q3: Monetization (수익화)
-**목표**: 지속 가능한 비즈니스 모델 구축
-
-## Q4: Scale (확장)
-**목표**: 글로벌 시장 진출
-```
-
-### Jira Roadmap
-
-```python
-# Jira API를 통한 로드맵 생성
-
-from jira import JIRA
-
-jira = JIRA('https://your-company.atlassian.net',
-            basic_auth=('email', 'api_token'))
-
-# Epic 생성 (테마별)
-epics = [
-    {
-        'summary': 'Q1: 사용자 경험 개선',
-        'description': '모바일 최적화 및 성능 개선',
-        'labels': ['Q1-2024', 'UX']
-    },
-    {
-        'summary': 'Q2: AI 기능 추가',
-        'description': '추천 알고리즘 및 스마트 검색',
-        'labels': ['Q2-2024', 'AI']
-    }
-]
-
-for epic_data in epics:
-    epic = jira.create_issue(
-        project='PROD',
-        summary=epic_data['summary'],
-        description=epic_data['description'],
-        issuetype={'name': 'Epic'},
-        labels=epic_data['labels']
-    )
-    print(f"Epic 생성: {epic.key}")
-
-# Story 생성
-stories = [
-    {
-        'summary': '모바일 UI 반응형 개선',
-        'epic_link': 'PROD-1',  # Q1 Epic
-        'story_points': 8,
-        'priority': 'Highest'
-    }
-]
-```
-
-## 🚨 로드맵 실수
-
-### ❌ 하지 말아야 할 것
-
-```python
-# 1. 지나치게 구체적인 날짜
-bad_roadmap = {
-    "2024-03-15": "로그인 기능 완료",  # ❌ 너무 구체적
-    "2024-03-20": "결제 시스템 런칭"   # ❌ 변경 시 신뢰 하락
-}
-
-# 2. 너무 많은 항목
-bad_roadmap = {
-    "Q1": [
-        "기능1", "기능2", "기능3", ..., "기능50"  # ❌ 집중력 분산
-    ]
-}
-
-# 3. 이유 없는 기능 나열
-bad_roadmap = {
-    "Q1": ["VR 지원", "블록체인", "AI"]  # ❌ Why? 전략은?
-}
-
-# 4. 업데이트 안 함
-roadmap_last_updated = "2022-01-01"  # ❌ 2년 전 로드맵
-```
-
-### ✅ 해야 할 것
-
-```python
-# 1. 유연한 시간 표현
-good_roadmap = {
-    "Now": "사용자 인증",
-    "Next": "결제 시스템",
-    "Later": "AI 기능"
-}
-
-# 2. 집중된 우선순위
-good_roadmap = {
-    "Q1": ["핵심 기능 1", "핵심 기능 2", "핵심 기능 3"]  # ✅ 3-5개
-}
-
-# 3. 전략적 근거
-good_roadmap = {
-    "Q1": {
-        "theme": "사용자 유지율 개선",
-        "why": "Churn Rate 30% → 10% 목표",
-        "features": ["알림", "개인화", "리워드"]
-    }
-}
-
-# 4. 정기 업데이트
-def update_roadmap_monthly():
-    """매월 로드맵 검토 및 업데이트"""
-    review_progress()
-    adjust_priorities()
-    communicate_changes()
-```
-
-## 💻 로드맵 도구
-
-### ProductPlan 스타일
-
-```python
-# 간단한 로드맵 생성기
-
-class SimpleRoadmap:
-    """간단한 로드맵 시각화"""
-
-    def __init__(self):
-        self.quarters = {
-            "Q1": [],
-            "Q2": [],
-            "Q3": [],
-            "Q4": []
-        }
-
-    def add_feature(self, quarter, name, priority, team):
-        """기능 추가"""
-        self.quarters[quarter].append({
-            "name": name,
-            "priority": priority,
-            "team": team
-        })
-
-    def display(self):
-        """로드맵 출력"""
-        print("=" * 60)
-        print("2024 Product Roadmap")
-        print("=" * 60)
-
-        for quarter, features in self.quarters.items():
-            print(f"\n{quarter}")
-            print("-" * 60)
-
-            for feature in features:
-                priority_symbol = {
-                    "P0": "🔴",
-                    "P1": "🟡",
-                    "P2": "🟢"
-                }.get(feature['priority'], "⚪")
-
-                print(f"{priority_symbol} {feature['name']}")
-                print(f"   Team: {feature['team']}")
-
-# 사용
-roadmap = SimpleRoadmap()
-roadmap.add_feature("Q1", "모바일 최적화", "P0", "개발팀")
-roadmap.add_feature("Q1", "다크 모드", "P1", "디자인팀")
-roadmap.add_feature("Q2", "AI 추천", "P0", "AI팀")
-roadmap.display()
-```
-
-## 🔗 관련 용어
-
-- [[MVP]]: 로드맵의 첫 단계
-- [[OKR]]: 로드맵의 목표 설정
-- [[Agile]]: 로드맵 실행 방법론
-- [[Sprint]]: 로드맵의 실행 단위
-- [[Backlog]]: 로드맵의 상세 항목
+- **왜 하는지를 같이 적는다.** 기능 이름만 있는 줄은 몇 주 뒤에 아무도 이유를 설명하지 못한다.
+- **갱신하지 않을 문서라면 만들지 않는다.** 오래된 로드맵은 없는 것보다 나쁘다. 사람들이 틀린 일정을 믿고 움직인다.
 
 ## 📝 정리
 
-**Product Roadmap의 핵심**:
-```
-Roadmap = 제품의 전략적 계획
-→ 방향 제시
-→ 우선순위 결정
-→ 기대치 관리
-→ 팀 정렬
-```
+Product Roadmap 은 무엇을 왜 먼저 하는지를 적어 팀과 나누는 문서다. 날짜를 못 박기보다 순서와 이유를 담아야 상황이 바뀌어도 살아남는다. 갱신을 멈추는 순간 문서가 아니라 오해의 원인이 된다.
 
-**좋은 로드맵 조건**:
-```
-✅ 전략과 연결됨
-✅ 유연함 (변경 가능)
-✅ 명확한 우선순위
-✅ 정기적 업데이트
-✅ 이해관계자 동의
-```
+## ❓ 이해했는지
 
-**로드맵 유형**:
-```
-Feature-based: 구체적 기능
-Theme-based: 전략적 테마
-Now-Next-Later: 우선순위 중심
-Outcome-based: 비즈니스 결과
-```
+- 영업과 마케팅과 대표가 각각 다른 기능을 먼저 해달라고 한다. 로드맵의 어느 부분이 이 상황을 정리하나?
+- "3월 15일 로그인 완료"라고 적는 것이 왜 위험한가?
+- 한 분기에 스무 개가 적힌 로드맵은 무엇을 잃나?
 
-**비유로 기억하기**:
-```
-Roadmap = 여행 계획
-→ 목적지: 비전
-→ 경로: 전략
-→ 체크포인트: 마일스톤
-→ 여행 동반자: 팀
+## 🔗 관련 용어
 
-"지도 없이 여행하지 마라"
-```
-
----
-*카테고리: 제품관리*
-*생성일: 2026-02-15*
+- [[MVP]] — 로드맵의 첫 구간에 놓이는 최소 형태
+- [[OKR]] — 로드맵이 겨누는 목표를 숫자로 적은 것
+- [[Backlog]] — 로드맵 아래에 놓이는 상세 항목 목록
+- [[Sprint]] — 로드맵을 실제로 실행하는 단위
+- [[Agile]] — 로드맵을 자주 고쳐가며 실행하는 방식

@@ -2,324 +2,85 @@
 
 ## 📝 정의
 
-Chunking은 **긴 문서를 작은 조각으로 나누는 과정**입니다. RAG(Retrieval-Augmented Generation)에서 필수적인 전처리 단계입니다.
+Chunking은 **긴 문서를 검색할 크기로 잘라두는 일**이다.
 
-### 핵심 개념
+RAG에서 문서를 넣기 전에 거치는 단계다. 자르는 기준을 무엇으로 잡느냐에 따라 나중에 검색되는 조각이 달라진다.
 
-- **무엇인가?**: 문서를 검색 가능한 작은 단위로 분할
-- **왜 필요한가?**: LLM Context Window 제한, 검색 정확도 향상
-- **어떻게 작동하나?**: 의미 단위, 고정 크기, 또는 슬라이딩 윈도우로 분할
+### 비유
+책. 통째로 들고 다니지 않고 장과 절로 나눠두면 필요한 쪽만 펴서 본다.
 
-### Chunking이 해결하는 문제
+## 🖼️ 그림으로 보기
 
-**문제 상황**:
-```
-😱 시나리오 1: 전체 문서 한 번에 처리
-취업규칙 (100페이지) → LLM에 전부 입력
-→ Context Window 초과! 😱
-→ 비용 폭증! 😱
-
-😱 시나리오 2: 검색 정확도 낮음
-질문: "육아휴직 기간은?"
-문서: 전체 취업규칙 (100페이지)
-→ 관련 없는 내용도 함께 검색됨! 😱
-→ 정확한 답변 어려움! 😱
+```도해
+흐름: 100쪽짜리 문서로 질문 하나에 어떻게 답하나
+원본 문서 :: 조항이나 문단 단위로 자른다
+청크 :: 조각마다 벡터로 바꿔 저장한다
+질문 :: 들어온 질문도 벡터로 바꾼다
+검색 :: 가까운 조각 몇 개만 고른다
+< LLM :: 고른 조각만 읽고 답을 만든다
+= 문서 전체가 아니라 필요한 조각만 모델 앞에 놓는다
 ```
 
-**Chunking의 해결**:
-```
-✅ 시나리오 1: 효율적 처리
-취업규칙 (100페이지)
-→ 조항별로 청킹 (각 1-2페이지)
-→ 필요한 조각만 LLM에 전달
-→ 비용 절감 + 속도 향상! ✅
+## ⚠️ 해결하는 문제
 
-✅ 시나리오 2: 검색 정확도 향상
-질문: "육아휴직 기간은?"
-→ 제32조 (육아휴직 조항)만 검색
-→ 정확한 답변! ✅
+```도해
+대조: 문서를 통째로 넣으면 무엇이 걸리나
+통째로 || 잘라서
+입력 길이 :: 한도를 넘는다 || 조각만 넣는다
+비용 :: 매번 전부 낸다 || 필요한 만큼만
+검색 결과 :: 엉뚱한 대목까지 || 해당 조항만
+= 자르는 이유는 넣기 위해서만이 아니라 찾기 위해서이기도 하다
 ```
 
-## 💡 Chunking 구현
+100쪽짜리 취업규칙을 통째로 모델에 넣으면 입력 한도를 넘고, 넘지 않더라도 매 질문마다 100쪽 값을 낸다.
 
-### 1. 고정 크기 Chunking
+더 걸리는 것은 검색 쪽이다. 문서 하나가 통으로 한 덩어리면 "육아휴직 기간은?" 이라고 물었을 때 그 문서 전체가 걸린다. 조항 단위로 잘라두면 해당 조항만 걸려 나온다.
+
+## ⚙️ 작동 원리
+
+자르는 방법은 크게 셋이다. 글자 수로 끊는 고정 크기, 문단이나 문장 경계에서 끊는 의미 단위, 문서에 이미 있는 구조를 쓰는 방식이다. 법령이나 사규처럼 조항 번호가 붙은 문서는 세 번째가 가장 잘 맞는다.
 
 ```python
-def fixed_size_chunking(text: str, chunk_size: int = 500, overlap: int = 50):
-    """고정 크기로 문서 분할"""
-    chunks = []
-    start = 0
-
+def fixed_size(text, size=500, overlap=50):
+    chunks, start = [], 0
     while start < len(text):
-        end = start + chunk_size
-        chunk = text[start:end]
-        chunks.append(chunk)
-        start = end - overlap  # 겹침 적용
-
+        chunks.append(text[start:start + size])
+        start += size - overlap
     return chunks
-
-# 사용
-text = "긴 문서 내용..." * 100
-chunks = fixed_size_chunking(text, chunk_size=500, overlap=50)
-print(f"총 {len(chunks)}개 청크 생성")
-# 총 20개 청크 생성
 ```
 
-### 2. 의미 단위 Chunking
+`overlap` 이 겹치는 구간이다. 겹침 없이 자르면 경계에 걸친 문장이 양쪽 어디에서도 온전하지 않다. 앞 조각의 끝 몇십 자를 다음 조각의 앞에 다시 넣어 그 손실을 줄인다.
 
-```python
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+## 💡 실제 사례
 
-def semantic_chunking(text: str):
-    """의미 단위로 문서 분할"""
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=200,
-        separators=["\n\n", "\n", ".", "!", "?", ",", " ", ""]
-    )
+- **사규 검색** 조항 번호를 기준으로 잘라두고 조각마다 조항 번호를 함께 저장해 답변에 출처를 붙인다.
+- **긴 보고서** 소제목 단위로 자르면 한 조각 안의 내용이 한 주제로 모여 검색 정확도가 올라간다.
+- **답이 자꾸 어긋날 때** 모델을 바꾸기 전에 자르는 단위부터 바꿔보고 결과를 견준다.
 
-    chunks = text_splitter.split_text(text)
-    return chunks
+## 🚫 흔한 오해
 
-# 사용
-text = """
-제30조 (연차휴가)
-종업원은 입사 1년 후부터 연차휴가를 사용할 수 있다.
+- **청크는 작을수록 정확하다** — 너무 작으면 문장 앞뒤가 끊겨 그 조각만 봐서는 무슨 말인지 알 수 없다. 검색에는 걸려도 답이 안 나온다.
+- **겹치기는 저장 공간 낭비다** — 겹침이 없으면 경계에 걸친 문장이 어느 쪽에서도 온전하지 않다. 50자에서 200자 정도의 겹침은 그 손실을 막는 값이다.
+- **한 번 잘라두면 끝난다** — 자르는 기준이 검색 품질을 정한다. 답이 어긋나기 시작하면 자른 단위를 먼저 의심한다.
 
-제31조 (병가)
-종업원은 질병으로 인해 근무가 곤란한 경우 병가를 신청할 수 있다.
+## 🚨 주의사항
 
-제32조 (육아휴직)
-종업원은 1세 미만의 자녀를 양육하기 위해 육아휴직을 신청할 수 있다.
-"""
-
-chunks = semantic_chunking(text)
-for i, chunk in enumerate(chunks):
-    print(f"Chunk {i+1}:\n{chunk}\n")
-```
-
-### 3. 조항별 Chunking (문서 구조 활용)
-
-```python
-import re
-
-def section_chunking(text: str):
-    """조항별로 문서 분할"""
-    # 제XX조 패턴으로 분할
-    pattern = r'(제\d+조[^제]+)'
-    chunks = re.findall(pattern, text)
-
-    # 메타데이터와 함께 반환
-    result = []
-    for chunk in chunks:
-        section_num = re.search(r'제(\d+)조', chunk).group(1)
-        result.append({
-            "section": section_num,
-            "content": chunk.strip(),
-            "metadata": {
-                "type": "regulation",
-                "section_number": int(section_num)
-            }
-        })
-
-    return result
-
-# 사용
-chunks = section_chunking(text)
-for chunk in chunks:
-    print(f"제{chunk['section']}조: {chunk['content'][:50]}...")
-```
-
-## 🔍 실전 활용
-
-### P3 시스템에서의 Chunking
-
-```python
-class P3DocumentChunker:
-    """P3 취업규칙 문서 청킹"""
-
-    def __init__(self, chunk_size=1000, overlap=200):
-        self.chunk_size = chunk_size
-        self.overlap = overlap
-
-    def chunk_regulation(self, document: str, company_id: str):
-        """취업규칙을 조항별로 청킹"""
-        chunks = []
-
-        # 조항별 분할
-        sections = re.findall(r'(제\d+조[^제]+)', document)
-
-        for section in sections:
-            # 조항 번호 추출
-            section_num = re.search(r'제(\d+)조', section)
-
-            # 제목 추출
-            title_match = re.search(r'제\d+조 \(([^)]+)\)', section)
-            title = title_match.group(1) if title_match else "제목 없음"
-
-            chunks.append({
-                "content": section.strip(),
-                "metadata": {
-                    "company_id": company_id,
-                    "section": section_num.group(1),
-                    "title": title,
-                    "doc_type": "regulation"
-                }
-            })
-
-        return chunks
-
-    def chunk_with_embedding(self, chunks):
-        """청크를 임베딩과 함께 저장"""
-        from sentence_transformers import SentenceTransformer
-
-        model = SentenceTransformer('all-MiniLM-L6-v2')
-
-        for chunk in chunks:
-            # 임베딩 생성
-            vector = model.encode(chunk['content'])
-            chunk['vector'] = vector.tolist()
-
-        return chunks
-
-# 사용
-chunker = P3DocumentChunker()
-document = "제30조 (연차휴가)..."
-chunks = chunker.chunk_regulation(document, company_id="A회사")
-chunks = chunker.chunk_with_embedding(chunks)
-
-# Vector DB에 저장
-# vector_db.insert(chunks)
-```
-
-### Chunking 품질 평가
-
-```python
-def evaluate_chunks(chunks, original_text):
-    """청킹 품질 평가"""
-    # 1. 평균 청크 크기
-    avg_size = sum(len(c) for c in chunks) / len(chunks)
-
-    # 2. 청크 크기 분산 (균일성)
-    sizes = [len(c) for c in chunks]
-    variance = sum((s - avg_size)**2 for s in sizes) / len(sizes)
-
-    # 3. 정보 손실 확인
-    combined = ''.join(chunks)
-    loss_rate = 1 - (len(combined) / len(original_text))
-
-    return {
-        "avg_chunk_size": avg_size,
-        "variance": variance,
-        "chunks_count": len(chunks),
-        "info_loss_rate": loss_rate * 100
-    }
-
-# 평가
-metrics = evaluate_chunks(chunks, text)
-print(f"평균 청크 크기: {metrics['avg_chunk_size']:.0f}자")
-print(f"총 청크 개수: {metrics['chunks_count']}개")
-print(f"정보 손실률: {metrics['info_loss_rate']:.2f}%")
-```
-
-## 🚨 Chunking 주의사항
-
-### 1. 청크 크기 선택
-
-```python
-# 너무 작으면
-chunk_size = 100  # 😱
-→ 문맥 부족
-→ 검색 정확도 ↓
-→ 청크 개수 ↑ (관리 어려움)
-
-# 너무 크면
-chunk_size = 5000  # 😱
-→ 불필요한 정보 포함
-→ LLM 비용 ↑
-→ 처리 속도 ↓
-
-# 적정 크기
-chunk_size = 500-1500  # ✅
-→ 문맥 충분
-→ 비용 효율적
-```
-
-### 2. Overlap 설정
-
-```python
-# Overlap 없음
-overlap = 0  # 😱
-→ 경계에 걸친 정보 손실
-
-# Overlap 너무 많음
-overlap = 400 (chunk_size 500)  # 😱
-→ 중복 저장
-→ 저장 공간 낭비
-
-# 적정 Overlap
-overlap = 50-200  # ✅
-→ 정보 손실 최소화
-→ 효율적 저장
-```
-
-### 3. 언어별 고려사항
-
-```python
-# 한국어: 어절 단위 조심
-text = "육아휴직기간은"
-→ 단어 경계 고려 필요
-
-# 영어: 단어 경계 쉬움
-text = "parental leave period"
-→ 공백으로 분리
-
-# 해결: 언어별 Tokenizer 사용
-from konlpy.tag import Okt
-okt = Okt()
-words = okt.morphs(text)
-```
-
-## 🔗 관련 용어
-
-- [[Embedding]]: 청크를 벡터로 변환
-- [[RAG]]: 청킹의 활용처
-- [[Vector DB]]: 청크 저장소
-- [[Semantic Search]]: 청크 검색
+- **크기는 500자에서 1500자 사이가 무난하다.** 이보다 작으면 문맥이 끊기고 크면 필요 없는 내용까지 딸려 온다.
+- **한국어는 어절 경계를 조심한다.** 공백만 보고 끊으면 조사가 잘려 나가 검색이 안 걸릴 수 있다.
 
 ## 📝 정리
 
-**Chunking의 핵심**:
-```
-긴 문서 → 작은 조각
-→ 검색 가능
-→ 효율적 처리
-```
+Chunking은 긴 문서를 검색할 수 있는 크기로 잘라두는 일이다. 모델 입력 한도 때문에 자르기도 하지만, 더 큰 이유는 필요한 대목만 골라내기 위해서다. 자르는 기준과 겹침의 양이 검색 품질을 정한다.
 
-**주요 전략**:
-```
-1. 고정 크기: 균등 분할
-2. 의미 단위: 문단/섹션
-3. 슬라이딩: 겹치게 분할
-```
+## ❓ 이해했는지
 
-**최적 설정 (일반적)**:
-```
-Chunk Size: 500-1500자
-Overlap: 50-200자
-Strategy: 의미 단위 + Overlap
-```
+- 조각을 100자로 잘게 자르면 검색은 걸리는데 답이 안 나오는 이유는?
+- 겹침을 0으로 두면 어떤 문장이 손해를 보나?
+- 조항 번호가 붙은 사규를 자를 때 어떤 기준이 가장 잘 맞나?
 
-**비유로 기억하기**:
-```
-책 전체 = 원본 문서
-→ 너무 커서 한 번에 못 읽음
+## 🔗 관련 용어
 
-각 장/절 = 청크
-→ 필요한 부분만 읽기 가능
-→ 빠르게 찾기 가능
-```
-
----
-*카테고리: AI_ML*
-*생성일: 2026-02-15*
+- [[Embedding]] — 잘라낸 조각을 벡터로 바꾸는 단계
+- [[RAG]] — 청킹이 쓰이는 자리
+- [[Vector DB]] — 조각과 벡터가 저장되는 곳
+- [[Semantic Search]] — 저장된 조각을 뜻으로 찾아내는 일

@@ -2,264 +2,82 @@
 
 ## 📝 정의
 
-Guardrail(가드레일)은 AI Agent가 위험하거나 부적절한 행동을 하지 못하도록 막는 **안전장치**입니다. 도로의 가드레일이 차를 보호하듯, AI의 동작을 안전한 범위로 제한합니다.
+Guardrail은 **AI가 하면 안 되는 일을 막는 검사 장치**다.
 
-### 핵심 개념
+모델은 시키는 대로 답하려 하기 때문에 위험한 요청도 그대로 처리한다. 그래서 모델 밖에 검사를 따로 세워 들어오는 말과 나가는 말과 하려는 동작을 각각 본다.
 
-- **무엇인가?**: AI의 위험한 행동을 차단하는 안전장치
-- **왜 필요한가?**: AI는 실수할 수 있고, 보안/개인정보 보호 필요
-- **어떻게 작동하나?**: 입력/출력/행동을 검증하여 위험 요소 차단
+### 비유
+도로 가드레일. 운전자가 잘못 꺾어도 차가 낭떠러지로 가지 않게 옆을 막아둔다.
 
-### Guardrail이 해결하는 문제
+## 🖼️ 그림으로 보기
 
-**문제 상황**:
-```
-😱 시나리오 1: 개인정보 노출
-사용자: "내 주민번호 123456-1234567로 조회해줘"
-
-AI (Guardrail 없음):
-"네, 주민번호 123456-1234567로 조회했습니다.
- 이름: 홍길동, 주소: 서울시..."
-→ PII 그대로 노출! 😱
-
-😱 시나리오 2: 권한 없는 데이터 접근
-사용자: "모든 직원 급여 목록 보여줘"
-
-AI (Guardrail 없음):
-"전체 직원 급여:
- - 김철수: 5000만원
- - 이영희: 4500만원..."
-→ 기밀 정보 유출! 😱
-
-😱 시나리오 3: SQL Injection 공격
-해커: "SELECT * FROM users; DROP TABLE users--"
-
-AI (Guardrail 없음):
-[쿼리 실행]
-→ 데이터베이스 삭제! 😱
+```도해
+흐름: 사용자 말 한 마디가 어디를 거쳐 답이 되나
+입력 검사 :: 개인정보나 공격 문자열이 있나
+모델 :: 통과한 것만 받아 답을 만든다
+행동 검사 :: 조회나 삭제를 할 권한이 있나
+출력 검사 :: 답에 비밀 값이 섞여 있나
+< 사용자 :: 네 자리를 다 통과한 답만 보인다
+= 막는 자리가 여럿이고 자리마다 보는 것이 다르다
 ```
 
-**Guardrail의 해결**:
-```
-✅ 시나리오 1 (Input Guardrail):
-사용자 입력에서 주민번호 감지
-→ ❌ 차단
-→ "개인정보를 직접 입력하지 마세요" ✅
+## ⚠️ 해결하는 문제
 
-✅ 시나리오 2 (Action Guardrail):
-권한 확인: "급여 데이터 접근 권한 없음"
-→ ❌ 차단
-→ "권한이 없습니다" ✅
-
-✅ 시나리오 3 (Input Guardrail):
-SQL Injection 패턴 감지
-→ ❌ 차단
-→ "잘못된 요청입니다" ✅
+```도해
+대조: 검사 없이 모델 답을 그대로 내보내면 어떻게 되나
+Guardrail 없이 || Guardrail 로
+주민번호 :: 그대로 나감 || 가려서 나감
+권한 밖 조회 :: 그냥 실행됨 || 앞에서 막힘
+공격 문자열 :: 질의로 전달됨 || 입력에서 차단
+= 모델은 요청을 의심하지 않는다. 의심하는 자리를 밖에 둔다
 ```
 
-**비유**:
-- **Guardrail 없음** = 안전벨트 없이 운전 (위험)
-- **Guardrail 있음** = 안전벨트 + 에어백 (안전)
+모델은 요청이 정당한지 따지지 않는다. 주민번호를 넣어 조회해 달라고 하면 그대로 조회하고, 전체 급여 목록을 달라고 하면 갖고 있는 만큼 답한다. 답을 잘 만드는 능력과 하면 안 되는 일을 가려내는 능력은 별개다.
 
-## 💡 실제 구현
+Guardrail은 그 판단을 모델 밖에 둔다. 들어오는 말을 먼저 보고, 실행하려는 동작에 권한이 있는지 보고, 나가는 답에 남으면 안 될 것이 섞였는지 본다.
 
-### 1. Input Guardrail (입력 검증)
+## ⚙️ 작동 원리
 
-```python
-import re
-from typing import Tuple
+| 자리 | 언제 보나 | 무엇을 막나 |
+|---|---|---|
+| 입력 | 요청을 받을 때 | 개인정보 입력, 공격 문자열 |
+| 행동 | 도구를 부르기 전 | 권한 없는 조회와 삭제 |
+| 출력 | 답을 내보내기 전 | 비밀 값과 민감 정보 노출 |
+| 실행 | 작업이 도는 중 | 같은 호출 반복, 끝나지 않는 작업 |
 
-class InputGuardrail:
-    """사용자 입력 검증"""
+막는 것만으로는 절반이다. 왜 막혔는지 알려주지 않으면 사용자는 시스템이 고장 났다고 여기고 같은 요청을 되풀이한다.
 
-    def __init__(self):
-        # PII 패턴
-        self.pii_patterns = {
-            'ssn': r'\d{6}-\d{7}',  # 주민번호
-            'phone': r'\d{3}-\d{4}-\d{4}',  # 전화번호
-            'card': r'\d{4}-\d{4}-\d{4}-\d{4}'  # 카드번호
-        }
+## 💡 실제 사례
 
-        # 금지 키워드
-        self.forbidden = ["해킹", "crack", "exploit", "DROP TABLE"]
+- **개인정보 입력 차단** 채팅창에 주민번호 형태의 숫자가 들어오면 처리하지 않고 입력하지 말라고 안내한다.
+- **응답 가리기** 답에 전화번호나 비밀 값이 섞이면 그 부분을 가린 뒤 내보낸다.
+- **권한 확인** 급여 데이터를 읽는 동작 앞에서 그 계정에 권한이 있는지 먼저 보고 없으면 실행하지 않는다.
 
-    def validate(self, user_input: str) -> Tuple[bool, str]:
-        """
-        Returns:
-            (안전 여부, 거부 사유)
-        """
+## 🚫 흔한 오해
 
-        # 1. PII 검사
-        for pii_type, pattern in self.pii_patterns.items():
-            if re.search(pattern, user_input):
-                return False, f"⚠️ {pii_type} 정보를 직접 입력하지 마세요"
+- **프롬프트에 하지 말라고 써두면 그게 Guardrail이다** — 프롬프트는 부탁이고 Guardrail은 코드로 된 검사다. 모델이 지시를 어기는 경우가 있어서 바깥에 따로 세운다.
+- **입력만 막으면 된다** — 정상적인 질문에도 민감한 값이 답에 섞여 나올 수 있다. 나가는 쪽 검사가 따로 필요하다.
+- **엄격할수록 안전하다** — 정상적인 요청까지 막히면 사람들은 우회로를 찾는다. 명확한 위험은 즉시 막고 애매한 것은 되묻는 편이 낫다.
 
-        # 2. 금지 키워드
-        for keyword in self.forbidden:
-            if keyword.lower() in user_input.lower():
-                return False, f"🚫 금지된 키워드: {keyword}"
+## 🚨 주의사항
 
-        # 3. SQL Injection
-        sql_patterns = [
-            r"';?\s*(DROP|DELETE|UPDATE)\s+",
-            r"UNION\s+SELECT"
-        ]
-        for pattern in sql_patterns:
-            if re.search(pattern, user_input, re.IGNORECASE):
-                return False, "🚫 SQL Injection 시도 감지"
+- **막힌 시도를 기록으로 남긴다.** 무엇이 얼마나 막혔는지 봐야 규칙이 센지 느슨한지 판단할 수 있다.
+- **차단 이유를 사용자에게 알린다.** 이유 없이 막히면 같은 요청이 반복되고 문의가 늘어난다.
 
-        return True, ""
+## 📝 정리
 
-# 사용
-guard = InputGuardrail()
+Guardrail은 AI가 하면 안 되는 일을 모델 밖에서 걸러내는 검사 장치다. 입력, 행동, 출력, 실행 네 자리에서 보는 것이 각각 다르다. 막는 일과 왜 막혔는지 알리는 일이 함께 가야 한다.
 
-inputs = [
-    "주소 변경하고 싶어",
-    "내 주민번호 123456-1234567로 조회",
-    "DROP TABLE users"
-]
+## ❓ 이해했는지
 
-for inp in inputs:
-    safe, reason = guard.validate(inp)
-    if safe:
-        print(f"✅ 안전: {inp}")
-    else:
-        print(f"❌ 차단: {inp}\n   {reason}")
-```
-
-### 2. Output Guardrail (출력 검증)
-
-```python
-class OutputGuardrail:
-    """AI 응답 검증"""
-
-    def filter(self, ai_response: str) -> str:
-        """PII 마스킹 및 부적절한 내용 차단"""
-
-        filtered = ai_response
-
-        # 1. PII 마스킹
-        # 주민번호
-        filtered = re.sub(
-            r'\d{6}-\d{7}',
-            '******-*******',
-            filtered
-        )
-
-        # 전화번호
-        filtered = re.sub(
-            r'\d{3}-\d{4}-\d{4}',
-            '***-****-****',
-            filtered
-        )
-
-        # 2. 기밀 키워드 검사
-        confidential = ["password", "secret_key", "api_key"]
-        if any(kw in filtered.lower() for kw in confidential):
-            return "❌ 보안상 공개할 수 없는 정보입니다."
-
-        return filtered
-
-# 사용
-output_guard = OutputGuardrail()
-
-responses = [
-    "귀하의 주소는 서울시 강남구입니다.",
-    "귀하의 주민번호는 123456-1234567입니다.",
-    "API KEY는 abc123xyz입니다."
-]
-
-for resp in responses:
-    filtered = output_guard.filter(resp)
-    print(f"원본: {resp}")
-    print(f"필터: {filtered}\n")
-```
-
-### 3. Action Guardrail (행동 검증)
-
-```python
-class ActionGuardrail:
-    """AI 행동 검증"""
-
-    def __init__(self, user_permissions: dict):
-        self.permissions = user_permissions
-
-    def can_execute(self, action: str, target: str) -> Tuple[bool, str]:
-        """행동 허용 여부"""
-
-        # 1. 권한 확인
-        permission_key = f"can_{action}_{target}"
-        if not self.permissions.get(permission_key, False):
-            return False, f"❌ {target}에 대한 {action} 권한 없음"
-
-        # 2. 위험한 작업 차단
-        dangerous = [
-            ("delete", "all_users"),
-            ("write", "admin_config")
-        ]
-        if (action, target) in dangerous:
-            return False, f"⚠️ 위험한 작업: {action} {target}"
-
-        # 3. 업무시간 확인 (급여 데이터)
-        if target == "payroll" and not self._is_business_hours():
-            return False, "⏰ 급여 데이터는 업무시간만 접근 가능"
-
-        return True, ""
-
-    def _is_business_hours(self) -> bool:
-        from datetime import datetime
-        return 9 <= datetime.now().hour < 18
-
-# 사용
-permissions = {
-    'can_read_payroll': True,
-    'can_delete_all_users': False
-}
-
-action_guard = ActionGuardrail(permissions)
-
-actions = [
-    ("read", "payroll"),
-    ("delete", "all_users")
-]
-
-for action, target in actions:
-    allowed, reason = action_guard.can_execute(action, target)
-    print(f"{'✅' if allowed else '❌'} {action} {target}")
-    if not allowed:
-        print(f"   {reason}")
-```
-
-## 🎯 Guardrail 유형
-
-| 유형 | 시점 | 차단 대상 | 예시 |
-|------|------|----------|------|
-| **Input** | 요청 받을 때 | 악의적 입력 | PII, SQL Injection |
-| **Output** | 응답 전 | 부적절한 응답 | 기밀 정보 노출 |
-| **Action** | 작업 전 | 위험한 행동 | 권한 없는 접근 |
-| **Runtime** | 실행 중 | 이상 동작 | 무한루프, 과도한 API 호출 |
-
-## 🛡️ 보안 vs 사용성
-
-Guardrail은 **보안**과 **사용성** 사이의 균형이 중요합니다:
-
-```
-너무 엄격 → 사용자 불편
-너무 느슨 → 보안 위험
-
-✅ 적절한 균형:
-- 명확한 위험은 즉시 차단
-- 애매한 경우 사용자에게 확인
-- 차단 시 이유 명확히 설명
-```
+- 프롬프트에 개인정보를 말하지 말라고 써두는 것만으로 부족한 이유는?
+- 입력 검사를 통과한 질문인데도 출력 검사가 필요한 경우는 어떤 것인가?
+- 규칙을 너무 세게 잡으면 어떤 일이 생기나?
 
 ## 🔗 관련 용어
 
-- [[PII]]: Guardrail이 보호하는 정보
-- [[AI Agent]]: Guardrail의 대상
-- [[Escalation]]: Guardrail 차단 시 조치
-- [[Audit Log]]: Guardrail 활동 기록
-
----
-*카테고리: AI-ML*
-*생성일: 2026-02-14*
+- [[PII]] — Guardrail이 입력과 출력 양쪽에서 찾아내는 정보
+- [[AI Agent]] — Guardrail이 감싸는 대상
+- [[Audit Log]] — 막힌 시도를 남겨두는 곳
+- [[RBAC]] — 행동 검사에서 권한을 볼 때 쓰는 기준
+- [[Escalation]] — 막은 다음 사람에게 넘겨야 할 때의 절차

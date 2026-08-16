@@ -2,499 +2,84 @@
 
 ## 📝 정의
 
-Cache(캐시)는 **자주 사용하는 데이터를 빠르게 접근할 수 있도록 임시 저장**하는 고속 메모리입니다. CPU와 RAM 사이, 또는 애플리케이션과 데이터베이스 사이에 위치하여 성능을 향상시킵니다.
+Cache는 **한 번 구한 결과를 가까운 곳에 두고 다시 쓰는 것**이다.
 
-### 핵심 개념
+같은 것을 두 번 계산하거나 두 번 가져오는 대신, 처음 결과를 빠른 곳에 보관해두고 다음부터는 거기서 꺼낸다. 속도 문제의 대부분이 이 한 가지로 풀린다.
 
-- **무엇인가?**: 자주 쓰는 데이터의 임시 저장소
-- **왜 필요한가?**: 느린 저장소 접근 횟수 줄이기
-- **어떻게 작동하나?**: 빠른 메모리에 복사본 저장
+### 비유
+책상 위에 꺼내둔 책. 매번 서가까지 걸어가는 대신 자주 보는 것만 손 닿는 데 둔다. 책상이 좁으니 안 보는 것은 다시 꽂아야 한다.
 
-### Cache가 해결하는 문제
+## 🖼️ 그림으로 보기
 
-**문제 상황**:
-```
-😱 시나리오 1: 반복적인 DB 조회
-사용자 프로필 조회 API
-→ 매 요청마다 DB 쿼리
-→ DB: 50ms, 초당 100 요청
-→ DB 부하 높고 응답 느림! 😱
-
-😱 시나리오 2: 무거운 계산 반복
-복잡한 통계 계산 (10초 소요)
-→ 같은 데이터로 반복 계산
-→ 매번 10초씩 기다림
-→ 사용자 불만! 😱
-
-😱 시나리오 3: CPU와 RAM 속도 차이
-CPU: 초당 수십억 연산
-RAM: 100ns 접근 시간
-→ CPU가 RAM 대기에 시간 낭비
-→ CPU 성능 활용 못 함! 😱
+```도해
+흐름: 같은 데이터를 두 번째로 요청하면 어떻게 되나
+앱 :: 사용자 정보를 달라고 한다
+캐시 :: 갖고 있나 확인한다. 없다
+DB :: 조회해서 돌려준다. 50밀리초 걸린다
+캐시 :: 받은 결과를 저장해둔다
+앱 :: 잠시 뒤 같은 정보를 또 요청한다
+< 캐시 :: 이번엔 갖고 있다. 1밀리초에 돌려준다
+= 두 번째부터 싸진다. 첫 번째는 오히려 조금 느리다
 ```
 
-**Cache의 해결**:
-```
-✅ 시나리오 1:
-Redis 캐시 도입
-→ 첫 요청: DB 조회 (50ms)
-→ 결과를 Redis에 저장 (1ms)
-→ 이후 요청: Redis에서 조회 (1ms)
-→ 50배 빠름! ✅
+## ⚠️ 해결하는 문제
 
-✅ 시나리오 2:
-계산 결과 캐싱
-→ 첫 계산: 10초 소요
-→ 결과를 메모리에 캐싱
-→ 이후 요청: 1ms
-→ 10,000배 빠름! ✅
-
-✅ 시나리오 3:
-CPU Cache 활용
-→ L1 Cache: 1ns (100배 빠름)
-→ 자주 쓰는 데이터 L1에 저장
-→ CPU가 대기 시간 최소화
-→ 성능 대폭 향상! ✅
+```도해
+대조: 같은 조회가 초당 천 번 들어오면 어떻게 되나
+캐시 없이 || 캐시로
+DB 부하 :: 천 번 전부 || 한 번만
+응답 시간 :: 50밀리초 || 1밀리초
+비용 :: DB 를 키워야 || 메모리 조금
+= 느린 곳을 빠르게 만드는 게 아니라 느린 곳에 덜 가게 만드는 것이다
 ```
 
-## 📊 캐시 계층 구조
+데이터베이스는 디스크를 읽고 검색하고 잠금을 관리하느라 느리다. 같은 질문에 같은 답을 천 번 반복하는 것은 그 비싼 작업을 천 번 하는 것이다.
 
+캐시는 그 반복을 없앤다. 대부분의 서비스에서 읽기가 쓰기보다 훨씬 많고, 같은 데이터를 여러 사람이 본다. 그래서 캐시 하나로 부하가 크게 떨어진다.
 
-### 캐시 레벨
+## ⚙️ 작동 원리
 
-**L1 Cache (Level 1)**:
-```
-크기: 32-64KB
-속도: ~1ns
-위치: CPU 코어 내부
-특징: 가장 빠르지만 가장 작음
-```
-
-**L2 Cache (Level 2)**:
-```
-크기: 256-512KB
-속도: ~3ns
-위치: CPU 코어별 또는 공유
-특징: L1보다 느리지만 더 큼
+```도해
+층: 캐시는 어디에 겹겹이 있나
+CPU 캐시 :: 나노초 단위. 하드웨어가 알아서
+메모리 :: 프로그램 안의 변수
+로컬 캐시 :: 서버 한 대 안의 메모리
+공용 캐시 :: Redis 처럼 여러 서버가 함께 쓴다
+= 위로 갈수록 빠르고 작다. 어느 층에 둘지가 설계의 절반이다
 ```
 
-**L3 Cache (Level 3)**:
-```
-크기: 2-32MB
-속도: ~12ns
-위치: 모든 코어가 공유
-특징: 가장 크지만 가장 느림 (캐시 중에서)
-```
+들어갈 자리가 꽉 차면 무엇을 버릴지 정해야 한다. 가장 오래 안 쓴 것을 버리는 방식이 가장 흔하다.
 
-## 💡 소프트웨어 캐싱
+## 💡 실제 사례
 
-### Python: 함수 결과 캐싱
+- **조회 결과 저장** 자주 열리는 상품 정보를 Redis에 두고 DB 접근을 줄인다.
+- **계산 결과 저장** 무거운 집계를 미리 돌려두고 화면에서는 꺼내 쓰기만 한다.
+- **HTTP 캐시** 브라우저가 이미지와 CSS를 다시 받지 않게 한다.
 
-```python
-from functools import lru_cache
-import time
+## 🚫 흔한 오해
 
-# 캐싱 없이
-def fibonacci_slow(n):
-    """피보나치 (느림)"""
-    if n < 2:
-        return n
-    return fibonacci_slow(n-1) + fibonacci_slow(n-2)
+- **캐시를 붙이면 무조건 빨라진다** — 매번 다른 데이터를 조회하면 캐시에 걸리는 게 없어서 확인 단계만 늘어난다. 오히려 느려진다.
+- **캐시에 있는 값은 정확하다** — 원본이 바뀌어도 캐시는 모른다. 언제 버릴지 정하지 않으면 오래된 값을 계속 보여준다.
+- **오래 저장할수록 좋다** — 오래 둘수록 빠르지만 그만큼 틀린 값을 보여줄 위험이 커진다. 이 둘의 균형이 캐시 설계의 전부다.
 
-# 캐싱 있음
-@lru_cache(maxsize=128)
-def fibonacci_cached(n):
-    """피보나치 (캐시 사용)"""
-    if n < 2:
-        return n
-    return fibonacci_cached(n-1) + fibonacci_cached(n-2)
+## 🚨 주의사항
 
-# 비교
-start = time.time()
-result1 = fibonacci_slow(30)
-print(f"캐싱 없음: {time.time() - start:.3f}초")  # ~0.3초
-
-start = time.time()
-result2 = fibonacci_cached(30)
-print(f"캐싱 있음: {time.time() - start:.6f}초")  # ~0.000015초
-
-# 캐시 정보 확인
-print(fibonacci_cached.cache_info())
-```
-
-**실행 결과**:
-```
-캐싱 없음: 0.312초
-캐싱 있음: 0.000015초
-CacheInfo(hits=28, misses=31, maxsize=128, currsize=31)
-```
-
-### Redis 캐싱
-
-```python
-import redis
-import json
-import time
-
-# Redis 연결
-r = redis.Redis(host='localhost', port=6379, decode_responses=True)
-
-def get_user_profile(user_id):
-    """사용자 프로필 조회 (캐싱 적용)"""
-    cache_key = f"user:{user_id}"
-
-    # 1. 캐시 확인
-    cached = r.get(cache_key)
-    if cached:
-        print("✅ 캐시 히트!")
-        return json.loads(cached)
-
-    # 2. 캐시 미스 - DB 조회
-    print("❌ 캐시 미스 - DB 조회")
-    time.sleep(0.05)  # DB 쿼리 시뮬레이션
-
-    user = {
-        'id': user_id,
-        'name': f'User{user_id}',
-        'email': f'user{user_id}@example.com'
-    }
-
-    # 3. 캐시에 저장 (TTL 10분)
-    r.setex(cache_key, 600, json.dumps(user))
-
-    return user
-
-# 사용
-print("첫 요청:")
-user1 = get_user_profile(123)  # DB 조회
-
-print("\n두 번째 요청:")
-user2 = get_user_profile(123)  # 캐시에서 조회
-```
-
-**실행 결과**:
-```
-첫 요청:
-❌ 캐시 미스 - DB 조회
-
-두 번째 요청:
-✅ 캐시 히트!
-```
-
-## 🎯 캐시 전략
-
-### 1. Cache-Aside (Lazy Loading)
-
-```python
-def cache_aside(key):
-    """가장 일반적인 패턴"""
-    # 1. 캐시 확인
-    data = cache.get(key)
-
-    if data is None:
-        # 2. 캐시 미스 - DB 조회
-        data = database.query(key)
-
-        # 3. 캐시에 저장
-        cache.set(key, data, ttl=3600)
-
-    return data
-```
-
-### 2. Write-Through
-
-```python
-def write_through(key, value):
-    """쓰기 시 캐시와 DB 모두 업데이트"""
-    # 1. DB에 쓰기
-    database.save(key, value)
-
-    # 2. 동시에 캐시에도 쓰기
-    cache.set(key, value)
-
-    # 장점: 캐시 항상 최신 상태
-    # 단점: 쓰기가 느림
-```
-
-### 3. Write-Back
-
-```python
-def write_back(key, value):
-    """캐시에만 쓰고 나중에 DB 동기화"""
-    # 1. 캐시에만 쓰기
-    cache.set(key, value)
-
-    # 2. 비동기로 DB 업데이트 예약
-    queue.enqueue(lambda: database.save(key, value))
-
-    # 장점: 쓰기가 빠름
-    # 단점: 캐시 서버 죽으면 데이터 손실
-```
-
-## 🔍 실전 캐싱 패턴
-
-### API 응답 캐싱
-
-```python
-from flask import Flask, jsonify
-from functools import wraps
-import time
-
-app = Flask(__name__)
-
-# 간단한 메모리 캐시
-cache = {}
-
-def cached(seconds=300):
-    """캐싱 데코레이터"""
-    def decorator(f):
-        @wraps(f)
-        def wrapper(*args, **kwargs):
-            # 캐시 키 생성
-            cache_key = f"{f.__name__}:{args}:{kwargs}"
-
-            # 캐시 확인
-            if cache_key in cache:
-                data, timestamp = cache[cache_key]
-                if time.time() - timestamp < seconds:
-                    print(f"캐시 히트: {cache_key}")
-                    return data
-
-            # 함수 실행
-            result = f(*args, **kwargs)
-
-            # 캐시 저장
-            cache[cache_key] = (result, time.time())
-
-            return result
-        return wrapper
-    return decorator
-
-@app.route('/api/heavy-data')
-@cached(seconds=60)  # 1분 캐싱
-def get_heavy_data():
-    """무거운 작업"""
-    print("무거운 계산 수행 중...")
-    time.sleep(2)  # 2초 소요
-    return jsonify({'data': '결과'})
-```
-
-### 데이터베이스 쿼리 캐싱
-
-```python
-import hashlib
-import pickle
-
-class QueryCache:
-    """SQL 쿼리 결과 캐싱"""
-
-    def __init__(self):
-        self.cache = {}
-
-    def get_cache_key(self, query, params):
-        """쿼리와 파라미터로 캐시 키 생성"""
-        key_str = f"{query}:{params}"
-        return hashlib.md5(key_str.encode()).hexdigest()
-
-    def get(self, query, params=()):
-        """캐시된 쿼리 결과 가져오기"""
-        key = self.get_cache_key(query, params)
-        return self.cache.get(key)
-
-    def set(self, query, params, result, ttl=300):
-        """쿼리 결과 캐싱"""
-        key = self.get_cache_key(query, params)
-        self.cache[key] = {
-            'result': result,
-            'expires_at': time.time() + ttl
-        }
-
-    def execute_query(self, db, query, params=()):
-        """캐싱이 적용된 쿼리 실행"""
-        # 캐시 확인
-        cached = self.get(query, params)
-        if cached and cached['expires_at'] > time.time():
-            print("✅ 쿼리 캐시 히트")
-            return cached['result']
-
-        # DB 쿼리
-        print("❌ 쿼리 캐시 미스 - DB 조회")
-        cursor = db.cursor()
-        cursor.execute(query, params)
-        result = cursor.fetchall()
-
-        # 캐시에 저장
-        self.set(query, params, result)
-
-        return result
-
-# 사용
-cache = QueryCache()
-result = cache.execute_query(
-    db,
-    "SELECT * FROM users WHERE id = ?",
-    (123,)
-)
-```
-
-## 💻 캐시 무효화
-
-### TTL (Time To Live)
-
-```python
-# Redis TTL 설정
-r.setex('key', 300, 'value')  # 5분 후 자동 삭제
-
-# Python 메모리 캐시
-import time
-
-class TTLCache:
-    def __init__(self):
-        self.cache = {}
-
-    def set(self, key, value, ttl=300):
-        """TTL과 함께 저장"""
-        expires_at = time.time() + ttl
-        self.cache[key] = {
-            'value': value,
-            'expires_at': expires_at
-        }
-
-    def get(self, key):
-        """TTL 확인 후 반환"""
-        if key not in self.cache:
-            return None
-
-        item = self.cache[key]
-        if time.time() > item['expires_at']:
-            # 만료됨
-            del self.cache[key]
-            return None
-
-        return item['value']
-```
-
-### LRU (Least Recently Used)
-
-```python
-from collections import OrderedDict
-
-class LRUCache:
-    """가장 오래 사용 안 한 항목 제거"""
-
-    def __init__(self, capacity=100):
-        self.cache = OrderedDict()
-        self.capacity = capacity
-
-    def get(self, key):
-        if key not in self.cache:
-            return None
-
-        # 최근 사용으로 이동
-        self.cache.move_to_end(key)
-        return self.cache[key]
-
-    def set(self, key, value):
-        if key in self.cache:
-            # 이미 있으면 업데이트
-            self.cache.move_to_end(key)
-        else:
-            # 용량 초과 시 가장 오래된 항목 제거
-            if len(self.cache) >= self.capacity:
-                self.cache.popitem(last=False)
-
-        self.cache[key] = value
-
-# 사용
-cache = LRUCache(capacity=3)
-cache.set('a', 1)
-cache.set('b', 2)
-cache.set('c', 3)
-cache.set('d', 4)  # 'a'가 제거됨 (가장 오래됨)
-```
-
-## 🚨 캐싱 주의사항
-
-### 1. Cache Stampede
-
-```python
-import threading
-import time
-
-# ❌ 문제: 동시 요청 시 모두 DB 조회
-def bad_cache(key):
-    data = cache.get(key)
-    if data is None:
-        # 여러 스레드가 동시에 여기 진입!
-        data = expensive_db_query()  # 무거운 쿼리
-        cache.set(key, data)
-    return data
-
-# ✅ 해결: Lock 사용
-lock = threading.Lock()
-
-def good_cache(key):
-    data = cache.get(key)
-    if data is None:
-        with lock:  # 첫 번째 스레드만 DB 조회
-            # Double-check
-            data = cache.get(key)
-            if data is None:
-                data = expensive_db_query()
-                cache.set(key, data)
-    return data
-```
-
-### 2. Cache Inconsistency
-
-```python
-# ❌ 문제: 캐시와 DB 불일치
-def update_user(user_id, new_data):
-    # DB만 업데이트
-    database.update(user_id, new_data)
-    # 캐시는 그대로! → 오래된 데이터 반환
-
-# ✅ 해결 1: 캐시 무효화
-def update_user_v1(user_id, new_data):
-    database.update(user_id, new_data)
-    cache.delete(f"user:{user_id}")  # 캐시 삭제
-
-# ✅ 해결 2: 캐시 업데이트
-def update_user_v2(user_id, new_data):
-    database.update(user_id, new_data)
-    cache.set(f"user:{user_id}", new_data)  # 캐시도 업데이트
-```
-
-## 🔗 관련 용어
-
-- [[CPU]]: L1/L2/L3 캐시를 가진 프로세서
-- [[RAM]]: 캐시의 다음 계층 메모리
-- [[Redis]]: 인메모리 캐시 DB
-- [[CDN]]: 콘텐츠 전송 네트워크 캐시
+- **무효화 시점을 먼저 정한다.** 캐시를 넣는 것보다 언제 버릴지 정하는 게 훨씬 어렵다. 데이터를 고치는 코드에서 함께 지우거나 만료 시간을 짧게 잡는다.
+- **캐시가 동시에 비면 DB가 죽는다.** 만료 시각이 같으면 그 순간 모든 요청이 DB로 몰린다. 만료 시간을 조금씩 흩어 놓는다.
 
 ## 📝 정리
 
-**캐시의 핵심**:
-```
-Cache = 자주 쓰는 데이터의 빠른 복사본
-→ 느린 저장소 접근 줄임
-→ 성능 대폭 향상
-→ TTL로 신선도 관리
-```
+Cache는 한 번 구한 결과를 가까운 곳에 두고 다시 쓰는 것이다. 느린 곳에 덜 가게 만드는 방법이고, 어려운 부분은 넣는 게 아니라 언제 버릴지 정하는 쪽이다.
 
-**효과**:
-```
-DB 조회: 50ms → 캐시: 1ms (50배 향상)
-무거운 계산: 10초 → 캐시: 1ms (10,000배 향상)
-```
+## ❓ 이해했는지
 
-**비유로 기억하기**:
-```
-Cache = 책상 위 자주 쓰는 물건
-RAM = 책상 서랍
-SSD = 책장
-```
+- 매번 다른 값을 조회하는 API에 캐시를 붙이면 왜 느려지나?
+- 상품 가격을 고쳤는데 화면에 옛 가격이 보인다면 무엇을 빠뜨린 것인가?
+- 캐시 만료 시각을 전부 같게 잡으면 무슨 일이 생기나?
 
----
-*카테고리: 컴퓨터과학*
-*생성일: 2026-02-15*
+## 🔗 관련 용어
+
+- [[Redis]] — 여러 서버가 함께 쓰는 캐시의 대표적인 구현
+- [[CDN]] — 캐시를 사용자 가까이 옮긴 것
+- [[TTL]] — 캐시를 얼마나 들고 있을지 정하는 값
+- [[Memory]] — 캐시가 놓이는 자리

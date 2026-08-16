@@ -2,469 +2,80 @@
 
 ## 📝 정의
 
-Fine-tuning은 **사전 학습된 LLM을 특정 작업에 맞게 추가 학습**시키는 기법입니다. 모델을 처음부터 학습시키지 않고, 기존 모델의 지식을 활용해 효율적으로 맞춤화합니다.
+Fine-tuning은 **이미 학습된 모델에 예시를 더 먹여 다시 학습시키는 일**이다.
 
-### 핵심 개념
+모델을 처음부터 만드는 데는 막대한 데이터와 계산이 든다. 파인튜닝은 이미 언어를 아는 모델에 우리 예시 수백 개를 더 보여줘서 답하는 방식만 바꾼다.
 
-- **무엇인가?**: 기존 LLM + 특정 도메인 데이터로 재학습
-- **왜 필요한가?**: 특정 업무나 스타일에 최적화하기 위해
-- **어떻게 작동하나?**: Base Model + Custom Dataset → Fine-tuned Model
+### 비유
+이미 의사 면허가 있는 사람에게 한 분야만 더 수련시키는 것이다. 의학을 처음부터 가르치지 않는다.
 
-### Fine-tuning이 해결하는 문제
+## 🖼️ 그림으로 보기
 
-**Base Model의 한계**:
-```
-😱 시나리오 1: 도메인 지식 부족
-질문: "제32조는?"
-GPT-4: "일반적인 법률 용어로..." 😱
-→ 우리 회사 취업규칙을 모름!
-
-😱 시나리오 2: 톤앤매너 불일치
-회사: 격식 있는 답변 필요
-GPT-4: "그거요? 육아휴직은요..." 😱
-→ 캐주얼한 톤!
-
-😱 시나리오 3: 매번 프롬프트 필요
-매 질문마다: "당신은 취업규칙 전문가입니다..."
-→ 토큰 낭비! 비용 증가! 😱
+```도해
+흐름: 우리 회사 말투로 답하게 만들려면 무슨 순서로 하나
+예시 모으기 :: 질문과 원하는 답을 짝지어 수백 개 만든다
+형식 맞추기 :: 정해진 형식의 파일로 정리한다
+추가 학습 :: 기존 모델의 값을 그 예시 쪽으로 조금씩 옮긴다
+새 모델 :: 우리 예시를 닮은 모델이 하나 나온다
+< 사용 :: 긴 지시문 없이 질문만 보내도 그 말투로 답한다
+= 지식을 넣는다기보다 답하는 방식을 옮기는 작업이다
 ```
 
-**Fine-tuning의 해결**:
-```
-✅ 도메인 지식 내재화
-질문: "제32조는?"
-Fine-tuned Model: "제32조 육아휴직 규정입니다. 기간은 최대 2년이며..." ✅
-→ 회사 규정을 모델이 학습함!
+## ⚠️ 해결하는 문제
 
-✅ 톤앤매너 일관성
-Fine-tuned Model: "제32조에 따르면, 육아휴직 기간은..." ✅
-→ 격식 있는 답변!
-
-✅ 프롬프트 간소화
-매번 긴 프롬프트 불필요
-→ 토큰 절감! 비용 감소! ✅
+```도해
+대조: 매번 긴 지시문을 붙여 쓰면 어떻게 되나
+지시문으로 || 파인튜닝으로
+요청 길이 :: 매번 길어진다 || 질문만 보낸다
+말투 :: 들쭉날쭉하다 || 일정하다
+비용 구조 :: 요청마다 낸다 || 학습에 한 번
+= 매 요청에 붙이던 것을 모델 안으로 옮기는 것이다
 ```
 
-## 📊 Fine-tuning vs 다른 방법
+같은 지시문을 매 요청마다 앞에 붙이면 그만큼 토큰을 쓴다. 요청이 많아지면 이 비용이 계속 쌓이고, 지시문이 길어도 모델이 매번 똑같이 따르지는 않는다.
 
+파인튜닝은 그 지시를 예시로 바꿔 모델에 새겨 넣는다. 그다음부터는 짧은 질문만 보내도 학습시킨 형식대로 답한다. 대신 내용이 바뀌면 다시 학습시켜야 한다.
 
-**비교표**:
-```python
-comparison = {
-    "Prompt Engineering": {
-        "비용": "$0 (추가 비용 없음)",
-        "학습 시간": "즉시",
-        "데이터 필요": "없음",
-        "최신 정보": "프롬프트에 포함",
-        "적합": "일반적인 작업, 빠른 프로토타입"
-    },
-    "RAG": {
-        "비용": "$50~500/월 (Vector DB)",
-        "학습 시간": "즉시",
-        "데이터 필요": "문서 (임베딩)",
-        "최신 정보": "즉시 반영",
-        "적합": "자주 변경되는 정보, 문서 기반 Q&A"
-    },
-    "Fine-tuning": {
-        "비용": "$100~10,000 (학습 비용)",
-        "학습 시간": "수 시간~수일",
-        "데이터 필요": "수백~수천 예시",
-        "최신 정보": "재학습 필요",
-        "적합": "고정된 도메인, 톤앤매너, 특화 작업"
-    }
-}
-```
+## 📊 비교
 
-## 💡 Fine-tuning 구현
+| | 프롬프트 | RAG | 파인튜닝 |
+|---|---|---|---|
+| 준비 | 바로 | 문서를 넣어두면 됨 | 예시 수백 개 |
+| 반영 시점 | 즉시 | 즉시 | 재학습 후 |
+| 잘 맞는 것 | 일반 작업 | 자주 바뀌는 정보 | 고정된 형식과 말투 |
+| 바뀌면 | 문장만 고친다 | 문서만 갈아 끼운다 | 처음부터 다시 |
 
-### 1. OpenAI Fine-tuning
+## 💡 실제 사례
 
-```python
-from openai import OpenAI
-import json
+- **정해진 답변 형식** 상담 답변을 늘 같은 구조로 뽑아야 할 때 그 형식의 예시로 학습시킨다.
+- **전문 분야 번역** 법률이나 의료 용어 번역 쌍을 학습시켜 용어 선택을 일정하게 만든다.
+- **회사 코드 스타일** 사내 코드 리뷰 기록을 학습시켜 제안하는 코드의 모양을 맞춘다.
 
-client = OpenAI()
+## 🚫 흔한 오해
 
-# 1. 학습 데이터 준비
-training_data = [
-    {
-        "messages": [
-            {"role": "system", "content": "당신은 P3 취업규칙 전문가입니다. 격식 있게 답변하세요."},
-            {"role": "user", "content": "육아휴직은 몇 년?"},
-            {"role": "assistant", "content": "제32조에 따르면, 육아휴직 기간은 최대 2년입니다."}
-        ]
-    },
-    {
-        "messages": [
-            {"role": "system", "content": "당신은 P3 취업규칙 전문가입니다. 격식 있게 답변하세요."},
-            {"role": "user", "content": "연차는 며칠?"},
-            {"role": "assistant", "content": "제30조에 따르면, 입사 1년 후부터 연차휴가 15일을 사용할 수 있습니다."}
-        ]
-    },
-    # ... 최소 10개 이상, 권장 50~100개
-]
-
-# 2. 데이터 파일 저장
-with open("p3_training.jsonl", "w", encoding="utf-8") as f:
-    for item in training_data:
-        f.write(json.dumps(item, ensure_ascii=False) + "\n")
-
-# 3. 파일 업로드
-with open("p3_training.jsonl", "rb") as f:
-    training_file = client.files.create(
-        file=f,
-        purpose="fine-tune"
-    )
-
-print(f"File ID: {training_file.id}")
-
-# 4. Fine-tuning 작업 시작
-fine_tune_job = client.fine_tuning.jobs.create(
-    training_file=training_file.id,
-    model="gpt-3.5-turbo",  # 또는 gpt-4
-    hyperparameters={
-        "n_epochs": 3  # 학습 반복 횟수
-    }
-)
-
-print(f"Job ID: {fine_tune_job.id}")
-
-# 5. 진행 상황 확인
-job = client.fine_tuning.jobs.retrieve(fine_tune_job.id)
-print(f"Status: {job.status}")
-
-# 6. 완료 후 모델 사용
-# job.fine_tuned_model: "ft:gpt-3.5-turbo:org:custom_suffix:id"
-
-# Fine-tuned 모델로 추론
-response = client.chat.completions.create(
-    model=job.fine_tuned_model,
-    messages=[
-        {"role": "user", "content": "병가는 어떻게 신청?"}
-    ]
-)
-
-print(response.choices[0].message.content)
-# 출력: "제31조에 따르면, 병가 신청 시 의사 진단서를 제출해야 합니다."
-```
-
-### 2. 학습 데이터 생성
-
-```python
-def generate_training_data(documents: list) -> list:
-    """취업규칙 문서로부터 학습 데이터 생성"""
-    
-    training_data = []
-    
-    for doc in documents:
-        # 문서에서 조항 추출
-        import re
-        section_match = re.search(r'제(\d+)조', doc)
-        section_num = section_match.group(1) if section_match else "?"
-        
-        # 다양한 질문 패턴 생성
-        questions = [
-            f"제{section_num}조는?",
-            f"{section_num}조 내용 알려줘",
-            f"{section_num}조에 대해 설명해줘"
-        ]
-        
-        for question in questions:
-            training_data.append({
-                "messages": [
-                    {"role": "system", "content": "당신은 P3 취업규칙 전문가입니다."},
-                    {"role": "user", "content": question},
-                    {"role": "assistant", "content": doc}
-                ]
-            })
-    
-    return training_data
-
-# 사용
-documents = [
-    "제30조 (연차휴가): 종업원은 입사 1년 후부터 연차휴가 15일을 사용할 수 있다.",
-    "제32조 (육아휴직): 육아휴직 기간은 최대 2년이다.",
-    # ... 더 많은 문서
-]
-
-training_data = generate_training_data(documents)
-print(f"생성된 학습 데이터: {len(training_data)}개")
-```
-
-### 3. P3 시스템 Fine-tuning 파이프라인
-
-```python
-class P3FineTuningPipeline:
-    """P3 취업규칙 Fine-tuning 파이프라인"""
-    
-    def __init__(self):
-        self.client = OpenAI()
-        
-    def prepare_data(self, company_id: str) -> str:
-        """회사별 학습 데이터 준비"""
-        
-        # 1. DB에서 취업규칙 가져오기
-        regulations = self.fetch_regulations(company_id)
-        
-        # 2. 학습 데이터 생성
-        training_data = []
-        
-        for reg in regulations:
-            # 다양한 질문 형태
-            questions = self.generate_questions(reg)
-            
-            for question in questions:
-                training_data.append({
-                    "messages": [
-                        {
-                            "role": "system",
-                            "content": f"{company_id} 취업규칙 전문가입니다. 격식 있게 답변하세요."
-                        },
-                        {"role": "user", "content": question},
-                        {"role": "assistant", "content": self.format_answer(reg)}
-                    ]
-                })
-        
-        # 3. 파일 저장
-        filename = f"{company_id}_training.jsonl"
-        with open(filename, "w", encoding="utf-8") as f:
-            for item in training_data:
-                f.write(json.dumps(item, ensure_ascii=False) + "\n")
-        
-        return filename
-    
-    def generate_questions(self, regulation: dict) -> list:
-        """조항에 대한 다양한 질문 생성"""
-        section = regulation['section']
-        title = regulation['title']
-        
-        return [
-            f"제{section}조는?",
-            f"{title}에 대해 알려줘",
-            f"{title} 규정은?",
-            f"{title} 어떻게 해?",
-            # LLM으로 더 다양한 질문 생성 가능
-        ]
-    
-    def format_answer(self, regulation: dict) -> str:
-        """표준화된 답변 형식"""
-        return f"제{regulation['section']}조 ({regulation['title']})에 따르면, {regulation['content']}"
-    
-    def fine_tune(self, company_id: str) -> str:
-        """Fine-tuning 실행"""
-        
-        # 1. 데이터 준비
-        filename = self.prepare_data(company_id)
-        
-        # 2. 파일 업로드
-        with open(filename, "rb") as f:
-            training_file = self.client.files.create(file=f, purpose="fine-tune")
-        
-        # 3. Fine-tuning 시작
-        job = self.client.fine_tuning.jobs.create(
-            training_file=training_file.id,
-            model="gpt-3.5-turbo",
-            suffix=f"p3-{company_id}",
-            hyperparameters={"n_epochs": 3}
-        )
-        
-        print(f"Fine-tuning 시작: {job.id}")
-        print(f"완료까지 약 30분~2시간 소요")
-        
-        # 4. DB에 저장
-        self.save_job_info(company_id, job.id)
-        
-        return job.id
-    
-    def check_status(self, job_id: str) -> dict:
-        """Fine-tuning 진행 상황"""
-        job = self.client.fine_tuning.jobs.retrieve(job_id)
-        
-        return {
-            'status': job.status,
-            'trained_tokens': job.trained_tokens,
-            'model': job.fine_tuned_model
-        }
-
-# 사용
-pipeline = P3FineTuningPipeline()
-
-# A회사 Fine-tuning
-job_id = pipeline.fine_tune("A회사")
-
-# 진행 상황 확인
-status = pipeline.check_status(job_id)
-print(f"상태: {status['status']}")
-
-# 완료 후 사용
-if status['status'] == 'succeeded':
-    model_name = status['model']
-    # P3 시스템에서 이 모델 사용
-```
-
-## 🎯 Fine-tuning 적합성 판단
-
-### P3 시스템: RAG vs Fine-tuning
-
-```python
-p3_decision = {
-    "RAG 선택": {
-        "이유": [
-            "취업규칙이 자주 변경됨",
-            "회사별로 다른 규정",
-            "최신 정보 즉시 반영 필요",
-            "비용 효율적"
-        ],
-        "비용": "$100/월 (Vector DB)",
-        "업데이트": "즉시"
-    },
-    "Fine-tuning 선택할 경우": {
-        "조건": [
-            "취업규칙이 거의 변경 안 됨",
-            "톤앤매너가 매우 중요",
-            "프롬프트 토큰 절약 필요",
-            "응답 속도 최우선"
-        ],
-        "비용": "$500 초기 + $50/월",
-        "업데이트": "재학습 필요 (비용 재발생)"
-    },
-    "P3 권장": "RAG",
-    "이유": "취업규칙은 자주 변경되므로 RAG가 더 적합"
-}
-```
-
-### Fine-tuning이 적합한 경우
-
-```python
-good_use_cases = {
-    "코딩 어시스턴트": {
-        "예시": "회사 코딩 스타일 학습",
-        "데이터": "코드 리뷰 히스토리",
-        "효과": "일관된 코드 스타일"
-    },
-    "고객 응대 챗봇": {
-        "예시": "브랜드 톤앤매너",
-        "데이터": "과거 고객 응대 로그",
-        "효과": "브랜드 목소리 일관성"
-    },
-    "번역 시스템": {
-        "예시": "법률/의료 전문 번역",
-        "데이터": "전문 용어 번역 쌍",
-        "효과": "전문 용어 정확도 향상"
-    }
-}
-```
+- **파인튜닝하면 모델이 우리 문서를 기억한다** — 기억하지 못한다. 옮겨지는 건 답하는 방식이고, 사실을 정확히 인용하게 하려면 문서를 그때그때 찾아 넣어주는 방식이 맞다.
+- **데이터가 많을수록 무조건 좋다** — 양보다 일관성이다. 같은 질문에 서로 다른 형식의 답이 섞여 있으면 모델은 어느 쪽도 제대로 배우지 않는다.
+- **한 번 학습시키면 계속 최신 상태다** — 학습한 시점에서 멈춘다. 규정이 바뀌면 예시를 고쳐 다시 학습시켜야 하고 그때마다 비용이 다시 든다.
 
 ## 🚨 주의사항
 
-### 1. 충분한 데이터 필요
-
-```python
-# 최소 데이터
-minimum = {
-    "OpenAI 권장": "10개 이상",
-    "실용적": "50~100개",
-    "고품질": "500~1000개"
-}
-
-# 데이터 부족 시
-if len(training_data) < 50:
-    print("⚠️ 데이터 부족 - 과적합 위험")
-    print("→ Prompt Engineering 또는 RAG 고려")
-```
-
-### 2. 비용
-
-```python
-# OpenAI Fine-tuning 비용 (2024년 기준)
-costs = {
-    "GPT-3.5 Turbo": {
-        "학습": "$0.008/1K tokens",
-        "추론": "$0.012/1K tokens (Base: $0.0005)"
-    },
-    "GPT-4": {
-        "학습": "아직 미지원",
-        "추론": "N/A"
-    }
-}
-
-# 예상 비용 계산
-training_tokens = 100000  # 10만 토큰
-training_cost = (training_tokens / 1000) * 0.008
-print(f"학습 비용: ${training_cost:.2f}")  # $0.80
-
-monthly_queries = 100000  # 월 10만 쿼리
-monthly_cost = (monthly_queries / 1000) * 0.012
-print(f"월 추론 비용: ${monthly_cost:.2f}")  # $1.20
-```
-
-### 3. 업데이트 어려움
-
-```python
-# 규정 변경 시
-regulation_updated = True
-
-if regulation_updated:
-    # RAG: 즉시 반영
-    vector_db.update(new_regulation)  # 1분
-    
-    # Fine-tuning: 재학습 필요
-    pipeline.fine_tune("A회사")  # 1~2시간 + 비용
-```
-
-## 🔗 관련 용어
-
-- [[LLM]]: Fine-tuning 대상
-- [[Prompt]]: Fine-tuning 대안
-- [[RAG]]: Fine-tuning 대안
-- [[Few-shot]]: 학습 데이터 형식
-- [[Token]]: Fine-tuning 비용 계산
+- **예시가 적으면 흉내만 낸다.** 수가 부족하면 학습 예시에만 잘 맞고 조금 다른 질문에는 오히려 나빠진다.
+- **바뀌는 정보에는 쓰지 않는다.** 규정이나 가격처럼 자주 고쳐지는 내용은 학습이 아니라 문서 조회로 다뤄야 한다.
 
 ## 📝 정리
 
-**Fine-tuning의 핵심**:
-```
-Base Model + Custom Data
-→ 특화된 모델
-→ 도메인 지식 내재화
-```
+Fine-tuning은 이미 학습된 모델에 예시를 더 먹여 답하는 방식을 옮기는 작업이다. 형식과 말투를 고정하는 데는 잘 듣지만, 자주 바뀌는 사실을 넣는 용도로는 맞지 않는다.
 
-**P3 시스템 결론**:
-```
-Fine-tuning: X (규정 자주 변경)
-RAG: O (유연하고 비용 효율적)
+## ❓ 이해했는지
 
-Fine-tuning 고려 조건:
-- 규정이 거의 변경 안 됨
-- 톤앤매너가 최우선
-- 재학습 비용 감당 가능
-```
+- 자주 바뀌는 사내 규정을 파인튜닝으로 넣으면 왜 곤란해지나?
+- 매 요청에 붙이던 긴 지시문이 사라지면 무엇이 줄어드나?
+- 예시를 수백 개 모았는데 답 형식이 제각각이면 어떤 결과가 나오나?
 
-**비유로 기억하기**:
-```
-Base Model = 일반 의사
-Fine-tuning = 전문의 (추가 수련)
-→ 특정 분야 전문가
+## 🔗 관련 용어
 
-RAG = 일반 의사 + 의학 도서관
-→ 필요할 때 자료 참고
-```
-
-**의사결정 트리**:
-```
-정보가 자주 변경되나?
-→ Yes: RAG
-→ No: Fine-tuning 고려
-
-톤앤매너가 최우선인가?
-→ Yes: Fine-tuning 고려
-→ No: RAG
-
-학습 데이터 100개 이상 있나?
-→ Yes: Fine-tuning 가능
-→ No: Few-shot Prompting
-```
-
----
-*카테고리: AI_ML*
-*생성일: 2026-02-15*
+- [[LLM]] — 파인튜닝의 대상이 되는 모델
+- [[RAG]] — 학습 대신 문서를 찾아 넣어주는 다른 접근
+- [[Prompt]] — 학습 없이 지시문만으로 조정하는 방법
+- [[Token]] — 학습 비용과 요청 비용을 세는 단위
+- [[Few-shot & Zero-shot]] — 예시를 요청 안에 몇 개만 넣어보는 중간 방법

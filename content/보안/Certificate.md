@@ -2,315 +2,95 @@
 
 ## 📝 정의
 
-Certificate(인증서, 디지털 인증서)는 **웹사이트의 신원을 증명하는 전자 문서**로, HTTPS 통신에 필수적입니다.
+인증서는 **이 서버가 그 도메인의 주인이 맞다고 제3자가 보증한 파일**이다.
 
-### 핵심 개념
+서버는 자기가 `example.com` 이라고 말할 수 있지만, 그 말만으로는 아무것도 증명되지 않는다. 인증 기관이 확인하고 서명해준 파일이 있어야 브라우저가 그 말을 받아들인다.
 
-- **무엇인가?**: 웹사이트 신원 증명서
-- **왜 필요한가?**: 가짜 사이트와 구별
-- **어떻게 작동하나?**: 인증 기관(CA)이 발급 및 보증
+### 비유
+신분증. 이름은 본인이 말하는 것이지만, 그 이름이 맞다는 것은 발급 기관이 보증한다.
 
-### 인증서가 해결하는 문제
+## 🖼️ 그림으로 보기
 
-**문제 상황**:
-```
-😱 시나리오: 인증서 없는 웹사이트
-사용자 → bank.com 접속
-공격자 → 가짜 사이트 운영
-→ 진짜인지 구별 불가
-→ 피싱 위험! 😱
-```
-
-**인증서의 해결**:
-```
-✅ 신원 증명:
-진짜 bank.com → 인증서 있음 (CA 발급)
-가짜 사이트 → 인증서 없음 또는 경고
-브라우저 → 🔒 표시 (안전)
-→ 신뢰할 수 있음! ✅
+```도해
+흐름: 브라우저는 이 사이트가 진짜인지 어떻게 확인하나
+브라우저 :: 주소창에 친 도메인으로 접속한다
+서버 :: 인증서를 내민다. 도메인과 공개키가 적혀 있다
+브라우저 :: 서명한 기관이 누구인지 확인한다
+브라우저 :: 그 기관을 보증한 기관까지 거슬러 올라간다
+브라우저 :: 도메인이 주소창과 같은지, 기간이 남았는지 본다
+< 브라우저 :: 다 맞으면 자물쇠를 띄우고 암호화를 시작한다
+= 인증서는 신원을 증명할 뿐이고, 내용을 가리는 것은 그다음 일이다
 ```
 
-**비유**:
-- **인증서 없음** = 신분증 없는 사람
-- **인증서** = 정부 발급 신분증
+## ⚠️ 해결하는 문제
 
-## 💡 인증서 구성 요소
-
-### 인증서 내용
-```
-Subject: example.com
-Issuer: Let's Encrypt Authority X3
-Valid From: 2026-01-01
-Valid To: 2026-04-01
-Public Key: RSA 2048 bits
-Signature: SHA256withRSA
+```도해
+대조: 인증서가 없으면 무엇을 구별할 수 없나
+인증서 없이 || 인증서로
+사이트 신원 :: 알 수 없다 || 기관이 보증
+가짜 사이트 :: 똑같이 보인다 || 경고가 뜬다
+중간 도청 :: 그대로 읽힌다 || 열쇠 교환 가능
+= 주소창 글자만으로는 그 서버가 진짜인지 알 방법이 없다
 ```
 
-### 인증서 체인
-```
-1. Root Certificate (신뢰할 수 있는 최상위)
-   └─ 2. Intermediate Certificate (중간)
-      └─ 3. Domain Certificate (웹사이트)
-```
+주소를 제대로 쳤어도 중간에서 응답을 가로챈 서버가 답할 수 있다. 화면은 똑같이 나오고 입력한 비밀번호는 그쪽으로 간다. 사용자가 눈으로 구별할 수 있는 단서는 없다.
 
-## 💡 인증서 발급
+인증서는 그 자리를 메운다. 브라우저가 이미 믿고 있는 기관의 서명을 확인해야만 통과시키고, 서명이 없거나 도메인이 다르면 경고를 띄운다. 그리고 인증서 안의 공개키로 암호화 열쇠를 안전하게 주고받는다.
 
-### Let's Encrypt (무료)
-```bash
-# Certbot 설치
-sudo apt-get install certbot
+## ⚙️ 작동 원리
 
-# 인증서 발급
-sudo certbot certonly --standalone -d example.com -d www.example.com
-
-# 인증서 위치
-# /etc/letsencrypt/live/example.com/
-# - fullchain.pem (인증서 + 체인)
-# - privkey.pem (개인키)
-
-# 자동 갱신 (90일마다)
-sudo certbot renew
+```도해
+층: 브라우저는 어디까지 거슬러 올라가서 믿나
+루트 인증서 :: 브라우저와 운영체제에 미리 심겨 있다
+중간 인증서 :: 루트가 서명해준 발급 기관
+도메인 인증서 :: 내 사이트에 설치하는 것
+= 아래를 믿는 이유는 그 위가 서명했기 때문이다. 중간이 빠지면 사슬이 끊긴다
 ```
 
-### 수동 생성 (개발용)
-```bash
-# 개인키 생성
-openssl genrsa -out key.pem 2048
+서버는 도메인 인증서와 중간 인증서를 같이 내밀어야 한다. 도메인 인증서만 설치하면 어떤 브라우저에서는 통과하고 어떤 브라우저에서는 경고가 뜬다. 중간 인증서를 이미 갖고 있는 쪽과 아닌 쪽이 갈리기 때문이다.
 
-# CSR (Certificate Signing Request) 생성
-openssl req -new -key key.pem -out csr.pem
+발급은 개인키를 만들고 CSR 이라는 요청서를 만들어 기관에 내는 순서로 진행된다. Let's Encrypt 는 도메인 소유만 자동으로 확인하고 무료로 발급하며, 유효 기간이 90일이라 자동 갱신을 걸어두는 것이 보통이다.
 
-# 자체 서명 인증서 (Self-Signed)
-openssl x509 -req -days 365 -in csr.pem -signkey key.pem -out cert.pem
-```
+## 📊 비교
 
-## 💡 인증서 확인
+| | DV | OV | EV |
+|---|---|---|---|
+| 확인하는 것 | 도메인 소유 | 도메인과 조직 | 도메인과 법인 |
+| 발급 | 자동, 수 분 | 수동, 며칠 | 수동, 1~2주 |
+| 비용 | 무료에서 저렴 | 중간 | 비쌈 |
+| 어디에 쓰나 | 블로그, 개인 | 기업 사이트 | 은행, 금융 |
 
-### OpenSSL로 확인
-```bash
-# 웹사이트 인증서 확인
-openssl s_client -connect example.com:443 -showcerts
+## 💡 실제 사례
 
-# 인증서 파일 정보
-openssl x509 -in cert.pem -text -noout
+- **무료 발급과 자동 갱신** 도메인 소유만 확인하는 인증서를 발급받고, 갱신 명령을 스케줄러에 걸어 만료를 막는다.
+- **개발용 자체 서명** 사내 테스트 서버에는 직접 서명한 인증서를 쓴다. 브라우저 경고가 뜨지만 외부에 나가지 않으므로 그대로 쓴다.
+- **와일드카드** `*.example.com` 하나로 여러 서브도메인을 함께 덮어 인증서를 따로 관리하지 않는다.
 
-# 만료일 확인
-openssl x509 -in cert.pem -noout -dates
-```
+## 🚫 흔한 오해
 
-### Python으로 확인
-```python
-import ssl
-import socket
-from datetime import datetime
+- **인증서가 있으면 그 사이트는 안전하다** — 도메인 주인이 맞다는 것까지만 말해준다. 피싱 사이트도 자기 도메인의 인증서는 받을 수 있다.
+- **자물쇠가 뜨면 회사가 검증된 것이다** — 흔히 쓰는 DV 인증서는 도메인 소유만 확인한다. 조직을 확인하는 것은 OV 와 EV 다.
+- **인증서는 한 번 설치하면 계속 쓴다** — 유효 기간이 있다. 자동 갱신을 걸어두지 않으면 아무 배포도 안 한 날 사이트가 막힌다.
 
-def check_certificate(hostname):
-    """인증서 정보 확인"""
-    context = ssl.create_default_context()
-    
-    with socket.create_connection((hostname, 443)) as sock:
-        with context.wrap_socket(sock, server_hostname=hostname) as ssock:
-            cert = ssock.getpeercert()
-            
-            # Subject (발급 대상)
-            subject = dict(x[0] for x in cert['subject'])
-            print(f"Subject: {subject['commonName']}")
-            
-            # Issuer (발급자)
-            issuer = dict(x[0] for x in cert['issuer'])
-            print(f"Issuer: {issuer['commonName']}")
-            
-            # 유효 기간
-            not_before = cert['notBefore']
-            not_after = cert['notAfter']
-            print(f"Valid From: {not_before}")
-            print(f"Valid To: {not_after}")
-            
-            # 만료까지 남은 일수
-            expires = datetime.strptime(not_after, '%b %d %H:%M:%S %Y %Z')
-            days_left = (expires - datetime.now()).days
-            print(f"Days Left: {days_left}")
-            
-            if days_left < 30:
-                print("⚠️ Certificate expires soon!")
+## 🚨 주의사항
 
-check_certificate('google.com')
-```
+- **개인키를 저장소에 올리지 않는다.** 인증서는 공개돼도 되지만 개인키가 새면 인증서를 폐기하고 다시 발급받아야 한다.
+- **만료일을 사람이 기억하지 않는다.** 갱신 자동화와 만료 알림을 같이 걸어두는 편이 안전하다.
 
-## 💡 인증서 유형
+## 📝 정리
 
-### 1. DV (Domain Validation)
-```
-검증: 도메인 소유 확인만
-발급: 자동, 빠름 (몇 분)
-비용: 무료~저렴
-사용: 블로그, 개인 사이트
-예: Let's Encrypt
-```
+인증서는 도메인의 주인이 맞다는 것을 기관이 서명으로 보증한 파일이다. 브라우저는 그 서명을 루트까지 거슬러 확인한 뒤에야 자물쇠를 띄우고 암호화를 시작한다. 신원을 증명할 뿐 그 사이트가 정직하다는 뜻은 아니다.
 
-### 2. OV (Organization Validation)
-```
-검증: 도메인 + 조직 확인
-발급: 수동, 며칠
-비용: 중간
-사용: 기업 웹사이트
-```
+## ❓ 이해했는지
 
-### 3. EV (Extended Validation)
-```
-검증: 도메인 + 조직 + 법인 확인
-발급: 수동, 1-2주
-비용: 비쌈
-사용: 은행, 금융
-표시: 주소창에 회사명 표시
-```
-
-### 4. Wildcard Certificate
-```
-단일 인증서로 모든 서브도메인 커버
-*.example.com → 모든 서브도메인 적용
-- www.example.com ✅
-- api.example.com ✅
-- app.example.com ✅
-```
-
-## 💡 인증서 설치
-
-### Nginx
-```nginx
-server {
-    listen 443 ssl;
-    server_name example.com;
-    
-    # 인증서 파일
-    ssl_certificate /etc/ssl/certs/fullchain.pem;
-    ssl_certificate_key /etc/ssl/private/privkey.pem;
-    
-    # 중간 인증서 (선택)
-    ssl_trusted_certificate /etc/ssl/certs/chain.pem;
-}
-```
-
-### Apache
-```apache
-<VirtualHost *:443>
-    ServerName example.com
-    
-    SSLEngine on
-    SSLCertificateFile /etc/ssl/certs/cert.pem
-    SSLCertificateKeyFile /etc/ssl/private/key.pem
-    SSLCertificateChainFile /etc/ssl/certs/chain.pem
-</VirtualHost>
-```
-
-### Node.js
-```javascript
-const https = require('https');
-const fs = require('fs');
-
-const options = {
-  key: fs.readFileSync('/etc/ssl/private/key.pem'),
-  cert: fs.readFileSync('/etc/ssl/certs/cert.pem')
-};
-
-https.createServer(options, (req, res) => {
-  res.writeHead(200);
-  res.end('Secure HTTPS Server\n');
-}).listen(443);
-```
-
-## 💡 인증서 갱신
-
-### 자동 갱신 (Let's Encrypt)
-```bash
-# Cron 설정
-sudo crontab -e
-
-# 매일 새벽 3시에 갱신 시도
-0 3 * * * certbot renew --quiet
-
-# 갱신 후 Nginx 재시작
-0 3 * * * certbot renew --quiet --deploy-hook "systemctl reload nginx"
-```
-
-### 만료 알림
-```python
-import smtplib
-from datetime import datetime, timedelta
-
-def check_and_alert(hostname):
-    """인증서 만료 30일 전 알림"""
-    expires = get_certificate_expiry(hostname)
-    days_left = (expires - datetime.now()).days
-    
-    if days_left < 30:
-        send_email(
-            to='admin@example.com',
-            subject=f'Certificate expires in {days_left} days',
-            body=f'Please renew certificate for {hostname}'
-        )
-```
-
-## 💡 인증서 문제 해결
-
-### 브라우저 경고
-```
-"Your connection is not private"
-"NET::ERR_CERT_AUTHORITY_INVALID"
-
-원인:
-1. 자체 서명 인증서 (Self-Signed)
-2. 만료된 인증서
-3. 도메인 불일치
-4. 중간 인증서 누락
-```
-
-### 문제 진단
-```bash
-# SSL Labs 테스트
-https://www.ssllabs.com/ssltest/
-
-# 인증서 체인 확인
-openssl s_client -connect example.com:443 -showcerts | grep -A 1 "Verify return code"
-
-# 중간 인증서 확인
-curl -I https://example.com
-```
-
-## 💡 인증서 포맷
-
-```
-PEM (.pem, .crt, .cer)
-- Base64 인코딩
-- 텍스트 형식
-- -----BEGIN CERTIFICATE-----
-
-DER (.der)
-- 바이너리 형식
-
-PKCS#12 (.p12, .pfx)
-- 인증서 + 개인키
-- 비밀번호로 보호
-```
-
-### 포맷 변환
-```bash
-# PEM → DER
-openssl x509 -in cert.pem -outform DER -out cert.der
-
-# DER → PEM
-openssl x509 -in cert.der -inform DER -out cert.pem
-
-# PEM → PKCS#12
-openssl pkcs12 -export -in cert.pem -inkey key.pem -out cert.p12
-```
+- 인증서를 새로 설치했는데 어떤 브라우저에서만 경고가 뜬다. 무엇이 빠졌나?
+- 자물쇠가 떠 있는 사이트인데도 피싱일 수 있는 이유는?
+- 금요일에 아무 배포도 안 했는데 월요일에 사이트가 막혔다. 무엇부터 확인하나?
 
 ## 🔗 관련 용어
 
-- [[HTTPS]]: 인증서 사용
-- [[SSL/TLS]]: 인증서 기반 프로토콜
-- [[PKI]]: 공개키 기반 구조
-
----
-*카테고리: 보안*
-*생성일: 2026-02-14*
+- [[HTTPS]] — 인증서 확인이 끝나고 나서 시작되는 통신
+- [[TLS]] — 인증서를 확인하고 열쇠를 주고받는 규칙
+- [[CA]] — 인증서에 서명해주는 발급 기관
+- [[Public Key]] — 인증서에 실려 오는 값. 열쇠 교환에 쓰인다
+- [[DNS]] — 인증서에 적힌 도메인을 IP 로 바꾸는 쪽

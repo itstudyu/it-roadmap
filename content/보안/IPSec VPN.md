@@ -1,339 +1,100 @@
-# IPSec VPN
+# IPSec VPN (Internet Protocol Security VPN)
 
 ## 📝 정의
 
-IPSec VPN(Internet Protocol Security Virtual Private Network)은 **인터넷을 통해 안전한 사설 네트워크를 만드는 기술**입니다. 데이터를 암호화하여 전송하므로 외부에서 도청할 수 없습니다.
+IPSec VPN은 **인터넷 위에 암호화된 통로를 만드는 방식**이다.
 
-### 핵심 개념
+인터넷으로 나간 데이터는 남의 장비를 여러 번 거쳐 간다. IPSec은 그 구간에서 내용을 못 읽게 하고, 중간에 바뀌지 않았는지 확인하고, 상대가 맞는지 검증하는 일을 IP 계층에서 처리한다.
 
-- **무엇인가?**: 인터넷을 암호화된 터널로 만들어 안전하게 통신
-- **왜 필요한가?**: 인터넷은 공개 네트워크라 도청 위험, 회사 내부망처럼 안전하게 만들기 위해
-- **어떻게 작동하나?**: 데이터 암호화 → 터널 생성 → 안전하게 전송 → 복호화
+### 비유
+투명 봉투 대신 잠긴 상자에 넣어 보내는 것. 배달하는 사람은 상자를 옮길 뿐 안을 보지 못한다.
 
-### IPSec VPN이 해결하는 문제
-
-**문제 상황**:
-```
-😱 시나리오 1: 재택근무 시 회사 서버 접근
-재택 개발자: "회사 DB에 접근하고 싶어"
-인터넷: 공개 네트워크
-→ 누군가 중간에서 데이터 도청 가능
-→ 회사 기밀 유출! 😱
-
-😱 시나리오 2: 지점 간 통신
-서울 본사 ↔ 부산 지점
-→ 인터넷으로 연결
-→ 암호화 없이 데이터 전송
-→ 해커가 중간에서 가로채기! 😱
-
-😱 시나리오 3: 카페에서 업무
-카페 Wi-Fi 사용
-→ 같은 Wi-Fi 사용자가 패킷 스니핑
-→ 로그인 정보 탈취
-→ 계정 해킹! 😱
-```
-
-**IPSec VPN의 해결**:
-```
-✅ 시나리오 1 (암호화 터널):
-재택 개발자 → IPSec VPN 연결
-→ 모든 데이터 암호화
-→ 회사 서버에 안전하게 접근
-→ 도청 불가능! ✅
-
-✅ 시나리오 2 (사이트 간 VPN):
-서울 본사 ↔ IPSec 터널 ↔ 부산 지점
-→ 모든 통신 암호화
-→ 안전한 사설망처럼 사용
-→ 보안 완벽! ✅
-
-✅ 시나리오 3 (원격 접속 VPN):
-카페 → IPSec VPN → 회사
-→ Wi-Fi 도청해도 암호화된 데이터만
-→ 안전하게 업무
-→ 해킹 방지! ✅
-```
-
-**비유**:
-- **인터넷 직접 연결** = 편지를 투명 봉투에 담아 보냄 (누구나 읽을 수 있음)
-- **IPSec VPN** = 편지를 금고에 넣어 보냄 (열쇠 없으면 못 봄)
-
-## 💡 IPSec VPN 동작 원리
-
-### 1. VPN 연결 설정
+## 🖼️ 그림으로 보기
 
 ```도해
-흐름: IPSec VPN, 무슨 순서로 오가나
-클라이언트 :: 연결 요청
-VPN 게이트웨이 :: 인증서 요청
-클라이언트 :: 인증서 전송
-VPN 게이트웨이 :: 인증서 검증
-VPN 게이트웨이 :: 인증 성공
-클라이언트 :: 암호화된 데이터
-VPN 게이트웨이 :: 복호화 후 전달
-회사 서버 :: 응답 데이터
-VPN 게이트웨이 :: 암호화 후 전달
+흐름: 집에서 회사 서버에 붙으면 무슨 일이 일어나나
+클라이언트 :: VPN 게이트웨이에 연결을 요청한다
+양쪽 :: 서로를 확인하고 쓸 키를 정한다
+클라이언트 :: 내용을 암호화하고 새 헤더로 감싼다
+인터넷 :: 알아볼 수 없는 덩어리만 지나간다
+게이트웨이 :: 풀어서 회사 내부망으로 넘긴다
+< 회사 서버 :: 사내에서 온 요청처럼 응답한다
+= 새 회선이 깔리는 게 아니라, 지나가는 것이 잠겨서 갈 뿐이다
 ```
 
-### 2. 데이터 암호화 과정
+## ⚠️ 해결하는 문제
 
-```
-원본 데이터:
-  "SELECT * FROM users"
-
-IPSec 처리:
-  1. 암호화: AES-256 알고리즘
-     → "a7f3b9c2d8e1..."
-
-  2. 인증: HMAC-SHA256
-     → 데이터 변조 방지
-
-  3. 터널링: IP-in-IP
-     → 원본 IP 숨김
-
-전송 데이터:
-  [암호화된 페이로드] + [인증 헤더] + [새 IP 헤더]
-
-도청자가 보는 것:
-  "a7f3b9c2d8e1..." (알아볼 수 없음)
+```도해
+대조: 암호화 없이 공용 와이파이에서 일하면 어떻게 되나
+VPN 없이 || IPSec VPN 으로
+같은 망의 남 :: 내용을 읽는다 || 덩어리만 본다
+중간 변조 :: 알 수 없다 || 검사에서 걸린다
+접속 대상 :: 공개된 서버만 || 사내망 그대로
+= 공용 회선을 쓰면서도 사설망처럼 다루게 만드는 것이다
 ```
 
-## 🎯 IPSec VPN 유형
+인터넷은 누구나 쓰는 공용 회선이다. 같은 와이파이에 앉은 사람이 오가는 내용을 들여다볼 수 있고, 경로 어딘가에서 내용이 바뀌어도 받는 쪽은 알기 어렵다. 그래서 사내 시스템을 그냥 인터넷에 열어두는 선택지가 없다.
 
-### 1. 원격 접속 VPN (Remote Access)
+IPSec은 나가는 패킷을 통째로 암호화해 새 헤더로 감싼다. 지나가는 구간에서는 목적지 게이트웨이까지 가는 덩어리로만 보이고, 원래 주소와 내용은 도착해서 풀릴 때까지 드러나지 않는다.
 
-**사용 사례**: 재택근무, 출장
+## ⚙️ 작동 원리
 
-```
-개인 PC → VPN Client → 인터넷 → VPN Gateway → 회사 내부망
-```
-
-**설정 예시**:
-```yaml
-# VPN 클라이언트 설정
-vpn_config:
-  type: "remote_access"
-  server: "vpn.company.com"
-  protocol: "IPSec"
-  encryption: "AES-256"
-  authentication: "certificate"
+```도해
+층: IPSec 은 어느 자리에서 감싸나
+응용 :: 브라우저, 메일. 무엇을 주고받을지
+전송 :: TCP, UDP. 어느 프로그램으로 갈지
+인터넷 :: IP. IPSec 이 여기서 통째로 감싼다
+링크 :: 실제 회선과 전파
+= 아래에서 감싸기 때문에 위에 있는 프로그램은 고칠 게 없다
 ```
 
-### 2. 사이트 간 VPN (Site-to-Site)
+터널이 열리기 전에 양쪽은 먼저 서로를 확인하고 이번 연결에 쓸 키를 정한다. 인증에는 인증서를 쓰는 방식이 널리 쓰이고, 이 단계가 끝나야 실제 데이터가 오간다.
 
-**사용 사례**: 본사-지점 연결
+이후 오가는 패킷마다 세 가지가 붙는다. 내용은 암호화되어 읽히지 않고, 검증값이 함께 실려 중간에 바뀌었는지 확인되고, 원래 주소는 새 헤더 안에 숨는다.
 
-```
-서울 본사 네트워크 ↔ VPN 터널 ↔ 부산 지점 네트워크
-```
+쓰는 모양은 둘이다. 개인이 자기 PC에서 회사로 붙는 원격 접속과, 본사와 지점의 네트워크를 통째로 잇는 사이트 간 연결이다. 뒤쪽은 한 번 걸어두면 양쪽 사무실이 하나의 망처럼 동작한다.
 
-**설정 예시**:
-```yaml
-# 사이트 간 VPN 설정
-site_to_site:
-  local_network: "192.168.1.0/24"  # 서울 본사
-  remote_network: "192.168.2.0/24" # 부산 지점
-  gateway: "vpn.busan.company.com"
-  always_on: true
-```
+## 📊 비교: IPSec VPN과 SSL/TLS VPN
 
-## 🔒 IPSec 보안 메커니즘
+| | IPSec VPN | SSL/TLS VPN |
+|---|---|---|
+| 감싸는 위치 | 네트워크 계층 | 응용 계층 |
+| 설치 | 클라이언트 프로그램이 필요하다 | 브라우저로 된다 |
+| 열리는 범위 | 네트워크 전체 | 대개 웹 애플리케이션 |
+| 설정 | 복잡한 편 | 간단한 편 |
+| 어울리는 곳 | 지점 연결, 전체 접근 | 특정 웹 서비스 접근 |
 
-### 1. 암호화 (Encryption)
+## 💡 실제 사례
 
-```python
-# AES-256 암호화
-data = "민감한 데이터"
-key = generate_key_256bit()
+- **재택 접속** 집에서 사내 시스템에 붙을 때 클라이언트로 터널을 열고 회사 안에 있는 것처럼 쓴다.
+- **지점 연결** 본사와 지점 네트워크를 터널로 이어 두 사무실의 서버가 서로 사설 주소로 통신한다.
+- **공용 와이파이** 카페 회선에서 같은 망에 있는 사람이 오가는 내용을 들여다보지 못하게 한다.
 
-encrypted = AES_encrypt(data, key)
-# → "a7f3b9c2d8e1..."
+## 🚫 흔한 오해
 
-# 복호화 (회사 서버에서)
-decrypted = AES_decrypt(encrypted, key)
-# → "민감한 데이터"
-```
+- **VPN 을 켜면 익명이 된다** — 내용이 가려지는 것과 누군지 모르는 것은 다르다. 게이트웨이 쪽에는 누가 언제 어디에 접속했는지 그대로 남는다.
+- **VPN 을 켜면 통신 전체가 안전해진다** — 안전한 것은 터널 구간뿐이다. 게이트웨이에서 풀린 다음 구간은 별개고, 감염된 PC에서 나가는 것도 그대로 나간다.
+- **전용선이 깔리는 것이다** — 회선이 새로 생기지는 않는다. 같은 인터넷을 쓰되 내용만 잠겨서 가므로, 회선이 막히면 VPN도 같이 느려진다.
 
-### 2. 인증 (Authentication)
+## 🚨 주의사항
 
-```python
-# 인증서 기반 인증
-client_certificate = load_certificate("client.crt")
-vpn_server = connect_vpn("vpn.company.com")
+- **키를 오래 쓰지 않는다.** 한 키를 계속 쓰면 그 키가 새는 순간 그동안 오간 것까지 위험해진다.
+- **접속 기록을 보는 조건을 정해둔다.** 평소와 다른 시간대나 위치에서 들어오는 접속은 기록만으로는 걸러지지 않는다.
 
-# 인증서 검증
-if vpn_server.verify(client_certificate):
-    print("✅ 인증 성공 - VPN 연결")
-else:
-    print("❌ 인증 실패 - 접근 거부")
-```
+## 📝 정리
 
-### 3. 무결성 (Integrity)
+IPSec VPN은 공용 인터넷을 지나는 패킷을 IP 계층에서 감싸 사설망처럼 쓰게 만드는 방식이다. 암호화, 변조 검사, 상대 확인을 아래층에서 처리해서 위에 있는 프로그램은 손댈 게 없다. 지켜주는 구간은 터널의 양 끝 사이뿐이다.
 
-```python
-# HMAC으로 데이터 변조 방지
-data = "SELECT * FROM users"
-hash = HMAC_SHA256(data, secret_key)
+## ❓ 이해했는지
 
-# 전송: data + hash
-
-# 수신 측 검증
-received_data = "SELECT * FROM users"
-received_hash = "abc123..."
-
-if HMAC_SHA256(received_data, secret_key) == received_hash:
-    print("✅ 데이터 변조 없음")
-else:
-    print("❌ 데이터 변조 감지!")
-```
-
-## 📊 IPSec vs SSL/TLS VPN
-
-| 항목 | IPSec VPN | [[SSL/TLS]] VPN |
-|------|-----------|----------------|
-| **계층** | 네트워크 계층 (Layer 3) | 애플리케이션 계층 (Layer 7) |
-| **설치** | 클라이언트 소프트웨어 필요 | 웹 브라우저만 있으면 가능 |
-| **성능** | 빠름 | 약간 느림 |
-| **보안** | 매우 높음 | 높음 |
-| **관리** | 복잡 | 간단 |
-| **사용 사례** | 본사-지점, 전체 네트워크 | 웹 애플리케이션 접근 |
-
-**선택 가이드**:
-```
-IPSec VPN 선택:
-  - 사이트 간 연결 (본사-지점)
-  - 전체 네트워크 액세스 필요
-  - 고성능 필요
-
-SSL/TLS VPN 선택:
-  - 웹 애플리케이션만 접근
-  - 클라이언트 설치 불가
-  - 간단한 설정 필요
-```
-
-## 🔧 IPSec VPN 설정 예시
-
-### Linux에서 IPSec VPN 서버 구축
-
-```bash
-# StrongSwan 설치
-sudo apt-get install strongswan
-
-# 인증서 생성
-ipsec pki --gen --type rsa --size 4096 --outform pem > server-key.pem
-
-# VPN 설정
-cat > /etc/ipsec.conf <<EOF
-config setup
-    charondebug="ike 1, knl 1, cfg 0"
-    uniqueids=no
-
-conn ikev2-vpn
-    auto=add
-    compress=no
-    type=tunnel
-    keyexchange=ikev2
-    fragmentation=yes
-    forceencaps=yes
-    ike=aes256-sha256-modp2048!
-    esp=aes256-sha256!
-    dpdaction=clear
-    dpddelay=300s
-    rekey=no
-    left=%any
-    leftid=@vpn.company.com
-    leftcert=server-cert.pem
-    leftsendcert=always
-    leftsubnet=0.0.0.0/0
-    right=%any
-    rightid=%any
-    rightauth=eap-mschapv2
-    rightsourceip=10.10.10.0/24
-    rightdns=8.8.8.8,8.8.4.4
-    rightsendcert=never
-    eap_identity=%identity
-EOF
-
-# VPN 시작
-sudo ipsec start
-```
-
-### 클라이언트 연결 (Windows)
-
-```powershell
-# PowerShell에서 VPN 연결 추가
-Add-VpnConnection `
-    -Name "Company VPN" `
-    -ServerAddress "vpn.company.com" `
-    -TunnelType "IKEv2" `
-    -EncryptionLevel "Maximum" `
-    -AuthenticationMethod "EAP"
-
-# VPN 연결
-rasdial "Company VPN" username password
-```
-
-## 🎯 보안 Best Practices
-
-### 1. 강력한 암호화 사용
-
-```yaml
-# 권장 설정
-encryption:
-  algorithm: "AES-256"  # 최소 AES-128 이상
-  key_size: 256
-  mode: "CBC"
-
-authentication:
-  method: "certificate"  # 인증서 기반 (비밀번호보다 안전)
-  hash: "SHA-256"
-```
-
-### 2. 정기적인 키 갱신
-
-```python
-# 24시간마다 키 재생성
-KEY_LIFETIME = timedelta(hours=24)
-
-def rotate_keys():
-    """VPN 키 자동 갱신"""
-    new_key = generate_key()
-    update_vpn_config(new_key)
-    log_key_rotation()
-```
-
-### 3. 접속 로그 모니터링
-
-```python
-# VPN 접속 로그
-def log_vpn_connection(user, ip, timestamp):
-    """VPN 연결 기록"""
-    audit_log.write({
-        "user": user,
-        "client_ip": ip,
-        "timestamp": timestamp,
-        "action": "vpn_connect"
-    })
-
-# 이상 접속 감지
-def detect_anomaly():
-    """비정상 접속 탐지"""
-    if connection_count > 100:  # 1분에 100회 이상
-        alert_admin("DDoS 의심")
-```
+- 카페 와이파이에서 VPN을 켰는데도 위험이 남는 구간은 어디인가?
+- IPSec을 쓰면 브라우저나 메일 프로그램을 고치지 않아도 되는 이유는?
+- 본사와 지점을 잇는 방식은 개인이 접속하는 방식과 무엇이 다른가?
 
 ## 🔗 관련 용어
 
-- [[SSL/TLS]]: 다른 종류의 VPN 프로토콜
-- [[암호화]]: IPSec의 핵심 기술
-- [[인증서]]: IPSec 인증 방법
-- [[네트워크 보안]]: IPSec이 속한 분야
-
-## 📚 참고자료
-
-- [IPSec RFC](https://datatracker.ietf.org/doc/html/rfc4301)
-- [StrongSwan Documentation](https://www.strongswan.org/)
-
----
-*카테고리: 보안*
-*생성일: 2026-02-14*
+- [[VPN]] — IPSec은 VPN을 만드는 방식 가운데 하나다
+- [[Tunnel]] — 원래 패킷을 다른 패킷 안에 감싸 보내는 그 기법
+- [[암호화]] — 터널 안의 내용을 읽지 못하게 만드는 부분
+- [[인증서]] — 연결 전에 서로가 맞는지 확인할 때 쓰는 수단
+- [[SSL_TLS]] — 응용 계층에서 같은 일을 하는 다른 방식

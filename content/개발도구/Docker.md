@@ -1,470 +1,86 @@
-# Docker (컨테이너 플랫폼)
+# Docker (도커)
 
 ## 📝 정의
 
-Docker는 **애플리케이션과 실행 환경을 하나의 "컨테이너"로 패키징하는 플랫폼**입니다. 마치 택배 상자처럼, 앱을 포장해서 어디서든 동일하게 실행할 수 있게 해줍니다.
+Docker는 **프로그램과 실행 환경을 한 덩어리로 묶는 도구**다.
 
-### 핵심 개념
+코드만 옮기면 상대 컴퓨터의 라이브러리 버전이 달라 안 돌아간다. 필요한 것을 전부 담은 이미지로 만들어 옮기면 어디서 실행하든 같은 환경이 재현된다.
 
-- **무엇인가?**: 앱을 격리된 환경에서 실행하는 도구
-- **왜 필요한가?**: "내 컴퓨터에서는 되는데요?" 문제 해결
-- **어떻게 작동하나?**: 이미지를 만들고 컨테이너로 실행
+### 비유
+컨테이너 화물. 안에 무엇을 넣든 규격이 같아서 트럭이든 배든 크레인이든 똑같이 다룬다. 짐마다 다른 방식을 준비할 필요가 없다.
 
-## 🤔 왜 Docker가 필요한가?
-
-### Docker가 없을 때의 문제
-
-**문제 1: 환경 차이로 인한 오류**
-```
-개발자 컴퓨터:
-→ Python 3.9
-→ 잘 작동! ✅
-
-서버:
-→ Python 3.7
-→ 에러 발생! ❌
-
-"내 컴퓨터에서는 되는데요?"
-→ 환경 차이 때문에 안 됨
-```
-
-**문제 2: 복잡한 설치 과정**
-```
-새 팀원이 합류:
-1. Python 3.9 설치
-2. Node.js 18 설치
-3. PostgreSQL 설치
-4. Redis 설치
-5. 환경변수 설정
-6. 의존성 패키지 설치
-
-→ 반나절 소요 ❌
-→ 설치 과정에서 오류
-→ 버전 불일치 가능성
-```
-
-**문제 3: 서버 리소스 낭비**
-```
-VM (가상머신) 사용 시:
-→ 각 앱마다 전체 OS 필요
-→ 메모리 수 GB씩 소모
-→ 부팅 시간 수십 초
-
-→ 무겁고 느림 ❌
-```
-
-### Docker의 해결
-
-```
-✅ 일관된 환경
-→ 개발/테스트/프로덕션 모두 같은 환경
-→ "내 컴퓨터에서는 되는데" 문제 해결
-→ 한 번 만들면 어디서나 동일
-
-✅ 간편한 배포
-→ Docker 이미지 하나면 끝
-→ 설치 과정 자동화
-→ 새 팀원도 5분 안에 시작
-
-✅ 가벼움
-→ VM보다 10배 이상 가벼움
-→ 부팅 시간 1초 이내
-→ 메모리 효율적 (OS 공유)
-```
-
-## 📊 구조
-
-### Docker의 핵심 구조
-
-
-### 각 요소의 역할
-
-```
-Dockerfile (레시피):
-→ 이미지를 만드는 방법이 적힌 파일
-→ "Python 3.9 설치하고, 패키지 설치하고..."
-→ 텍스트 파일이라 Git 관리 가능
-
-Image (템플릿):
-→ 앱 + 실행 환경이 패키징된 것
-→ 붕어빵 틀처럼 여러 번 사용 가능
-→ 변경 불가능 (Immutable)
-
-Container (실행 중인 인스턴스):
-→ Image를 실행한 것
-→ 붕어빵 틀로 만든 붕어빵
-→ 각각 독립적으로 실행
-
-Docker Hub (저장소):
-→ 이미지를 공유하는 곳
-→ npm, pip 같은 패키지 저장소
-→ 공식 이미지들 다운로드 가능
-```
-
-## 🔄 작동 원리
-
-### Docker 실행 흐름
+## 🖼️ 그림으로 보기
 
 ```도해
-흐름: Docker, 무슨 순서로 오가나
-개발자 :: Dockerfile 작성
-개발자 :: docker build
-Dockerfile :: 이미지 생성
-개발자 :: docker run
-Image :: 컨테이너 실행
-개발자 :: docker push
-Image :: 이미지 업로드
+흐름: 내 컴퓨터의 앱이 서버에서 어떻게 그대로 도나
+개발자 :: Dockerfile 에 필요한 것을 적는다
+빌드 :: 그 지시대로 이미지를 만든다
+레지스트리 :: 이미지를 올려둔다
+서버 :: 같은 이미지를 내려받는다
+서버 :: 컨테이너로 실행한다
+< 결과 :: 내 컴퓨터와 같은 환경이 그대로 뜬다
+= 옮기는 것이 코드가 아니라 환경까지 포함한 덩어리라서 어긋날 데가 없다
 ```
 
-### VM vs Docker
+## ⚠️ 해결하는 문제
 
 ```도해
-층: Docker, 어떻게 나뉘어 있나
-VM (가상머신) :: Host OS] --> B1[Hypervisor
-Docker (컨테이너) :: Host OS] --> B2[Docker Engine
+대조: 내 컴퓨터에서는 되는데 서버에서 안 되는 이유가 뭔가
+Docker 없이 || Docker 로
+환경 차이 :: 직접 맞춰야 함 || 이미지에 담김
+새 팀원 셋업 :: 반나절 || 명령 한 줄
+버전 충돌 :: 한 대에 하나만 || 격리돼 공존
+= 환경을 문서로 설명하는 대신 실행 가능한 파일로 만든 것이다
 ```
 
-## 💡 일상적 비유로 이해하기
+"내 컴퓨터에서는 되는데요"는 환경이 다르기 때문에 나온다. 파이썬 버전, 라이브러리 버전, 운영체제 설정이 미묘하게 다르고 그 차이를 사람이 맞추려면 오래 걸린다.
 
-### Docker = 택배 상자
+Docker는 환경 자체를 파일로 만든다. Dockerfile은 실행 가능한 설명서라서 문서처럼 낡지 않는다. 같은 이미지를 쓰면 개발자 노트북과 운영 서버가 같은 상태가 된다.
 
-```
-앱 배포 (Docker 없이):
-→ 컴퓨터 옮기기
-→ 모든 환경 설정 다시 해야 함
-→ 무겁고 오래 걸림 ❌
+## ⚙️ 작동 원리
 
-앱 배포 (Docker):
-→ 택배 상자에 포장
-→ 상자만 옮기면 끝
-→ 어디서 열어도 똑같은 내용물 ✅
-```
+이미지와 컨테이너를 구분하는 게 중요하다.
 
-### Dockerfile = 요리 레시피
-
-```
-Dockerfile:
-1. Python 3.9 준비 (재료)
-2. 패키지 설치 (조리 과정)
-3. 앱 복사 (플레이팅)
-4. 실행 명령 (서빙)
-
-→ 레시피대로 만들면 누구나 같은 요리
-→ 한 번 작성하면 반복 가능
+```도해
+층: 이미지와 컨테이너는 어떻게 다른가
+Dockerfile :: 무엇을 담을지 적은 설명서
+이미지 :: 그대로 만들어 굳힌 것. 읽기 전용
+컨테이너 :: 이미지를 실행한 상태. 여기서만 쓰기 가능
+= 이미지 하나로 컨테이너를 여러 개 띄울 수 있다. 클래스와 객체 관계와 같다
 ```
 
-### Image = 붕어빵 틀
+가상 머신과 다른 점은 운영체제를 통째로 담지 않는다는 것이다. 호스트의 커널을 함께 쓰기 때문에 이미지가 훨씬 가볍고 시작이 몇 초 안에 끝난다.
 
-```
-Image:
-→ 한 번 만들면 여러 번 사용
-→ 틀은 변하지 않음
+## 💡 실제 사례
 
-Container:
-→ 틀로 찍어낸 붕어빵
-→ 각각 독립적
-→ 하나 먹어도 다른 건 그대로
-```
+- **팀 개발 환경 통일** 저장소를 받고 명령 한 줄이면 모두 같은 환경이 뜬다.
+- **여러 버전 공존** 프로젝트마다 다른 언어 버전을 한 컴퓨터에서 충돌 없이 쓴다.
+- **CI 실행 환경** 빌드와 테스트를 매번 깨끗한 컨테이너에서 돌려 이전 실행의 흔적을 없앤다.
 
-## 🎯 실제 사례 (P3 프로젝트)
+## 🚫 흔한 오해
 
-### P3의 Docker 구성
-
-```
-P3 시스템:
-- Frontend (React)
-- Backend (FastAPI)
-- Vector DB (ChromaDB)
-- PostgreSQL
-- Redis
-
-Docker Compose로 한 번에 실행:
-docker-compose up
-
-→ 모든 서비스가 1분 안에 시작 ✅
-→ 새 팀원도 바로 개발 가능
-→ 환경 차이 문제 제로
-```
-
-### Dockerfile 예시 (P3 Backend)
-
-```dockerfile
-# 1. 베이스 이미지
-FROM python:3.9-slim
-
-# 2. 작업 디렉토리
-WORKDIR /app
-
-# 3. 의존성 설치
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# 4. 앱 코드 복사
-COPY . .
-
-# 5. 포트 노출
-EXPOSE 8000
-
-# 6. 실행 명령
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
-```
-
-### Docker Compose (P3 전체 시스템)
-
-```yaml
-version: '3.8'
-
-services:
-  # FastAPI 백엔드
-  backend:
-    build: ./backend
-    ports:
-      - "8000:8000"
-    environment:
-      - DATABASE_URL=postgresql://postgres:password@db:5432/p3
-    depends_on:
-      - db
-      - redis
-
-  # PostgreSQL
-  db:
-    image: postgres:15
-    environment:
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=p3
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-  # Redis
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-
-  # ChromaDB
-  chromadb:
-    image: chromadb/chroma:latest
-    ports:
-      - "8001:8000"
-    volumes:
-      - chroma_data:/chroma/chroma
-
-volumes:
-  postgres_data:
-  chroma_data:
-```
-
-## 💻 코드 구현 (간단하게)
-
-### 기본 명령어
-
-```bash
-# 1. 이미지 빌드
-docker build -t p3-backend .
-# Dockerfile을 읽어서 p3-backend 이미지 생성
-
-# 2. 컨테이너 실행
-docker run -p 8000:8000 p3-backend
-# 이미지를 컨테이너로 실행
-# 로컬 8000번 → 컨테이너 8000번 포트 매핑
-
-# 3. 백그라운드 실행
-docker run -d -p 8000:8000 p3-backend
-# -d: detached mode (백그라운드)
-
-# 4. 실행 중인 컨테이너 확인
-docker ps
-# 컨테이너 ID, 이름, 상태 확인
-
-# 5. 컨테이너 중지
-docker stop <container_id>
-
-# 6. 컨테이너 삭제
-docker rm <container_id>
-```
-
-### Docker Compose 사용
-
-```bash
-# 모든 서비스 시작
-docker-compose up
-# docker-compose.yml을 읽어서 실행
-
-# 백그라운드로 시작
-docker-compose up -d
-
-# 로그 확인
-docker-compose logs -f
-
-# 특정 서비스만 재시작
-docker-compose restart backend
-
-# 모든 서비스 중지
-docker-compose down
-
-# 볼륨까지 삭제
-docker-compose down -v
-```
-
-### 이미지 관리
-
-```bash
-# 이미지 목록
-docker images
-
-# 이미지 삭제
-docker rmi p3-backend
-
-# 이미지 태그
-docker tag p3-backend:latest myrepo/p3-backend:v1.0
-
-# Docker Hub에 푸시
-docker push myrepo/p3-backend:v1.0
-
-# Docker Hub에서 다운로드
-docker pull postgres:15
-```
-
-### 디버깅
-
-```bash
-# 실행 중인 컨테이너 접속
-docker exec -it <container_id> bash
-# 내부에서 명령어 실행 가능
-
-# 로그 확인
-docker logs <container_id>
-docker logs -f <container_id>  # 실시간 추적
-
-# 리소스 사용량
-docker stats
-```
-
-## 🔍 Docker vs VM
-
-| 특성 | Docker | VM |
-|------|--------|-----|
-| 크기 | 작음 (MB 단위) | 큼 (GB 단위) |
-| 부팅 | 1초 이내 | 수십 초 |
-| 격리 | 프로세스 수준 | OS 수준 |
-| 오버헤드 | 낮음 | 높음 |
-| 이식성 | 높음 | 낮음 |
-
-```
-Docker (컨테이너):
-→ Host OS 공유
-→ 가볍고 빠름
-→ 마이크로서비스에 적합
-
-VM (가상머신):
-→ 각자 Guest OS 보유
-→ 무겁고 느림
-→ 완전한 격리 필요 시
-```
+- **Docker는 가벼운 가상 머신이다** — 커널을 공유하는 프로세스 격리라 구조가 다르다. 그래서 리눅스 컨테이너를 맥이나 윈도우에서 돌릴 때는 안에서 리눅스 가상 머신이 돌아간다.
+- **컨테이너 안의 데이터는 남는다** — 컨테이너를 지우면 같이 사라진다. 남겨야 할 것은 볼륨으로 밖에 둔다.
+- **컨테이너는 안전하다** — 커널을 공유하므로 가상 머신만큼 격리되지 않는다. 특권 모드로 띄우면 격리가 사실상 사라진다.
 
 ## 🚨 주의사항
 
-### 1. 데이터 휘발성
-
-```
-문제:
-컨테이너 삭제 시 내부 데이터도 삭제 ❌
-
-해결: Volume 사용
-docker run -v postgres_data:/var/lib/postgresql/data postgres
-→ 데이터를 Host에 저장
-→ 컨테이너 삭제해도 데이터 유지 ✅
-```
-
-### 2. 이미지 크기 최적화
-
-```
-❌ 나쁜 예:
-FROM ubuntu:latest
-RUN apt-get update && apt-get install python3
-→ 1GB 이상
-
-✅ 좋은 예:
-FROM python:3.9-slim
-→ 200MB 이하
-
-추가 최적화:
-- 멀티스테이지 빌드
-- .dockerignore 사용
-- 레이어 최소화
-```
-
-### 3. 보안
-
-```
-주의사항:
-- Root 사용자로 실행 금지
-- 민감 정보 이미지에 포함 금지
-- 공식 이미지 사용
-- 정기적으로 이미지 업데이트
-
-좋은 습관:
-USER appuser  # 일반 사용자로 실행
-ENV secrets via environment variables
-RUN apt-get clean  # 불필요한 파일 삭제
-```
-
-## 🔗 관련 용어
-
-- [[Container]]: Docker가 만드는 실행 환경
-- [[VM]]: 가상머신, Docker보다 무거움
-- [[Kubernetes]]: 다수의 컨테이너 관리
-- [[CI/CD]]: Docker로 자동 배포
-- [[Microservices]]: Docker로 독립 배포
+- **데이터베이스 데이터를 컨테이너 안에 두지 않는다.** 컨테이너는 언제든 지워지고 다시 만들어진다는 전제로 다룬다.
+- **이미지를 가볍게 만든다.** 빌드 도구까지 최종 이미지에 담으면 배포가 느려지고 공격 면도 넓어진다.
 
 ## 📝 정리
 
-**Docker 핵심 3줄**:
-```
-1. 앱을 "택배 상자"로 포장 = 어디서나 동일 실행
-2. VM보다 가볍고 빠름 (1초 부팅, MB 단위)
-3. "내 컴퓨터에서는 되는데요?" 문제 해결
+Docker는 프로그램과 실행 환경을 이미지로 묶어 어디서든 같게 재현하는 도구다. 환경을 문서가 아니라 실행 가능한 파일로 만든 것이 요점이고, 데이터는 밖에 둬야 한다.
 
-→ 현대 개발/배포의 필수 도구!
-```
+## ❓ 이해했는지
 
-**비유로 기억하기**:
-```
-Docker = 택배 상자
-→ Dockerfile = 포장 방법 (레시피)
-→ Image = 포장된 상품 (템플릿)
-→ Container = 배송된 택배 (실행 중)
-→ Docker Hub = 물류 센터 (저장소)
-```
+- Dockerfile이 환경 설정 문서보다 나은 점은 무엇인가?
+- 컨테이너를 지웠더니 DB 데이터가 사라졌다면 무엇을 잘못한 것인가?
+- 컨테이너가 가상 머신보다 빨리 뜨는 이유는?
 
-**Docker vs VM**:
-```
-VM = 전체 컴퓨터 복사
-→ 무겁고 (GB 단위)
-→ 느림 (수십 초 부팅)
+## 🔗 관련 용어
 
-Docker = 앱만 격리
-→ 가볍고 (MB 단위)
-→ 빠름 (1초 부팅)
-
-핵심 = OS 공유로 효율적!
-```
-
-**Docker 워크플로우**:
-```
-1. Dockerfile 작성 (레시피)
-2. docker build (이미지 생성)
-3. docker run (컨테이너 실행)
-4. docker push (Hub에 공유)
-
-팀원들:
-5. docker pull (이미지 다운)
-6. docker run (바로 실행)
-
-핵심 = 한 번 만들면 어디서나 동일!
-```
-
----
-*카테고리: 개발도구*
-*생성일: 2026-02-15*
-*마지막 업데이트: 2026-02-15*
+- [[Container]] — Docker가 만들어 실행하는 대상
+- [[Kubernetes]] — 컨테이너가 많아졌을 때 관리를 맡는 도구
+- [[VM]] — 운영체제를 통째로 띄우는 더 무거운 격리 방식
+- [[CI_CD]] — 컨테이너를 실행 환경으로 삼는 대표적인 자리

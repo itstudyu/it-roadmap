@@ -2,228 +2,88 @@
 
 ## 📝 정의
 
-Auto Scaling(오토 스케일링)은 **트래픽에 따라 서버를 자동으로 증설/축소**하여, 비용을 최적화하고 안정성을 유지하는 기술입니다.
+Auto Scaling은 **부하에 맞춰 서버 대수를 자동으로 조절하는 기능**이다.
 
-### 핵심 개념
+서버를 몇 대 둘지는 원래 사람이 미리 정하는 값이었다. 오토 스케일링은 그 값을 정하는 대신, 무엇을 보고 늘리고 줄일지를 정해둔다.
 
-- **무엇인가?**: 부하에 따라 서버 수를 자동 조절
-- **왜 필요한가?**: 고정 서버는 비용 낭비 or 용량 부족
-- **어떻게 작동하나?**: 메트릭 모니터링 → 임계값 초과 시 확장/축소
+### 비유
+회전문 대신 놀이공원 매표소. 줄이 길어지면 창구를 더 열고, 한산해지면 다시 닫는다.
 
-### Auto Scaling이 해결하는 문제
+## 🖼️ 그림으로 보기
 
-**문제 상황**:
-```
-😱 시나리오 1: 고정 서버 10대
-평상시: 트래픽 적음 → 7대 유휴 (비용 낭비)
-이벤트 시: 트래픽 폭증 → 10대로 부족
-→ 서비스 다운! 😱
-
-😱 시나리오 2: 수동 확장
-트래픽 증가 감지 → 서버 추가 요청
-→ 승인 대기 → 프로비저닝 30분
-→ 이미 장애 발생! 😱
+```도해
+흐름: 접속이 몰리면 서버는 어떻게 늘어나나
+감시 :: CPU 사용률을 짧은 주기로 지켜본다
+감시 :: 정해둔 기준을 넘긴 상태가 이어진다
+그룹 :: 같은 설정으로 서버를 더 띄운다
+분산기 :: 헬스체크를 통과한 서버부터 요청을 준다
+그룹 :: 부하가 내려가면 서버를 하나씩 뺀다
+< 감시 :: 다시 지켜본다. 최소 대수 아래로는 안 내린다
+= 사람이 보고 있지 않아도 대수가 부하를 따라간다
 ```
 
-**Auto Scaling의 해결**:
-```
-✅ 자동 조절:
-평상시: CPU 20% → 서버 3대 유지
-이벤트 시: CPU 80% → 10대로 자동 증설
-이벤트 종료: CPU 20% → 3대로 자동 축소
-→ 비용 절감 + 안정성! ✅
-```
+## ⚠️ 해결하는 문제
 
-**비유**:
-- **고정 서버** = 버스 (항상 50인승)
-- **Auto Scaling** = 택시 (필요한 만큼만)
-
-## 💡 Scaling 유형
-
-### 1. Horizontal Scaling (수평 확장)
-```
-트래픽 증가:
-서버 3대 → 5대로 증설
-각 서버에 부하 분산
-
-장점: 무한 확장 가능
-단점: 상태 관리 복잡
+```도해
+대조: 서버 대수를 고정해두면 어떤 일이 생기나
+고정 대수 || 자동 조절
+평상시 :: 남는 서버가 논다 || 최소 대수만
+급증할 때 :: 대수가 모자란다 || 자동으로 늘린다
+대응 속도 :: 사람이 붙어야 한다 || 분 단위로 반응
+= 대수를 정해두는 대신 대수를 정하는 기준을 정해둔다
 ```
 
-### 2. Vertical Scaling (수직 확장)
-```
-트래픽 증가:
-2 CPU, 4GB RAM
-→ 4 CPU, 8GB RAM
+고정 대수는 두 방향으로 틀린다. 최대 부하에 맞춰 잡으면 평소에 대부분이 놀고, 평소에 맞춰 잡으면 몰리는 날 버티지 못한다. 어느 쪽으로 맞춰도 하루 중 대부분은 틀린 값이다.
 
-장점: 상태 관리 간단
-단점: 확장 한계
-```
+수동으로 늘리는 것도 답이 되기 어렵다. 부하를 알아채고 서버를 띄우고 준비될 때까지 걸리는 시간 동안 이미 응답이 밀린다. 오토 스케일링은 그 판단과 실행을 규칙으로 미리 적어두는 것이다.
 
-## 💡 Scaling 정책
+## ⚙️ 작동 원리
 
-### 1. Target Tracking (목표 추적)
-```python
-# AWS Auto Scaling 정책
-{
-  "TargetValue": 70.0,
-  "PredefinedMetricType": "ASGAverageCPUUtilization"
-}
+늘리고 줄이는 기준은 크게 세 가지로 정한다. 지표를 정해두고 그 값을 유지하도록 맡기는 방식, 구간마다 몇 대를 더할지 직접 적는 방식, 시각을 정해두고 그때 대수를 바꾸는 방식이다.
 
-# 의미: CPU 평균을 70%로 유지
-# CPU 80% → 서버 추가
-# CPU 60% → 서버 제거
-```
+세 가지 모두 최소와 최대 대수 안에서만 움직인다. 최소는 아무리 한산해도 남겨둘 대수이고, 최대는 지표가 잘못됐을 때 요금이 새는 것을 막는 울타리다.
 
-### 2. Step Scaling (단계별)
-```python
-# CloudWatch Alarm 기반
-알람 규칙:
-- CPU > 80%: 서버 +2대
-- CPU > 90%: 서버 +4대
-- CPU < 30%: 서버 -1대
-- CPU < 20%: 서버 -2대
-```
+서버를 하나 추가한 뒤에는 잠시 판단을 멈춘다. 새 서버가 부하를 나눠 받기 전에 다시 지표를 보면 여전히 높게 나와서 계속 추가하게 되기 때문이다.
 
-### 3. Scheduled Scaling (예약)
-```python
-# 시간 기반 확장
-스케줄:
-- 평일 09:00: 10대로 증설
-- 평일 18:00: 3대로 축소
-- 주말: 2대 유지
-```
+## 📊 비교: 수평 확장 vs 수직 확장
 
-## 💡 구현 예시
+| | 수평 확장 | 수직 확장 |
+|---|---|---|
+| 늘리는 것 | 서버 대수 | 서버 한 대의 사양 |
+| 한계 | 앞단에서 나눠줄 수 있는 만큼 | 살 수 있는 가장 큰 사양까지 |
+| 중단 | 없이 가능 | 대개 재시작이 필요 |
+| 조건 | 서버가 상태를 안 들고 있어야 편하다 | 상태를 들고 있어도 된다 |
 
-### AWS Auto Scaling Group
-```python
-import boto3
+## 💡 실제 사례
 
-autoscaling = boto3.client('autoscaling')
+- **행사 트래픽** 판매 시작 시각에 접속이 몰리면 대수를 늘렸다가 끝나면 되돌린다.
+- **업무 시간** 평일 낮에만 쓰이는 사내 시스템은 시각을 정해 늘리고 줄인다.
+- **서버 교체** 헬스체크에 실패한 서버를 빼고 같은 설정으로 새로 띄운다.
 
-# Auto Scaling Group 생성
-autoscaling.create_auto_scaling_group(
-    AutoScalingGroupName='web-asg',
-    LaunchTemplate={
-        'LaunchTemplateId': 'lt-xxx'
-    },
-    MinSize=2,          # 최소 2대
-    MaxSize=10,         # 최대 10대
-    DesiredCapacity=3,  # 현재 목표 3대
-    VPCZoneIdentifier='subnet-xxx,subnet-yyy',
-    TargetGroupARNs=['arn:aws:elasticloadbalancing:...']
-)
+## 🚫 흔한 오해
 
-# Scaling 정책 설정
-autoscaling.put_scaling_policy(
-    AutoScalingGroupName='web-asg',
-    PolicyName='cpu-target-tracking',
-    PolicyType='TargetTrackingScaling',
-    TargetTrackingConfiguration={
-        'PredefinedMetricSpecification': {
-            'PredefinedMetricType': 'ASGAverageCPUUtilization'
-        },
-        'TargetValue': 70.0
-    }
-)
-```
+- **오토 스케일링을 켜면 서비스가 안 죽는다** — 늘어나는 건 서버 대수지 병목이 아니다. DB 한 곳이 막혀 있으면 서버를 열 대로 늘려도 똑같이 막힌다.
+- **접속이 몰리는 순간 바로 늘어난다** — 지표를 모으고 서버가 뜨고 헬스체크를 통과하기까지 시간이 걸린다. 급증이 그보다 빠르면 늦는다.
+- **대수가 줄면 비용도 알아서 준다** — 최대 대수를 크게 열어두면 잘못된 지표에도 그만큼 늘어난다. 요금 상한은 최대 대수로 잡는 것이다.
 
-### Kubernetes HPA (Horizontal Pod Autoscaler)
-```yaml
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: web-hpa
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: web-deployment
-  minReplicas: 2      # 최소 2개 Pod
-  maxReplicas: 10     # 최대 10개 Pod
-  metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 70  # CPU 70% 목표
-  - type: Resource
-    resource:
-      name: memory
-      target:
-        type: Utilization
-        averageUtilization: 80  # 메모리 80% 목표
-```
+## 🚨 주의사항
 
-## ⚠️ 고려사항
+- **줄일 때 진행 중인 요청을 확인한다.** 종료 신호를 받고 곧바로 꺼지면 처리 중이던 요청이 끊긴다. 새 요청만 막고 하던 일을 끝낸 뒤 내려가야 한다.
+- **헬스체크가 부실하면 늘려도 소용없다.** 포트만 열려 있으면 정상으로 보는 검사는 DB 가 끊긴 서버에도 요청을 보낸다.
 
-### 1. Cooldown Period (대기 시간)
-```
-문제: 서버 추가 후 즉시 다시 확인
-→ 아직 부하 분산 안 됨
-→ 계속 서버 추가
+## 📝 정리
 
-해결: 5분 대기 후 재평가
-```
+Auto Scaling 은 정해둔 지표를 보고 서버 대수를 자동으로 늘리고 줄이는 기능이다. 대수 대신 기준을 정해두는 것이라, 기준이 병목과 어긋나 있으면 늘려도 나아지지 않는다.
 
-### 2. Health Check (헬스체크)
-```python
-# 서버 정상 여부 확인
-@app.route('/health')
-def health():
-    # DB 연결 확인
-    if not db.is_connected():
-        return 'unhealthy', 500
-    
-    return 'healthy', 200
+## ❓ 이해했는지
 
-# 비정상 서버는 자동 교체
-```
-
-### 3. Graceful Shutdown
-```python
-# 서버 축소 시 진행 중인 요청 완료
-import signal
-import time
-
-def graceful_shutdown(signum, frame):
-    print("Shutting down gracefully...")
-    
-    # 새 요청 거부
-    server.stop_accepting()
-    
-    # 기존 요청 완료 대기 (최대 30초)
-    time.sleep(30)
-    
-    # 종료
-    sys.exit(0)
-
-signal.signal(signal.SIGTERM, graceful_shutdown)
-```
-
-## 📊 비용 절감 효과
-
-```
-시나리오: 웹 서비스
-
-고정 10대:
-- 월 비용: $1,000
-- 평균 사용률: 30%
-
-Auto Scaling (평균 4대):
-- 월 비용: $400
-- 평균 사용률: 70%
-→ 60% 비용 절감!
-```
+- 접속이 열 배로 뛴 직후 몇 분간 여전히 느린 이유는?
+- 서버를 줄이는 순간 처리 중이던 요청은 어떻게 되나?
+- CPU 를 기준으로 대수를 늘렸는데 응답이 그대로라면 어디를 의심해야 하나?
 
 ## 🔗 관련 용어
 
-- [[Load Balancing]]: Auto Scaling과 함께 필수
-- [[Cloud Computing]]: Auto Scaling의 핵심 기능
-- [[Monitoring]]: Scaling 결정의 기준
-
----
-*카테고리: 아키텍처*
-*생성일: 2026-02-14*
+- [[Load Balancing]] — 늘어난 서버에 요청을 나눠주는 짝. 없으면 늘려도 안 쓰인다
+- [[EC2]] — 늘리고 줄이는 대상이 되는 서버 그 자체
+- [[Kubernetes]] — 같은 일을 컨테이너 단위로 한다
+- [[Latency]] — CPU 말고 응답 시간을 기준으로 삼을 때 보는 값

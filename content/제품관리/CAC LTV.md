@@ -1,456 +1,89 @@
-# CAC / LTV
+# CAC / LTV (고객 획득 비용과 생애 가치)
 
 ## 📝 정의
 
-**CAC (Customer Acquisition Cost)**는 고객 한 명을 획득하는 데 드는 비용이고, **LTV (Lifetime Value)**는 고객 한 명이 생애 동안 가져다주는 수익입니다. 비즈니스 건전성의 핵심 지표입니다.
+CAC 와 LTV 는 **고객 한 명에 드는 돈과 그 고객이 주는 돈**이다.
 
-### 핵심 개념
+두 숫자를 나란히 놓아야 지금 성장이 돈을 버는 성장인지 알 수 있다. 가입자 수만 보면 고객이 늘수록 적자가 커지는 구조를 몇 달 동안 못 알아챈다.
 
-- **CAC**: 마케팅 비용 / 신규 고객 수
-- **LTV**: 고객당 평균 수익 × 유지 기간
-- **황금 비율**: LTV / CAC > 3
+### 비유
+전단지 값과 그 손님이 평생 사 갈 금액. 전단지에 든 돈이 더 크면 손님이 늘어날수록 손해다.
 
-### CAC/LTV가 해결하는 문제
+## 🖼️ 그림으로 보기
 
-**문제 상황**:
-```
-😱 시나리오 1: 적자 구조
-고객 획득 비용: 50,000원
-고객 평생 수익: 30,000원
-→ 고객 늘수록 적자! 😱
-
-😱 시나리오 2: 지속 불가능
-월 마케팅 비용: 1억
-월 매출: 5천만원
-→ 돈만 날림! 😱
-
-😱 시나리오 3: 성장의 착각
-신규 고객: 계속 증가
-이익: 계속 감소
-→ 성장하는데 망함! 😱
+```도해
+흐름: 고객 한 명이 들어와서 나갈 때까지 돈은 어떻게 움직이나
+광고비 :: 먼저 나간다. 아직 들어온 돈은 없다
+가입 :: 이 사람에게 쓴 돈이 CAC 로 확정된다
+첫 결제 :: 들어오기 시작한다. 아직 회수 전이다
+회수 :: 누적 수익이 CAC 를 넘어서는 시점
+이탈 :: 여기까지 쌓인 금액이 LTV 다
+< 판단 :: LTV 가 CAC 의 3배쯤이면 더 써도 된다
+= 고객이 늘고 있다는 사실만으로는 돈을 벌고 있는지 알 수 없다
 ```
 
-**CAC/LTV의 해결**:
-```
-✅ 시나리오 1: 수익성 확인
-CAC: 50,000원
-LTV: 200,000원
-LTV/CAC = 4배 ✅
-→ 건강한 비즈니스!
+## ⚠️ 해결하는 문제
 
-✅ 시나리오 2: 투자 판단
-LTV/CAC = 3배 이상
-→ 마케팅에 더 투자 가능! ✅
-
-✅ 시나리오 3: 진짜 성장
-고객 증가 + LTV > CAC
-→ 지속 가능한 성장! ✅
+```도해
+대조: 두 숫자를 안 보면 무엇을 놓치나
+안 볼 때 || 볼 때
+성장 판단 :: 가입자만 센다 || 회수까지 본다
+마케팅 예산 :: 감으로 늘린다 || 배수로 정한다
+적자 발견 :: 몇 달 뒤 || 첫 달에
+= 고객이 늘수록 손해인 구조는 매출만 봐서는 보이지 않는다
 ```
 
-## 📊 CAC 계산
+한 명 데려오는 데 5만 원을 쓰는데 그 사람이 평생 3만 원을 쓴다면, 마케팅을 잘할수록 손해가 커진다. 매출 그래프는 계속 오르기 때문에 겉으로는 성장으로 보인다.
 
-```python
-def calculate_cac(marketing_spend, sales_spend, new_customers, period="월"):
-    """
-    CAC 계산
+CAC 와 LTV 는 그 착시를 걷어낸다. 두 값의 비율이 마케팅에 더 써도 되는지를 정하고, 회수까지 걸리는 기간이 지금 쓸 수 있는 현금을 정한다.
 
-    marketing_spend: 마케팅 비용
-    sales_spend: 영업 비용
-    new_customers: 신규 고객 수
-    """
+## ⚙️ 작동 원리
 
-    total_acquisition_cost = marketing_spend + sales_spend
-    cac = total_acquisition_cost / new_customers
+CAC 는 획득에 들어간 돈을 그 기간에 새로 온 고객 수로 나눈다. 마케팅비 1천만 원과 영업비 5백만 원을 써서 500명을 데려왔다면 CAC 는 3만 원이다.
 
-    return {
-        'total_spend': total_acquisition_cost,
-        'new_customers': new_customers,
-        'cac': cac,
-        'cac_formatted': f"{cac:,.0f}원"
-    }
+LTV 는 두 가지 방식으로 잡는다. 거래형이면 평균 구매액 곱하기 구매 빈도 곱하기 유지 기간이고, 구독형이면 월 평균 수익에 마진율을 곱하고 이탈률로 나눈다. 월 1만 원, 마진 80%, 월 이탈 5% 면 LTV 는 16만 원이고 평균 유지 기간은 20개월이다.
 
-# 예시
-result = calculate_cac(
-    marketing_spend=10_000_000,  # 광고비 1천만원
-    sales_spend=5_000_000,       # 영업비 5백만원
-    new_customers=500             # 500명 획득
-)
-
-print(f"총 비용: {result['total_spend']:,}원")
-print(f"신규 고객: {result['new_customers']}명")
-print(f"CAC: {result['cac_formatted']}")
-
-# 출력:
-# 총 비용: 15,000,000원
-# 신규 고객: 500명
-# CAC: 30,000원
+```도해
+층: LTV 를 CAC 로 나눈 값은 무엇을 말해주나
+3배 이상 :: 마케팅에 더 써도 되는 구간
+1배에서 3배 :: 남기는 하지만 효율을 손봐야 한다
+1배 미만 :: 고객이 늘수록 적자가 커진다
+= 같은 CAC 여도 LTV 가 얼마냐에 따라 정반대의 결정이 나온다
 ```
 
-## 💡 LTV 계산
+이탈률이 분모에 있다는 점이 중요하다. 월 이탈 5% 를 3% 로 낮추면 다른 값이 그대로여도 LTV 가 크게 오른다. 그래서 유지 개선이 광고 효율 개선보다 크게 먹히는 경우가 많다.
 
-```python
-def calculate_ltv_simple(
-    average_purchase_value,
-    purchase_frequency,
-    customer_lifespan
-):
-    """
-    간단한 LTV 계산
+## 💡 실제 사례
 
-    average_purchase_value: 평균 구매 금액
-    purchase_frequency: 연간 구매 횟수
-    customer_lifespan: 고객 유지 기간 (년)
-    """
+- **채널 정리** 채널별로 CAC 를 따로 계산해 비싼 쪽을 줄이고 싼 쪽에 옮긴다.
+- **가격 인상 판단** 월 요금을 올리면 이탈률이 얼마나 오르는지를 LTV 변화로 환산해 본다.
+- **투자 유치** 회수 기간과 배수를 보여주는 것이 가입자 수 그래프보다 설득력이 있다.
 
-    ltv = (
-        average_purchase_value *
-        purchase_frequency *
-        customer_lifespan
-    )
+## 🚫 흔한 오해
 
-    return ltv
+- **CAC 는 광고비를 신규 고객 수로 나눈 값이다** — 광고비만 넣으면 실제보다 작게 나온다. 영업 인건비와 도구 비용까지 넣어야 맞는 숫자다.
+- **LTV 가 CAC 보다 크면 괜찮다** — 크기만으로는 부족하다. 회수에 2년이 걸리면 그 사이에 쓸 현금이 먼저 마른다.
+- **LTV 는 고객이 쓴 총 금액이다** — 매출이 아니라 마진 기준으로 잡아야 한다. 원가를 빼지 않으면 실제보다 부풀려진다.
 
-# 예시 1: E-commerce
-ecommerce_ltv = calculate_ltv_simple(
-    average_purchase_value=50_000,  # 평균 5만원
-    purchase_frequency=4,            # 연 4회 구매
-    customer_lifespan=3              # 3년 유지
-)
+## 🚨 주의사항
 
-print(f"E-commerce LTV: {ecommerce_ltv:,}원")
-# LTV: 600,000원
-
-# 예시 2: SaaS
-saas_ltv = calculate_ltv_simple(
-    average_purchase_value=10_000,   # 월 1만원
-    purchase_frequency=12,           # 월 구독
-    customer_lifespan=2              # 2년 유지
-)
-
-print(f"SaaS LTV: {saas_ltv:,}원")
-# LTV: 240,000원
-```
-
-### LTV 고급 계산
-
-```python
-def calculate_ltv_advanced(
-    monthly_revenue,
-    gross_margin,
-    churn_rate
-):
-    """
-    고급 LTV 계산 (SaaS)
-
-    monthly_revenue: 월 평균 수익 (ARPU)
-    gross_margin: 총 이익률 (%)
-    churn_rate: 월 이탈률 (%)
-    """
-
-    # LTV = ARPU × Gross Margin / Churn Rate
-    ltv = (
-        monthly_revenue *
-        (gross_margin / 100) /
-        (churn_rate / 100)
-    )
-
-    # 평균 고객 수명
-    customer_lifespan_months = 1 / (churn_rate / 100)
-
-    return {
-        'ltv': ltv,
-        'ltv_formatted': f"{ltv:,.0f}원",
-        'avg_lifespan': f"{customer_lifespan_months:.1f}개월"
-    }
-
-# 예시
-result = calculate_ltv_advanced(
-    monthly_revenue=10_000,   # 월 1만원
-    gross_margin=80,          # 80% 이익률
-    churn_rate=5              # 월 5% 이탈
-)
-
-print(f"LTV: {result['ltv_formatted']}")
-print(f"평균 고객 수명: {result['avg_lifespan']}")
-
-# 출력:
-# LTV: 160,000원
-# 평균 고객 수명: 20.0개월
-```
-
-## 🎯 LTV/CAC 비율 분석
-
-```python
-def analyze_ltv_cac_ratio(ltv, cac):
-    """
-    LTV/CAC 비율 분석 및 평가
-    """
-
-    ratio = ltv / cac
-
-    if ratio >= 3:
-        status = "✅ 매우 건강"
-        recommendation = "공격적 성장 가능"
-        color = "green"
-    elif ratio >= 1:
-        status = "🟡 보통"
-        recommendation = "효율 개선 필요"
-        color = "yellow"
-    else:
-        status = "🚨 위험"
-        recommendation = "즉시 개선 필요 (적자)"
-        color = "red"
-
-    payback_period = cac / (ltv / 12)  # 월 기준
-
-    return {
-        'ratio': ratio,
-        'status': status,
-        'recommendation': recommendation,
-        'payback_months': f"{payback_period:.1f}개월"
-    }
-
-# 예시 1: 건강한 비즈니스
-healthy = analyze_ltv_cac_ratio(
-    ltv=240_000,
-    cac=60_000
-)
-
-print("건강한 비즈니스:")
-print(f"  LTV/CAC: {healthy['ratio']:.1f}배")
-print(f"  상태: {healthy['status']}")
-print(f"  권장: {healthy['recommendation']}")
-print(f"  회수 기간: {healthy['payback_months']}")
-
-# 예시 2: 위험한 비즈니스
-risky = analyze_ltv_cac_ratio(
-    ltv=50_000,
-    cac=80_000
-)
-
-print("\n위험한 비즈니스:")
-print(f"  LTV/CAC: {risky['ratio']:.1f}배")
-print(f"  상태: {risky['status']}")
-```
-
-## 🔍 CAC/LTV 최적화
-
-### 1. CAC 낮추기
-
-```python
-cac_reduction_strategies = {
-    "1. 유기적 성장": {
-        "방법": [
-            "SEO 최적화",
-            "콘텐츠 마케팅",
-            "바이럴 루프",
-            "추천 프로그램"
-        ],
-        "효과": "CAC 50-80% 감소",
-        "예시": "Dropbox 추천 = 무료 저장공간"
-    },
-
-    "2. 전환율 최적화": {
-        "방법": [
-            "랜딩 페이지 A/B 테스트",
-            "Funnel 최적화",
-            "CTA 개선"
-        ],
-        "효과": "같은 비용에 고객 2배",
-        "예시": "전환율 2% → 4% = CAC 절반"
-    },
-
-    "3. 타겟 정교화": {
-        "방법": [
-            "Persona 기반 타겟팅",
-            "Lookalike Audience",
-            "리타겟팅"
-        ],
-        "효과": "광고 효율 향상",
-        "예시": "페르소나 맞춤 광고"
-    },
-
-    "4. 채널 최적화": {
-        "방법": [
-            "ROI 낮은 채널 중단",
-            "ROI 높은 채널 집중",
-            "채널 믹스 최적화"
-        ],
-        "효과": "전체 CAC 개선",
-        "예시": "Google Ads CAC 1만원, Facebook CAC 5만원 → Google 집중"
-    }
-}
-
-def calculate_cac_improvement(before_cac, strategy_impact):
-    """CAC 개선 효과 계산"""
-
-    after_cac = before_cac * (1 - strategy_impact)
-    savings = before_cac - after_cac
-    improvement = (savings / before_cac) * 100
-
-    return {
-        'before': f"{before_cac:,}원",
-        'after': f"{after_cac:,}원",
-        'savings': f"{savings:,}원",
-        'improvement': f"{improvement:.0f}%"
-    }
-
-# 예시: 유기적 성장으로 CAC 50% 감소
-result = calculate_cac_improvement(
-    before_cac=50_000,
-    strategy_impact=0.5  # 50% 감소
-)
-
-print("CAC 개선 효과:")
-for key, value in result.items():
-    print(f"  {key}: {value}")
-```
-
-### 2. LTV 높이기
-
-```python
-ltv_improvement_strategies = {
-    "1. Retention 향상": {
-        "방법": [
-            "제품 개선",
-            "고객 성공 팀",
-            "온보딩 최적화"
-        ],
-        "효과": "이탈률 감소 = LTV 증가",
-        "예시": "Churn 5% → 3% = LTV 67% 증가"
-    },
-
-    "2. ARPU 증가": {
-        "방법": [
-            "업셀/크로스셀",
-            "프리미엄 기능",
-            "가격 최적화"
-        ],
-        "효과": "고객당 수익 증가",
-        "예시": "월 1만원 → 1.5만원 = LTV 50% 증가"
-    },
-
-    "3. 구매 빈도 증가": {
-        "방법": [
-            "구독 모델",
-            "자동 재구매",
-            "리마인더"
-        ],
-        "효과": "거래 횟수 증가",
-        "예시": "연 2회 → 4회 = LTV 2배"
-    }
-}
-
-def ltv_vs_churn_impact():
-    """이탈률이 LTV에 미치는 영향"""
-
-    base_ltv = calculate_ltv_advanced(
-        monthly_revenue=10_000,
-        gross_margin=80,
-        churn_rate=5  # 5% 이탈
-    )
-
-    improved_ltv = calculate_ltv_advanced(
-        monthly_revenue=10_000,
-        gross_margin=80,
-        churn_rate=3  # 3% 이탈 (40% 개선)
-    )
-
-    impact = (
-        (improved_ltv['ltv'] - base_ltv['ltv']) /
-        base_ltv['ltv']
-    ) * 100
-
-    print(f"이탈률 5% → 3% 개선 효과:")
-    print(f"  Before LTV: {base_ltv['ltv_formatted']}")
-    print(f"  After LTV: {improved_ltv['ltv_formatted']}")
-    print(f"  LTV 증가: +{impact:.0f}%")
-
-ltv_vs_churn_impact()
-```
-
-## 🚨 산업별 벤치마크
-
-```python
-ltv_cac_benchmarks = {
-    "SaaS B2B": {
-        "LTV/CAC": "3-5배",
-        "Payback": "12개월 이내",
-        "CAC": "고객 연 매출의 1/3 이하"
-    },
-
-    "E-commerce": {
-        "LTV/CAC": "3배+",
-        "Payback": "6-12개월",
-        "CAC": "첫 구매 금액의 30% 이하"
-    },
-
-    "Consumer App": {
-        "LTV/CAC": "3배+",
-        "Payback": "3-6개월",
-        "CAC": "$1-10 (무료 앱)"
-    },
-
-    "Enterprise Software": {
-        "LTV/CAC": "5-7배",
-        "Payback": "12-18개월",
-        "CAC": "계약 금액의 1/5 이하"
-    }
-}
-
-def evaluate_metrics(industry, ltv, cac):
-    """산업 대비 평가"""
-
-    ratio = ltv / cac
-    benchmark = ltv_cac_benchmarks[industry]
-
-    print(f"\n산업: {industry}")
-    print(f"현재 LTV/CAC: {ratio:.1f}배")
-    print(f"업계 기준: {benchmark['LTV/CAC']}")
-    print(f"Payback 기준: {benchmark['Payback']}")
-```
+- **평균 하나로 뭉치지 않는다.** 채널마다 CAC 가 다르고 요금제마다 LTV 가 다르다. 뭉치면 어느 쪽이 손해인지 안 보인다.
+- **아직 이탈하지 않은 고객의 LTV 는 추정치다.** 서비스가 1년밖에 안 됐는데 3년 유지를 가정하면 숫자가 소설이 된다.
 
 ## 📝 정리
 
-**CAC/LTV의 핵심**:
-```
-CAC = 고객 획득 비용
-LTV = 고객 생애 가치
-LTV/CAC > 3 = 건강한 비즈니스
-```
+CAC 는 고객 한 명을 데려오는 데 든 돈이고 LTV 는 그 고객이 남기는 돈이다. 둘의 비율이 마케팅을 더 써도 되는지를 정하고, 회수 기간이 그 사이 버틸 현금을 정한다. 가입자 수만 보면 늘수록 손해인 구조를 알아채지 못한다.
 
-**계산 공식**:
-```
-CAC = (마케팅비 + 영업비) / 신규 고객 수
-LTV = 평균 구매액 × 구매 빈도 × 유지 기간
-또는
-LTV = ARPU × Margin / Churn Rate
-```
+## ❓ 이해했는지
 
-**최적화**:
-```
-CAC 낮추기:
-- 유기적 성장 (SEO, 추천)
-- 전환율 개선
-- 채널 최적화
+- 신규 가입자가 매달 늘고 있는데 이익은 줄고 있다. 무엇을 계산해 봐야 하나?
+- LTV 와 CAC 가 똑같은 두 회사가 있는데 한 곳만 현금이 마른다. 무엇이 다른가?
+- 월 이탈률을 5% 에서 3% 로 낮추면 LTV 는 왜 움직이나?
 
-LTV 높이기:
-- Retention 향상
-- ARPU 증가 (업셀)
-- 구매 빈도 증가
-```
+## 🔗 관련 용어
 
-**비유로 기억하기**:
-```
-CAC = 친구 사귀는 비용 (선물, 시간)
-LTV = 평생 우정의 가치
-
-좋은 관계: 가치 > 비용
-나쁜 관계: 비용 > 가치
-
-"돈 들여 고객 모으고, 가치로 유지한다"
-```
-
----
-*카테고리: 제품관리*
-*생성일: 2026-02-15*
+- [[Churn Rate]] — LTV 계산에서 분모에 놓이는 값
+- [[ARPU]] — 고객 한 명이 한 달에 내는 평균 금액
+- [[Retention]] — 유지 기간을 늘려 LTV 를 키우는 쪽
+- [[Funnel]] — 전환율이 오르면 같은 비용으로 CAC 가 내려간다
+- [[OKR]] — 이 숫자들을 목표로 잡아 관리할 때 쓰는 틀

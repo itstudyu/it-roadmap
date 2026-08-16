@@ -2,362 +2,92 @@
 
 ## 📝 정의
 
-Encryption(암호화)는 **데이터를 암호화 키를 사용해 읽을 수 없는 형태로 변환**하는 과정으로, 데이터 보안의 핵심 기술입니다.
+Encryption은 **키가 있어야 되돌릴 수 있게 바꿔두는 일**이다.
 
-### 핵심 개념
+원래 내용을 알아볼 수 없는 형태로 만들어두고, 키를 가진 쪽만 되돌린다. 데이터가 새더라도 읽히지는 않게 하는 것이 목적이다.
 
-- **무엇인가?**: 데이터를 암호문으로 변환
-- **왜 필요한가?**: 데이터 유출 시 보호
-- **어떻게 작동하나?**: 평문 + 키 → 암호문 / 암호문 + 키 → 평문
+### 비유
+암호로 쓴 일기. 남이 펴봐도 글자만 보이고, 규칙을 아는 사람만 읽는다.
 
-### 암호화가 해결하는 문제
+## 🖼️ 그림으로 보기
 
-**문제 상황**:
-```
-😱 시나리오: 암호화 없이
-DB에 비밀번호 평문 저장
-→ 해커가 DB 탈취
-→ 모든 비밀번호 유출
-→ 대규모 피해! 😱
-```
-
-**암호화의 해결**:
-```
-✅ 데이터 보호:
-비밀번호 → 암호화 저장
-해커가 DB 탈취해도
-→ 암호문만 보임 (해독 불가)
-→ 안전! ✅
+```도해
+흐름: 암호화한 데이터는 어떻게 다시 읽히나
+평문 :: 원래 내용. 누구나 읽는다
+암호화 :: 키를 써서 알아볼 수 없게 바꾼다
+암호문 :: 저장하거나 보낸다. 새어도 글자뿐
+복호화 :: 키를 가진 쪽만 되돌린다
+< 원문 :: 원래 내용으로 돌아온다
+= 지켜야 할 것은 데이터가 아니라 키다
 ```
 
-**비유**:
-- **암호화 없음** = 일기장 그대로
-- **암호화** = 암호로 쓴 일기
+## ⚠️ 해결하는 문제
 
-## 💡 대칭키 암호화 (AES)
-
-### 암호화/복호화
-```python
-from cryptography.fernet import Fernet
-
-# 키 생성
-key = Fernet.generate_key()
-cipher = Fernet(key)
-
-# 암호화
-plaintext = b"Secret message"
-ciphertext = cipher.encrypt(plaintext)
-print(ciphertext)
-# → b'gAAAAABh...' (암호문)
-
-# 복호화
-decrypted = cipher.decrypt(ciphertext)
-print(decrypted)
-# → b'Secret message'
+```도해
+대조: DB 가 통째로 새면 어떻게 되나
+평문 저장 || 암호화 저장
+유출 시 :: 내용이 그대로 || 글자만 남는다
+피해 범위 :: 전원이 노출된다 || 키가 없으면 끝
+사고 대응 :: 전부 다시 발급 || 키만 갈아낀다
+= 새는 것을 막는 대신 새도 읽히지 않게 만드는 쪽이다
 ```
 
-### 파일 암호화
-```python
-def encrypt_file(filename, key):
-    """파일 암호화"""
-    cipher = Fernet(key)
-    
-    with open(filename, 'rb') as f:
-        data = f.read()
-    
-    encrypted = cipher.encrypt(data)
-    
-    with open(f"{filename}.encrypted", 'wb') as f:
-        f.write(encrypted)
+담을 아무리 높여도 뚫리는 날이 온다. 비밀번호와 주민번호를 그대로 넣어둔 DB가 통째로 빠져나가면 그 순간 모든 계정이 열린다.
 
-def decrypt_file(filename, key):
-    """파일 복호화"""
-    cipher = Fernet(key)
-    
-    with open(filename, 'rb') as f:
-        encrypted = f.read()
-    
-    decrypted = cipher.decrypt(encrypted)
-    
-    with open(filename.replace('.encrypted', ''), 'wb') as f:
-        f.write(decrypted)
+암호화는 그 순간을 다르게 만든다. 빠져나간 것이 암호문이면 키가 없는 쪽에서는 글자 뭉치일 뿐이다. 그래서 방어의 무게가 데이터에서 키로 옮겨간다.
 
-# 사용
-key = Fernet.generate_key()
-encrypt_file('document.pdf', key)
-decrypt_file('document.pdf.encrypted', key)
+## ⚙️ 작동 원리
+
+방식은 셋으로 나뉜다.
+
+```도해
+층: 무엇을 지키려느냐에 따라 어떤 방식을 쓰나
+대칭키 :: 키 하나로 잠그고 푼다. 빠르다. AES
+비대칭키 :: 공개키로 잠그고 개인키로 푼다. 느리다. RSA
+해시 :: 되돌릴 수 없다. 비밀번호와 무결성. SHA-256
+= 셋 중 해시만 복호화가 없다. 비밀번호를 해시로 두는 이유가 그것이다
 ```
 
-## 💡 비대칭키 암호화 (RSA)
+대칭키는 빠르지만 키를 상대에게 어떻게 건네느냐가 문제로 남는다. 비대칭키는 그 문제를 푼다. 공개키는 아무에게나 줘도 되고, 그것으로 잠근 것은 짝이 되는 개인키로만 열린다. 느려서 데이터 전체보다는 키를 주고받거나 서명하는 데 쓴다.
 
-### 키 생성
-```python
-from cryptography.hazmat.primitives.asymmetric import rsa, padding
-from cryptography.hazmat.primitives import hashes
+비밀번호는 어느 쪽도 아니다. 되돌릴 필요가 없으므로 해시로 둔다.
 
-# 개인키/공개키 생성
-private_key = rsa.generate_private_key(
-    public_exponent=65537,
-    key_size=2048
-)
-public_key = private_key.public_key()
-
-# 암호화 (공개키 사용)
-message = b"Secret message"
-ciphertext = public_key.encrypt(
-    message,
-    padding.OAEP(
-        mgf=padding.MGF1(algorithm=hashes.SHA256()),
-        algorithm=hashes.SHA256(),
-        label=None
-    )
-)
-
-# 복호화 (개인키 사용)
-plaintext = private_key.decrypt(
-    ciphertext,
-    padding.OAEP(
-        mgf=padding.MGF1(algorithm=hashes.SHA256()),
-        algorithm=hashes.SHA256(),
-        label=None
-    )
-)
-```
-
-### 디지털 서명
-```python
-from cryptography.hazmat.primitives import serialization
-
-# 서명 생성 (개인키)
-signature = private_key.sign(
-    message,
-    padding.PSS(
-        mgf=padding.MGF1(hashes.SHA256()),
-        salt_length=padding.PSS.MAX_LENGTH
-    ),
-    hashes.SHA256()
-)
-
-# 서명 검증 (공개키)
-try:
-    public_key.verify(
-        signature,
-        message,
-        padding.PSS(
-            mgf=padding.MGF1(hashes.SHA256()),
-            salt_length=padding.PSS.MAX_LENGTH
-        ),
-        hashes.SHA256()
-    )
-    print("✅ Signature valid")
-except:
-    print("❌ Signature invalid")
-```
-
-## 💡 해시 (단방향)
-
-### 비밀번호 해싱
 ```python
 import bcrypt
-
-# 비밀번호 해싱
-password = b"my_password"
-hashed = bcrypt.hashpw(password, bcrypt.gensalt())
-print(hashed)
-# → b'$2b$12$...' (복호화 불가)
-
-# 비밀번호 확인
-if bcrypt.checkpw(password, hashed):
-    print("✅ Password correct")
-else:
-    print("❌ Password incorrect")
+hashed = bcrypt.hashpw(b"my_password", bcrypt.gensalt())
+bcrypt.checkpw(b"my_password", hashed)   # True
 ```
 
-### SHA-256 해시
-```python
-import hashlib
+## 💡 실제 사례
 
-data = b"Hello, World!"
-hash_value = hashlib.sha256(data).hexdigest()
-print(hash_value)
-# → '315f5bdb76d078c43b8ac0064e4a0164612b1fce77c869345bfc94c75894edd3'
+- **HTTPS 통신** 브라우저와 서버 사이를 오가는 내용이 중간에서 읽히지 않게 감싼다.
+- **DB 필드 암호화** 주민번호 같은 항목만 암호문으로 넣어두고 볼 권한이 있는 쪽에서만 되돌린다.
+- **종단간 암호화 메신저** 받는 사람의 공개키로 잠가 보내면 중간 서버는 암호문만 지나보낸다.
 
-# 파일 해시 (무결성 확인)
-def file_hash(filename):
-    """파일 SHA-256 해시"""
-    sha256 = hashlib.sha256()
-    
-    with open(filename, 'rb') as f:
-        for chunk in iter(lambda: f.read(4096), b''):
-            sha256.update(chunk)
-    
-    return sha256.hexdigest()
+## 🚫 흔한 오해
 
-# 사용
-hash1 = file_hash('document.pdf')
-# 파일 전송 후
-hash2 = file_hash('received.pdf')
+- **비밀번호도 암호화해서 저장한다** — 비밀번호는 암호화가 아니라 해시로 저장한다. 암호화는 되돌릴 수 있어서 키가 새면 전원의 비밀번호가 그대로 드러난다.
+- **암호화하면 해킹당하지 않는다** — 새어도 읽히지 않을 뿐이다. 서버에 들어온 공격자가 복호화 키까지 쥐면 암호문은 의미가 없다.
+- **키가 길수록 무조건 안전하다** — 길이보다 키를 어디에 두느냐가 먼저다. 코드에 적어 올린 256비트 키는 짧은 키보다 위험하다.
 
-if hash1 == hash2:
-    print("✅ File integrity verified")
-```
+## 🚨 주의사항
 
-## 💡 실전 예시
+- **키를 코드에 적지 않는다.** 저장소에 올라간 순간 그 키는 이미 공개된 것으로 봐야 한다. 환경 변수나 키 관리 서비스에 둔다.
+- **MD5는 비밀번호에 쓰지 않는다.** 깨는 방법이 알려져 있어서 해시로 둬도 되돌려진다.
 
-### 데이터베이스 암호화
-```python
-from cryptography.fernet import Fernet
+## 📝 정리
 
-class EncryptedDB:
-    def __init__(self, key):
-        self.cipher = Fernet(key)
-    
-    def encrypt_field(self, value):
-        """필드 암호화"""
-        return self.cipher.encrypt(value.encode()).decode()
-    
-    def decrypt_field(self, encrypted):
-        """필드 복호화"""
-        return self.cipher.decrypt(encrypted.encode()).decode()
-    
-    def save_user(self, name, ssn):
-        """사용자 저장 (SSN 암호화)"""
-        encrypted_ssn = self.encrypt_field(ssn)
-        
-        db.users.insert({
-            'name': name,
-            'ssn': encrypted_ssn  # 암호화됨
-        })
-    
-    def get_user_ssn(self, user_id):
-        """사용자 SSN 조회 (복호화)"""
-        user = db.users.find_one({'id': user_id})
-        
-        return self.decrypt_field(user['ssn'])
+Encryption은 키가 있어야만 되돌릴 수 있게 데이터를 바꿔두는 일이다. 유출 자체를 막는 것이 아니라 유출되어도 읽히지 않게 만든다. 그래서 지켜야 할 대상이 데이터에서 키로 옮겨간다.
 
-# 사용
-key = Fernet.generate_key()
-encrypted_db = EncryptedDB(key)
+## ❓ 이해했는지
 
-encrypted_db.save_user('John', '123-45-6789')
-```
-
-### HTTPS 통신
-```python
-# 클라이언트
-import requests
-
-# TLS/SSL로 암호화된 통신
-response = requests.get('https://api.example.com/data')
-
-# 서버
-from flask import Flask
-
-app = Flask(__name__)
-
-# SSL 인증서로 HTTPS 서버 실행
-app.run(ssl_context=('cert.pem', 'key.pem'))
-```
-
-## 💡 End-to-End 암호화
-
-```python
-class E2EEncryption:
-    """종단간 암호화"""
-    
-    def __init__(self):
-        # 각 사용자가 자신의 키쌍 보유
-        self.users = {}
-    
-    def register_user(self, user_id):
-        """사용자 등록 (키쌍 생성)"""
-        private_key = rsa.generate_private_key(
-            public_exponent=65537,
-            key_size=2048
-        )
-        public_key = private_key.public_key()
-        
-        self.users[user_id] = {
-            'private_key': private_key,
-            'public_key': public_key
-        }
-    
-    def send_message(self, from_user, to_user, message):
-        """메시지 전송 (수신자 공개키로 암호화)"""
-        recipient_public_key = self.users[to_user]['public_key']
-        
-        # 수신자 공개키로 암호화
-        ciphertext = recipient_public_key.encrypt(
-            message.encode(),
-            padding.OAEP(...)
-        )
-        
-        return ciphertext
-    
-    def receive_message(self, user_id, ciphertext):
-        """메시지 수신 (자신의 개인키로 복호화)"""
-        private_key = self.users[user_id]['private_key']
-        
-        # 자신의 개인키로 복호화
-        plaintext = private_key.decrypt(
-            ciphertext,
-            padding.OAEP(...)
-        )
-        
-        return plaintext.decode()
-
-# 사용
-e2e = E2EEncryption()
-e2e.register_user('alice')
-e2e.register_user('bob')
-
-# Alice → Bob
-encrypted = e2e.send_message('alice', 'bob', 'Secret message')
-# 서버는 암호문만 봄!
-
-decrypted = e2e.receive_message('bob', encrypted)
-# Bob만 읽을 수 있음
-```
-
-## 🎯 암호화 비교
-
-| 방식 | 대칭키 | 비대칭키 | 해시 |
-|------|--------|----------|------|
-| **키** | 1개 | 2개 (공개/개인) | 없음 |
-| **속도** | 빠름 | 느림 | 빠름 |
-| **복호화** | 가능 | 가능 | 불가능 |
-| **용도** | 대용량 데이터 | 키 교환, 서명 | 무결성, 비밀번호 |
-| **예** | AES | RSA | SHA-256 |
-
-## 💡 보안 Best Practices
-
-```python
-# ❌ 약한 암호화
-md5_hash = hashlib.md5(password).hexdigest()  # MD5 취약!
-
-# ✅ 강력한 암호화
-bcrypt_hash = bcrypt.hashpw(password, bcrypt.gensalt(rounds=12))
-
-# ❌ 코드에 키 하드코딩
-KEY = b'my_secret_key_123'
-
-# ✅ 환경 변수 사용
-import os
-KEY = os.getenv('ENCRYPTION_KEY').encode()
-
-# ❌ 짧은 키
-key = b'short'  # 취약!
-
-# ✅ 충분한 키 길이
-key = Fernet.generate_key()  # 256비트
-```
+- 비밀번호를 암호화해서 저장하면 해시보다 위험한 이유는?
+- 대칭키가 빠른데도 비대칭키를 같이 쓰는 이유는?
+- 암호화된 DB가 통째로 빠져나갔는데도 피해가 작을 수 있는 조건은?
 
 ## 🔗 관련 용어
 
-- [[HTTPS]]: 암호화 통신
-- [[SSL/TLS]]: 암호화 프로토콜
-- [[Hash]]: 단방향 암호화
-
----
-*카테고리: 보안*
-*생성일: 2026-02-14*
+- [[Hash]] — 되돌릴 수 없는 쪽. 비밀번호와 무결성 확인에 쓴다
+- [[HTTPS]] — 오가는 길을 암호화로 감싼 통신
+- [[SSL_TLS]] — HTTPS 가 쓰는 암호화 프로토콜
+- [[PII]] — 암호화로 지켜야 할 대표적인 데이터

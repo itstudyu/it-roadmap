@@ -2,297 +2,84 @@
 
 ## 📝 정의
 
-HTTPS(HTTP Secure)는 **HTTP에 SSL/TLS 암호화를 추가한 보안 프로토콜**로, 안전한 웹 통신을 제공합니다.
+HTTPS는 **HTTP를 TLS로 감싸서 내용을 가린 것**이다.
 
-### 핵심 개념
+주고받는 양식은 HTTP 그대로다. 달라지는 건 그 내용이 중간에서 읽히지 않는다는 점, 그리고 상대가 진짜 그 사이트인지 증명서로 확인한다는 점이다.
 
-- **무엇인가?**: 암호화된 HTTP
-- **왜 필요한가?**: HTTP는 평문 전송 → 도청 가능
-- **어떻게 작동하나?**: SSL/TLS로 데이터 암호화
+### 비유
+엽서와 봉투. 엽서는 배달하는 사람이 다 읽을 수 있지만 봉투에 넣어 밀봉하면 받는 사람만 연다. 봉투에 찍힌 도장이 보낸 곳을 증명한다.
 
-### HTTPS가 해결하는 문제
-
-**문제 상황**:
-```
-😱 시나리오: HTTP 사용
-사용자 → 로그인 (ID/PW)
-→ 평문으로 전송
-→ 중간자가 가로채기 가능
-→ 비밀번호 유출! 😱
-```
-
-**HTTPS의 해결**:
-```
-✅ 암호화:
-사용자 → 로그인 (ID/PW)
-→ SSL/TLS로 암호화
-→ 중간자가 가로채도 해독 불가
-→ 안전! ✅
-```
-
-**비유**:
-- **HTTP** = 엽서 (내용 다 보임)
-- **HTTPS** = 봉인된 편지 (안전)
-
-## 📊 HTTPS 동작 과정
+## 🖼️ 그림으로 보기
 
 ```도해
-흐름: HTTPS, 무슨 순서로 오가나
-클라이언트 :: ClientHello (지원 암호화 방식)
-서버 :: ServerHello (선택한 암호화 + 인증서)
-클라이언트 :: 인증서 검증
-클라이언트 :: PreMasterSecret (공개키로 암호화)
-클라이언트 :: 암호화된 HTTP 요청
-서버 :: 암호화된 HTTP 응답
+흐름: 자물쇠가 걸리기까지 무슨 일이 있나
+브라우저 :: "암호화해서 얘기하자" 하고 인사한다
+서버 :: 인증서를 보낸다. 여기 내 신분증이다
+브라우저 :: 이 인증서를 믿을 만한 곳이 발급했나 확인
+브라우저 :: 확인되면 이번 대화에만 쓸 열쇠를 만든다
+< 서버 :: 같은 열쇠를 나눠 갖는다
+= 이 인사가 끝나야 첫 요청이 나간다. 그 뒤로는 평범한 HTTP다
 ```
 
-## 💡 HTTP vs HTTPS 차이
+## ⚠️ 해결하는 문제
 
-| 항목 | HTTP | HTTPS |
-|------|------|-------|
-| **포트** | 80 | 443 |
-| **암호화** | ❌ | ✅ |
-| **인증서** | 불필요 | 필요 |
-| **속도** | 빠름 | 약간 느림 |
-| **SEO** | 불리 | 유리 |
-| **브라우저 표시** | 안전하지 않음 | 🔒 자물쇠 |
-
-## 💡 인증서 발급
-
-### Let's Encrypt (무료)
-```bash
-# Certbot 설치 (Ubuntu)
-sudo apt-get install certbot python3-certbot-nginx
-
-# Nginx용 인증서 자동 발급
-sudo certbot --nginx -d example.com -d www.example.com
-
-# 자동 갱신 설정 (90일마다)
-sudo certbot renew --dry-run
+```도해
+대조: 카페 와이파이에서 로그인하면 무슨 차이가 나나
+HTTP || HTTPS
+비밀번호 :: 그대로 보인다 || 암호문만 보인다
+페이지 내용 :: 중간에서 바꿀 수 있다 || 바꾸면 들킨다
+상대 확인 :: 가짜 사이트인지 모른다 || 인증서로 확인
+= 가리는 것과 상대를 확인하는 것, 둘 다 해야 안전해진다
 ```
 
-### 수동 인증서 생성 (개발용)
-```bash
-# 자체 서명 인증서 (Self-Signed)
-openssl req -x509 -newkey rsa:4096 \
-  -keyout key.pem \
-  -out cert.pem \
-  -days 365 \
-  -nodes
+같은 와이파이에 붙은 사람은 오가는 내용을 그대로 볼 수 있다. HTTP로 로그인하면 아이디와 비밀번호가 평문으로 지나간다. 내용을 바꿔 넣는 것도 가능해서, 받는 페이지에 광고나 악성 코드가 끼워지기도 했다.
+
+HTTPS는 내용을 가리고, 인증서로 "이 서버가 진짜 그 도메인의 주인"임을 확인한다. 가리기만 해서는 부족하다. 가짜 사이트와 암호화된 대화를 나눠봐야 소용이 없기 때문이다.
+
+## ⚙️ 작동 원리
+
+인증서는 도메인 소유자가 인증 기관(CA)에서 받는다. 브라우저는 신뢰하는 CA 목록을 미리 갖고 있어서, 그 목록에 있는 곳이 서명한 인증서만 통과시킨다.
+
+```도해
+층: 인증서는 누가 누구를 보증하나
+루트 CA :: 브라우저에 미리 박혀 있는 최상위. 여기가 기준점
+중간 CA :: 루트가 서명해준 발급 기관
+서버 인증서 :: 중간 CA 가 이 도메인 것이라고 서명
+= 사슬이 루트까지 이어지지 않으면 브라우저가 경고를 띄운다
 ```
 
-## 💡 Nginx HTTPS 설정
+암호화 자체는 두 단계다. 인사할 때는 느리지만 안전한 방식으로 열쇠를 나누고, 그다음부터는 빠른 방식으로 실제 내용을 주고받는다.
 
-```nginx
-server {
-    listen 80;
-    server_name example.com;
-    
-    # HTTP → HTTPS 리다이렉션
-    return 301 https://$server_name$request_uri;
-}
+## 💡 실제 사례
 
-server {
-    listen 443 ssl http2;
-    server_name example.com;
-    
-    # SSL 인증서
-    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
-    
-    # SSL 설정
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_ciphers 'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384';
-    ssl_prefer_server_ciphers on;
-    
-    # HSTS (브라우저에게 항상 HTTPS 사용 지시)
-    add_header Strict-Transport-Security "max-age=31536000" always;
-    
-    location / {
-        proxy_pass http://localhost:8000;
-    }
-}
-```
+- **자물쇠 아이콘** 주소창의 자물쇠는 "이 연결은 암호화됐고 인증서가 유효하다"는 뜻이다. 사이트가 착하다는 뜻은 아니다.
+- **무료 인증서** Let's Encrypt가 나오면서 인증서 비용이 사라졌고, HTTPS가 기본이 됐다.
+- **HSTS** 서버가 "앞으로 이 도메인은 무조건 HTTPS로 오라"고 브라우저에 기억시켜두는 헤더다.
 
-## 💡 Python HTTPS 서버
+## 🚫 흔한 오해
 
-### Flask with SSL
-```python
-from flask import Flask
+- **자물쇠가 있으면 안전한 사이트다** — 자물쇠는 연결이 암호화됐다는 뜻이지 사이트를 믿어도 된다는 뜻이 아니다. 피싱 사이트도 인증서를 받는다.
+- **HTTPS면 서버에 저장된 데이터도 안전하다** — 오가는 길만 가린다. 서버에 평문으로 저장돼 있으면 털릴 때 그대로 털린다.
+- **어디에 접속하는지도 가려진다** — 도메인 이름은 대체로 보인다. 어느 페이지를 봤는지는 가려지지만 어느 사이트에 갔는지는 남는다.
 
-app = Flask(__name__)
+## 🚨 주의사항
 
-@app.route('/')
-def index():
-    return 'Secure HTTPS'
+- **인증서에는 만료일이 있다.** 갱신을 놓치면 사이트 전체가 경고 화면으로 바뀐다. 자동 갱신을 걸어두고 만료 알림도 따로 받는다.
+- **혼합 콘텐츠를 조심한다.** HTTPS 페이지가 HTTP로 이미지나 스크립트를 부르면 브라우저가 막거나 자물쇠를 떼어낸다.
 
-if __name__ == '__main__':
-    # HTTPS로 실행
-    app.run(
-        host='0.0.0.0',
-        port=443,
-        ssl_context=('cert.pem', 'key.pem')
-    )
-```
+## 📝 정리
 
-### HTTPS 요청
-```python
-import requests
+HTTPS는 HTTP에 TLS를 씌운 것이다. 내용을 가리는 일과 상대가 맞는지 확인하는 일을 같이 하며, 둘 중 하나만으로는 의미가 없다.
 
-# HTTPS 요청
-response = requests.get('https://api.example.com/data')
+## ❓ 이해했는지
 
-# 인증서 검증 비활성화 (개발용만!)
-response = requests.get(
-    'https://localhost:443/data',
-    verify=False  # 프로덕션에서는 절대 사용 금지!
-)
-
-# 사용자 정의 CA 인증서
-response = requests.get(
-    'https://internal.company.com/api',
-    verify='/path/to/ca-bundle.crt'
-)
-```
-
-## 💡 인증서 검증
-
-### 브라우저 검증 과정
-```
-1. 인증서 만료일 확인
-2. 도메인 일치 확인
-3. 인증 기관(CA) 신뢰 확인
-4. 인증서 폐기 여부 확인
-
-→ 모두 통과 시 🔒 표시
-→ 하나라도 실패 시 ⚠️ 경고
-```
-
-### Python으로 인증서 확인
-```python
-import ssl
-import socket
-from datetime import datetime
-
-def check_certificate(hostname, port=443):
-    """인증서 정보 확인"""
-    context = ssl.create_default_context()
-    
-    with socket.create_connection((hostname, port)) as sock:
-        with context.wrap_socket(sock, server_hostname=hostname) as ssock:
-            cert = ssock.getpeercert()
-            
-            # 만료일
-            expires = datetime.strptime(
-                cert['notAfter'],
-                '%b %d %H:%M:%S %Y %Z'
-            )
-            
-            days_left = (expires - datetime.now()).days
-            
-            print(f"Issued to: {cert['subject']}")
-            print(f"Issued by: {cert['issuer']}")
-            print(f"Expires: {expires}")
-            print(f"Days left: {days_left}")
-            
-            if days_left < 30:
-                print("⚠️ Certificate expires soon!")
-
-# 사용
-check_certificate('google.com')
-```
-
-## 💡 HSTS (HTTP Strict Transport Security)
-
-```nginx
-# Nginx 설정
-add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
-
-# 의미:
-# - max-age=31536000: 1년간 HTTPS만 사용
-# - includeSubDomains: 모든 서브도메인 포함
-# - preload: 브라우저 내장 HSTS 목록에 추가
-```
-
-### Python에서 HSTS 헤더 추가
-```python
-from flask import Flask, make_response
-
-@app.after_request
-def add_security_headers(response):
-    """보안 헤더 자동 추가"""
-    response.headers['Strict-Transport-Security'] = \
-        'max-age=31536000; includeSubDomains'
-    
-    return response
-```
-
-## 💡 Mixed Content (혼합 콘텐츠)
-
-```html
-<!-- ❌ 위험: HTTPS 페이지에서 HTTP 리소스 -->
-<img src="http://example.com/image.jpg">
-<script src="http://example.com/script.js"></script>
-
-<!-- ✅ 안전: HTTPS 리소스 -->
-<img src="https://example.com/image.jpg">
-<script src="https://example.com/script.js"></script>
-
-<!-- ✅ 프로토콜 상대 URL -->
-<img src="//example.com/image.jpg">
-<!-- 현재 페이지 프로토콜 따름 -->
-```
-
-## 💡 SSL/TLS 버전
-
-```
-SSL 2.0 ❌ (취약)
-SSL 3.0 ❌ (취약)
-TLS 1.0 ❌ (레거시)
-TLS 1.1 ❌ (레거시)
-TLS 1.2 ✅ (안전)
-TLS 1.3 ✅ (최신, 가장 안전)
-```
-
-### 최신 TLS만 허용
-```nginx
-ssl_protocols TLSv1.2 TLSv1.3;
-
-# 약한 암호화 방식 제외
-ssl_ciphers 'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384';
-```
-
-## 💡 성능 최적화
-
-### HTTP/2 활성화
-```nginx
-# Nginx
-listen 443 ssl http2;
-
-# → 멀티플렉싱으로 성능 향상
-```
-
-### SSL Session 캐싱
-```nginx
-# SSL 핸드셰이크 재사용
-ssl_session_cache shared:SSL:10m;
-ssl_session_timeout 10m;
-```
-
-### OCSP Stapling
-```nginx
-# 인증서 상태 확인 최적화
-ssl_stapling on;
-ssl_stapling_verify on;
-ssl_trusted_certificate /path/to/chain.pem;
-```
+- 피싱 사이트에도 자물쇠가 붙는 이유는?
+- 인증서 갱신을 놓치면 사용자에게 무엇이 보이나?
+- 암호화만 하고 상대를 확인하지 않으면 어떤 공격이 통하나?
 
 ## 🔗 관련 용어
 
-- [[SSL/TLS]]: HTTPS의 기반 기술
-- [[인증서]]: HTTPS 필수 요소
-- [[HTTP]]: 기본 프로토콜
-
----
-*카테고리: 네트워크*
-*생성일: 2026-02-14*
+- [[HTTP]] — HTTPS가 감싸고 있는 원래 프로토콜
+- [[SSL_TLS]] — 실제로 암호화를 담당하는 계층
+- [[인증서]] — 이 서버가 그 도메인의 주인임을 증명하는 문서
+- [[CA]] — 인증서를 발급하고 보증하는 기관

@@ -2,327 +2,88 @@
 
 ## 📝 정의
 
-Dictionary(딕셔너리) 또는 Map(맵)은 **키(Key)와 값(Value)의 쌍으로 데이터를 저장하는 자료구조**입니다. 키로 빠르게 값을 찾을 수 있습니다.
+Dictionary는 **이름표를 붙여 값을 넣어두는 자료구조**다.
 
-### 핵심 개념
+배열은 값을 순서 번호로 찾는다. 두 번째 값이 무엇이었는지는 코드를 읽는 사람이 기억해야 한다. 딕셔너리는 번호 대신 `"email"` 같은 이름으로 찾기 때문에 꺼내는 자리에서 무엇인지 바로 보인다.
 
-- **무엇인가?**: 키-값 쌍의 집합
-- **왜 필요한가?**: 의미 있는 이름으로 값 저장
-- **어떻게 작동하나?**: 키로 O(1) 시간에 값 접근
+### 비유
+사물함. 번호가 아니라 이름이 붙어 있어서, 몇 번째 칸인지 세지 않고 이름만 보고 문을 연다.
 
-### Dictionary가 해결하는 문제
+## 🖼️ 그림으로 보기
 
-**문제 상황**:
-```python
-😱 시나리오 1: 관련 정보 저장
-name = "Alice"
-age = 25
-email = "alice@example.com"
-city = "Seoul"
-# 개별 변수로 흩어져 있음! 😱
-
-😱 시나리오 2: 리스트의 한계
-user = ["Alice", 25, "alice@example.com", "Seoul"]
-# 인덱스로 접근: user[0], user[1]...
-# 무엇이 무엇인지 헷갈림! 😱
-# user[2]가 뭐였지? 😱
-
-😱 시나리오 3: 데이터 찾기
-names = ["Alice", "Bob", "Charlie"]
-ages = [25, 30, 35]
-# Alice의 나이는?
-# 위치 찾아서 같은 인덱스로... 😱
+```도해
+흐름: users["Alice"] 를 쓰면 값을 어떻게 찾나
+키 :: "Alice" 라는 이름을 넘긴다
+해시 계산 :: 그 글자를 숫자로 바꾼다
+칸 번호 :: 나온 숫자로 몇 번 칸인지 정한다
+그 칸 :: 곧바로 그 자리를 열어 값을 꺼낸다
+= 항목이 백만 개여도 뒤지지 않고 한 번에 간다
 ```
 
-**Dictionary의 해결**:
-```python
-✅ 시나리오 1: 한 곳에 저장
-user = {
-    "name": "Alice",
-    "age": 25,
-    "email": "alice@example.com",
-    "city": "Seoul"
-}
-# 모든 정보가 하나의 딕셔너리에! ✅
+## ⚠️ 해결하는 문제
 
-✅ 시나리오 2: 의미 있는 키
-print(user["name"])   # "Alice" - 명확!
-print(user["age"])    # 25 - 이해하기 쉬움!
-print(user["email"])  # 무엇인지 바로 알 수 있음! ✅
-
-✅ 시나리오 3: 빠른 검색
-users = {
-    "Alice": 25,
-    "Bob": 30,
-    "Charlie": 35
-}
-print(users["Alice"])  # 25 - 바로 찾기! ✅
+```도해
+대조: 이름으로 값을 찾아야 할 때 어떻게 되나
+목록으로 || 딕셔너리로
+찾는 방법 :: 앞에서부터 훑는다 || 이름으로 바로
+항목이 늘면 :: 같이 느려진다 || 거의 그대로
+읽는 코드 :: user[2] 가 뭐지 || user["email"]
+= 순서로 찾는 것과 이름으로 찾는 것의 차이다
 ```
 
-## 💡 사용법
+이름 목록과 나이 목록을 따로 두고 같은 위치끼리 짝지어 쓰는 코드는 금방 어긋난다. 한쪽에서 항목을 지우면 나머지 짝이 전부 밀린다.
 
-### Python Dictionary
+딕셔너리는 짝을 자료구조 안에 넣는다. 이름과 값이 함께 저장되므로 위치를 맞출 일이 없고, 찾을 때도 앞에서부터 훑지 않는다.
+
+## ⚙️ 작동 원리
+
+키를 해시 함수에 넣어 숫자를 얻고, 그 숫자로 저장할 칸을 정한다. 찾을 때도 같은 계산을 하므로 곧바로 그 칸으로 간다. 항목 수가 늘어도 이 계산량은 거의 변하지 않는다.
+
+이 방식에서 몇 가지 성질이 따라 나온다. 키는 바뀌지 않는 값이어야 한다. 값이 변하면 해시 결과도 변해서 넣어둔 칸을 다시 찾지 못하기 때문이다. 그래서 대부분의 언어가 리스트를 키로 쓰지 못하게 막는다.
 
 ```python
-# 딕셔너리 생성
-person = {
-    "name": "Alice",
-    "age": 25,
-    "city": "Seoul"
-}
+user = {"name": "Alice", "age": 25}
 
-# 값 접근
-print(person["name"])  # "Alice"
-print(person.get("age"))  # 25
-print(person.get("country", "Unknown"))  # 기본값
-
-# 값 추가/수정
-person["email"] = "alice@example.com"  # 추가
-person["age"] = 26  # 수정
-
-# 값 삭제
-del person["city"]
-person.pop("email")
-
-# 키 확인
-if "name" in person:
-    print("이름 있음")
-
-# 모든 키/값
-print(person.keys())    # dict_keys(['name', 'age'])
-print(person.values())  # dict_values(['Alice', 26])
-print(person.items())   # dict_items([('name', 'Alice')...])
-
-# 순회
-for key, value in person.items():
-    print(f"{key}: {value}")
+user["email"] = "alice@example.com"   # 추가
+print(user.get("city", "미상"))        # 없으면 기본값
 ```
 
-### JavaScript Object/Map
+없는 키를 대괄호로 꺼내면 오류가 난다. 있을지 없을지 모르는 값은 기본값을 함께 넘기는 방식으로 꺼낸다.
 
-```javascript
-// 객체 (딕셔너리처럼 사용)
-const person = {
-    name: "Alice",
-    age: 25,
-    city: "Seoul"
-};
+## 💡 실제 사례
 
-// 값 접근
-console.log(person.name);  // "Alice"
-console.log(person["age"]);  // 25
+- **설정값** 포트, 호스트, 디버그 여부를 이름으로 묶어두면 어느 값이 무엇인지 코드에서 바로 읽힌다.
+- **개수 세기** 단어를 키로 두고 나올 때마다 1을 더하면 빈도표가 그대로 만들어진다.
+- **계산 결과 저장** 한 번 계산한 값을 입력값을 키로 삼아 넣어두면, 같은 입력이 다시 와도 계산하지 않는다.
 
-// 값 추가/수정
-person.email = "alice@example.com";
-person.age = 26;
+## 🚫 흔한 오해
 
-// 값 삭제
-delete person.city;
+- **딕셔너리는 순서가 없다** — 요즘 대부분의 언어는 넣은 순서를 그대로 유지한다. 다만 순서로 값을 꺼내라고 만든 자료구조가 아닐 뿐이다.
+- **항목이 많아지면 찾는 게 느려진다** — 거의 그대로다. 앞에서부터 훑지 않고 계산으로 칸을 정하기 때문이다.
+- **아무 값이나 키로 쓸 수 있다** — 바뀌지 않는 값만 된다. 리스트처럼 내용이 변하는 것을 키로 쓰면 넣어둔 자리를 다시 찾지 못해서 대개 언어가 막는다.
 
-// Map (진짜 딕셔너리)
-const map = new Map();
-map.set("name", "Alice");
-map.set("age", 25);
+## 📊 비교
 
-console.log(map.get("name"));  // "Alice"
-map.delete("age");
-```
-
-## 🎯 실전 활용
-
-### 1. 설정 관리
-
-```python
-config = {
-    "debug": True,
-    "port": 8080,
-    "host": "localhost",
-    "database": {
-        "host": "db.example.com",
-        "port": 5432,
-        "name": "mydb"
-    }
-}
-
-# 접근
-print(config["port"])  # 8080
-print(config["database"]["host"])  # db.example.com
-```
-
-### 2. 카운팅
-
-```python
-text = "hello world hello"
-words = text.split()
-
-# 단어 빈도수 세기
-word_count = {}
-for word in words:
-    if word in word_count:
-        word_count[word] += 1
-    else:
-        word_count[word] = 1
-
-print(word_count)  # {'hello': 2, 'world': 1}
-
-# 또는 get 사용
-word_count = {}
-for word in words:
-    word_count[word] = word_count.get(word, 0) + 1
-```
-
-### 3. 데이터 그룹화
-
-```python
-students = [
-    {"name": "Alice", "grade": "A"},
-    {"name": "Bob", "grade": "B"},
-    {"name": "Charlie", "grade": "A"},
-    {"name": "David", "grade": "B"}
-]
-
-# 학점별로 그룹화
-by_grade = {}
-for student in students:
-    grade = student["grade"]
-    if grade not in by_grade:
-        by_grade[grade] = []
-    by_grade[grade].append(student["name"])
-
-print(by_grade)
-# {'A': ['Alice', 'Charlie'], 'B': ['Bob', 'David']}
-```
-
-### 4. 캐싱
-
-```python
-# 피보나치 캐시
-fib_cache = {}
-
-def fibonacci(n):
-    if n in fib_cache:
-        return fib_cache[n]
-
-    if n <= 1:
-        return n
-
-    result = fibonacci(n-1) + fibonacci(n-2)
-    fib_cache[n] = result
-    return result
-
-print(fibonacci(100))  # 빠름!
-```
-
-### 5. JSON 데이터
-
-```python
-import json
-
-# 딕셔너리 → JSON
-user = {
-    "name": "Alice",
-    "age": 25,
-    "hobbies": ["독서", "영화"]
-}
-
-json_str = json.dumps(user, ensure_ascii=False)
-print(json_str)
-
-# JSON → 딕셔너리
-user_dict = json.loads(json_str)
-print(user_dict["name"])
-```
-
-## 🔍 Dictionary vs List
-
-| 특성 | Dictionary | List |
-|------|-----------|------|
-| **인덱스** | 키 (문자열, 숫자 등) | 숫자 (0, 1, 2...) |
-| **순서** | 무순서* | 순서 있음 |
-| **접근** | O(1) | O(1) 인덱스, O(n) 검색 |
-| **용도** | 키-값 매핑 | 순서 있는 집합 |
-
-*Python 3.7+는 삽입 순서 유지
-
-```python
-# List: 순서 중요
-scores = [90, 85, 95]
-print(scores[0])  # 첫 번째
-
-# Dictionary: 의미 중요
-scores = {
-    "math": 90,
-    "english": 85,
-    "science": 95
-}
-print(scores["math"])  # 수학 점수
-```
-
-## 🚨 주의사항
-
-### 1. 키 존재 확인
-
-```python
-person = {"name": "Alice"}
-
-# ❌ KeyError 발생 가능
-# print(person["age"])
-
-# ✅ 안전한 방법
-print(person.get("age"))  # None
-print(person.get("age", 0))  # 기본값 0
-```
-
-### 2. 가변 키 불가
-
-```python
-# ❌ 리스트는 키로 사용 불가
-# d = {[1, 2]: "value"}  # TypeError!
-
-# ✅ 튜플은 가능
-d = {(1, 2): "value"}
-```
-
-### 3. 딕셔너리 복사
-
-```python
-# 참조 복사
-dict1 = {"a": 1}
-dict2 = dict1
-dict2["a"] = 2
-print(dict1)  # {"a": 2} - 변경됨!
-
-# 얕은 복사
-dict1 = {"a": 1}
-dict2 = dict1.copy()
-dict2["a"] = 2
-print(dict1)  # {"a": 1} - 변경 안 됨
-```
-
-## 🔗 관련 용어
-
-- [[Array]]: 순서 있는 자료구조
-- [[Object]]: 딕셔너리와 유사
-- [[JSON]]: 딕셔너리 형태의 데이터 포맷
+| | 딕셔너리 | 배열 |
+|---|---|---|
+| 찾는 열쇠 | 이름 | 순서 번호 |
+| 값 찾기 | 이름으로 바로 | 번호로는 바로, 내용으로는 훑기 |
+| 잘 맞는 곳 | 이름 붙은 값의 묶음 | 순서가 뜻을 갖는 목록 |
 
 ## 📝 정리
 
-**딕셔너리의 핵심**:
-```
-Dictionary = 키-값 쌍의 집합
-→ 키로 빠르게 값 찾기 O(1)
-→ 의미 있는 이름으로 저장
-→ 순서 대신 의미 중요
-```
+Dictionary는 이름과 값을 짝지어 담고 이름으로 곧장 찾는 자료구조다. 짝을 자료구조 안에 넣기 때문에 위치를 맞출 일이 없고, 항목이 늘어도 찾는 속도가 거의 변하지 않는다.
 
-**비유로 기억하기**:
-```
-Dictionary = 사전
-→ 단어(키)를 찾으면
-→ 뜻(값)을 알 수 있음
-→ 인덱스 대신 단어로 찾기
-```
+## ❓ 이해했는지
 
----
-*카테고리: 프로그래밍*
-*생성일: 2026-02-15*
+- 항목이 백만 개인 딕셔너리에서 값 하나 꺼내는 속도가 열 개일 때와 비슷한 이유는?
+- 리스트를 키로 쓰면 언어가 막는 이유를 저장 방식으로 설명하면?
+- 있을지 없을지 모르는 키를 꺼낼 때 대괄호를 쓰면 무슨 일이 일어나나?
+
+## 🔗 관련 용어
+
+- [[Hash]] — 키를 칸 번호로 바꾸는 계산. 딕셔너리가 빠른 이유다
+- [[Array]] — 순서 번호로 찾는 쪽. 딕셔너리와 대비된다
+- [[Object]] — 여기에 기능까지 함께 묶은 것
+- [[JSON]] — 딕셔너리 모양을 그대로 글자로 적는 형식
+- [[자료구조]] — 딕셔너리가 속한 큰 갈래

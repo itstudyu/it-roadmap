@@ -254,8 +254,9 @@ def collect_disclosure_sections(sections: dict[str, str]) -> list[dict]:
     found, used = [], set()
     for slot, names in SECTION_MAP:
         raw = pick(sections, names)
-        if slot in ("definition", "related"):
-            # 이미 표제어 영역과 관련 개념 영역에서 쓰고 있다. 접이식에서는 뺀다.
+        if slot in PINNED:
+            # 정의·그림·확인 질문·관련 용어는 접이식 밖에 따로 자리가 있다.
+            # 여기서 안 빼면 같은 내용이 두 번 나오고, 접기 이름표도 없어서 터진다.
             used.update(h for h, b in sections.items() if raw is not None and b == raw)
             continue
         if raw is None:
@@ -421,15 +422,24 @@ def note_paths() -> list[tuple[str, str]]:
     return found
 
 
+def is_converted(path: str) -> bool:
+    """새 템플릿으로 쓰인 노트인가. 그림 자리가 있으면 그렇다."""
+    with open(path, encoding="utf-8") as f:
+        return "## 🖼️ 그림으로 보기" in f.read()
+
+
 def pick_one(paths: list[str]) -> str:
     """같은 이름의 노트가 여러 폴더에 있을 때 하나만 고른다.
 
     vault 에는 CDN 이 네트워크·아키텍처·인프라 세 곳에 있었다. 하나는 12,000자짜리
     본체고 나머지는 900자짜리 껍데기다 — 다른 단어장에서 가리키려고 둔 것이다.
     셋 다 넣으면 같은 단어가 퀴즈에 세 번 나오고, 그중 둘은 읽을 게 없다.
-    가장 큰 것을 남긴다.
+
+    크기로만 고르면 안 된다. 새 템플릿으로 다시 쓴 노트는 코드 덤프가 빠져서
+    오히려 짧아지기 때문에, 잘 쓴 4천 자가 안 고친 8천 자에 진다.
+    템플릿을 지키는 쪽을 먼저 보고, 그다음에 크기로 가른다.
     """
-    return max(paths, key=lambda p: os.path.getsize(p))
+    return max(paths, key=lambda p: (is_converted(p), os.path.getsize(p)))
 
 
 def collect() -> tuple[list[dict], list[str]]:

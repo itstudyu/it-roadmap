@@ -2,411 +2,89 @@
 
 ## 📝 정의
 
-Concurrency(동시성)는 **여러 작업을 번갈아가며 실행**하여 동시에 진행되는 것처럼 보이게 하는 것입니다. 실제로는 한 번에 하나씩 실행하지만, 빠르게 전환하여 동시에 실행되는 것처럼 느껴집니다.
+Concurrency는 **여러 작업을 번갈아 진행시키는 방식**이다.
 
-### 핵심 개념
+한 번에 하나씩만 실행되지만, 기다리는 구간에서 다른 작업으로 넘어가기 때문에 밖에서 보면 여럿이 함께 진행되는 것처럼 보인다.
 
-- **무엇인가?**: 여러 작업을 시분할하여 처리
-- **왜 필요한가?**: CPU가 놀지 않도록 효율적으로 사용
-- **어떻게 작동하나?**: 작업을 빠르게 전환(Context Switching)
+### 비유
+식당 홀 직원 한 명. 주문을 받아 주방에 넣고, 음식이 나오길 서서 기다리는 대신 다음 손님 주문을 받으러 간다.
 
-### Concurrency가 해결하는 문제
-
-**문제 상황**:
-```
-😱 시나리오 1: 순차 처리의 비효율
-레스토랑 웨이터 1명:
-1. 손님 A 주문 받기 (1분)
-2. 주방에 주문 전달 후 대기 (10분) ← CPU가 놀고 있음!
-3. 음식 서빙 (1분)
-4. 손님 B 주문 받기 시작...
-
-→ 손님 B는 11분 기다림! 😱
-→ 웨이터는 10분간 멍하니 대기! 😱
-
-😱 시나리오 2: I/O 대기
-파일 다운로드 프로그램:
-1. 파일 A 다운로드 시작 (네트워크 응답 대기 10초)
-2. 응답 대기 중... CPU 놀고 있음
-3. 파일 B는 언제 시작?
-
-→ CPU가 90% 놀고 있음! 😱
-
-😱 시나리오 3: UI 멈춤
-버튼 클릭 → 무거운 작업 시작
-→ 작업 끝날 때까지 UI 멈춤
-→ 사용자: "프로그램 죽었나?" 😱
-```
-
-**Concurrency의 해결**:
-```
-✅ 시나리오 1:
-웨이터가 현명하게 일함:
-1. 손님 A 주문 받기 (1분)
-2. 주문 전달 후 → 손님 B 주문 받기 (1분)
-3. 손님 B 주문 전달 후 → 손님 C 주문 받기 (1분)
-4. 음식 나오면 → 서빙
-
-→ 3명이 동시에 대기! ✅
-→ 웨이터가 항상 바쁘게 일함! ✅
-
-✅ 시나리오 2:
-파일 A 다운로드 시작
-→ 네트워크 응답 대기 중
-→ 그 사이 파일 B 다운로드 시작
-→ 파일 C, D도 시작
-
-→ 여러 파일 동시에 다운로드! ✅
-→ CPU 효율적으로 사용! ✅
-
-✅ 시나리오 3:
-버튼 클릭 → 백그라운드에서 작업
-→ UI는 계속 응답
-→ 작업 완료 시 결과 표시
-
-→ 사용자는 계속 작업 가능! ✅
-```
-
-## 📊 Concurrency vs Parallelism
+## 🖼️ 그림으로 보기
 
 ```도해
-층: Concurrency, 어떻게 나뉘어 있나
-Concurrency (동시성) · Sin… :: Task A] -.-> A2[Task B] -.-> A3[Task A] -.-> A4[Task B
-Parallelism (병렬성) · Mul… :: Task A] --> B2[Task A · Task B] --> B4[Task B
+흐름: 파일 셋을 내려받을 때 한 흐름으로 어떻게 다 처리하나
+파일 A :: 요청을 보낸다. 응답을 기다린다
+전환 :: 기다리는 동안 A 를 놓고 B 로 넘어간다
+파일 B :: 요청을 보낸다. 역시 기다린다
+파일 C :: 요청을 보낸다
+< 도착 순서 :: 먼저 온 것부터 이어서 처리한다
+= 기다림이 겹치므로 전체 시간이 가장 느린 하나에 가까워진다
 ```
 
-| 특성 | Concurrency | Parallelism |
-|------|-------------|-------------|
-| **CPU 코어** | 1개로 가능 | 2개 이상 필요 |
-| **실행 방식** | 번갈아가며 | 동시에 |
-| **목적** | I/O 대기 시간 활용 | CPU 성능 향상 |
-| **비유** | 1명이 여러 일 번갈아 | 여러 명이 동시에 |
+## ⚠️ 해결하는 문제
 
-**비유**:
-```
-Concurrency (동시성):
-1명의 요리사가 여러 요리를 번갈아가며
-→ 국 끓이다가 → 반찬 볶다가 → 다시 국 보기
-→ 모든 요리가 "동시에" 진행되는 것처럼 보임
-
-Parallelism (병렬성):
-3명의 요리사가 동시에 작업
-→ 1명은 국, 1명은 반찬, 1명은 메인 요리
-→ 실제로 동시에 진행됨
+```도해
+대조: 응답을 기다리는 동안 무엇을 하나
+순차로 || 동시성으로
+대기 시간 :: 그냥 서 있는다 || 다른 일을 한다
+파일 셋 :: 2초씩 6초 || 2초 남짓
+화면 :: 작업 동안 멈춤 || 계속 반응한다
+= 놀고 있는 시간을 다른 작업으로 채우는 것이다
 ```
 
-## 💡 실제 구현
+프로그램이 느린 이유는 계산이 오래 걸려서가 아닐 때가 많다. 네트워크 응답, 디스크 읽기, 데이터베이스 조회처럼 남을 기다리는 시간이 대부분이다. 이 시간에 CPU는 아무것도 하지 않는다.
 
-### Python: asyncio (Concurrency)
+동시성은 그 빈 시간을 다른 작업으로 채운다. 파일 하나가 응답을 기다리는 동안 다음 파일 요청을 보내면, 기다림이 나란히 겹쳐서 전체 시간이 크게 줄어든다.
 
-```python
-import asyncio
-import time
+## ⚙️ 작동 원리
 
-async def download_file(file_name, delay):
-    """파일 다운로드 시뮬레이션"""
-    print(f"[{file_name}] 다운로드 시작")
-    await asyncio.sleep(delay)  # 네트워크 대기 (비동기)
-    print(f"[{file_name}] 다운로드 완료")
-    return f"{file_name} 완료"
+작업이 기다리는 지점에 들어가면 실행 흐름을 내려놓고 대기 목록에 등록된다. 흐름을 관리하는 쪽은 준비된 작업을 골라 이어서 실행한다. 이 관리자를 이벤트 루프라고 부른다.
 
-async def main():
-    """메인 함수"""
-    # 여러 작업을 동시에 시작
-    tasks = [
-        download_file("파일A.zip", 3),
-        download_file("파일B.zip", 2),
-        download_file("파일C.zip", 1)
-    ]
+여기서 중요한 조건이 하나 붙는다. 기다리는 작업이 스스로 자리를 비켜줘야 한다는 것이다. 계산이 계속 도는 코드는 비켜줄 지점이 없어서 그 자리에서 전부 막는다.
 
-    # 모든 작업이 끝날 때까지 대기
-    results = await asyncio.gather(*tasks)
-    print(f"결과: {results}")
-
-# 실행
-start = time.time()
-asyncio.run(main())
-print(f"총 시간: {time.time() - start:.2f}초")
+```도해
+층: 하나의 흐름 안에서 작업은 어떤 상태를 오가나
+실행 중 :: 지금 CPU 를 쓰고 있는 작업. 하나뿐이다
+준비됨 :: 결과가 도착해 순서를 기다리는 작업들
+대기 중 :: 응답을 기다리며 자리를 비켜준 작업들
+= 대기 중으로 내려간 작업이 많을수록 실행 중 자리가 놀지 않는다
 ```
 
-**실행 결과**:
-```
-[파일A.zip] 다운로드 시작
-[파일B.zip] 다운로드 시작
-[파일C.zip] 다운로드 시작
-[파일C.zip] 다운로드 완료
-[파일B.zip] 다운로드 완료
-[파일A.zip] 다운로드 완료
-결과: ['파일A.zip 완료', '파일B.zip 완료', '파일C.zip 완료']
-총 시간: 3.00초  # 순차 처리는 6초 걸렸을 것!
-```
+## 📊 비교
 
-### 순차 처리 vs 동시성 처리 비교
+| | Concurrency | Parallelism |
+|---|---|---|
+| 코어 | 하나로도 된다 | 둘 이상 필요 |
+| 실행 | 번갈아 가며 | 실제로 같은 시각에 |
+| 노리는 것 | 대기 시간 활용 | 계산량 나누기 |
+| 잘 맞는 일 | 네트워크, 파일, DB | 이미지 처리, 압축, 암호 계산 |
 
-```python
-import asyncio
-import time
+## 💡 실제 사례
 
-# 순차 처리 (Synchronous)
-def sync_download():
-    """순차적으로 다운로드"""
-    print("=== 순차 처리 ===")
-    for i in range(3):
-        print(f"파일{i} 다운로드 시작")
-        time.sleep(2)  # 2초 대기
-        print(f"파일{i} 다운로드 완료")
+- **여러 사이트 수집** 응답을 기다리는 동안 다음 주소로 요청을 보내서, 순서대로 돌 때보다 훨씬 빨리 끝난다.
+- **화면이 안 멈추는 앱** 저장 버튼을 눌러 서버 응답을 기다리는 동안에도 스크롤과 입력이 그대로 된다.
+- **DB 조회 두 개** 사용자 정보와 주문 목록을 함께 요청하면 둘의 대기 시간이 겹쳐서 느린 쪽만큼만 걸린다.
 
-# 동시성 처리 (Asynchronous)
-async def async_download(file_id):
-    """비동기로 다운로드"""
-    print(f"파일{file_id} 다운로드 시작")
-    await asyncio.sleep(2)  # 2초 대기 (비동기)
-    print(f"파일{file_id} 다운로드 완료")
+## 🚫 흔한 오해
 
-async def concurrent_download():
-    """동시에 다운로드"""
-    print("=== 동시성 처리 ===")
-    await asyncio.gather(
-        async_download(0),
-        async_download(1),
-        async_download(2)
-    )
-
-# 비교
-start = time.time()
-sync_download()
-print(f"순차 처리 시간: {time.time() - start:.2f}초\n")  # ~6초
-
-start = time.time()
-asyncio.run(concurrent_download())
-print(f"동시성 처리 시간: {time.time() - start:.2f}초")  # ~2초
-```
-
-**실행 결과**:
-```
-=== 순차 처리 ===
-파일0 다운로드 시작
-파일0 다운로드 완료
-파일1 다운로드 시작
-파일1 다운로드 완료
-파일2 다운로드 시작
-파일2 다운로드 완료
-순차 처리 시간: 6.00초
-
-=== 동시성 처리 ===
-파일0 다운로드 시작
-파일1 다운로드 시작
-파일2 다운로드 시작
-파일0 다운로드 완료
-파일1 다운로드 완료
-파일2 다운로드 완료
-동시성 처리 시간: 2.00초
-```
-
-## 🔍 Concurrency 패턴
-
-### 1. 웹 스크래핑
-
-```python
-import asyncio
-import aiohttp  # 비동기 HTTP 라이브러리
-
-async def fetch_url(session, url):
-    """URL에서 데이터 가져오기"""
-    async with session.get(url) as response:
-        content = await response.text()
-        print(f"{url}: {len(content)} bytes")
-        return content
-
-async def scrape_multiple_urls(urls):
-    """여러 URL 동시 스크래핑"""
-    async with aiohttp.ClientSession() as session:
-        tasks = [fetch_url(session, url) for url in urls]
-        results = await asyncio.gather(*tasks)
-        return results
-
-# 사용
-urls = [
-    'https://example.com/page1',
-    'https://example.com/page2',
-    'https://example.com/page3'
-]
-
-asyncio.run(scrape_multiple_urls(urls))
-```
-
-### 2. 데이터베이스 쿼리
-
-```python
-import asyncio
-
-async def fetch_user(user_id):
-    """사용자 정보 조회"""
-    print(f"[User {user_id}] 조회 시작")
-    await asyncio.sleep(1)  # DB 쿼리 시뮬레이션
-    print(f"[User {user_id}] 조회 완료")
-    return {'id': user_id, 'name': f'User{user_id}'}
-
-async def fetch_orders(user_id):
-    """주문 정보 조회"""
-    print(f"[Order {user_id}] 조회 시작")
-    await asyncio.sleep(1.5)  # DB 쿼리 시뮬레이션
-    print(f"[Order {user_id}] 조회 완료")
-    return [{'order_id': 1}, {'order_id': 2}]
-
-async def get_user_data(user_id):
-    """사용자와 주문 정보 동시 조회"""
-    # 두 쿼리를 동시에 실행
-    user, orders = await asyncio.gather(
-        fetch_user(user_id),
-        fetch_orders(user_id)
-    )
-    return {'user': user, 'orders': orders}
-
-# 실행
-result = asyncio.run(get_user_data(123))
-print(f"결과: {result}")
-# 순차: 2.5초 → 동시성: 1.5초!
-```
-
-## 🎯 언제 Concurrency를 사용할까?
-
-### ✅ Concurrency가 효과적인 경우
-
-```
-I/O 작업이 많을 때:
-→ 네트워크 요청 (API 호출, 웹 스크래핑)
-→ 파일 읽기/쓰기
-→ 데이터베이스 쿼리
-→ 사용자 입력 대기
-
-이유: 대기 시간 동안 다른 작업 처리 가능
-```
-
-**예시**:
-```python
-# ✅ I/O 작업 - Concurrency 적합
-async def process_api_requests():
-    """여러 API 동시 호출"""
-    results = await asyncio.gather(
-        call_api_1(),  # 네트워크 대기
-        call_api_2(),  # 네트워크 대기
-        call_api_3()   # 네트워크 대기
-    )
-    return results
-```
-
-### ❌ Concurrency가 효과 없는 경우
-
-```
-CPU 집약적 작업:
-→ 복잡한 계산
-→ 이미지 처리
-→ 암호화/복호화
-→ 데이터 압축
-
-이유: CPU가 계속 일하므로 전환해도 의미 없음
-→ 이 경우는 Parallelism(멀티프로세스) 필요
-```
-
-**예시**:
-```python
-# ❌ CPU 작업 - Concurrency 효과 없음
-async def heavy_calculation():
-    """무거운 계산"""
-    result = 0
-    for i in range(100_000_000):
-        result += i ** 2
-    return result
-
-# 이 경우 multiprocessing 사용해야 함!
-```
-
-## 💻 JavaScript의 Concurrency
-
-JavaScript는 기본적으로 Concurrency를 지원:
-
-```javascript
-// Promise를 사용한 동시성
-function downloadFile(fileName, delay) {
-    return new Promise((resolve) => {
-        console.log(`[${fileName}] 다운로드 시작`);
-        setTimeout(() => {
-            console.log(`[${fileName}] 다운로드 완료`);
-            resolve(fileName);
-        }, delay);
-    });
-}
-
-// 여러 작업 동시 실행
-async function downloadMultiple() {
-    const results = await Promise.all([
-        downloadFile('파일A', 3000),
-        downloadFile('파일B', 2000),
-        downloadFile('파일C', 1000)
-    ]);
-
-    console.log('결과:', results);
-}
-
-downloadMultiple();
-// 총 시간: 3초 (순차면 6초)
-```
-
-## 🔧 Concurrency 구현 방식
-
-### Event Loop
-
-Concurrency는 Event Loop를 통해 구현됩니다:
-
-
-**작동 과정**:
-```
-1. Task A 시작 (네트워크 요청)
-   → 대기 상태로 등록
-
-2. Task B 시작 (파일 읽기)
-   → 대기 상태로 등록
-
-3. Task C 시작 (DB 쿼리)
-   → 대기 상태로 등록
-
-4. Event Loop가 체크:
-   → Task B 완료됨 → 콜백 실행
-   → Task A 완료됨 → 콜백 실행
-   → Task C 완료됨 → 콜백 실행
-```
-
-## 🔗 관련 용어
-
-- [[Parallelism]]: 실제로 동시에 실행
-- [[Async-Await]]: 비동기 프로그래밍 문법
-- [[Thread]]: 동시성을 구현하는 한 방법
-- [[Process]]: 독립적인 실행 단위
-- [[Multi-thread]]: 여러 스레드로 동시성 구현
+- **동시성은 여러 개를 진짜 같이 실행하는 것이다** — 코어가 하나면 같은 시각에 도는 것은 하나뿐이다. 진짜 같이 도는 것은 병렬성이고 코어가 여러 개여야 한다.
+- **동시성을 쓰면 뭐든 빨라진다** — 계산만 계속하는 작업은 그대로다. 줄어드는 건 기다리는 시간이지 계산 시간이 아니다.
+- **동시에 돈다니 스레드를 여러 개 쓰는 거다** — 한 스레드 안에서도 된다. 오히려 스레드를 늘리지 않는 방식이 흔하다.
 
 ## 📝 정리
 
-**Concurrency의 핵심**:
-```
-동시성 = 빠르게 전환하여 동시처럼 보이기
-→ I/O 대기 시간 활용
-→ CPU 효율적 사용
-→ 사용자 경험 향상
-```
+Concurrency는 기다리는 시간에 다른 작업을 끼워 넣는 방식이다. 대기가 많은 일에서 큰 차이를 내지만 계산량 자체는 줄여주지 않고, 자리를 비켜주지 않는 계산 코드가 끼면 그 지점에서 전부 멈춘다.
 
-**간단한 기준**:
-```
-I/O 작업 많음 → Concurrency (asyncio, async/await)
-CPU 작업 많음 → Parallelism (multiprocessing)
-```
+## ❓ 이해했는지
 
-**비유로 기억하기**:
-```
-Concurrency = 1명이 멀티태스킹
-Parallelism = 여러 명이 동시 작업
-```
+- 코어가 하나뿐인데도 파일 셋을 거의 동시에 내려받을 수 있는 이유는?
+- 이미지 수백 장을 변환하는 작업에 동시성을 넣어도 시간이 그대로인 이유는?
+- 동시성 코드 안에서 한 작업이 계산만 오래 돌리면 나머지 작업은 어떻게 되나?
 
----
-*카테고리: 컴퓨터과학*
-*생성일: 2026-02-15*
+## 🔗 관련 용어
+
+- [[Parallelism]] — 여러 코어로 실제로 같은 시각에 돌리는 쪽
+- [[Async-Await]] — 동시성을 코드로 쓰게 해주는 문법
+- [[Thread]] — 동시성을 구현하는 또 다른 수단
+- [[Process]] — 서로 메모리를 나누지 않는 독립 실행 단위
+- [[Multi-thread]] — 스레드를 여러 개 두고 나누는 방식

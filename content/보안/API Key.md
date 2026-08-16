@@ -1,450 +1,91 @@
-# API Key
+# API Key (API 키)
 
 ## 📝 정의
 
-**API Key는 API 사용자를 식별하고 인증하는 고유한 문자열입니다.**
+API Key는 **API를 부르는 쪽이 누구인지 알리는 문자열**이다.
 
-API를 호출할 때 "이게 누구냐?"를 증명하는 일종의 **디지털 출입증**입니다. 서버는 이 Key를 보고 누가 요청했는지 확인하고, 접근 권한을 판단하고, 사용량을 추적합니다.
+서버는 요청에 딸려 온 이 문자열을 보고 어느 사용자인지 알아내고, 그 사용자가 어디까지 쓸 수 있는지 정하고, 얼마나 썼는지 센다.
 
-## 🎯 핵심 개념
+### 비유
+헬스장 회원카드. 출입구에 찍으면 누구인지, 어떤 회원권인지, 오늘 몇 번째 방문인지가 한 번에 확인된다.
 
-### 1. **고유 식별자**
-- 각 사용자/앱마다 다른 Key 발급
-- 보통 무작위 문자열 (예: `sk_live_1a2b3c4d5e`)
-- 재사용 불가능
-
-### 2. **인증 방식**
-- HTTP Header에 포함
-- Query Parameter로 전달
-- Bearer Token 형태
-
-### 3. **권한 수준**
-- Read-only Key: 조회만 가능
-- Write Key: 수정 가능
-- Admin Key: 모든 권한
-
-## 🤔 왜 필요한가? (문제와 해결)
-
-### 문제 1: 무분별한 API 호출
-```
-상황: 날씨 API를 누구나 무료로 호출
-문제: 서버 부하 폭증, 비용 감당 불가
-→ 누가 얼마나 쓰는지 추적 불가능
-```
-
-**API Key 해결법:**
-```python
-# 각 사용자에게 고유 Key 발급
-user1_key = "sk_user1_abc123"
-user2_key = "sk_user2_def456"
-
-# Key별로 사용량 추적
-api_calls = {
-    "sk_user1_abc123": 150,  # 하루 150번 호출
-    "sk_user2_def456": 2000  # 하루 2000번 호출
-}
-
-# 제한 초과 시 차단
-if api_calls[key] > 1000:
-    return "Rate limit exceeded"
-```
-
-### 문제 2: 보안 없는 민감 API
-```
-상황: 결제 API를 아무나 호출 가능
-문제: 악의적인 사용자가 임의로 결제 시도
-→ 서비스 남용, 금전적 손실
-```
-
-**API Key 해결법:**
-```
-1. Key 발급 시 신원 확인 (이메일, 카드 등록)
-2. 각 Key에 권한 설정
-3. 의심스러운 패턴 감지 시 Key 비활성화
-4. Key 유출 시 즉시 재발급
-```
-
-### 문제 3: 유료 서비스 과금 어려움
-```
-상황: OpenAI API를 사용한 만큼 돈 내야 함
-문제: 누가 얼마나 썼는지 측정 불가
-```
-
-**API Key 해결법:**
-```python
-# Key별 사용량 정확히 측정
-usage = {
-    "sk_user1_abc": {
-        "tokens": 50000,
-        "cost": 0.25,  # $0.25
-        "calls": 100
-    }
-}
-
-# 월말에 청구서 발송
-send_invoice(user1, cost=0.25)
-```
-
-## 📊 구조
+## 🖼️ 그림으로 보기
 
 ```도해
-층: API Key, 어떻게 나뉘어 있나
-API Key 생성 :: 사용자 가입] --> B[Key 생성 요청
-API Key 사용 :: 클라이언트] -->|"Header: API-Key: sk_xxx"| G[서버
+흐름: 요청에 붙은 API Key 로 서버는 무엇을 하나
+클라이언트 :: 헤더에 Key 를 담아 요청한다
+서버 :: 저장된 Key 목록에 있는지 본다
+서버 :: 만료됐는지, 비활성인지 본다
+서버 :: 이 Key 의 호출 횟수가 한도 안인지 센다
+서버 :: 이 엔드포인트를 쓸 권한이 있는지 본다
+< 서버 :: 통과하면 실행하고, 쓴 만큼 기록한다
+= Key 하나로 식별과 권한과 사용량이 한꺼번에 붙는다
 ```
 
-## 🔄 작동 원리
+## ⚠️ 해결하는 문제
 
-
-### 동작 과정 설명
-
-1. **요청 수신**: 클라이언트가 API Key를 Header에 넣어 전송
-2. **캐시 확인**: 빠른 응답을 위해 Redis에서 먼저 확인
-3. **DB 조회**: 캐시 미스 시 DB에서 Key 정보 가져오기
-4. **Rate Limiting**: 시간당/일일 호출 횟수 제한 확인
-5. **권한 검사**: 해당 API 엔드포인트 접근 권한 확인
-6. **API 실행**: 모든 검증 통과 시 실제 로직 수행
-7. **사용량 기록**: 과금/분석을 위한 로그 저장
-
-## 🏠 일상적 비유
-
-API Key는 **헬스장 회원카드**와 같습니다:
-
-| 헬스장 회원카드 | API Key |
-|---|---|
-| 회원 고유 번호 | sk_user123abc |
-| 출입 시 카드 찍기 | 요청 시 Key 전송 |
-| 회원권 등급 (일반/프리미엄) | 권한 수준 (Read/Write) |
-| 하루 이용 횟수 제한 | Rate Limit |
-| 카드 분실 시 재발급 | Key 유출 시 재생성 |
-| 이용 기록 추적 | API 호출 로그 |
-
-카드를 잃어버리면 다른 사람이 내 이름으로 운동할 수 있듯이, API Key가 유출되면 다른 사람이 내 계정으로 API를 호출할 수 있습니다!
-
-## 💼 P3 시스템 실제 사례
-
-### 상황: OpenAI API 사용
-
-P3 RAG 챗봇은 OpenAI API를 사용해 답변을 생성합니다. API Key 관리가 필수입니다.
-
-```python
-# .env 파일 (절대 Git에 올리지 않음!)
-OPENAI_API_KEY=sk-proj-abc123xyz789...
-OPENAI_ORG_ID=org-abc123
-
-# settings.py - 환경변수로 관리
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-if not OPENAI_API_KEY:
-    raise ValueError("OPENAI_API_KEY not found in environment")
-
-# openai_client.py - 실제 사용
-from openai import OpenAI
-
-client = OpenAI(api_key=OPENAI_API_KEY)
-
-def get_answer(question: str) -> str:
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "취업규칙 전문가"},
-                {"role": "user", "content": question}
-            ],
-            max_tokens=500
-        )
-        return response.choices[0].message.content
-    except Exception as e:
-        logger.error(f"OpenAI API 호출 실패: {e}")
-        raise
+```도해
+대조: Key 없이 API 를 열어두면 어떻게 되나
+Key 없이 || Key 로
+사용량 :: 누가 썼는지 모름 || Key 별로 집계
+과금 :: 청구할 근거 없음 || 쓴 만큼 청구
+남용 :: 막을 방법 없음 || 그 Key 만 정지
+= 요청을 보낸 쪽에 이름이 붙어야 그다음 조치가 가능해진다
 ```
 
-### 비용 관리
+누구나 부를 수 있는 API는 누가 얼마나 부르는지 알 수 없다. 호출이 몰려도 어디를 막아야 할지 모르고, 유료로 바꾸려 해도 청구할 대상이 없다.
 
-```python
-# usage_tracker.py - 사용량 모니터링
-from datetime import datetime
-import redis
+Key를 나눠주면 요청마다 발신자가 붙는다. 그때부터 한도를 걸고, 권한을 나누고, 문제가 생긴 Key만 골라 끊을 수 있다.
 
-redis_client = redis.Redis()
+## ⚙️ 작동 원리
 
-def track_api_usage(tokens_used: int, cost: float):
-    """API 사용량 추적"""
-    today = datetime.now().strftime("%Y-%m-%d")
+서버는 발급한 Key를 그대로 저장하지 않고 해시로 바꿔 저장한다. 요청이 오면 받은 Key를 같은 방식으로 해시해서 대조한다. 저장소가 유출돼도 원본 Key는 나오지 않는다.
 
-    # 일일 사용량 누적
-    redis_client.hincrby(f"usage:{today}", "tokens", tokens_used)
-    redis_client.hincrbyfloat(f"usage:{today}", "cost", cost)
+그래서 발급 화면에서 Key 원문을 볼 수 있는 건 한 번뿐이다. 잃어버리면 다시 볼 수 없고 새로 발급받아야 한다.
 
-    # 알림 임계값
-    daily_cost = float(redis_client.hget(f"usage:{today}", "cost") or 0)
-    if daily_cost > 50:  # $50 초과 시
-        send_alert(f"⚠️ 일일 API 비용 ${daily_cost:.2f} 초과!")
+Key마다 권한 목록과 호출 한도를 따로 붙여둔다. 조회만 되는 Key와 삭제까지 되는 Key를 나누면, 하나가 새더라도 피해 범위가 그 Key에 붙은 권한까지로 묶인다.
 
-# 매 API 호출 후 실행
-tokens = response.usage.total_tokens
-cost = (tokens / 1000) * 0.03  # GPT-4: $0.03/1K tokens
-track_api_usage(tokens, cost)
-```
+## 💡 실제 사례
 
-## 💻 코드 구현 (간단하게)
+- **외부 유료 API 호출** 서버 환경변수에 Key를 넣어두고 요청마다 헤더에 붙인다. 소스 코드에는 Key가 없다.
+- **모니터링 도구 연동** 지표 조회만 되는 Key를 따로 발급해 준다. 이 Key로는 데이터를 바꿀 수 없다.
+- **개발용과 운영용 분리** 접두사가 다른 Key를 두 벌 발급해서, 테스트 코드가 실수로 운영 데이터를 건드리지 못하게 한다.
 
-### 1. API Key 생성
+## 🚫 흔한 오해
 
-```python
-import secrets
-import hashlib
-from datetime import datetime, timedelta
+- **Key가 있으면 요청이 안전하다** — Key는 누구인지만 알린다. 오가는 내용을 가리는 건 HTTPS의 일이고, Key만 붙이고 평문으로 보내면 중간에서 Key까지 함께 읽힌다.
+- **비밀번호처럼 안 바꿔도 된다** — 유출 사고 대부분이 몇 달 전에 만든 Key다. 주기적으로 새로 발급하고 옛 Key를 끊는 것이 관리의 절반이다.
+- **프론트엔드 코드에 넣어도 빌드하면 안 보인다** — 브라우저로 내려간 파일은 누구나 열어볼 수 있다. 난독화는 읽는 시간을 늘릴 뿐 감추지 못한다.
 
-def generate_api_key(user_id: int, key_type: str = "standard") -> str:
-    """API Key 생성"""
-    # 안전한 무작위 문자열 생성 (32바이트)
-    random_part = secrets.token_urlsafe(32)
+## 🚨 주의사항
 
-    # 프리픽스로 Key 타입 표시
-    prefix = {
-        "test": "sk_test",
-        "live": "sk_live",
-        "standard": "sk"
-    }[key_type]
+- **URL 쿼리에 Key를 붙이지 않는다.** 브라우저 기록과 서버 접근 로그에 그대로 남는다. 헤더로 보낸다.
+- **로그에 Key를 찍지 않는다.** 디버깅용으로 넣은 출력 한 줄이 로그 저장소 전체를 위험하게 만든다.
+- **저장소에 커밋하지 않는다.** 한 번 올라간 Key는 지운 커밋에도 남아 있어서, 삭제가 아니라 재발급이 답이다.
 
-    api_key = f"{prefix}_{random_part}"
+## 📊 비교
 
-    # DB에 해시 저장 (원본 저장 X)
-    key_hash = hashlib.sha256(api_key.encode()).hexdigest()
-
-    db.execute("""
-        INSERT INTO api_keys (user_id, key_hash, created_at, expires_at)
-        VALUES (?, ?, ?, ?)
-    """, (user_id, key_hash, datetime.now(), datetime.now() + timedelta(days=365)))
-
-    # 사용자에게는 원본 반환 (이때만 볼 수 있음!)
-    return api_key
-```
-
-### 2. API Key 검증 (Middleware)
-
-```python
-from fastapi import Header, HTTPException
-import hashlib
-
-async def verify_api_key(api_key: str = Header(None, alias="X-API-Key")):
-    """API Key 검증 미들웨어"""
-    if not api_key:
-        raise HTTPException(status_code=401, detail="API Key required")
-
-    # Key 해시 계산
-    key_hash = hashlib.sha256(api_key.encode()).hexdigest()
-
-    # DB에서 확인
-    key_info = db.execute("""
-        SELECT user_id, permissions, rate_limit, expires_at
-        FROM api_keys
-        WHERE key_hash = ? AND is_active = TRUE
-    """, (key_hash,)).fetchone()
-
-    if not key_info:
-        raise HTTPException(status_code=401, detail="Invalid API Key")
-
-    # 만료 확인
-    if key_info['expires_at'] < datetime.now():
-        raise HTTPException(status_code=401, detail="API Key expired")
-
-    # Rate Limiting (Redis)
-    call_count = redis_client.incr(f"rate_limit:{key_hash}")
-    redis_client.expire(f"rate_limit:{key_hash}", 3600)  # 1시간
-
-    if call_count > key_info['rate_limit']:
-        raise HTTPException(status_code=429, detail="Rate limit exceeded")
-
-    return key_info['user_id']
-
-# FastAPI 라우트에 적용
-@app.get("/api/users")
-async def get_users(user_id: int = Depends(verify_api_key)):
-    # user_id로 API 호출한 사용자 식별
-    return {"users": [...]}
-```
-
-### 3. Rate Limiting
-
-```python
-from datetime import datetime, timedelta
-import redis
-
-class RateLimiter:
-    def __init__(self, redis_client):
-        self.redis = redis_client
-
-    def check_limit(self, api_key: str, limit: int, window: int) -> bool:
-        """
-        Rate limit 확인
-        limit: 허용 횟수
-        window: 시간 창 (초)
-        """
-        now = datetime.now()
-        key = f"rate_limit:{api_key}:{now.strftime('%Y%m%d%H')}"
-
-        # 현재 카운트
-        current = self.redis.get(key)
-
-        if current and int(current) >= limit:
-            return False  # 제한 초과
-
-        # 카운트 증가
-        pipe = self.redis.pipeline()
-        pipe.incr(key)
-        pipe.expire(key, window)
-        pipe.execute()
-
-        return True  # 통과
-
-# 사용 예시
-limiter = RateLimiter(redis_client)
-
-if not limiter.check_limit(api_key, limit=100, window=3600):
-    raise HTTPException(429, "Too many requests")
-```
-
-## 🔄 다른 인증 방법과 비교
-
-| 특성 | API Key | JWT Token | OAuth 2.0 |
-|---|---|---|---|
-| **복잡도** | ⭐ 매우 간단 | ⭐⭐ 중간 | ⭐⭐⭐ 복잡 |
-| **보안성** | ⭐⭐ 보통 | ⭐⭐⭐ 높음 | ⭐⭐⭐⭐ 매우 높음 |
-| **만료 관리** | 수동 (1년+) | 자동 (분~시간) | 자동 (분~시간) |
-| **사용자 정보** | ❌ 없음 | ✅ Payload에 포함 | ✅ 별도 조회 |
-| **제3자 권한** | ❌ 불가능 | ❌ 불가능 | ✅ 가능 (Scope) |
-| **갱신** | 전체 재발급 | Refresh Token | Refresh Token |
-| **적용 사례** | 외부 API 호출 | 웹앱 인증 | 소셜 로그인 |
-
-### 언제 API Key를 쓸까?
-
-✅ **API Key가 좋은 경우:**
-- 서버 to 서버 통신
-- 장기 실행 배치 작업
-- 간단한 외부 API 제공
-- 개발자 도구/CLI
-
-❌ **API Key가 부적절한 경우:**
-- 웹 브라우저에서 직접 호출 (노출 위험)
-- 세밀한 권한 제어 필요
-- 사용자별 다른 데이터 접근
-- 단기 세션 관리
-
-## ⚠️ 보안 주의사항
-
-### 1. 절대 하지 말아야 할 것
-
-```python
-# ❌ 코드에 하드코딩
-API_KEY = "sk_live_abc123xyz789"
-
-# ❌ Git에 커밋
-# config.py에 API_KEY 직접 작성 후 Git push
-
-# ❌ 클라이언트 코드에 포함
-const apiKey = "sk_live_abc123";  // JS 파일에 포함
-fetch(url, { headers: { "API-Key": apiKey } });
-
-# ❌ URL에 포함
-https://api.example.com/users?api_key=sk_live_abc123
-// 브라우저 히스토리, 서버 로그에 남음!
-
-# ❌ 로그에 출력
-logger.info(f"API 호출: {api_key}")  # 로그 파일에 Key 노출
-```
-
-### 2. 올바른 관리 방법
-
-```bash
-# .env 파일 (로컬)
-OPENAI_API_KEY=sk-proj-abc123
-
-# .gitignore에 추가
-echo ".env" >> .gitignore
-
-# 프로덕션: 환경변수
-export OPENAI_API_KEY=sk-proj-xyz789
-
-# Docker
-docker run -e OPENAI_API_KEY=sk-proj-xyz789 myapp
-
-# Kubernetes Secret
-kubectl create secret generic api-keys \
-  --from-literal=openai-key=sk-proj-xyz789
-```
-
-### 3. Key 유출 시 대응
-
-```python
-# 1. 즉시 비활성화
-db.execute("UPDATE api_keys SET is_active = FALSE WHERE key_hash = ?", (leaked_key_hash,))
-
-# 2. 새 Key 발급
-new_key = generate_api_key(user_id)
-send_email(user, f"새 API Key: {new_key}")
-
-# 3. 의심스러운 활동 로그 분석
-suspicious_logs = db.execute("""
-    SELECT * FROM api_logs
-    WHERE key_hash = ? AND created_at > ?
-""", (leaked_key_hash, leak_discovered_at))
-
-# 4. 피해 범위 확인 및 알림
-if suspicious_logs:
-    notify_security_team(suspicious_logs)
-```
-
-### 4. 권한 최소화 원칙
-
-```python
-# ✅ 필요한 권한만 부여
-api_keys = {
-    "monitoring_key": ["read:metrics"],
-    "admin_key": ["read:*", "write:*", "delete:*"],
-    "public_key": ["read:public_data"]
-}
-
-def check_permission(api_key: str, action: str) -> bool:
-    permissions = api_keys.get(api_key, [])
-    return action in permissions or "*" in permissions
-
-# 사용 예시
-if not check_permission(api_key, "write:users"):
-    raise HTTPException(403, "Permission denied")
-```
-
-## 🔗 관련 용어
-
-- **[[OAuth]]**: 제3자 앱 권한 위임 프로토콜 (API Key보다 안전)
-- **[[JWT]]**: 자체 검증 가능한 토큰 (만료 시간 포함)
-- **[[Bearer Token]]**: HTTP Authorization Header에 "Bearer {token}" 형태로 전송
-- **[[API Gateway]]**: API Key 검증, Rate Limiting을 한 곳에서 관리
-- **[[Rate Limiting]]**: API 호출 횟수 제한 (초당/분당/일일)
-- **[[CORS]]**: 브라우저의 Cross-Origin 요청 제한 (API Key와 함께 사용)
+| | API Key | JWT |
+|---|---|---|
+| 담긴 정보 | 없음. 서버가 조회한다 | 사용자 정보가 들어 있다 |
+| 만료 | 수동으로 끊는다 | 발급할 때 시간을 박는다 |
+| 확인 방법 | 저장소 대조 | 서명 검증 |
+| 주로 쓰는 곳 | 서버 사이 호출 | 사용자 로그인 세션 |
 
 ## 📝 정리
 
-### 핵심 3줄
-1. **API Key = 디지털 출입증**: 누가 API를 호출하는지 식별하고 사용량 추적
-2. **환경변수로 관리**: 절대 코드에 하드코딩하지 말고 .env 파일 사용
-3. **유출 시 즉시 재발급**: Key는 비밀번호처럼 철저히 보호해야 함
+API Key는 API 요청에 발신자 이름을 붙이는 문자열이다. 그 이름이 있어야 권한을 나누고 한도를 걸고 사용량을 청구할 수 있다. 다만 내용을 감추지는 못하므로 HTTPS와 함께 쓰고, 새면 지우는 게 아니라 다시 발급한다.
 
-### 실무 체크리스트
-- [ ] API Key를 .env 파일에 저장했는가?
-- [ ] .gitignore에 .env를 추가했는가?
-- [ ] Rate Limiting을 설정했는가?
-- [ ] Key별 권한을 최소화했는가?
-- [ ] Key 유출 대응 계획이 있는가?
-- [ ] 프로덕션에서 환경변수로 주입하는가?
-- [ ] 로그에 Key가 출력되지 않는가?
+## ❓ 이해했는지
 
----
-*카테고리: 보안*
-*관련 프로젝트: P3 (OpenAI API 사용)*
-*업데이트: 2024-02-15*
+- 발급 화면에서 Key 원문을 한 번밖에 못 보는 이유는?
+- Key를 붙였는데도 중간에서 요청 내용이 읽힌다면 무엇이 빠진 것인가?
+- 조회 전용 Key를 따로 만드는 이유는 무엇인가?
+
+## 🔗 관련 용어
+
+- [[Rate Limiting]] — Key 단위로 호출 횟수를 세서 거는 제한
+- [[JWT]] — 정보를 담아 스스로 검증되는 다른 방식의 인증 토큰
+- [[OAuth]] — 사용자를 대신해 제3자 앱에 권한을 주는 방식
+- [[API Gateway]] — Key 검사와 한도 확인을 한곳에 모아 두는 자리
+- [[HTTPS]] — Key가 오가는 통로를 가려주는 쪽

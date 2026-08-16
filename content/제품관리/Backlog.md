@@ -2,596 +2,85 @@
 
 ## 📝 정의
 
-Backlog은 **구현해야 할 기능, 개선사항, 버그를 우선순위 순으로 정리한 목록**입니다. 제품 개발의 대기열이자 계획입니다.
+Backlog는 **아직 안 한 일을 우선순위대로 세워둔 목록**이다.
 
-### 핵심 개념
+여러 곳에서 요청이 들어오면 무엇을 먼저 할지 매번 다시 다투게 된다. 백로그는 그 다툼을 한 목록 위로 옮겨서, 새 요청이 오면 목록의 몇 번째 자리에 놓을지만 정하게 만든다.
 
-- **무엇인가?**: 할 일 목록 (To-Do List)
-- **왜 필요한가?**: 우선순위 관리, 투명성
-- **누가 관리하나?**: Product Owner, PM
+### 비유
+식당의 주문 대기표. 번호 순으로 나가고 새 주문은 뒤에 붙는다.
 
-### Backlog가 해결하는 문제
+## 🖼️ 그림으로 보기
 
-**문제 상황**:
-```
-😱 시나리오 1: 요청 난무
-영업: "A 기능 급해요!"
-마케팅: "B 기능 필요해요!"
-CEO: "C 기능 만들어주세요!"
-개발: "뭐부터 해야 하죠?" 😱
-
-😱 시나리오 2: 아이디어 소실
-회의에서: "좋은 아이디어네요!"
-2주 후: "그게 뭐였더라?" 😱
-→ 기록 없이 사라짐!
-
-😱 시나리오 3: 중복 작업
-개발자 A: "로그인 기능 만들었어요"
-개발자 B: "저도 로그인 만들었는데..." 😱
-→ 중복! 낭비!
+```도해
+흐름: 아이디어 하나가 백로그에 들어오면 어디까지 가나
+접수 :: 누구든 항목을 적어 넣는다
+정제 :: 무엇을 만들지 조건을 채운다
+우선순위 :: 위아래 자리를 다시 정한다
+선정 :: 이번 주기에 할 만큼만 위에서 꺼낸다
+< 완료 :: 끝난 항목은 목록에서 내려간다
+= 줄서기가 아니라 순서가 계속 바뀌는 대기열이다
 ```
 
-**Backlog의 해결**:
-```
-✅ 시나리오 1: 우선순위 명확
-Backlog:
-1. 🔴 P0: 보안 취약점 수정
-2. 🟡 P1: 결제 시스템
-3. 🟢 P2: 다크 모드
-→ 무엇부터 할지 명확! ✅
+## ⚠️ 해결하는 문제
 
-✅ 시나리오 2: 모든 아이디어 기록
-Backlog에 추가:
-- "AI 추천 기능" (나중에)
-- "소셜 공유" (검토 중)
-→ 아이디어 보존! ✅
-
-✅ 시나리오 3: 투명한 작업 현황
-Backlog 보면:
-→ 누가 무엇을 하는지
-→ 중복 방지
-→ 협업 원활! ✅
+```도해
+대조: 할 일을 한 목록에 모아두지 않으면 어떻게 되나
+목록 없이 || 백로그로
+요청 처리 :: 목소리 큰 순 || 우선순위 순
+나온 아이디어 :: 회의 끝나면 증발 || 항목으로 남는다
+진행 상황 :: 물어봐야 안다 || 목록을 보면 안다
+= 무엇을 먼저 할지 정하는 자리를 한 군데로 모으는 것이다
 ```
 
-## 💡 Backlog 종류
+요청이 사람마다 다른 경로로 들어오면 개발자는 매번 누구 말을 들어야 할지 판단하게 된다. 그 판단은 사실 개발자가 할 일이 아니고, 아무도 전체를 못 보는 상태에서 내려진다.
 
-### 1. Product Backlog (제품 백로그)
+백로그는 모든 요청을 한 줄로 세워 비교하게 만든다. 급하다는 말끼리 나란히 놓이면 정말 급한 것이 어느 쪽인지 정할 수 있다.
 
-```python
-"""
-전체 제품의 모든 요구사항
+## ⚙️ 작동 원리
 
-특징:
-- Product Owner가 관리
-- 우선순위대로 정렬
-- 계속 변화함 (Living Document)
-"""
-
-product_backlog = [
-    {
-        "id": "PB-001",
-        "title": "소셜 로그인",
-        "priority": "P0",
-        "story_points": 8,
-        "status": "Ready",
-        "sprint": None
-    },
-    {
-        "id": "PB-002",
-        "title": "비밀번호 재설정",
-        "priority": "P0",
-        "story_points": 5,
-        "status": "Ready",
-        "sprint": None
-    },
-    {
-        "id": "PB-003",
-        "title": "다크 모드",
-        "priority": "P2",
-        "story_points": 13,
-        "status": "Backlog",
-        "sprint": None
-    }
-]
-
-# 우선순위대로 정렬
-sorted_backlog = sorted(
-    product_backlog,
-    key=lambda x: (x['priority'], -x['story_points'])
-)
-
-print("Product Backlog (우선순위 순):")
-for item in sorted_backlog:
-    print(f"{item['priority']} {item['title']} ({item['story_points']}SP)")
+```도해
+층: 백로그는 어느 범위까지 담고 있나
+제품 백로그 :: 언젠가 할 것 전부. 계속 바뀐다
+다음 주기 후보 :: 조건이 채워져 바로 꺼낼 수 있는 것
+스프린트 백로그 :: 이번 주기에 하기로 한 것. 중간에 안 바꾼다
+= 아래로 갈수록 개수는 줄고 적힌 내용은 자세해진다
 ```
 
-### 2. Sprint Backlog (스프린트 백로그)
+목록에 올라온 항목은 그대로 개발에 들어가지 않는다. 무엇을 만들면 끝난 것으로 볼지, 다른 항목에 걸려 있지 않은지를 채워 넣는 과정을 거친다. 이 과정을 정제라고 부르고, 여기를 건너뛰면 주기 중간에 질문이 쏟아진다.
 
-```python
-"""
-현재 Sprint에서 구현할 항목들
+순서를 정할 때는 영향받는 사람 수와 드는 노력을 함께 본다. 노력 대비 효과가 큰 항목을 위로 올리는 식이고, 노력을 빼고 효과만 보면 모든 항목이 다 중요해진다.
 
-특징:
-- Sprint Planning에서 선정
-- Sprint 동안 변경 안 함
-- 팀이 관리
-"""
+## 💡 실제 사례
 
-sprint_backlog = [
-    {
-        "id": "PB-001",
-        "title": "소셜 로그인",
-        "status": "In Progress",
-        "assignee": "김개발",
-        "remaining_hours": 12
-    },
-    {
-        "id": "PB-002",
-        "title": "비밀번호 재설정",
-        "status": "To Do",
-        "assignee": "이개발",
-        "remaining_hours": 16
-    }
-]
+- **여러 부서의 요청** 영업과 마케팅에서 온 요청을 같은 목록에 넣고 자리를 비교해 순서를 정한다.
+- **회의에서 나온 아이디어** 지금 안 할 것도 항목으로 남겨두면 몇 달 뒤에 다시 꺼낼 수 있다.
+- **주기 시작 회의** 위에서부터 팀이 감당할 만큼만 꺼내 이번 주기 목록으로 옮긴다.
 
-# Sprint Burndown
-total_points = sum(item['remaining_hours'] for item in sprint_backlog)
-print(f"Sprint 남은 시간: {total_points}h")
-```
+## 🚫 흔한 오해
 
-## 🎯 Backlog 관리 (Grooming)
+- **백로그에 있으면 언젠가는 한다** — 아래쪽 항목은 대부분 영영 안 한다. 안 할 것을 계속 담아두면 목록을 볼 때마다 훑어야 할 줄만 늘어난다.
+- **항목이 많을수록 좋은 백로그다** — 수백 개가 쌓이면 순서를 매기는 일 자체가 불가능해진다. 정기적으로 지우는 것도 관리에 포함된다.
+- **우선순위는 정해두면 끝난다** — 상황이 바뀌면 순서도 바뀐다. 한 번 정한 순서를 안 건드리면 목록은 그냥 오래된 기록이 된다.
 
-### Backlog Refinement
+## 🚨 주의사항
 
-```python
-class BacklogRefinement:
-    """백로그 정제 프로세스"""
-
-    def __init__(self):
-        self.backlog = []
-
-    def add_item(self, item):
-        """새 항목 추가"""
-        self.backlog.append({
-            **item,
-            'created_at': datetime.now(),
-            'status': 'New'
-        })
-
-    def refine_item(self, item_id):
-        """항목 정제"""
-        steps = [
-            "1. User Story 명확화",
-            "2. Acceptance Criteria 작성",
-            "3. Story Point 추정",
-            "4. 의존성 확인",
-            "5. Ready 상태로 변경"
-        ]
-
-        print(f"\n정제 중: {item_id}")
-        for step in steps:
-            print(f"  {step}")
-
-    def prioritize(self):
-        """우선순위 결정"""
-        # RICE 스코어링
-        for item in self.backlog:
-            rice = (
-                item['reach'] *
-                item['impact'] *
-                item['confidence']
-            ) / item['effort']
-
-            item['rice_score'] = rice
-            item['priority'] = self._calculate_priority(rice)
-
-        # 정렬
-        self.backlog.sort(
-            key=lambda x: x['rice_score'],
-            reverse=True
-        )
-
-    def _calculate_priority(self, rice_score):
-        """우선순위 레벨 계산"""
-        if rice_score >= 100:
-            return "P0"
-        elif rice_score >= 50:
-            return "P1"
-        else:
-            return "P2"
-
-# 사용
-refinement = BacklogRefinement()
-
-# 항목 추가
-refinement.add_item({
-    'title': '푸시 알림',
-    'reach': 1000,      # 영향받는 사용자 수
-    'impact': 3,        # 영향도 (1-3)
-    'confidence': 0.8,  # 확신도 (0-1)
-    'effort': 5         # 노력 (Story Points)
-})
-
-# 정제 및 우선순위 결정
-refinement.refine_item('푸시 알림')
-refinement.prioritize()
-```
-
-## 🔍 우선순위 결정 방법
-
-### 1. MoSCoW 방법
-
-```python
-"""
-Must have: 반드시 필요
-Should have: 있으면 좋음
-Could have: 있어도 됨
-Won't have: 하지 않음
-"""
-
-moscow_backlog = {
-    "Must have": [
-        "사용자 인증",
-        "결제 시스템",
-        "상품 검색"
-    ],
-    "Should have": [
-        "위시리스트",
-        "리뷰 기능",
-        "추천 시스템"
-    ],
-    "Could have": [
-        "소셜 공유",
-        "다크 모드",
-        "음성 검색"
-    ],
-    "Won't have": [
-        "VR 지원",
-        "블록체인 통합"
-    ]
-}
-
-print("MoSCoW 우선순위:")
-for category, items in moscow_backlog.items():
-    print(f"\n{category}:")
-    for item in items:
-        print(f"  - {item}")
-```
-
-### 2. RICE 스코어링
-
-```python
-def calculate_rice(reach, impact, confidence, effort):
-    """
-    RICE Score 계산
-
-    Reach: 도달 범위 (affected users)
-    Impact: 영향도 (0.25, 0.5, 1, 2, 3)
-    Confidence: 확신도 (0-100%)
-    Effort: 노력 (person-months)
-    """
-    return (reach * impact * confidence) / effort
-
-# 예시
-features = [
-    {
-        "name": "소셜 로그인",
-        "reach": 10000,    # 10,000명 사용 예상
-        "impact": 2,       # 큰 영향
-        "confidence": 0.9, # 90% 확신
-        "effort": 2        # 2 person-months
-    },
-    {
-        "name": "다크 모드",
-        "reach": 5000,
-        "impact": 0.5,     # 작은 영향
-        "confidence": 1.0, # 100% 확신
-        "effort": 1
-    },
-    {
-        "name": "AI 추천",
-        "reach": 15000,
-        "impact": 3,       # 매우 큰 영향
-        "confidence": 0.5, # 50% 확신
-        "effort": 6
-    }
-]
-
-# RICE 계산 및 정렬
-for feature in features:
-    feature['rice'] = calculate_rice(
-        feature['reach'],
-        feature['impact'],
-        feature['confidence'],
-        feature['effort']
-    )
-
-sorted_features = sorted(
-    features,
-    key=lambda x: x['rice'],
-    reverse=True
-)
-
-print("RICE 우선순위:")
-for f in sorted_features:
-    print(f"{f['name']}: {f['rice']:.0f}")
-
-# 출력:
-# 소셜 로그인: 9000
-# AI 추천: 3750
-# 다크 모드: 2500
-```
-
-### 3. Value vs Effort 매트릭스
-
-```python
-import matplotlib.pyplot as plt
-
-features = [
-    {"name": "소셜 로그인", "value": 9, "effort": 3},
-    {"name": "검색 기능", "value": 8, "effort": 5},
-    {"name": "다크 모드", "value": 4, "effort": 2},
-    {"name": "VR 지원", "value": 2, "effort": 9},
-    {"name": "푸시 알림", "value": 7, "effort": 3}
-]
-
-# 시각화
-plt.figure(figsize=(10, 8))
-
-for f in features:
-    plt.scatter(f['effort'], f['value'], s=200)
-    plt.annotate(
-        f['name'],
-        (f['effort'], f['value']),
-        ha='center',
-        va='bottom'
-    )
-
-# 사분면
-plt.axvline(x=5.5, color='gray', linestyle='--')
-plt.axhline(y=5.5, color='gray', linestyle='--')
-
-plt.text(2, 8.5, "Quick Wins\n(높은 가치, 낮은 노력)",
-         fontsize=11, color='green', weight='bold')
-plt.text(7, 8.5, "Big Bets\n(높은 가치, 높은 노력)",
-         fontsize=11, color='blue', weight='bold')
-plt.text(2, 2, "Fill-ins\n(낮은 가치, 낮은 노력)",
-         fontsize=11, color='orange')
-plt.text(7, 2, "Money Pits\n(낮은 가치, 높은 노력)",
-         fontsize=11, color='red', weight='bold')
-
-plt.xlabel("Effort (노력)")
-plt.ylabel("Value (가치)")
-plt.title("Feature Prioritization Matrix")
-plt.grid(True, alpha=0.3)
-plt.savefig("backlog_matrix.png")
-```
-
-## 💻 Backlog 도구
-
-### Jira Backlog
-
-```python
-from jira import JIRA
-
-# Jira 연결
-jira = JIRA('https://your-company.atlassian.net',
-            basic_auth=('email', 'token'))
-
-# Backlog 조회
-backlog = jira.search_issues(
-    'project = PROJ AND status = "Backlog"',
-    maxResults=50,
-    fields='summary,priority,story_points'
-)
-
-print("Product Backlog:")
-for issue in backlog:
-    print(f"{issue.key}: {issue.fields.summary}")
-    print(f"  Priority: {issue.fields.priority.name}")
-    print(f"  Story Points: {issue.fields.customfield_10016}\n")
-
-# Sprint Backlog로 이동
-sprint_id = 123
-issue = jira.issue('PROJ-100')
-jira.add_issues_to_sprint(sprint_id, [issue.key])
-```
-
-### 간단한 Backlog 관리
-
-```python
-class SimpleBacklog:
-    """간단한 백로그 관리 시스템"""
-
-    def __init__(self):
-        self.items = []
-
-    def add(self, title, priority="P2", points=None):
-        """항목 추가"""
-        item = {
-            'id': len(self.items) + 1,
-            'title': title,
-            'priority': priority,
-            'points': points,
-            'status': 'Backlog',
-            'created_at': datetime.now()
-        }
-        self.items.append(item)
-        print(f"✅ 추가됨: {title}")
-
-    def prioritize(self, item_id, new_priority):
-        """우선순위 변경"""
-        for item in self.items:
-            if item['id'] == item_id:
-                old = item['priority']
-                item['priority'] = new_priority
-                print(f"📝 {item['title']}: {old} → {new_priority}")
-                break
-
-    def move_to_sprint(self, item_ids, sprint_name):
-        """Sprint로 이동"""
-        for item_id in item_ids:
-            for item in self.items:
-                if item['id'] == item_id:
-                    item['status'] = f'Sprint: {sprint_name}'
-                    print(f"🚀 {item['title']} → {sprint_name}")
-
-    def display(self):
-        """백로그 출력"""
-        print("\n" + "="*60)
-        print("Product Backlog")
-        print("="*60)
-
-        # 우선순위별로 그룹화
-        by_priority = {}
-        for item in self.items:
-            pri = item['priority']
-            if pri not in by_priority:
-                by_priority[pri] = []
-            by_priority[pri].append(item)
-
-        # 출력
-        for priority in ['P0', 'P1', 'P2']:
-            if priority in by_priority:
-                print(f"\n{priority}:")
-                for item in by_priority[priority]:
-                    points = f"({item['points']}SP)" if item['points'] else ""
-                    status = f"[{item['status']}]"
-                    print(f"  {item['id']}. {item['title']} {points} {status}")
-
-# 사용
-backlog = SimpleBacklog()
-
-# 항목 추가
-backlog.add("소셜 로그인", "P0", 8)
-backlog.add("다크 모드", "P2", 5)
-backlog.add("결제 시스템", "P0", 13)
-backlog.add("푸시 알림", "P1", 5)
-
-# 우선순위 변경
-backlog.prioritize(2, "P1")
-
-# Sprint로 이동
-backlog.move_to_sprint([1, 3], "Sprint 10")
-
-# 백로그 출력
-backlog.display()
-```
-
-## 🚨 Backlog 안티패턴
-
-### ❌ 피해야 할 것
-
-```python
-# 1. 백로그 비대화 (Backlog Bloat)
-huge_backlog = [f"Feature {i}" for i in range(1, 501)]
-# ❌ 500개 항목!
-# → 관리 불가
-# → 우선순위 무의미
-
-# 해결: 정기적 정리
-if len(backlog) > 50:
-    remove_low_priority_items()
-
-# 2. 영원한 "나중에"
-eternal_backlog = {
-    'created': '2020-01-01',
-    'status': 'Backlog',  # 4년째 Backlog
-    'title': 'VR 지원'
-}
-# ❌ 영원히 안 하는 항목
-# → 삭제하거나 결정
-
-# 3. 우선순위 없음
-no_priority = [
-    {'title': 'A', 'priority': 'P1'},
-    {'title': 'B', 'priority': 'P1'},
-    {'title': 'C', 'priority': 'P1'},  # 모두 P1?
-]
-# ❌ 모든 것이 우선순위
-# → 우선순위 아님
-
-# 4. 세부사항 없음
-vague_item = {
-    'title': '시스템 개선',  # ❌ 뭘?
-    'description': None,
-    'criteria': None
-}
-```
-
-### ✅ 좋은 관행
-
-```python
-# 1. 적절한 크기 유지
-max_backlog_size = 30-50  # ✅
-
-# 2. 정기적 정리
-def monthly_backlog_cleanup():
-    """매월 백로그 정리"""
-    # 6개월 이상 된 낮은 우선순위 항목 삭제
-    # 중복 항목 병합
-    # 완료된 항목 아카이브
-
-# 3. 명확한 우선순위
-# P0: 3-5개만
-# P1: 10-15개
-# P2: 나머지
-
-# 4. 상세한 정보
-good_item = {
-    'title': '소셜 로그인',
-    'description': 'As a user, I want to...',
-    'acceptance_criteria': [...],
-    'story_points': 8,
-    'dependencies': [],
-    'status': 'Ready'
-}
-```
-
-## 🔗 관련 용어
-
-- [[User Story]]: Backlog의 항목
-- [[Sprint]]: Backlog에서 선택하여 실행
-- [[Agile]]: Backlog를 사용하는 방법론
-- [[Product Roadmap]]: Backlog의 장기 계획
-- [[MVP]]: Backlog의 핵심 항목
+- **전부 P0으로 매기면 우선순위가 없는 것과 같다.** 가장 높은 등급은 몇 개로 제한해야 뜻이 생긴다.
+- **제목만 있는 항목은 꺼낼 수 없다.** "시스템 개선" 같은 줄은 정제 단계에서 무엇을 만들지 정하지 않으면 계속 아래에 남는다.
 
 ## 📝 정리
 
-**Backlog의 핵심**:
-```
-Backlog = 할 일 목록
-→ 우선순위로 정렬
-→ 지속적 정제
-→ 투명한 관리
-```
+Backlog는 아직 안 한 일을 한 곳에 모아 순서대로 세워둔 목록이다. 무엇을 먼저 할지 정하는 판단을 한 자리로 모으고, 그 순서는 상황에 따라 계속 다시 매긴다.
 
-**종류**:
-```
-Product Backlog: 전체 요구사항
-Sprint Backlog: 현재 Sprint 작업
-```
+## ❓ 이해했는지
 
-**관리 원칙**:
-```
-✅ 우선순위 명확
-✅ 정기적 정제 (Grooming)
-✅ 적절한 크기 유지
-✅ 상세 정보 포함
-✅ 팀과 투명하게 공유
-```
+- 여러 부서가 각자 "급하다"고 할 때 백로그가 하는 일은 무엇인가?
+- 항목이 500개까지 쌓이면 무엇이 안 되기 시작하나?
+- 제품 백로그와 스프린트 백로그 중 주기 도중에 바뀌지 않는 쪽은 어디인가?
 
-**비유로 기억하기**:
-```
-Backlog = 식당 주문 대기표
-→ 번호순 (우선순위)
-→ 새 주문 계속 추가
-→ 완료되면 제거
-→ 모두가 볼 수 있음
+## 🔗 관련 용어
 
-"무엇을 만들지, 언제 만들지"
-```
-
----
-*카테고리: 제품관리*
-*생성일: 2026-02-15*
+- [[User Story]] — 백로그에 들어가는 항목을 적는 형식
+- [[Sprint]] — 백로그 위쪽을 꺼내 진행하는 한 주기
+- [[Agile]] — 백로그를 계속 다시 세우는 것을 전제로 하는 방식
+- [[Product Roadmap]] — 백로그보다 위에서 방향을 잡는 계획
+- [[MVP]] — 첫 출시에 넣을 항목을 고르는 기준

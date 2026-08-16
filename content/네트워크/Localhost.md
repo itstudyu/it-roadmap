@@ -2,194 +2,77 @@
 
 ## 📝 정의
 
-Localhost는 **자기 자신의 컴퓨터를 가리키는 특별한 호스트명**입니다. IP 주소 `127.0.0.1`로 매핑되며, 네트워크를 통하지 않고 자신의 컴퓨터 내에서 통신할 때 사용합니다.
+Localhost는 **자기 컴퓨터 자신을 가리키는 이름**이다.
 
-### 핵심 개념
+이 이름으로 보낸 요청은 랜선이나 와이파이를 타지 않고 컴퓨터 안에서 되돌아온다. 주소로는 `127.0.0.1` 에 대응한다.
 
-- **IP 주소**: 127.0.0.1 (IPv4), ::1 (IPv6)
-- **용도**: 로컬 개발, 테스트
-- **특징**: 외부 접근 불가, 빠름
+### 비유
+집 안 인터폰. 밖으로 나가지 않고 같은 건물 안에서 말이 오간다.
 
-## 💡 사용 예시
+## 🖼️ 그림으로 보기
 
-### 웹 개발
-
-```python
-# Flask 서버 실행
-from flask import Flask
-
-app = Flask(__name__)
-
-@app.route('/')
-def home():
-    return "Hello from localhost!"
-
-if __name__ == '__main__':
-    # localhost:5000에서 실행
-    app.run(host='localhost', port=5000)
-    # 또는
-    # app.run(host='127.0.0.1', port=5000)
+```도해
+흐름: localhost 로 보낸 요청은 어디까지 가나
+프로그램 :: `localhost:3000` 으로 요청한다
+운영체제 :: hosts 파일을 보고 127.0.0.1 로 바꾼다
+운영체제 :: 이 주소는 밖으로 내보내지 않는다
+루프백 :: 랜카드를 거치지 않고 그대로 되돌린다
+< 내 컴퓨터 :: 3000번 포트를 듣던 프로그램이 받는다
+= 요청이 컴퓨터 밖으로 한 번도 나가지 않는다
 ```
 
-**접속:**
-```
-브라우저에서:
-- http://localhost:5000
-- http://127.0.0.1:5000
+## ⚠️ 해결하는 문제
 
-→ 둘 다 같은 곳!
-```
-
-### 데이터베이스 연결
-
-```python
-import mysql.connector
-
-# MySQL 로컬 연결
-connection = mysql.connector.connect(
-    host='localhost',  # 또는 '127.0.0.1'
-    user='root',
-    password='password',
-    database='mydb'
-)
-
-cursor = connection.cursor()
-cursor.execute("SELECT * FROM users")
+```도해
+대조: 만들던 서비스를 시험하려면 어디에 올려야 하나
+localhost 없이 || localhost 로
+시험 방법 :: 서버에 올린다 || 내 PC 에서
+한 번 확인 :: 배포를 기다림 || 저장하면 바로
+외부 노출 :: 미완성이 열림 || 나만 접근
+= 밖에 내놓지 않고도 실제와 같은 방식으로 부를 수 있다
 ```
 
-### Node.js 서버
+만든 코드가 도는지 보려고 매번 서버에 올려야 하면 확인 한 번에 몇 분이 든다. 게다가 아직 덜 만든 화면이 그동안 외부에 열려 있게 된다.
 
-```javascript
-const express = require('express');
-const app = express();
+localhost는 그 왕복을 없앤다. 서버 프로그램을 자기 컴퓨터에 띄우고 브라우저로 그 주소를 열면, 실제 서비스와 같은 방식으로 요청이 오간다. 다만 그 요청이 컴퓨터 밖으로 나가지 않을 뿐이다.
 
-app.get('/', (req, res) => {
-    res.send('Hello from localhost!');
-});
+## ⚙️ 작동 원리
 
-// localhost:3000에서 실행
-app.listen(3000, 'localhost', () => {
-    console.log('Server running on http://localhost:3000');
-});
-```
+서버 프로그램을 띄울 때 어느 주소로 들어오는 요청을 받을지 정한다. `localhost` 로 띄우면 그 컴퓨터에서 온 요청만 받고, `0.0.0.0` 으로 띄우면 그 컴퓨터가 가진 모든 경로로 들어오는 요청을 받아서 같은 네트워크의 다른 기기도 접속할 수 있다.
 
-## 🔍 Localhost vs 0.0.0.0
+이름을 주소로 바꾸는 일은 `hosts` 파일이 한다. 이 파일에 `127.0.0.1 myapp.local` 같은 줄을 더 적어두면 원하는 이름으로도 자기 컴퓨터를 부를 수 있다.
 
-```python
-"""
-차이점 이해하기
-"""
+## 💡 실제 사례
 
-# localhost (127.0.0.1)
-app.run(host='localhost', port=5000)
-# → 자기 컴퓨터에서만 접근 가능
-# → 같은 네트워크의 다른 PC에서 접근 불가
+- **개발 서버 실행** 프론트엔드는 3000번, 백엔드는 8000번처럼 포트만 다르게 해서 한 컴퓨터에서 여러 서비스를 같이 띄운다.
+- **데이터베이스 연결** 같은 컴퓨터에 띄운 데이터베이스를 `localhost` 로 부르면 네트워크를 타지 않아 지연이 거의 없다.
+- **포트 충돌 확인** 서버가 안 뜰 때 그 포트를 이미 듣고 있는 프로그램이 있는지 먼저 본다.
 
-# 0.0.0.0
-app.run(host='0.0.0.0', port=5000)
-# → 모든 네트워크 인터페이스에서 접근 가능
-# → 같은 네트워크의 다른 PC에서도 접근 가능
-# → 외부 IP로도 접근 가능
-```
+## 🚫 흔한 오해
 
-**테스트:**
-```bash
-# localhost로 실행
-python app.py
-# → 본인만 http://localhost:5000 접근 가능
-
-# 0.0.0.0으로 실행
-python app.py
-# → 본인: http://localhost:5000
-# → 다른 PC: http://192.168.0.10:5000 접근 가능
-```
-
-## 🎯 활용 사례
-
-### 1. 로컬 개발 환경
-
-```bash
-# 프론트엔드 개발
-npm run dev
-# → http://localhost:3000
-
-# 백엔드 API
-python manage.py runserver
-# → http://localhost:8000
-
-# 데이터베이스
-mysql -h localhost -u root -p
-# → localhost MySQL 접속
-```
-
-### 2. 포트 충돌 확인
-
-```bash
-# macOS/Linux
-lsof -i :3000
-# → localhost:3000을 사용 중인 프로세스 확인
-
-# Windows
-netstat -ano | findstr :3000
-```
-
-### 3. 여러 서비스 동시 실행
-
-```bash
-# 동일 localhost, 다른 포트
-프론트엔드: localhost:3000
-백엔드 API: localhost:8000
-데이터베이스: localhost:3306
-Redis: localhost:6379
-
-→ 포트만 다르면 동시 실행 가능!
-```
+- **localhost 와 0.0.0.0 은 같은 말이다** — localhost는 그 컴퓨터에서 온 요청만 받고, 0.0.0.0은 들어올 수 있는 모든 경로로 받는다. 운영 서버를 localhost로 띄우면 아무도 접속하지 못한다.
+- **내 localhost 주소를 다른 사람에게 보내면 열린다** — 각자의 컴퓨터를 가리키는 이름이다. 같은 주소를 옆 사람이 열면 그 사람 컴퓨터에 있는 서버가 뜬다.
+- **컨테이너 안의 localhost 는 내 컴퓨터다** — 컨테이너 입장에서 localhost는 그 컨테이너 자신이다. 밖에 있는 서비스를 부르려면 다른 주소를 써야 한다.
 
 ## 🚨 주의사항
 
-### 보안
-
-```python
-# ❌ 프로덕션에서 localhost 바인딩
-app.run(host='localhost')
-# → 외부에서 접근 불가
-# → 서비스 불가능
-
-# ✅ 프로덕션
-app.run(host='0.0.0.0')  # 모든 인터페이스
-# 또는
-app.run(host='특정_IP')  # 특정 인터페이스만
-```
-
-### /etc/hosts 파일
-
-```bash
-# macOS/Linux: /etc/hosts
-# Windows: C:\Windows\System32\drivers\etc\hosts
-
-127.0.0.1   localhost
-127.0.0.1   myapp.local
-127.0.0.1   api.local
-
-# 커스텀 도메인 설정 가능
-# → http://myapp.local 로 접속 가능
-```
+- **운영 환경에서 localhost 로 띄우지 않는다.** 외부에서 접속할 수 없어 서비스가 되지 않는다.
+- **0.0.0.0 으로 띄우면 같은 네트워크의 다른 기기도 들어온다.** 공용 와이파이에서는 만들던 화면이 그대로 열릴 수 있다.
 
 ## 📝 정리
 
-**핵심:**
-```
-localhost = 127.0.0.1
-→ 내 컴퓨터
-→ 외부 접근 불가
-→ 로컬 개발/테스트용
-```
+Localhost는 자기 컴퓨터를 가리키는 이름이고 127.0.0.1 로 이어진다. 이 주소로 보낸 요청은 밖으로 나가지 않고 안에서 되돌아온다. 그래서 개발과 시험에는 맞고 운영 서버에는 맞지 않는다.
 
-**vs 0.0.0.0:**
-```
-localhost: 내부만
-0.0.0.0: 모든 네트워크
-```
+## ❓ 이해했는지
 
----
-*카테고리: 네트워크*
+- 만든 서버를 같은 네트워크의 다른 노트북에서 열어보려면 무엇을 바꿔야 하나?
+- 운영 서버를 localhost 로 띄우면 어떤 일이 벌어지나?
+- 한 컴퓨터에서 서비스를 여러 개 동시에 띄울 수 있는 이유는?
+
+## 🔗 관련 용어
+
+- [[IP Address]] — localhost가 가리키는 127.0.0.1이 그중 하나다
+- [[Port]] — 같은 localhost 안에서 서비스를 구별하는 번호
+- [[DNS]] — 이름을 주소로 바꾸는 일반적인 방법. localhost는 hosts 파일이 대신한다
+- [[Port Forwarding]] — 밖에서 안쪽 포트로 들여보내는 방법
+- [[Public IP vs Private IP]] — 밖에서 닿는 주소와 안에서만 쓰는 주소의 구분

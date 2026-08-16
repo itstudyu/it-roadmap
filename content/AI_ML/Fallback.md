@@ -2,248 +2,87 @@
 
 ## 📝 정의
 
-Fallback(폴백)은 첫 번째 시도가 실패했을 때 자동으로 실행되는 **대체 방법**입니다. 하나의 방법이 실패해도 다른 방법을 순차적으로 시도하여 최대한 사용자에게 답변을 제공합니다.
+Fallback은 **첫 시도가 실패했을 때 대신 쓰는 두 번째 방법**이다.
 
-### 핵심 개념
+찾던 곳에 답이 없거나 그 쪽이 응답하지 않을 때, 빈손으로 끝내는 대신 다음 순서로 정해둔 곳에 다시 물어본다. 어디까지 내려갈지와 끝까지 실패하면 무엇을 돌려줄지를 미리 정해두는 것이 폴백 설계다.
 
-- **무엇인가?**: 실패 시 자동으로 다른 방법 시도
-- **왜 필요한가?**: 하나의 실패가 전체 실패로 이어지지 않게
-- **어떻게 작동하나?**: 1차 시도 → 실패 → 2차 시도 → 실패 → 3차 시도...
+### 비유
+편의점에 찾던 음료가 없으면 옆 가게로 가고, 거기도 없으면 비슷한 걸 사는 것과 같다.
 
-### Fallback이 해결하는 문제
+## 🖼️ 그림으로 보기
 
-**문제 상황**:
-```
-😱 시나리오 1: 단일 실패점
-사용자: "재택근무 규정?"
-
-시스템 (Fallback 없음):
-→ FAQ Agent: "FAQ에 없습니다"
-→ 끝! 사용자에게 빈 응답
-→ 불만족! 😱
-
-😱 시나리오 2: 데이터 소스 하나만 의존
-사용자: "육아휴직 기간?"
-
-시스템:
-→ Knowledge DB: [오프라인]
-→ "서비스를 이용할 수 없습니다"
-→ 시스템 장애! 😱
-
-😱 시나리오 3: Agent 과부하
-사용자: "급여명세서 조회"
-
-시스템:
-→ Payroll Agent: [과부하로 응답 없음]
-→ 타임아웃... 응답 없음
-→ 사용자 이탈! 😱
+```도해
+흐름: 첫 번째가 답을 못 주면 무슨 일이 일어나나
+질문 :: 사용자가 규정을 물어본다
+1순위 :: FAQ 에서 찾는다. 없다
+2순위 :: 문서 검색으로 넘어간다. 찾았다
+응답 :: 찾은 내용을 돌려준다
+< 최종 :: 전부 실패하면 정해둔 문구를 돌려준다
+= 실패를 끝이 아니라 다음 순서로 넘어가는 신호로 쓴다
 ```
 
-**Fallback의 해결**:
-```
-✅ 시나리오 1 (Fallback 체인):
-1차: FAQ Agent → "없음"
-2차: Knowledge Agent → "취업규칙 제15조..."
-→ 답변 성공! ✅
+## ⚠️ 해결하는 문제
 
-✅ 시나리오 2:
-1차: Knowledge DB → [오프라인]
-2차: 웹 검색 Agent → "육아휴직은..."
-3차: 일반 LLM → "일반적으로..."
-→ 답변 제공! ✅
-
-✅ 시나리오 3:
-1차: Payroll Agent → [타임아웃]
-2차: 백업 Payroll Agent → "급여명세서는..."
-→ 서비스 지속! ✅
+```도해
+대조: 첫 시도가 실패하면 어떻게 되나
+폴백 없이 || 폴백으로
+답 없음 :: 빈 화면 || 다음에 물어봄
+한 곳 장애 :: 전체 멈춤 || 그 순서만 건너뜀
+사용자 :: 그냥 떠남 || 어떻게든 받음
+= 한 곳의 실패를 전체의 실패로 만들지 않는 장치다
 ```
 
-**비유**:
-- **Fallback 없음** = 주문 음식이 품절이면 굶음
-- **Fallback 있음** = 품절이면 다른 메뉴 추천 받음
+정보를 한 곳에서만 찾으면 그 한 곳의 사정이 그대로 결과가 된다. 자료가 아직 안 들어갔거나, 그 서비스가 잠깐 멈췄거나, 응답이 늦으면 사용자에게는 전부 똑같이 "답이 없다"로 보인다.
 
-## 💡 실제 구현
+폴백은 그 실패를 신호로 바꾼다. 찾지 못했다는 응답이 오면 다음 순서로 넘어가고, 마지막까지 못 찾으면 그때는 무엇을 돌려줄지 정해둔 문구가 나간다. 실패하더라도 무엇을 받을지가 정해져 있다.
 
-### 기본 Fallback 체인
+## ⚙️ 작동 원리
 
-```python
-from typing import List, Callable, Optional
+순서를 정하는 기준은 대개 빠르고 정확한 것부터다. 미리 정리된 FAQ가 있으면 그것부터 보고, 없으면 문서 검색으로, 그것도 없으면 더 넓은 곳으로 내려간다. 아래로 갈수록 답을 찾을 확률은 올라가고 정확도는 떨어진다.
 
-class FallbackChain:
-    """Fallback 체인 관리자"""
+여기서 까다로운 것은 "실패"를 무엇으로 볼지다. 오류가 난 경우는 명확하지만, 응답이 오긴 왔는데 "찾을 수 없습니다"인 경우도 실패로 봐야 한다. 이걸 성공으로 처리하면 체인은 첫 단계에서 멈추고 아래 순서는 영영 쓰이지 않는다.
 
-    def __init__(self, agents: List[Callable]):
-        """
-        Args:
-            agents: Agent 함수 리스트 (우선순위 순)
-        """
-        self.agents = agents
+질문 종류마다 순서를 따로 두기도 한다. 사내 규정을 묻는 질문과 화면 위치를 묻는 질문은 뒤져야 할 곳이 다르기 때문이다.
 
-    def execute(self, user_input: str) -> str:
-        """Fallback 체인 실행"""
+## 📊 비교: 폴백과 에스컬레이션
 
-        for i, agent in enumerate(self.agents, 1):
-            agent_name = agent.__name__
-            print(f"[Try {i}/{len(self.agents)}] {agent_name}")
+| | 폴백 | 에스컬레이션 |
+|---|---|---|
+| 하는 일 | 다른 방법으로 다시 시도 | 사람에게 넘김 |
+| 사람 개입 | 없다 | 필요하다 |
+| 언제 | 한 방법이 실패했을 때 | 방법이 다 떨어졌을 때 |
+| 비용 | 낮다 | 높다 |
 
-            try:
-                result = agent(user_input)
+## 💡 실제 사례
 
-                # 결과 검증
-                if self._is_valid(result):
-                    print(f"✅ {agent_name} 성공!")
-                    return result
-                else:
-                    print(f"❌ {agent_name} 실패 (결과 없음)")
+- **답변 체인** FAQ에 없으면 사내 문서를 뒤지고, 거기에도 없으면 더 일반적인 답변으로 내려간다.
+- **응답이 늦을 때** 정해둔 시간 안에 답이 안 오면 기다리지 않고 다음 순서로 넘긴다.
+- **최종 문구** 전부 실패하면 "찾지 못했다"와 함께 다음에 어디로 가면 되는지를 같이 알려준다.
 
-            except Exception as e:
-                print(f"❌ {agent_name} 오류: {e}")
-                continue
+## 🚫 흔한 오해
 
-        # 모든 시도 실패
-        return self._default_response(user_input)
+- **폴백은 그냥 다시 시도하는 것이다** — 같은 곳에 다시 묻는 건 재시도다. 폴백은 다른 곳에 묻는 것이고, 안 되는 곳을 계속 두드리지 않는다는 점이 다르다.
+- **폴백을 많이 걸어둘수록 좋다** — 순서가 길어지면 실패할 때마다 시간이 쌓인다. 마지막 순서까지 갔을 때 사용자가 얼마나 기다리게 되는지가 실제 상한이다.
+- **폴백이 있으면 장애가 안 보인다** — 안 보이는 게 문제다. 아래 순서로 계속 내려가고 있다는 사실을 기록해두지 않으면 1순위가 죽은 채로 오래 방치된다.
 
-    def _is_valid(self, result: Optional[str]) -> bool:
-        """결과 유효성 검사"""
-        if not result:
-            return False
+## 🚨 주의사항
 
-        # 불충분한 응답 필터링
-        invalid_keywords = [
-            "찾을 수 없",
-            "결과가 없",
-            "모르겠"
-        ]
-        return not any(kw in result for kw in invalid_keywords)
+- **아래로 내려갈수록 답의 근거가 약해진다.** 어느 순서에서 나온 답인지 사용자에게 알려주지 않으면, 확실한 답과 대충 맞는 답이 같은 얼굴로 나간다.
+- **모든 실패를 같게 다루지 않는다.** 자료가 없어서 못 찾은 것과 서비스가 죽어서 못 받은 것은 다음 대응이 달라야 한다.
 
-    def _default_response(self, user_input: str) -> str:
-        """최종 기본 응답"""
-        return f"죄송합니다. '{user_input}'에 대한 정보를 찾을 수 없습니다."
+## 📝 정리
 
+Fallback은 첫 방법이 실패했을 때 미리 정해둔 다음 방법으로 넘어가는 구조다. 순서를 정하는 일보다 무엇을 실패로 볼지, 끝까지 실패하면 무엇을 돌려줄지를 정하는 일이 실제 설계다. 내려가고 있다는 사실을 남기지 않으면 장애가 조용히 묻힌다.
 
-# Agent 정의
-def faq_agent(query: str) -> Optional[str]:
-    """FAQ 검색"""
-    faq_db = {
-        "비밀번호": "비밀번호는 초기화 메뉴에서 재설정하세요."
-    }
-    return faq_db.get(query)
+## ❓ 이해했는지
 
-def knowledge_agent(query: str) -> Optional[str]:
-    """Knowledge Base 검색"""
-    if "연차" in query:
-        return "취업규칙 제10조: 연차는 연간 20일입니다."
-    return None
-
-def web_search_agent(query: str) -> Optional[str]:
-    """웹 검색 (최후 수단)"""
-    return f"'{query}'에 대한 웹 검색 결과입니다..."
-
-
-# Fallback 체인 구성 (우선순위 순)
-chain = FallbackChain([
-    faq_agent,           # 1순위: 가장 빠름
-    knowledge_agent,     # 2순위: 정확함
-    web_search_agent     # 3순위: 최후 수단
-])
-
-# 실행
-result = chain.execute("연차")
-print(f"\n최종 결과: {result}")
-```
-
-**실행 과정**:
-```
-[Try 1/3] faq_agent
-❌ faq_agent 실패 (결과 없음)
-[Try 2/3] knowledge_agent
-✅ knowledge_agent 성공!
-
-최종 결과: 취업규칙 제10조: 연차는 연간 20일입니다.
-```
-
-### Intent별 Fallback 전략
-
-서로 다른 Intent에 맞는 Fallback 체인:
-
-```python
-class SmartFallbackRouter:
-    """Intent별 최적화된 Fallback"""
-
-    def __init__(self):
-        # Intent별로 다른 Fallback 체인
-        self.fallback_strategies = {
-            "faq": [faq_agent, knowledge_agent],
-            "knowledge": [knowledge_agent, web_search_agent],
-            "navigation": [navigation_agent, general_help_agent]
-        }
-
-    def execute(self, user_input: str, intent: str) -> str:
-        """Intent에 맞는 Fallback 실행"""
-
-        agents = self.fallback_strategies.get(intent, [])
-        if not agents:
-            return "적절한 Agent를 찾을 수 없습니다."
-
-        chain = FallbackChain(agents)
-        return chain.execute(user_input)
-```
-
-**사용 예시**:
-```python
-router = SmartFallbackRouter()
-
-# FAQ Intent
-result1 = router.execute("비밀번호 찾기", intent="faq")
-# → faq_agent 시도 → knowledge_agent 시도
-
-# Knowledge Intent
-result2 = router.execute("육아휴직 규정", intent="knowledge")
-# → knowledge_agent 시도 → web_search_agent 시도
-```
-
-## 🎯 Fallback 전략 비교
-
-| 전략 | 설명 | 장점 | 단점 |
-|------|------|------|------|
-| **Sequential** | 순차적 시도 | 간단, 명확 | 느릴 수 있음 |
-| **Parallel** | 동시 실행 | 빠름 | 리소스 소모 많음 |
-| **Weighted** | 우선순위 기반 | 효율적 | 설정 필요 |
-| **Adaptive** | 과거 성공률 기반 | 최적화됨 | 복잡함 |
-
-**실제 선택 가이드**:
-```
-속도보다 정확성이 중요 → Sequential
-빠른 응답이 중요 → Parallel
-리소스 제한 있음 → Weighted
-장기 운영 시스템 → Adaptive
-```
-
-## 📊 Fallback vs Escalation
-
-| 특성 | Fallback | Escalation |
-|------|----------|------------|
-| **목적** | 대안 방법 찾기 | 사람에게 인계 |
-| **자동화** | 완전 자동 | 사람 개입 필요 |
-| **비용** | 낮음 | 높음 |
-| **속도** | 빠름 | 느림 |
-| **시점** | Agent 실패 시 | AI 한계 도달 시 |
-
-**실제 흐름**:
-```
-1. 요청 수신
-2. Primary Agent 시도
-3. 실패 → Fallback Agent들 시도
-4. 모든 Fallback 실패 → Escalation (사람에게)
-```
+- 1순위가 "찾을 수 없습니다"라고 답했을 때 이걸 성공으로 처리하면 무슨 일이 벌어지나?
+- 재시도만 걸어두는 것과 폴백을 두는 것은 무엇이 다른가?
+- 폴백을 다섯 단계로 늘리면 사용자 쪽에서는 무엇이 나빠지나?
 
 ## 🔗 관련 용어
 
-- [[AI Agent]]: Fallback의 주체
-- [[Routing]]: 첫 Agent 선택
-- [[Escalation]]: Fallback 실패 후 단계
-- [[RAG]]: Fallback에서 사용할 수 있는 기술
-
----
-*카테고리: AI-ML*
-*생성일: 2026-02-14*
+- [[Escalation]] — 폴백이 다 끝난 뒤에 사람에게 넘기는 단계
+- [[Circuit Breaker]] — 죽은 곳을 아예 부르지 않게 막는 장치. 폴백과 짝으로 쓴다
+- [[Routing]] — 첫 번째로 어디에 물어볼지 고르는 쪽
+- [[RAG]] — 폴백 순서에 자주 들어가는 문서 검색 방식

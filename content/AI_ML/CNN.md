@@ -2,217 +2,98 @@
 
 ## 📝 정의
 
-CNN(Convolutional Neural Network, 합성곱 신경망)은 **이미지 인식에 특화된 딥러닝 모델**로, 이미지의 패턴을 자동으로 학습합니다.
+CNN은 **이미지에서 무늬를 찾아내도록 만든 신경망**이다.
 
-### 핵심 개념
+보통의 신경망은 픽셀을 하나씩 따로 받는다. 100×100 이미지면 입력이 1만 개고, 옆 픽셀과 붙어 있다는 사실은 사라진다. CNN은 작은 창을 이미지 위로 옮겨가며 보기 때문에 그 관계가 남는다.
 
-- **무엇인가?**: 이미지의 특징을 추출하여 분류하는 신경망
-- **왜 필요한가?**: 일반 신경망은 이미지의 공간 정보를 무시함
-- **어떻게 작동하나?**: Convolution → Pooling → Fully Connected 레이어
+### 비유
+도장. 같은 무늬가 새겨진 도장을 사진 위 여기저기에 찍어보며 어디에서 잘 맞는지 표시하는 것과 비슷하다.
 
-### CNN이 해결하는 문제
+## 🖼️ 그림으로 보기
 
-**문제 상황**:
-```
-😱 시나리오: 일반 신경망으로 이미지 인식
-이미지 100x100 픽셀 = 10,000개 입력
-→ 모든 픽셀을 독립적으로 처리
-→ "눈", "코", "입"의 위치 관계 무시
-→ 정확도 낮음! 😱
-```
-
-**CNN의 해결**:
-```
-✅ 공간 정보 보존:
-이미지 → Convolution 필터
-→ 엣지, 코너, 패턴 자동 학습
-→ "눈 2개 + 코 1개 + 입 1개" 위치 관계 학습
-→ 높은 정확도! ✅
+```도해
+흐름: 사진 한 장이 "고양이" 라는 답이 되기까지 무엇을 지나나
+입력 :: 픽셀 값이 격자 그대로 들어온다
+합성곱 :: 작은 필터를 옮겨가며 무늬를 찾는다
+풀링 :: 크기를 줄인다. 위치가 조금 달라도 견딘다
+반복 :: 합성곱과 풀링을 다시. 무늬가 커진다
+완전연결 :: 모아둔 특징을 근거로 분류한다
+< 출력 :: 고양이 90%, 개 10%
+= 앞에서 무늬를 찾고, 뒤에서 그 무늬를 근거로 고른다
 ```
 
-**비유**:
-- **일반 신경망** = 퍼즐 조각을 랜덤하게 섞어서 맞추기
-- **CNN** = 이웃한 조각부터 차례로 맞추기
+## ⚠️ 해결하는 문제
 
-## 💡 핵심 레이어
-
-### 1. Convolution Layer (합성곱층)
-```python
-# 필터(커널)로 이미지 특징 추출
-import numpy as np
-
-def convolve(image, kernel):
-    """
-    image: 입력 이미지
-    kernel: 3x3 필터
-    """
-    h, w = image.shape
-    kh, kw = kernel.shape
-    
-    output = np.zeros((h - kh + 1, w - kw + 1))
-    
-    for i in range(h - kh + 1):
-        for j in range(w - kw + 1):
-            # 필터와 이미지 영역의 곱의 합
-            output[i, j] = np.sum(
-                image[i:i+kh, j:j+kw] * kernel
-            )
-    
-    return output
-
-# 엣지 검출 필터
-edge_filter = np.array([
-    [-1, -1, -1],
-    [-1,  8, -1],
-    [-1, -1, -1]
-])
-
-features = convolve(image, edge_filter)
+```도해
+대조: 픽셀을 하나씩 따로 보면 무엇이 안 되나
+일반 신경망 || CNN
+이웃 픽셀 :: 관계가 끊김 || 함께 본다
+가중치 :: 픽셀마다 따로 || 필터를 공유
+위치 이동 :: 다른 것으로 봄 || 같은 것으로 봄
+= 이미지는 이웃끼리 뭉쳐 뜻을 이루므로 이웃을 같이 봐야 한다
 ```
 
-### 2. Pooling Layer (풀링층)
-```python
-def max_pooling(image, pool_size=2):
-    """
-    이미지 크기 축소 (다운샘플링)
-    2x2 영역에서 최댓값만 선택
-    """
-    h, w = image.shape
-    
-    output = np.zeros((h // pool_size, w // pool_size))
-    
-    for i in range(0, h, pool_size):
-        for j in range(0, w, pool_size):
-            # 2x2 영역에서 최댓값
-            output[i//pool_size, j//pool_size] = np.max(
-                image[i:i+pool_size, j:j+pool_size]
-            )
-    
-    return output
+눈이 사진의 어디에 있든 눈은 눈이다. 픽셀을 하나씩 독립적으로 받는 신경망은 이걸 모른다. 고양이가 왼쪽에 있는 사진과 오른쪽에 있는 사진이 완전히 다른 입력으로 들어온다.
 
-# 사용
-pooled = max_pooling(features, pool_size=2)
-# 28x28 → 14x14 크기 축소
+CNN은 같은 필터를 이미지 전체에 옮겨가며 쓴다. 그래서 무늬가 어디에 있든 같은 무늬로 잡히고, 학습해야 할 값의 개수도 크게 줄어든다.
+
+## ⚙️ 작동 원리
+
+필터는 작은 숫자 격자다. 가운데를 크게 하고 둘레를 음수로 두면 밝기가 갑자기 꺾이는 자리, 곧 모서리에 큰 값이 나온다.
+
+```
+-1 -1 -1
+-1  8 -1
+-1 -1 -1
 ```
 
-### 3. Fully Connected Layer
-```python
-# 최종 분류
-# Flatten: 2D → 1D
-# Dense: 완전 연결
-output = softmax(flatten(pooled) @ weights + bias)
-# → [0.9, 0.1]  # 90% 고양이, 10% 개
+이 격자를 이미지 위에서 한 칸씩 옮기며 곱하고 더한 결과가 다음 층의 입력이 된다. 어떤 숫자를 넣을지는 사람이 정하지 않고 학습으로 정해진다.
+
+```도해
+층: 층이 깊어질수록 무엇을 알아보나
+1층 :: 밝기가 꺾이는 자리. 선과 모서리
+2층 :: 선이 모인 모양. 곡선, 꺾임
+3층 :: 눈이나 코 같은 부분
+마지막 :: 부분들의 배치. 고양이인지 아닌지
+= 앞층이 찾은 것을 재료로 뒷층이 더 큰 것을 찾는다
 ```
 
-## 💡 PyTorch 구현
+층 사이에는 풀링이 들어간다. 2×2 영역에서 가장 큰 값만 남기는 식으로 크기를 절반으로 줄이는데, 이 덕분에 무늬가 몇 픽셀 밀려 있어도 같은 결과가 나온다.
 
-```python
-import torch
-import torch.nn as nn
+## 📊 비교: 대표적인 CNN 구조
 
-class SimpleCNN(nn.Module):
-    def __init__(self):
-        super(SimpleCNN, self).__init__()
-        
-        # Convolution Layers
-        self.conv1 = nn.Conv2d(
-            in_channels=1,    # 흑백 이미지
-            out_channels=32,  # 필터 32개
-            kernel_size=3,    # 3x3 필터
-            padding=1         # 크기 유지
-        )
-        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
-        
-        # Pooling Layer
-        self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
-        
-        # Fully Connected Layers
-        self.fc1 = nn.Linear(64 * 7 * 7, 128)
-        self.fc2 = nn.Linear(128, 10)  # 10개 클래스
-        
-        # Activation & Dropout
-        self.relu = nn.ReLU()
-        self.dropout = nn.Dropout(0.5)
-    
-    def forward(self, x):
-        # Conv1 → ReLU → Pool
-        x = self.pool(self.relu(self.conv1(x)))
-        # 28x28 → 14x14
-        
-        # Conv2 → ReLU → Pool
-        x = self.pool(self.relu(self.conv2(x)))
-        # 14x14 → 7x7
-        
-        # Flatten
-        x = x.view(-1, 64 * 7 * 7)
-        
-        # Fully Connected
-        x = self.relu(self.fc1(x))
-        x = self.dropout(x)
-        x = self.fc2(x)
-        
-        return x
+| 모델 | 연도 | 달라진 점 |
+|---|---|---|
+| LeNet-5 | 1998 | 최초의 CNN. 손글씨 인식 |
+| AlexNet | 2012 | ImageNet 우승. ReLU 사용 |
+| VGGNet | 2014 | 층을 16~19개까지 깊게 |
+| ResNet | 2015 | 층을 건너뛰는 연결로 152층까지 |
 
-# 모델 생성 및 학습
-model = SimpleCNN()
+## 💡 실제 사례
 
-# 손실 함수 & 옵티마이저
-criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+- **얼굴 인식** 사진에서 얼굴 위치를 찾고 누구인지 고르는 데 쓴다.
+- **물체 감지** 한 장면에서 자동차 3대와 사람 5명을 각각 상자로 표시한다.
+- **학습된 모델 재사용** 이미 학습된 모델을 가져와 마지막 층만 바꿔 쓰는 방식이 흔하다.
 
-# 학습
-for epoch in range(10):
-    for images, labels in train_loader:
-        # Forward
-        outputs = model(images)
-        loss = criterion(outputs, labels)
-        
-        # Backward
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-    
-    print(f"Epoch {epoch+1}, Loss: {loss.item():.4f}")
-```
+## 🚫 흔한 오해
 
-## 🎯 유명한 CNN 아키텍처
+- **CNN은 이미지에만 쓴다** — 이웃끼리 뭉쳐 뜻을 이루는 데이터면 쓸 수 있다. 소리 파형이나 문장에도 같은 방식을 적용한다.
+- **필터의 숫자를 사람이 정해준다** — 어떤 무늬를 찾을지까지 학습으로 정해진다. 사람이 정하는 건 필터의 크기와 개수다.
+- **층을 깊게 쌓을수록 좋아진다** — 어느 지점을 넘으면 오히려 학습이 안 된다. 층을 건너뛰는 연결 같은 장치가 나온 이유가 그것이다.
 
-| 모델 | 연도 | 특징 |
-|------|------|------|
-| **LeNet-5** | 1998 | 최초의 CNN (손글씨 인식) |
-| **AlexNet** | 2012 | ImageNet 우승, ReLU 사용 |
-| **VGGNet** | 2014 | 깊은 네트워크 (16-19 layers) |
-| **ResNet** | 2015 | Skip Connection (152 layers) |
-| **EfficientNet** | 2019 | 효율적인 스케일링 |
+## 📝 정리
 
-## 💡 활용 사례
+CNN은 작은 필터를 이미지 위로 옮겨가며 무늬를 찾는 신경망이다. 앞층은 선과 모서리를 보고 뒷층은 그것이 모인 부분을 보며, 마지막에 그 특징들로 분류한다.
 
-```python
-# 얼굴 인식
-from torchvision import models
+## ❓ 이해했는지
 
-# 사전 학습된 모델 사용
-model = models.resnet50(pretrained=True)
-
-# 이미지 분류
-image = load_image('photo.jpg')
-prediction = model(image)
-# → "사람: 95%"
-
-# 물체 감지
-from torchvision.models.detection import fasterrcnn_resnet50_fpn
-
-detector = fasterrcnn_resnet50_fpn(pretrained=True)
-boxes, labels, scores = detector(image)
-# → 자동차 3대, 사람 5명 감지
-```
+- 픽셀을 하나씩 따로 받는 신경망이 이미지에서 약한 이유는?
+- 고양이가 사진 왼쪽에 있든 오른쪽에 있든 같게 보이게 만드는 단계는?
+- 층이 깊어지면 각 층이 알아보는 것은 어떻게 달라지나?
 
 ## 🔗 관련 용어
 
-- [[RNN]]: 순차 데이터용 신경망
-- [[Transfer Learning]]: 사전 학습 모델 활용
-- [[Image Augmentation]]: 데이터 증강
-
----
-*카테고리: AI-ML*
-*생성일: 2026-02-14*
+- [[Transformer]] — 이웃 대신 전체의 관계를 보는 다른 신경망 구조
+- [[Fine-tuning]] — 이미 학습된 CNN을 내 데이터에 맞게 다시 다듬는 일
+- [[Embedding]] — CNN이 뽑아낸 특징도 결국 숫자 벡터로 남는다
+- [[LLM]] — 언어를 다루는 쪽. CNN이 이미지에서 하는 일에 대응한다

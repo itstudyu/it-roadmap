@@ -2,341 +2,80 @@
 
 ## 📝 정의
 
-CRM(Customer Relationship Management, 고객 관계 관리)은 **고객 정보를 체계적으로 관리하고 분석**하여, 고객과의 관계를 강화하고 매출을 증대시키는 시스템입니다.
+CRM은 **고객과 주고받은 일을 한곳에 모아두는 시스템**이다.
 
-### 핵심 개념
+영업, 지원, 마케팅이 각자 다른 파일로 고객을 관리하면 같은 사람에게 두 번 연락하고, 누가 언제 무슨 말을 했는지 아무도 모르게 된다. CRM은 그 기록을 한 군데로 모으고, 다음에 누구를 먼저 볼지 정하는 데 쓴다.
 
-- **무엇인가?**: 고객 데이터 통합 관리 플랫폼
-- **왜 필요한가?**: 고객 정보 분산 → 비효율, 기회 손실
-- **어떻게 작동하나?**: 고객 접점 데이터 수집 → 분석 → 맞춤형 대응
+### 비유
+단골 가게 주인의 기억. 지난번에 뭘 샀고 무슨 말을 했는지 알고 있어서 다시 묻지 않는다.
 
-### CRM이 해결하는 문제
-
-**문제 상황**:
-```
-😱 시나리오 1: 고객 정보 분산
-영업팀 → Excel 파일로 관리
-고객 지원팀 → 다른 시스템 사용
-→ 같은 고객인데 중복 연락
-→ 고객 불만! 😱
-
-😱 시나리오 2: 기회 손실
-잠재 고객 100명 → 누구에게 먼저 연락?
-→ 우선순위 불명확
-→ 중요 고객 놓침! 😱
-```
-
-**CRM의 해결**:
-```
-✅ 통합 관리:
-모든 팀 → 하나의 CRM 시스템
-→ 고객 이력 실시간 공유
-→ 자동 우선순위 (구매 가능성 높은 순)
-→ 효율 + 매출 증가! ✅
-```
-
-**비유**:
-- **CRM 없음** = 메모지에 고객 정보 (분실 위험)
-- **CRM** = 디지털 고객 수첩 (검색, 분석 가능)
-
-## 📊 CRM 구조
+## 🖼️ 그림으로 보기
 
 ```도해
-층: CRM, 어떻게 나뉘어 있나
-Data :: 이메일 · 전화 · 웹사이트 · 소셜미디어
-CRM :: 연락처 관리 · 리드 관리 · 거래 관리 · 분석/리포트
-Action :: 마케팅 자동화 · 영업 활동 · 고객 지원
+흐름: 문의 하나가 계약이 될 때까지 무엇이 남나
+접점 :: 메일, 전화, 문의 폼으로 사람이 들어온다
+연락처 :: 같은 사람이면 기존 기록에 붙인다
+점수 :: 회사 규모나 반응으로 순위를 매긴다
+거래 :: 제안, 협상 같은 단계를 옮겨 적는다
+< 결과 :: 성사와 실패를 남겨 다음 판단에 쓴다
+= 흩어진 접점을 한 사람의 이력으로 묶는 것이 CRM 이 하는 일이다
 ```
 
-## 💡 CRM 핵심 기능
+## ⚠️ 해결하는 문제
 
-### 1. 연락처 관리
-```python
-# 고객 정보 통합
-class Contact:
-    def __init__(self, email):
-        self.email = email
-        self.name = None
-        self.company = None
-        self.phone = None
-        self.interactions = []  # 모든 접점 기록
-    
-    def add_interaction(self, type, content):
-        """고객 접점 기록"""
-        self.interactions.append({
-            'type': type,  # email, call, meeting
-            'content': content,
-            'timestamp': datetime.now()
-        })
-    
-    def get_last_contact(self):
-        """마지막 연락 일자"""
-        if self.interactions:
-            return self.interactions[-1]['timestamp']
-        return None
-
-# 사용
-customer = Contact('john@example.com')
-customer.add_interaction('email', '제품 문의')
-customer.add_interaction('call', '데모 요청')
+```도해
+대조: 고객 기록이 팀마다 흩어져 있으면 어떻게 되나
+CRM 없이 || CRM 으로
+같은 고객 :: 팀마다 따로 봄 || 한 사람으로 봄
+연락 순서 :: 눈에 띄는 순 || 점수 높은 순
+담당자 교체 :: 이력이 사라짐 || 기록이 남는다
+= 사람이 기억하던 것을 시스템이 기억하게 만드는 일이다
 ```
 
-### 2. 리드 스코어링
-```python
-def calculate_lead_score(lead):
-    """
-    리드 점수 계산 (구매 가능성)
-    """
-    score = 0
-    
-    # 회사 규모
-    if lead.company_size > 1000:
-        score += 30
-    elif lead.company_size > 100:
-        score += 20
-    
-    # 직급
-    if lead.job_title in ['CEO', 'CTO', 'VP']:
-        score += 25
-    
-    # 웹사이트 활동
-    score += lead.page_views * 2
-    
-    # 이메일 반응
-    if lead.email_opened:
-        score += 10
-    if lead.email_clicked:
-        score += 20
-    
-    # 최근 활동
-    days_since_activity = (datetime.now() - lead.last_activity).days
-    if days_since_activity < 7:
-        score += 15
-    
-    return score
+영업팀은 엑셀에, 지원팀은 다른 도구에 고객을 적어두면 두 곳 어디에도 그 고객의 전체 그림이 없다. 어제 불만을 접수한 고객에게 오늘 신규 제안 메일이 나가는 일이 여기서 생긴다.
 
-# 우선순위 정렬
-leads = sorted(all_leads, key=calculate_lead_score, reverse=True)
+기록이 한곳에 모이면 판단 기준도 생긴다. 잠재 고객이 백 명일 때 누구부터 연락할지, 어느 건이 어느 단계에 멈춰 있는지가 사람의 감이 아니라 남은 기록으로 정해진다.
 
-# 점수 높은 리드부터 연락
-for lead in leads[:10]:
-    print(f"{lead.name}: {calculate_lead_score(lead)} 점")
+## ⚙️ 작동 원리
+
+```도해
+층: CRM 은 무엇을 쌓아 올린 것인가
+행동 :: 자동 발송, 담당자 배정, 리포트
+판단 :: 점수와 단계. 누구를 먼저 볼지 정한다
+고객 정보 :: 연락처 하나로 묶인 이력과 상태
+접점 데이터 :: 메일, 통화, 웹 방문, 문의 기록
+= 아래가 쌓이지 않으면 위는 전부 감으로 돌아간다
 ```
 
-### 3. 판매 파이프라인
-```python
-class Deal:
-    """거래 (영업 기회)"""
-    STAGES = [
-        'lead',           # 리드
-        'qualified',      # 검증됨
-        'proposal',       # 제안서 발송
-        'negotiation',    # 협상
-        'closed_won',     # 수주
-        'closed_lost'     # 실패
-    ]
-    
-    def __init__(self, customer, value):
-        self.customer = customer
-        self.value = value
-        self.stage = 'lead'
-        self.probability = 10  # 수주 확률 10%
-    
-    def move_to_stage(self, stage):
-        """단계 이동"""
-        if stage not in self.STAGES:
-            raise ValueError("Invalid stage")
-        
-        self.stage = stage
-        
-        # 단계별 수주 확률
-        probabilities = {
-            'lead': 10,
-            'qualified': 20,
-            'proposal': 50,
-            'negotiation': 75,
-            'closed_won': 100,
-            'closed_lost': 0
-        }
-        
-        self.probability = probabilities[stage]
-    
-    def expected_revenue(self):
-        """예상 매출"""
-        return self.value * (self.probability / 100)
+리드 스코어링은 아직 고객이 아닌 사람에게 점수를 매기는 일이다. 회사 규모, 직급, 최근에 메일을 열었는지 같은 것을 더해 숫자 하나로 만들고, 그 순서대로 연락한다.
 
-# 파이프라인 분석
-total_pipeline = sum(deal.expected_revenue() for deal in all_deals)
-print(f"예상 매출: ${total_pipeline:,.2f}")
-```
+파이프라인은 진행 중인 거래를 단계로 늘어놓은 것이다. 리드에서 시작해 검증, 제안, 협상을 거쳐 성사나 실패로 끝난다. 단계마다 성사 확률을 정해두면 진행 중인 건들의 금액을 확률로 눌러 예상 매출을 낼 수 있다.
 
-## 💡 CRM 자동화
+## 💡 실제 사례
 
-### 이메일 자동화
-```python
-from datetime import timedelta
+- **연락 순서 정하기** 남은 잠재 고객이 백 명이면 점수가 높은 쪽부터 연락한다.
+- **후속 조치 자동화** 며칠 동안 연락이 끊긴 건에 안내 메일이 자동으로 나가고, 담당자에게도 알림이 간다.
+- **예상 매출 보기** 단계별 확률을 곱해 지금 진행 중인 건들이 얼마가 될지 미리 본다.
 
-def automate_follow_up():
-    """자동 후속 조치"""
-    for lead in Lead.objects.filter(stage='qualified'):
-        days_since_contact = (datetime.now() - lead.last_contact).days
-        
-        # 3일 동안 연락 없으면 자동 이메일
-        if days_since_contact >= 3:
-            send_email(
-                to=lead.email,
-                subject=f"안녕하세요 {lead.name}님",
-                body=get_template('follow_up').render(lead=lead)
-            )
-            
-            lead.last_contact = datetime.now()
-            lead.save()
+## 🚫 흔한 오해
 
-# 매일 실행
-schedule.every().day.at("09:00").do(automate_follow_up)
-```
+- **CRM 은 고객 명단을 넣어두는 주소록이다** — 이름과 번호만 들어 있으면 안 넣은 것과 같다. 언제 무슨 말이 오갔고 지금 어느 단계인지가 있어야 판단에 쓰인다.
+- **CRM 을 도입하면 매출이 오른다** — 도구가 파는 것이 아니다. 팀이 기록을 안 남기기 시작하면 그날로 예전 파일 관리로 돌아간다.
+- **영업팀만 쓰는 시스템이다** — 지원팀이 받은 불만도, 마케팅이 보낸 메일도 같은 고객의 이력이다. 한쪽만 쓰면 그 고객의 절반만 보인다.
 
-### 리드 자동 할당
-```python
-def auto_assign_lead(lead):
-    """지역/산업별 영업 담당자 자동 할당"""
-    # 지역별 담당자
-    region_owners = {
-        'Seoul': 'sales_seoul@company.com',
-        'Busan': 'sales_busan@company.com',
-    }
-    
-    # 산업별 전문가
-    industry_experts = {
-        'IT': 'sales_it@company.com',
-        'Healthcare': 'sales_healthcare@company.com',
-    }
-    
-    # 1순위: 산업 전문가
-    if lead.industry in industry_experts:
-        owner = industry_experts[lead.industry]
-    # 2순위: 지역 담당자
-    elif lead.region in region_owners:
-        owner = region_owners[lead.region]
-    # 3순위: Round Robin
-    else:
-        owner = get_least_busy_sales()
-    
-    lead.owner = owner
-    lead.save()
-    
-    # 담당자에게 알림
-    send_notification(owner, f"새 리드 배정: {lead.name}")
-```
+## 📝 정리
 
-## 🎯 주요 CRM 솔루션
+CRM은 고객과의 접점을 한 사람 단위로 묶어 쌓아두는 시스템이다. 쌓인 기록 위에서 누구를 먼저 볼지, 어느 거래가 어디에 멈춰 있는지를 정한다. 기록이 들어가지 않으면 화면만 남는다.
 
-| CRM | 특징 | 적합 대상 |
-|-----|------|----------|
-| **Salesforce** | 가장 강력, 비쌈 | 대기업 |
-| **HubSpot** | 무료 플랜, 마케팅 통합 | 중소기업 |
-| **Pipedrive** | 영업 중심, 직관적 | 영업팀 |
-| **Zoho CRM** | 저렴, 기능 풍부 | 스타트업 |
-| **Microsoft Dynamics** | Office 365 통합 | MS 생태계 |
+## ❓ 이해했는지
 
-## 💡 CRM API 연동
-
-### Salesforce API
-```python
-from simple_salesforce import Salesforce
-
-# 연결
-sf = Salesforce(
-    username='user@company.com',
-    password='password',
-    security_token='token'
-)
-
-# 리드 생성
-lead = sf.Lead.create({
-    'FirstName': 'John',
-    'LastName': 'Doe',
-    'Company': 'Acme Corp',
-    'Email': 'john@acme.com',
-    'LeadSource': 'Web'
-})
-
-# 연락처 조회
-contacts = sf.query("SELECT Id, Name, Email FROM Contact WHERE Company = 'Acme Corp'")
-
-for contact in contacts['records']:
-    print(f"{contact['Name']}: {contact['Email']}")
-
-# 거래 업데이트
-sf.Opportunity.update('006...', {
-    'StageName': 'Closed Won',
-    'Amount': 100000
-})
-```
-
-### HubSpot API
-```python
-import requests
-
-API_KEY = 'your_hubspot_api_key'
-
-# 연락처 생성
-response = requests.post(
-    'https://api.hubapi.com/crm/v3/objects/contacts',
-    headers={'Authorization': f'Bearer {API_KEY}'},
-    json={
-        'properties': {
-            'email': 'john@example.com',
-            'firstname': 'John',
-            'lastname': 'Doe',
-            'company': 'Acme Corp'
-        }
-    }
-)
-
-contact_id = response.json()['id']
-
-# 거래 생성
-deal = requests.post(
-    'https://api.hubapi.com/crm/v3/objects/deals',
-    headers={'Authorization': f'Bearer {API_KEY}'},
-    json={
-        'properties': {
-            'dealname': 'New Deal',
-            'amount': '50000',
-            'dealstage': 'qualifiedtobuy'
-        }
-    }
-)
-```
-
-## 📊 CRM 분석
-
-```python
-# 월별 매출 추이
-import pandas as pd
-
-deals = Deal.objects.filter(stage='closed_won')
-df = pd.DataFrame(list(deals.values('close_date', 'amount')))
-
-monthly_revenue = df.groupby(
-    df['close_date'].dt.to_period('M')
-)['amount'].sum()
-
-# 전환율 분석
-total_leads = Lead.objects.count()
-converted = Deal.objects.filter(stage='closed_won').count()
-conversion_rate = (converted / total_leads) * 100
-
-print(f"전환율: {conversion_rate:.1f}%")
-```
+- 어제 불만을 접수한 고객에게 오늘 제안 메일이 나가는 일은 왜 생기나?
+- 잠재 고객이 백 명일 때 누구부터 연락할지 무엇을 보고 정하나?
+- 담당자가 바뀌어도 고객 이력이 이어지려면 무엇이 남아 있어야 하나?
 
 ## 🔗 관련 용어
 
-- [[Marketing Automation]]: CRM과 통합
-- [[Sales Pipeline]]: CRM 핵심 기능
-- [[Customer Data Platform]]: CRM 데이터 활용
-
----
-*카테고리: 비즈니스*
-*생성일: 2026-02-14*
+- [[Funnel]] — 고객이 단계를 밟아 내려가는 흐름. 파이프라인이 이걸 그린 것
+- [[KPI]] — 전환율이나 성사율처럼 CRM 기록에서 뽑아내는 숫자
+- [[CAC LTV]] — 한 고객을 데려오는 비용과 그 고객이 남기는 값. CRM 데이터로 계산한다
+- [[PII]] — CRM에 쌓이는 개인정보. 다루는 방식이 따로 정해져 있다

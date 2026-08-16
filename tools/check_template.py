@@ -213,7 +213,9 @@ def check_selfcheck(body: str, bad: list[str]) -> None:
         if len(ask) < CHECK_MIN:
             bad.append(f"확인 질문이 너무 짧다 — {ask}")
         # "X 란 무엇인가" 는 외웠는지만 확인된다. 이해했는지는 상황을 줘야 나온다.
-        if re.search(r"(란\s*(무엇|뭔가)|이란\s*무엇|은\s*무엇인가|는\s*무엇인가)", ask):
+        # 되묻기는 용어가 문장 맨 앞에 설 때만 성립한다. 앞에 상황을 깔아둔
+        # "...하게 만드는 실수는 무엇인가" 는 되묻기가 아니라 적용 문제다.
+        if re.match(r"^\S{1,20}\s*(란|이란|은|는)\s*(무엇|뭔가|뭐)", ask):
             bad.append(f"정의를 되묻는 질문이다 — {ask}")
 
 

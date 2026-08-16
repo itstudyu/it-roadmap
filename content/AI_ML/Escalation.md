@@ -2,190 +2,76 @@
 
 ## 📝 정의
 
-Escalation(에스컬레이션)은 AI Agent가 스스로 해결할 수 없는 문제를 **사람에게 넘기는** 과정입니다. AI의 한계를 인정하고 인간에게 도움을 요청하여 사용자 경험을 보장합니다.
+Escalation은 **AI가 못 푸는 대화를 사람에게 넘기는 절차**다.
 
-### 핵심 개념
+넘길 길이 없으면 AI는 모르는 것도 답하려 든다. 확신이 낮거나 권한이 필요하거나 사용자가 이미 화가 나 있으면, 계속 붙잡고 있는 것보다 담당자에게 넘기는 편이 낫다.
 
-- **무엇인가?**: AI가 해결 못 하는 문제를 사람에게 전달
-- **왜 필요한가?**: AI는 완벽하지 않고, 때로는 사람의 판단이 필요
-- **언제 발생하나?**: 낮은 신뢰도, 반복 실패, 복잡한 문제 등
+### 비유
+신입 상담원이 모르는 질문을 받으면 선배를 부르는 것. 억지로 답하는 쪽이 더 큰일을 만든다.
 
-### Escalation이 해결하는 문제
+## 🖼️ 그림으로 보기
 
-**문제 상황**:
-```
-😱 시나리오 1: AI가 계속 잘못된 답변
-사용자: "재택근무 신청 방법?"
-AI: "FAQ에 없습니다"
-사용자: "규정에 있을 텐데?"
-AI: "찾을 수 없습니다"
-사용자: (짜증) "도대체!"
-→ 사용자 불만 폭발! 😱
-
-😱 시나리오 2: 애매한 상황
-사용자: "특별 휴가 승인해줘"
-AI: "특별 휴가가 뭐죠?"
-사용자: "결혼 휴가"
-AI: "승인 권한이 없습니다"
-→ AI가 처리 못함! 😱
-
-😱 시나리오 3: 감정적 사용자
-사용자: "화났어! 담당자 연결해!"
-AI: "FAQ를 먼저 확인해보시겠어요?"
-→ 사용자 더 화남! 😱
+```도해
+흐름: 답을 못 찾은 대화는 어디로 가나
+사용자 :: 규정에 관해 묻는다
+AI :: 근거를 못 찾고 확신도 낮다
+판정 :: 넘길 조건에 걸리는지 본다
+티켓 :: 대화 내용을 담아 티켓을 만든다
+< 담당자 :: 사람이 이어받아 답한다
+= 못 하는 것을 빨리 인정하는 쪽이 사용자를 덜 지치게 한다
 ```
 
-**Escalation의 해결**:
-```
-✅ 시나리오 1 (Escalation):
-AI (2번 실패 후):
-"죄송합니다. 담당자를 연결해드리겠습니다."
-→ 사람이 정확한 답변
-→ 사용자 만족! ✅
+## ⚠️ 해결하는 문제
 
-✅ 시나리오 2:
-AI: "특별 휴가는 승인 권한이 필요합니다.
-    티켓(ESC-001)을 생성했습니다.
-    담당자가 곧 연락드리겠습니다."
-→ 적절한 처리! ✅
-
-✅ 시나리오 3:
-AI (감정 감지):
-"불편을 드려 죄송합니다.
- 담당자를 즉시 연결해드리겠습니다."
-→ 빠른 대응! ✅
+```도해
+대조: 넘기는 길이 없으면 대화가 어떻게 되나
+넘기지 않으면 || 넘기면
+같은 질문 :: 계속 못 찾는다 || 사람이 받는다
+답의 정확도 :: 억지로 지어냄 || 모른다고 말함
+화난 사용자 :: 안내만 반복 || 바로 연결
+= 한계를 인정하는 통로가 있어야 대화가 끝날 수 있다
 ```
 
-**비유**:
-- **Escalation 없음** = 초보 직원이 모르는 것도 답변 시도 (실수 증가)
-- **Escalation 있음** = 초보가 모르면 선배에게 도움 요청 (정확성 향상)
+AI가 답을 못 찾았을 때 가장 나쁜 결과는 대화가 안 끝나는 것이다. 사용자는 같은 질문을 표현만 바꿔 다시 묻고, AI는 같은 자료를 다시 뒤진다. 이 반복이 길어질수록 사용자는 그 창구 자체를 안 쓰게 된다.
 
-## 💡 실제 구현
+에스컬레이션은 그 반복에 끝을 만든다. 몇 번 실패하면 사람에게 넘긴다는 규칙이 있으면, 사용자는 적어도 다음에 무슨 일이 일어날지 알게 된다.
 
-### 기본 Escalation 시스템
+## ⚙️ 작동 원리
 
-```python
-from datetime import datetime
-from dataclasses import dataclass
+넘길지 말지는 대개 네 가지를 본다.
 
-@dataclass
-class EscalationTicket:
-    """에스컬레이션 티켓"""
-    ticket_id: str
-    user_id: str
-    issue: str
-    priority: str  # low, medium, high, critical
-    reason: str
-    created_at: datetime
+- **확신도** 답의 확신도가 정해둔 값 아래로 떨어지면 넘긴다.
+- **반복 실패** 같은 요청을 정해둔 횟수만큼 못 풀면 넘긴다.
+- **명시적 요청** 담당자나 상담원을 찾는 말이 나오면 바로 넘긴다.
+- **부정적 감정** 화가 드러난 표현이 보이면 우선순위를 올려 넘긴다.
 
-class EscalationManager:
-    """에스컬레이션 관리자"""
+넘길 때는 대화 내용을 담은 티켓을 만들고 담당자에게 알린다. 티켓에는 왜 넘겨졌는지를 함께 적어야 받는 사람이 처음부터 다시 묻지 않는다. 넘긴 사유에 따라 응답 목표 시간을 다르게 잡는데, 감정이 드러난 건은 시스템 장애 다음으로 급하게 다룬다.
 
-    def __init__(self):
-        self.confidence_threshold = 0.6  # 신뢰도 임계값
-        self.max_retries = 3  # 최대 재시도
+## 💡 실제 사례
 
-    def should_escalate(
-        self,
-        confidence: float,
-        attempt_count: int,
-        user_input: str
-    ) -> tuple[bool, str]:
-        """에스컬레이션 필요 여부 판단"""
+- **권한이 필요한 요청** 승인 권한이 없는 일은 티켓을 만들고 담당자가 이어받는다.
+- **자료에 없는 질문** 근거 문서를 못 찾으면 지어내지 않고 넘긴다.
+- **불만이 드러난 대화** 화가 난 표현이 보이면 안내를 더 하지 않고 바로 연결한다.
 
-        # 1. 낮은 신뢰도
-        if confidence < self.confidence_threshold:
-            return True, f"낮은 신뢰도 ({confidence:.0%})"
+## 🚫 흔한 오해
 
-        # 2. 반복 실패
-        if attempt_count >= self.max_retries:
-            return True, f"{attempt_count}회 실패"
+- **에스컬레이션은 AI 가 실패했다는 표시다** — 설계에 들어 있는 정상 경로다. 넘길 줄 모르고 계속 답을 지어내는 쪽이 실패한 것이다.
+- **정확도를 올리면 필요 없어진다** — 승인이나 예외 처리처럼 권한이 걸린 일은 정확도와 상관없이 사람이 정해야 한다.
+- **답을 못 찾을 때만 넘기면 된다** — 사용자가 담당자를 찾거나 화가 나 있을 때도 넘긴다. 답을 아는지와 지금 넘겨야 하는지는 다른 문제다.
 
-        # 3. 명시적 요청
-        escalation_keywords = ["담당자", "상담원", "사람", "직원"]
-        if any(kw in user_input for kw in escalation_keywords):
-            return True, "담당자 요청"
+## 📝 정리
 
-        # 4. 감정 감지
-        negative_keywords = ["화난다", "짜증", "최악", "어이없어"]
-        if any(kw in user_input for kw in negative_keywords):
-            return True, "부정적 감정 감지 (우선 처리)"
+Escalation은 AI가 감당하지 못하는 대화를 사람에게 넘기는 절차다. 확신도와 반복 실패와 사용자의 요청과 감정을 보고 판단하며, 넘긴 사유를 함께 전달해야 받는 쪽이 이어서 처리할 수 있다.
 
-        return False, ""
+## ❓ 이해했는지
 
-    def create_ticket(
-        self,
-        user_id: str,
-        issue: str,
-        reason: str
-    ) -> EscalationTicket:
-        """티켓 생성 및 담당자 알림"""
-
-        ticket_id = f"ESC-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-
-        # 우선순위 결정
-        priority = "high" if "감정" in reason else "medium"
-
-        ticket = EscalationTicket(
-            ticket_id=ticket_id,
-            user_id=user_id,
-            issue=issue,
-            priority=priority,
-            reason=reason,
-            created_at=datetime.now()
-        )
-
-        # 담당자에게 알림
-        self._notify_operator(ticket)
-
-        return ticket
-
-    def _notify_operator(self, ticket: EscalationTicket):
-        """담당자 알림"""
-        print(f"""
-🚨 에스컬레이션 알림
-━━━━━━━━━━━━━━━━━
-티켓 ID: {ticket.ticket_id}
-사용자: {ticket.user_id}
-우선순위: {ticket.priority.upper()}
-사유: {ticket.reason}
-내용: {ticket.issue}
-━━━━━━━━━━━━━━━━━
-""")
-
-# 사용 예시
-manager = EscalationManager()
-
-# 테스트 1: 낮은 신뢰도
-should, reason = manager.should_escalate(
-    confidence=0.5,
-    attempt_count=1,
-    user_input="재택근무 신청 방법?"
-)
-if should:
-    ticket = manager.create_ticket(
-        user_id="user123",
-        issue="재택근무 신청 방법?",
-        reason=reason
-    )
-    print(f"✅ 티켓 생성: {ticket.ticket_id}")
-```
-
-## 🎯 우선순위 레벨
-
-| 우선순위 | 조건 | 응답 목표 | 예시 |
-|---------|------|---------|------|
-| **Critical** | 시스템 장애, 보안 | 즉시 | "로그인이 안 돼요" |
-| **High** | 불만, 감정 부정적 | 15분 | "화났어요!" |
-| **Medium** | 반복 실패, 권한 필요 | 1시간 | 3회 실패 |
-| **Low** | 정보 부족 | 당일 | "문서를 못 찾음" |
+- 사용자가 같은 질문을 표현만 바꿔 계속 묻는 상황에서 무엇이 빠져 있나?
+- 답을 정확히 알고 있는데도 넘겨야 하는 경우는 어떤 때인가?
+- 티켓에 넘긴 사유를 적어야 하는 이유가 무엇인가?
 
 ## 🔗 관련 용어
 
-- [[AI Agent]]: Escalation의 주체
-- [[Fallback]]: Escalation 전 시도하는 대안
-- [[Guardrail]]: Escalation을 트리거하는 안전장치
-
----
-*카테고리: AI-ML*
-*생성일: 2026-02-14*
+- [[AI Agent]] — 에스컬레이션을 판단하고 실행하는 주체
+- [[Fallback]] — 넘기기 전에 먼저 시도하는 대체 응답
+- [[Guardrail]] — 넘겨야 할 상황을 걸러내는 안전장치
+- [[Routing]] — 넘긴 건을 어느 담당자에게 보낼지 정하는 일

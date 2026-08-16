@@ -2,369 +2,80 @@
 
 ## 📝 정의
 
-CPU(Central Processing Unit, 중앙처리장치)는 컴퓨터의 **두뇌**로, 모든 계산과 명령을 처리하는 핵심 하드웨어입니다.
+CPU는 **명령어를 하나씩 꺼내 실행하는 부품**이다.
 
-### 핵심 개념
+프로그램은 결국 CPU가 알아듣는 명령어의 나열이다. CPU는 그 목록을 순서대로 읽어 계산하고 결과를 되돌려 놓는 일만 되풀이한다.
 
-- **무엇인가?**: 명령어를 실행하는 프로세서
-- **왜 필요한가?**: 모든 프로그램 실행의 중심
-- **어떻게 작동하나?**: Fetch → Decode → Execute 사이클
+### 비유
+요리사. 주문표를 한 장씩 집어 읽고 그대로 만든다. 요리사가 여럿이면 주문을 나눠 맡을 수 있다.
 
-### CPU가 중요한 이유
+## 🖼️ 그림으로 보기
 
-**문제 상황**:
-```
-😱 시나리오 1: CPU 병목
-8코어 CPU인데 1코어만 사용
-→ 다른 7개 코어는 놀고 있음
-→ 성능의 87.5%를 낭비! 😱
-
-😱 시나리오 2: CPU 100%
-무거운 계산 작업 실행
-→ CPU 사용률 100%
-→ 다른 프로그램 느려짐
-→ 컴퓨터 전체가 버벅! 😱
-
-😱 시나리오 3: 클럭 속도 오해
-3GHz CPU vs 2GHz CPU
-"3GHz가 무조건 빠르다!"
-→ 코어 수, 아키텍처도 중요! 😱
+```도해
+흐름: `a = 5 + 3` 한 줄이 CPU 안에서 어떻게 처리되나
+가져오기 :: 메모리에서 명령어 하나를 꺼낸다
+해석 :: 제어 장치가 "덧셈이다" 라고 읽는다
+실행 :: 연산 장치가 5와 3을 더한다
+저장 :: 결과 8을 레지스터에 넣는다
+< 반복 :: 전원이 꺼질 때까지 이것만 되풀이한다
+= CPU 가 하는 일은 이 네 마디가 전부다. 나머지는 얼마나 빨리, 몇 개나 도느냐다
 ```
 
-**올바른 이해**:
-```
-✅ 시나리오 1:
-멀티스레드/멀티프로세스 사용
-→ 8개 코어 모두 활용
-→ 8배 빠른 처리! ✅
+## ⚠️ 해결하는 문제
 
-✅ 시나리오 2:
-작업 분산 및 우선순위 관리
-→ 중요한 작업 우선 처리
-→ 백그라운드 작업은 낮은 우선순위
-→ 쾌적한 사용 환경! ✅
-
-✅ 시나리오 3:
-종합적인 성능 고려
-→ 코어 수 × 클럭 속도 × 효율성
-→ 2GHz 8코어 > 3GHz 2코어 (병렬 작업시)
+```도해
+대조: 코어가 여덟 개인데 하나만 쓰면 어떻게 되나
+한 코어만 || 여덟 코어로
+처리 시간 :: 8분 걸린다 || 1분에 끝난다
+나머지 코어 :: 놀고 있다 || 같이 일한다
+클럭을 올리면 :: 열이 한계다 || 나눠서 푼다
+= 한 개를 더 빠르게 만드는 데 한계가 와서, 개수를 늘리는 쪽으로 갔다
 ```
 
-## 📊 CPU 구조
+코어 하나를 계속 빠르게 만드는 방식은 열과 전력에서 막혔다. 클럭을 올릴수록 발열이 감당이 안 되기 때문에, 대신 코어를 여러 개 두고 일을 나누는 쪽으로 방향이 바뀌었다.
 
+문제는 코어가 늘어난다고 프로그램이 저절로 나뉘지 않는다는 점이다. 나눠 짜지 않은 프로그램은 코어가 여덟 개여도 하나만 쓰고, 나머지 일곱은 그대로 논다.
 
-### CPU 구성 요소
+## ⚙️ 작동 원리
 
-**1. Control Unit (제어 장치)**:
-```
-명령어를 해석하고 제어 신호 생성
-→ "이 명령어는 덧셈이구나"
-→ ALU에 덧셈 신호 전달
-```
-
-**2. ALU (Arithmetic Logic Unit)**:
-```
-실제 계산을 수행
-→ 산술 연산: +, -, ×, ÷
-→ 논리 연산: AND, OR, NOT
+```도해
+층: CPU 는 계산할 값을 어디서 꺼내 오나
+레지스터 :: CPU 안. 지금 계산 중인 값 몇 개
+캐시 :: CPU 옆. 자주 쓰는 값을 붙들고 있다
+메모리 :: 바깥. 여기까지 나가면 훨씬 느리다
+= 위에서 끝날수록 빠르다. 캐시에서 못 찾는 횟수가 성능을 정한다
 ```
 
-**3. Registers (레지스터)**:
-```
-CPU 내부의 초고속 메모리
-→ 현재 처리 중인 데이터 저장
-→ 가장 빠른 메모리
-```
+클럭은 초당 몇 번 사이클을 도느냐다. 3GHz면 초당 35억 번이다. 다만 한 사이클에 처리하는 명령어 수가 설계마다 다르므로, 숫자만 놓고 세대가 다른 칩을 비교할 수는 없다.
 
-**4. Cache (캐시)**:
-```
-RAM과 CPU 사이의 버퍼
-→ 자주 사용하는 데이터 저장
-→ RAM보다 훨씬 빠름
-```
+스레드는 코어 하나가 동시에 붙들 수 있는 작업 수다. 4코어 8스레드는 물리 코어가 넷인데 운영체제에는 여덟으로 보인다는 뜻이고, 한 코어가 한 작업이 대기하는 틈에 다른 작업을 끼워 넣는 방식이다.
 
-## 💡 CPU 작동 원리
+## 💡 실제 사례
 
-### Fetch-Decode-Execute 사이클
+- **영상 인코딩** 영상을 구간으로 쪼개 코어마다 맡기면 코어 수에 가깝게 시간이 줄어든다.
+- **웹 서버** 요청마다 하는 일이 짧고 대기가 많아, 코어를 늘리는 것보다 대기를 잘 처리하는 쪽이 효과가 크다.
+- **컴퓨터가 버벅일 때** 무거운 계산이 모든 코어를 채우면 화면을 그리는 작업까지 차례를 기다리게 된다.
 
-```python
-# CPU가 프로그램을 실행하는 과정
+## 🚫 흔한 오해
 
-while True:  # CPU는 계속 반복
-    # 1. Fetch (가져오기)
-    instruction = fetch_instruction_from_memory()
-
-    # 2. Decode (해석)
-    operation, operands = decode(instruction)
-
-    # 3. Execute (실행)
-    result = execute(operation, operands)
-
-    # 4. Store (저장)
-    store_result(result)
-```
-
-**예시**:
-```
-프로그램: a = 5 + 3
-
-1. Fetch: 메모리에서 "5 + 3" 명령어 가져오기
-2. Decode: "덧셈 연산" 해석
-3. Execute: ALU가 5 + 3 = 8 계산
-4. Store: 결과 8을 레지스터에 저장
-```
-
-## 🎯 CPU 성능 지표
-
-### 1. 클럭 속도 (Clock Speed)
-
-```
-단위: GHz (기가헤르츠)
-의미: 초당 사이클 수
-
-3.5GHz = 초당 35억 번 명령 실행 가능
-
-⚠️ 하지만 클럭만으로 성능 판단 불가!
-→ 코어 수, 아키텍처도 중요
-```
-
-### 2. 코어 수 (Core Count)
-
-```
-단일 코어: 1개의 처리 장치
-듀얼 코어: 2개의 처리 장치
-쿼드 코어: 4개의 처리 장치
-옥타 코어: 8개의 처리 장치
-
-멀티코어 = 병렬 처리 가능
-→ 여러 작업 동시 실행
-```
-
-### 3. 스레드 (Thread)
-
-```
-물리적 코어: 실제 하드웨어
-논리적 코어: 하이퍼스레딩으로 생성
-
-4코어 8스레드:
-→ 물리 코어 4개
-→ 각 코어가 2개 작업 동시 처리
-→ OS에는 8코어처럼 보임
-```
-
-## 💻 Python에서 CPU 정보 확인
-
-```python
-import psutil
-import multiprocessing
-
-# CPU 정보 확인
-print(f"물리적 코어: {psutil.cpu_count(logical=False)}")
-print(f"논리적 코어: {psutil.cpu_count(logical=True)}")
-print(f"CPU 사용률: {psutil.cpu_percent(interval=1)}%")
-
-# 코어별 사용률
-for i, percent in enumerate(psutil.cpu_percent(interval=1, percpu=True)):
-    print(f"코어 {i}: {percent}%")
-
-# CPU 주파수
-freq = psutil.cpu_freq()
-print(f"현재 속도: {freq.current:.0f}MHz")
-print(f"최대 속도: {freq.max:.0f}MHz")
-```
-
-**실행 결과**:
-```
-물리적 코어: 4
-논리적 코어: 8
-CPU 사용률: 23.5%
-코어 0: 15.2%
-코어 1: 32.8%
-코어 2: 18.4%
-코어 3: 27.6%
-...
-현재 속도: 2800MHz
-최대 속도: 3500MHz
-```
-
-### CPU 집약적 작업 시뮬레이션
-
-```python
-import time
-import psutil
-
-def cpu_intensive_task():
-    """CPU를 많이 사용하는 작업"""
-    result = 0
-    for i in range(50_000_000):
-        result += i ** 2
-    return result
-
-# CPU 사용률 모니터링하면서 실행
-print("작업 시작 전:", psutil.cpu_percent())
-
-start = time.time()
-result = cpu_intensive_task()
-elapsed = time.time() - start
-
-print(f"작업 완료: {elapsed:.2f}초")
-print("작업 중 CPU 사용률:", psutil.cpu_percent())
-```
-
-## 🔍 멀티코어 활용
-
-### 단일 코어 vs 멀티 코어
-
-```python
-from multiprocessing import Pool
-import time
-
-def heavy_calculation(n):
-    """무거운 계산"""
-    result = sum(i**2 for i in range(n))
-    return result
-
-# 순차 처리 (1코어)
-start = time.time()
-results = [heavy_calculation(10_000_000) for _ in range(8)]
-print(f"1코어: {time.time() - start:.2f}초")
-
-# 병렬 처리 (멀티코어)
-start = time.time()
-with Pool(processes=8) as pool:
-    results = pool.map(heavy_calculation, [10_000_000] * 8)
-print(f"8코어: {time.time() - start:.2f}초")
-```
-
-**실행 결과**:
-```
-1코어: 32.45초
-8코어: 4.18초  # ~8배 빠름!
-```
-
-## 🚨 CPU 사용 최적화
-
-### 1. CPU Bound vs I/O Bound
-
-```python
-# CPU Bound - CPU가 병목
-def cpu_bound():
-    """계산만 함 → CPU 100%"""
-    return sum(i**2 for i in range(10_000_000))
-
-# I/O Bound - 대기가 병목
-import time
-def io_bound():
-    """대기만 함 → CPU 거의 안 씀"""
-    time.sleep(5)
-    return "done"
-
-# CPU Bound → multiprocessing 사용
-# I/O Bound → asyncio 사용
-```
-
-### 2. CPU 친화성 설정
-
-```python
-import os
-import psutil
-
-# 현재 프로세스를 특정 코어에만 할당
-process = psutil.Process(os.getpid())
-
-# 코어 0, 1번만 사용
-process.cpu_affinity([0, 1])
-
-print(f"사용 가능한 코어: {process.cpu_affinity()}")
-```
-
-### 3. 우선순위 조정
-
-```python
-import psutil
-import os
-
-process = psutil.Process(os.getpid())
-
-# 우선순위 낮추기 (백그라운드 작업)
-try:
-    if os.name == 'nt':  # Windows
-        process.nice(psutil.BELOW_NORMAL_PRIORITY_CLASS)
-    else:  # Linux/Mac
-        process.nice(10)  # 높을수록 낮은 우선순위
-    print("우선순위 낮춤")
-except:
-    print("권한 필요")
-```
-
-## 📊 CPU 모니터링
-
-```python
-import psutil
-import time
-
-def monitor_cpu(duration=10):
-    """CPU 사용률 실시간 모니터링"""
-    print("CPU 모니터링 시작...\n")
-
-    for i in range(duration):
-        # 전체 CPU 사용률
-        cpu_percent = psutil.cpu_percent(interval=1)
-
-        # 메모리 정보
-        memory = psutil.virtual_memory()
-
-        print(f"[{i+1:2d}초] "
-              f"CPU: {cpu_percent:5.1f}% | "
-              f"메모리: {memory.percent:5.1f}%")
-
-        time.sleep(1)
-
-# 실행
-monitor_cpu(5)
-```
-
-**실행 결과**:
-```
-CPU 모니터링 시작...
-
-[ 1초] CPU:  23.5% | 메모리:  67.2%
-[ 2초] CPU:  18.3% | 메모리:  67.3%
-[ 3초] CPU:  25.7% | 메모리:  67.2%
-[ 4초] CPU:  21.4% | 메모리:  67.4%
-[ 5초] CPU:  19.8% | 메모리:  67.3%
-```
-
-## 🔗 관련 용어
-
-- [[RAM]]: CPU가 사용하는 주 메모리
-- [[Cache]]: CPU와 RAM 사이의 고속 메모리
-- [[Process]]: CPU가 실행하는 프로그램
-- [[Thread]]: CPU가 실행하는 실행 흐름
-- [[Parallelism]]: 여러 CPU 코어로 동시 실행
+- **GHz가 높으면 무조건 빠르다** — 한 사이클에 처리하는 명령어 수가 설계마다 다르다. 2GHz 최신 칩이 3GHz 구형보다 빠른 경우가 흔하다.
+- **코어가 여덟 개면 여덟 배 빨라진다** — 나눠 짠 프로그램만 그렇다. 그냥 짜면 코어가 몇 개든 하나만 쓴다.
+- **CPU 사용률 100%는 고장이다** — 시켜둔 계산을 쉬지 않고 하는 중이라는 뜻이다. 문제는 그 계산이 끝나지 않을 때다.
 
 ## 📝 정리
 
-**CPU의 핵심**:
-```
-CPU = 컴퓨터의 두뇌
-→ 모든 계산과 명령 처리
-→ 코어 수 ↑ = 병렬 처리 능력 ↑
-→ 클럭 속도 ↑ = 처리 속도 ↑
-```
+CPU는 명령어를 꺼내 해석하고 실행하는 일을 되풀이하는 부품이다. 하나를 더 빠르게 만드는 길이 막혀 코어를 여러 개 두는 쪽으로 갔고, 그래서 프로그램이 일을 나눠 짜야 그 개수가 쓸모를 갖는다.
 
-**성능 공식**:
-```
-CPU 성능 = 코어 수 × 클럭 속도 × IPC(명령어당 사이클)
-```
+## ❓ 이해했는지
 
-**비유로 기억하기**:
-```
-CPU = 요리사
-코어 수 = 요리사 수
-클럭 속도 = 요리 속도
-```
+- 3GHz 구형 CPU보다 2GHz 최신 CPU가 빠를 수 있는 이유는?
+- 8코어 컴퓨터인데 프로그램 실행 시간이 그대로라면 무엇이 빠진 것인가?
+- CPU가 메모리까지 나가지 않고 값을 찾으면 무엇이 달라지나?
 
----
-*카테고리: 컴퓨터과학*
-*생성일: 2026-02-15*
+## 🔗 관련 용어
+
+- [[Memory]] — CPU가 값을 꺼내 오는 바깥 저장소
+- [[Cache]] — CPU 옆에 붙어 메모리까지 나가는 횟수를 줄인다
+- [[Process]] — CPU가 실제로 실행하는 프로그램의 단위
+- [[Thread]] — 코어 하나가 붙들 수 있는 실행 흐름
+- [[Parallelism]] — 코어 여러 개를 실제로 같이 쓰는 방식

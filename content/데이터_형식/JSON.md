@@ -2,184 +2,88 @@
 
 ## 📝 정의
 
-JSON(JavaScript Object Notation)은 **데이터를 저장하고 전송하기 위한 경량 텍스트 형식**입니다. 사람이 읽기 쉽고 기계가 파싱하기 쉽습니다.
+JSON 은 **프로그램끼리 데이터를 주고받으려고 적어두는 텍스트 형식**이다.
 
-### 핵심 개념
+키와 값을 짝지어 적고, 값 안에 다시 객체나 배열을 넣을 수 있다. 글자로만 되어 있어서 사람이 열어봐도 읽히고, 받는 쪽 언어가 무엇이든 그대로 파싱한다.
 
-- **무엇인가?**: 키-값 쌍의 텍스트 데이터 형식
-- **왜 필요한가?**: API 통신, 설정 파일 등
-- **어떻게 작동하나?**: 문자열 ↔ 객체 변환
+### 비유
+택배 상자에 붙이는 내용물 목록. 사람도 읽을 수 있고, 받는 쪽 기계도 같은 종이를 그대로 읽어 푼다.
 
-## 💡 JSON 형식
+## 🖼️ 그림으로 보기
+
+```도해
+흐름: 서버의 값이 화면에 뜨기까지 무엇을 거치나
+서버 :: 메모리에 있던 객체를 문자열로 바꾼다
+JSON :: {"name":"Alice","age":25} 라는 글자가 된다
+네트워크 :: 글자 그대로 실려 간다
+브라우저 :: 받은 글자를 다시 객체로 푼다
+화면 :: user.name 으로 꺼내 쓴다
+< 서버 :: 언어가 달라도 같은 글자를 읽는다
+= 오가는 동안에는 객체가 아니라 그냥 글자다
+```
+
+## ⚠️ 해결하는 문제
+
+```도해
+대조: 형식을 정하지 않고 데이터를 주고받으면 어떻게 되나
+형식 없이 || JSON 으로
+읽는 쪽 :: 규칙을 따로 약속 || 어느 언어든 파싱
+중첩된 값 :: 표현이 제각각 || 객체 안에 객체
+빠진 값 :: 구분이 안 된다 || null 로 적는다
+= 사람이 읽을 수 있으면서 기계가 바로 파싱하는 선을 잡은 형식이다
+```
+
+파이썬 서버가 만든 값을 자바스크립트가 읽어야 하는데, 두 언어의 메모리 표현은 서로 다르다. 형식을 정해두지 않으면 보내는 쪽과 받는 쪽이 매번 따로 약속하고 파싱 코드를 각자 만들게 된다.
+
+JSON 은 그 약속을 하나로 고정한다. 문자열, 숫자, 불린, null, 배열, 객체 여섯 가지만 있고 문법이 짧아서, 거의 모든 언어가 표준 라이브러리로 읽고 쓴다.
+
+## ⚙️ 작동 원리
+
+객체를 글자로 바꾸는 것을 직렬화, 되돌리는 것을 역직렬화라고 한다. 파이썬은 `json.dumps` 와 `json.loads`, 자바스크립트는 `JSON.stringify` 와 `JSON.parse` 로 한다.
 
 ```json
 {
   "name": "Alice",
   "age": 25,
-  "email": "alice@example.com",
-  "hobbies": ["독서", "영화", "코딩"],
-  "address": {
-    "city": "Seoul",
-    "country": "Korea"
-  },
-  "isStudent": false,
+  "hobbies": ["독서", "영화"],
+  "address": { "city": "Seoul" },
   "grade": null
 }
 ```
 
-### JSON 데이터 타입
+한글이 들어가면 파이썬은 기본으로 이스케이프해서 내보낸다. 파일에 그대로 읽히게 두려면 `ensure_ascii=False` 를 준다.
 
-- **문자열**: `"hello"`
-- **숫자**: `42`, `3.14`
-- **불린**: `true`, `false`
-- **null**: `null`
-- **배열**: `[1, 2, 3]`
-- **객체**: `{"key": "value"}`
+## 💡 실제 사례
 
-## 🎯 사용법
+- **API 응답** 서버가 조회 결과를 JSON 으로 돌려주고, 클라이언트가 필요한 키만 꺼내 쓴다.
+- **설정 파일** 데이터베이스 주소나 옵션을 파일 하나에 적어두고 실행할 때 읽어 들인다.
+- **로그** 한 줄에 JSON 하나씩 남기면 나중에 도구로 걸러내고 세기 쉽다.
 
-### Python
+## 🚫 흔한 오해
 
-```python
-import json
-
-# Python → JSON (직렬화)
-data = {
-    "name": "Alice",
-    "age": 25,
-    "hobbies": ["독서", "영화"]
-}
-
-json_string = json.dumps(data, ensure_ascii=False, indent=2)
-print(json_string)
-
-# JSON → Python (역직렬화)
-json_data = '{"name": "Bob", "age": 30}'
-python_dict = json.loads(json_data)
-print(python_dict["name"])  # "Bob"
-
-# 파일 저장
-with open("data.json", "w", encoding="utf-8") as f:
-    json.dump(data, f, ensure_ascii=False, indent=2)
-
-# 파일 읽기
-with open("data.json", "r", encoding="utf-8") as f:
-    loaded_data = json.load(f)
-```
-
-### JavaScript
-
-```javascript
-// JavaScript → JSON
-const data = {
-    name: "Alice",
-    age: 25,
-    hobbies: ["독서", "영화"]
-};
-
-const jsonString = JSON.stringify(data, null, 2);
-console.log(jsonString);
-
-// JSON → JavaScript
-const jsonData = '{"name": "Bob", "age": 30}';
-const obj = JSON.parse(jsonData);
-console.log(obj.name);  // "Bob"
-```
-
-## 📊 실전 활용
-
-### 1. API 응답
-
-```python
-# Flask API
-@app.route('/api/user')
-def get_user():
-    user = {
-        "id": 1,
-        "name": "Alice",
-        "email": "alice@example.com"
-    }
-    return jsonify(user)
-
-# 클라이언트
-response = requests.get('/api/user')
-user = response.json()
-print(user["name"])
-```
-
-### 2. 설정 파일
-
-```json
-// config.json
-{
-  "database": {
-    "host": "localhost",
-    "port": 5432,
-    "name": "mydb"
-  },
-  "debug": true,
-  "max_connections": 100
-}
-```
-
-```python
-# 설정 읽기
-with open("config.json") as f:
-    config = json.load(f)
-
-db_host = config["database"]["host"]
-```
-
-### 3. 데이터 저장
-
-```python
-# 사용자 데이터 저장
-users = [
-    {"id": 1, "name": "Alice", "age": 25},
-    {"id": 2, "name": "Bob", "age": 30}
-]
-
-with open("users.json", "w") as f:
-    json.dump(users, f, indent=2)
-```
+- **JSON 은 자바스크립트에서만 쓴다** — 이름에 JavaScript 가 들어 있을 뿐이다. 파이썬, 자바, Go 어디서든 읽고 쓴다.
+- **자바스크립트 객체를 그대로 적으면 JSON 이다** — 키에 큰따옴표가 없거나 작은따옴표를 쓰면 파싱에 실패한다. 주석과 마지막 쉼표도 못 쓴다.
+- **JSON 이면 무엇이든 담을 수 있다** — 날짜나 함수 같은 타입은 없다. 날짜는 결국 문자열로 적고 읽는 쪽에서 다시 해석해야 한다.
 
 ## 🚨 주의사항
 
-### JSON 규칙
-
-```json
-// ✅ 올바른 JSON
-{
-  "name": "Alice",
-  "age": 25,
-  "active": true
-}
-
-// ❌ 잘못된 JSON
-{
-  name: "Alice",        // 키에 따옴표 필수
-  'age': 25,            // 큰따옴표만 가능
-  "active": True,       // true (소문자)
-  "comment": "hello",   // 마지막 쉼표 불가
-}
-```
-
-## 🔗 관련 용어
-
-- [[XML]]: 다른 데이터 형식
-- [[YAML]]: 더 읽기 쉬운 형식
-- [[Dictionary]]: JSON과 유사한 구조
+- **키는 큰따옴표로 감싼다.** 작은따옴표는 문법이 아니라서 파서가 바로 실패한다.
+- **마지막 항목 뒤에 쉼표를 남기지 않는다.** 편집기에서는 눈에 안 띄고 실행할 때 터진다.
+- **`true` 와 `false` 와 `null` 은 소문자다.** 파이썬 값을 그대로 붙여 넣다가 자주 어긋난다.
 
 ## 📝 정리
 
-**JSON의 핵심**:
-```
-JSON = 가벼운 데이터 교환 형식
-→ API 통신에 주로 사용
-→ 키-값 쌍의 텍스트
-→ 모든 언어에서 지원
-```
+JSON 은 프로그램끼리 데이터를 주고받으려고 정한 텍스트 형식이다. 타입이 여섯 가지뿐이고 문법이 짧아서 거의 모든 언어가 그대로 읽고 쓴다. 오가는 동안에는 객체가 아니라 글자라는 점이 모든 규칙의 이유다.
 
----
-*카테고리: 데이터_형식*
-*생성일: 2026-02-15*
+## ❓ 이해했는지
+
+- 설정 파일에 주석을 달았더니 프로그램이 뜨지 않는다. 왜 그런가?
+- 파이썬에서 만든 값을 자바스크립트가 그대로 읽을 수 있는 이유는?
+- 응답에 담긴 날짜가 받는 쪽에서 문자열로 나온다. 왜 그런가?
+
+## 🔗 관련 용어
+
+- [[API]] — JSON 이 가장 많이 오가는 자리
+- [[YAML]] — 사람이 쓰기 편한 쪽으로 기운 형식
+- [[XML]] — JSON 이전에 같은 자리를 맡던 형식
+- [[Serialization]] — 객체를 글자로 바꾸는 일 자체

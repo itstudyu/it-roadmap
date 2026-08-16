@@ -2,526 +2,87 @@
 
 ## 📝 정의
 
-AI Agent(AI 에이전트)는 목표를 달성하기 위해 **스스로 생각하고, 계획하고, 행동하는** AI 시스템입니다. 단순히 질문에 답하는 것을 넘어, 복잡한 작업을 여러 단계로 나누고, 필요한 도구를 사용하며, 실패하면 다시 시도하는 등 자율적으로 일합니다.
+AI Agent는 **목표를 받아 스스로 도구를 써가며 일하는 AI**다.
 
-### 핵심 개념
+챗봇은 물어보면 답하고 끝난다. 에이전트는 목표를 여러 단계로 쪼개고, 필요한 도구를 골라 쓰고, 그 결과를 보고 다음 행동을 정하는 일을 목표에 닿을 때까지 반복한다.
 
-- **무엇인가?**: 자율적으로 작업을 수행하는 AI 시스템
-- **왜 필요한가?**: 복잡한 작업을 인간의 개입 없이 완수하기 위해
-- **어떻게 다른가?**: 일반 AI는 한 번 답변, Agent는 목표 달성까지 반복
+### 비유
+심부름을 맡긴 사람. 백과사전은 물어본 것만 답하지만, 심부름꾼은 가게에 다녀오고 문이 닫혀 있으면 다른 가게를 찾는다.
 
-### AI Agent가 해결하는 문제
-
-**문제 상황**:
-```
-😱 시나리오 1: 일반 AI의 한계
-사용자: "내일 서울 날씨 알아보고, 비 온다면 우산 사이트에서 가격 비교해줘"
-
-일반 AI:
-"죄송합니다. 날씨 API에 접근할 수 없고, 웹사이트도 검색할 수 없습니다."
-→ 한 번의 응답으로 끝! 😱
-
-😱 시나리오 2: 여러 단계 필요한 작업
-사용자: "내 이메일에서 회의 일정 찾아서, 참석자들에게 알림 보내고, 회의실 예약해줘"
-
-일반 AI:
-"이메일을 직접 확인하고, 알림을 수동으로 보내고, 회의실 예약 시스템에 접속하세요."
-→ 사용자가 직접 해야 함! 😱
-
-😱 시나리오 3: 실패 시 재시도
-사용자: "이 데이터를 분석해줘"
-
-일반 AI:
-[오류 발생] "에러가 발생했습니다."
-→ 그대로 멈춤! 😱
-```
-
-**AI Agent의 해결**:
-```
-✅ 시나리오 1 (Agent):
-1. 날씨 API 호출 → "내일 서울 비"
-2. 웹 검색 도구 사용 → 우산 쇼핑몰 3곳 발견
-3. 각 사이트 가격 추출 → 비교 결과 생성
-4. 사용자에게 보고 ✅
-
-✅ 시나리오 2 (Agent):
-1. 이메일 도구로 회의 일정 검색
-2. 참석자 목록 추출
-3. 알림 전송 API 호출
-4. 회의실 예약 시스템 접속
-5. 예약 완료 후 확인 ✅
-
-✅ 시나리오 3 (Agent):
-1. 데이터 분석 시도
-2. [오류 감지] "형식이 잘못됐군"
-3. 데이터 정제 도구 사용
-4. 다시 분석 시도
-5. 성공! ✅
-```
-
-**비유**:
-- **일반 AI** = 백과사전 (질문하면 답만 줌)
-- **AI Agent** = 비서 (목표를 말하면 알아서 처리)
-
-또 다른 비유:
-- **일반 AI** = GPS (길만 알려줌)
-- **AI Agent** = 운전기사 (목적지까지 직접 데려다줌)
-
-## 📊 작동 원리
-
-AI Agent는 **생각(Thought) → 행동(Action) → 관찰(Observation)** 사이클을 반복합니다.
-
-### 전체 구조
+## 🖼️ 그림으로 보기
 
 ```도해
-층: AI Agent, 어떻게 나뉘어 있나
-AI Agent 구조 :: Planning 계획 수립 · Memory 기억 · LLM 추론 엔진
-Tools (도구함) :: 웹 검색 · 코드 실행 · 파일 접근 · API 호출 · 계산기
+흐름: 에이전트는 무슨 순서로 일을 하나
+사용자 :: 목표를 말한다. "내일 날씨 알려줘"
+LLM :: 무엇이 필요한지 판단한다. 날씨 도구다
+에이전트 :: 도구를 부른다. 도시와 날짜를 넘긴다
+도구 :: 실행하고 결과를 돌려준다
+LLM :: 결과를 보고 더 할 일이 있는지 정한다
+< 에이전트 :: 없으면 답하고 끝, 있으면 다시 판단으로
+= 생각하고 행동하고 결과를 보는 한 바퀴를, 목표에 닿을 때까지 돈다
 ```
 
-### 주요 구성 요소
-
-**1. Planning (계획 수립)**:
-- 큰 목표를 작은 단계로 분해
-- "내일 날씨 알아보고 우산 비교" → [1. 날씨 확인, 2. 우산 검색, 3. 가격 비교]
-- 최적의 전략 선택
-
-**2. Memory (기억)**:
-- **단기 기억**: 현재 대화와 작업 진행 상황
-- **장기 기억**: 과거 경험과 학습 내용 (벡터 DB에 저장)
-- 이전 실수를 기억하여 개선
-
-**3. LLM (추론 엔진)**:
-- Agent의 "두뇌"
-- 상황을 판단하고 다음 행동 결정
-- GPT-4, Claude 등
-
-**4. Tools (도구)**:
-- Agent가 사용할 수 있는 기능들
-- 웹 검색, 파일 읽기, API 호출, 코드 실행 등
-- MCP를 통해 다양한 도구 연결 가능
-
-## 🔄 ReAct 패턴
-
-ReAct(Reasoning + Acting)는 가장 널리 사용되는 Agent 동작 방식입니다.
+## ⚠️ 해결하는 문제
 
 ```도해
-흐름: AI Agent, 무슨 순서로 오가나
-사용자 :: 내일 서울 날씨 알려줘
-AI Agent :: 무엇을 해야 하나?
-LLM (두뇌) :: 날씨 정보가 필요해. 날씨 API를 사용하자.
-AI Agent :: 날씨 API 호출 get_weather("서울", "내일")
-도구 :: 맑음, 기온 15°C
-AI Agent :: 결과를 확인했어: "맑음, 15°C
-LLM (두뇌) :: 정보 충분함. 사용자에게 전달하자.
-AI Agent :: 내일 서울 날씨는 맑음이며 기온은 15°C입니다.
+대조: 여러 단계가 필요한 일을 시키면 어떻게 되나
+일반 LLM || AI Agent
+할 수 있는 일 :: 답만 돌려준다 || 도구를 직접 쓴다
+단계 :: 한 번에 끝 || 목표까지 반복
+오류가 나면 :: 거기서 멈춘다 || 고쳐서 다시 한다
+= 답을 아는 것과 일을 끝내는 것은 다르다
 ```
 
-### 각 단계 상세 설명
+"내일 날씨를 보고 비가 오면 우산 가격을 비교해줘"를 일반 LLM에게 시키면 답은 하나다. 날씨를 조회할 수 없고 웹을 볼 수 없다는 것. 사용자가 직접 날씨를 확인하고, 쇼핑몰을 열고, 가격을 옮겨 적어야 한다.
 
-**1. Thought (생각)**:
-- 현재 상황 파악
-- 목표 달성을 위해 무엇이 필요한가?
-- 어떤 도구를 사용할까?
+에이전트는 그 사이를 메운다. 날씨 도구를 부르고, 결과가 "비"면 검색 도구로 넘어가고, 모은 가격을 정리해서 내놓는다. 중간에 도구가 실패해도 무엇이 잘못됐는지 보고 다시 시도한다.
 
-예시:
-```
-Thought: "사용자가 날씨 정보를 원한다.
-         실시간 날씨 데이터가 필요하다.
-         날씨 API 도구를 사용해야겠다."
-```
-
-**2. Action (행동)**:
-- 선택한 도구 실행
-- 필요한 매개변수 전달
-
-예시:
-```
-Action: weather_api
-Action Input: {"city": "서울", "date": "내일"}
-```
-
-**3. Observation (관찰)**:
-- 도구 실행 결과 확인
-- 성공했는가? 실패했는가?
-- 추가 작업이 필요한가?
-
-예시:
-```
-Observation: "맑음, 기온 15°C"
-```
-
-**4. 재평가 및 반복**:
-- 목표 달성했는가? → YES: 종료
-- 목표 미달성? → 다시 1단계(Thought)로
-
-## 💡 실제 예시
-
-### 복잡한 작업 처리 예시
-
-```
-사용자: "내 프로젝트 폴더에서 Python 파일을 찾아서,
-        각 파일의 줄 수를 세고, 가장 큰 파일을 알려줘"
-
-Agent의 사고 과정:
-
-🤔 Thought 1: "여러 단계가 필요하다. 계획을 세우자."
-    계획:
-    1. 프로젝트 폴더 탐색
-    2. Python 파일 필터링 (*.py)
-    3. 각 파일의 줄 수 카운트
-    4. 최대값 찾기
-    5. 결과 보고
-
-🔧 Action 1: list_files("/project")
-👁️ Observation 1: ["main.py", "utils.py", "test.py", "README.md"]
-
-🤔 Thought 2: "Python 파일만 필터링하자."
-🔧 Action 2: filter_by_extension(files, ".py")
-👁️ Observation 2: ["main.py", "utils.py", "test.py"]
-
-🤔 Thought 3: "각 파일의 줄 수를 세자."
-🔧 Action 3: count_lines("main.py")
-👁️ Observation 3: 150줄
-
-🔧 Action 4: count_lines("utils.py")
-👁️ Observation 4: 200줄
-
-🔧 Action 5: count_lines("test.py")
-👁️ Observation 5: 80줄
-
-🤔 Thought 4: "최대값을 찾자."
-    main.py: 150줄
-    utils.py: 200줄 ← 최대
-    test.py: 80줄
-
-🤔 Thought 5: "목표 달성! 사용자에게 보고하자."
-
-✅ 최종 답변:
-"프로젝트 폴더에서 3개의 Python 파일을 찾았습니다.
- 가장 큰 파일은 utils.py로 200줄입니다."
-```
-
-### 기본 Agent 구현
-
-```python
-from typing import List, Dict, Callable
-
-class SimpleAgent:
-    """기본 ReAct Agent"""
-
-    def __init__(self, tools: Dict[str, Callable]):
-        """
-        Args:
-            tools: 사용 가능한 도구들
-                   {"도구명": 함수} 형태
-        """
-        self.tools = tools
-        self.memory = []  # 작업 기록
-        self.max_iterations = 10  # 최대 반복 횟수
-
-    def think(self, goal: str, observation: str = "") -> tuple:
-        """
-        생각 단계: 다음에 무엇을 할지 결정
-
-        Args:
-            goal: 달성할 목표
-            observation: 이전 행동의 결과
-
-        Returns:
-            (thought, action, action_input)
-        """
-        # 실제로는 LLM에게 물어봄
-        # 여기서는 간단한 예시
-
-        if "날씨" in goal and not observation:
-            return (
-                "날씨 정보가 필요하다",
-                "get_weather",
-                {"city": "서울"}
-            )
-        elif observation:
-            return (
-                "정보를 얻었다. 사용자에게 전달하자",
-                "FINISH",
-                observation
-            )
-
-    def act(self, action: str, action_input: dict) -> str:
-        """
-        행동 단계: 도구 실행
-
-        Args:
-            action: 도구 이름
-            action_input: 도구 입력값
-
-        Returns:
-            도구 실행 결과
-        """
-        if action == "FINISH":
-            return action_input
-
-        if action not in self.tools:
-            return f"오류: '{action}' 도구를 찾을 수 없습니다"
-
-        tool = self.tools[action]
-        result = tool(**action_input)
-
-        # 기록 저장
-        self.memory.append({
-            "action": action,
-            "input": action_input,
-            "result": result
-        })
-
-        return result
-
-    def run(self, goal: str) -> str:
-        """
-        Agent 실행: 목표 달성까지 반복
-
-        Args:
-            goal: 달성할 목표
-
-        Returns:
-            최종 결과
-        """
-        observation = ""
-
-        for i in range(self.max_iterations):
-            print(f"\n{'='*50}")
-            print(f"반복 {i+1}/{self.max_iterations}")
-            print(f"{'='*50}")
-
-            # 1. Think (생각)
-            thought, action, action_input = self.think(goal, observation)
-            print(f"💭 Thought: {thought}")
-            print(f"🎯 Action: {action}")
-            print(f"📝 Input: {action_input}")
-
-            # 종료 조건
-            if action == "FINISH":
-                print(f"\n✅ 목표 달성!")
-                return action_input
-
-            # 2. Act (행동)
-            observation = self.act(action, action_input)
-            print(f"👁️ Observation: {observation}")
-
-        return "⚠️ 최대 반복 횟수 도달"
-
-
-# 사용 예시
-def get_weather(city: str) -> str:
-    """날씨 조회 도구"""
-    # 실제로는 API 호출
-    return f"{city}의 날씨는 맑음, 15°C입니다"
-
-tools = {
-    "get_weather": get_weather
-}
-
-agent = SimpleAgent(tools)
-result = agent.run("내일 서울 날씨 알려줘")
-print(f"\n최종 결과: {result}")
-```
-
-**실행 결과**:
-```
-==================================================
-반복 1/10
-==================================================
-💭 Thought: 날씨 정보가 필요하다
-🎯 Action: get_weather
-📝 Input: {'city': '서울'}
-👁️ Observation: 서울의 날씨는 맑음, 15°C입니다
-
-==================================================
-반복 2/10
-==================================================
-💭 Thought: 정보를 얻었다. 사용자에게 전달하자
-🎯 Action: FINISH
-📝 Input: 서울의 날씨는 맑음, 15°C입니다
-
-✅ 목표 달성!
-
-최종 결과: 서울의 날씨는 맑음, 15°C입니다
-```
-
-### 실무에서 사용하는 Agent (LangChain)
-
-```python
-from langchain.agents import initialize_agent, Tool, AgentType
-from langchain.llms import OpenAI
-from langchain.tools import DuckDuckGoSearchRun
-
-# 1. 도구 정의
-search = DuckDuckGoSearchRun()
-
-tools = [
-    Tool(
-        name="Search",
-        func=search.run,
-        description="최신 정보를 웹에서 검색할 때 사용합니다."
-    ),
-    Tool(
-        name="Calculator",
-        func=lambda x: eval(x),
-        description="수학 계산이 필요할 때 사용합니다. 입력은 Python 수식이어야 합니다."
-    )
-]
-
-# 2. LLM 설정 (Agent의 두뇌)
-llm = OpenAI(temperature=0)
-
-# 3. Agent 초기화
-agent = initialize_agent(
-    tools=tools,
-    llm=llm,
-    agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,  # ReAct 패턴
-    verbose=True  # 사고 과정 출력
-)
-
-# 4. Agent 실행
-result = agent.run(
-    "2024년 AI 관련 기업 수를 검색하고, "
-    "전년 대비 25% 증가했다면 2023년에는 몇 개였는지 계산해줘"
-)
-
-print(result)
-```
-
-**Agent의 사고 과정 (verbose=True)**:
-```
-> Entering new AgentExecutor chain...
-
-💭 Thought: 먼저 2024년 AI 기업 수를 검색해야 한다.
-🎯 Action: Search
-📝 Action Input: "2024 AI companies count"
-👁️ Observation: 2024년 전세계 AI 기업은 약 50,000개입니다.
-
-💭 Thought: 이제 25% 증가했다면 2023년 수를 계산해야 한다.
-           50000 = 2023년 수 * 1.25
-           2023년 수 = 50000 / 1.25
-🎯 Action: Calculator
-📝 Action Input: "50000 / 1.25"
-👁️ Observation: 40000.0
-
-💭 Thought: 모든 정보를 얻었다. 최종 답변을 작성하자.
-🎯 Action: FINISH
-
-✅ Final Answer:
-2024년에는 약 50,000개의 AI 기업이 있으며,
-전년 대비 25% 증가한 것이라면 2023년에는 40,000개였습니다.
-
-> Finished chain.
-```
-
-## 🎯 AI Agent vs 일반 LLM
+## ⚙️ 작동 원리
 
 ```도해
-층: AI Agent, 어떻게 나뉘어 있나
-일반 LLM :: 질문] --> B1[LLM
-AI Agent :: 목표] --> B2[계획
+층: 에이전트는 무엇으로 이루어져 있나
+LLM :: 판단하는 자리. 다음 행동을 고른다
+계획 :: 큰 목표를 실행할 수 있는 단계로 쪼갠다
+기억 :: 지금까지 무엇을 했고 무엇이 실패했나
+도구 :: 웹 검색, 파일 읽기, 코드 실행, API 호출
+= 도구가 없으면 생각만 하고, 기억이 없으면 같은 실수를 반복한다
 ```
 
-| 특성 | 일반 LLM | AI Agent |
-|------|----------|----------|
-| **작동 방식** | 1회 응답 | 목표 달성까지 반복 |
-| **도구 사용** | 제한적 | 능동적으로 선택 |
-| **계획 수립** | 없음 | 단계별 계획 |
-| **오류 처리** | 즉시 중단 | 재시도 및 수정 |
-| **메모리** | 대화 내용만 | 장기/단기 기억 |
-| **자율성** | 낮음 | 높음 |
+가장 널리 쓰이는 방식이 ReAct다. 생각(Thought)으로 무엇이 필요한지 정하고, 행동(Action)으로 도구를 부르고, 관찰(Observation)로 결과를 확인한다. 목표에 닿았으면 끝내고, 아니면 관찰 결과를 들고 다시 생각으로 돌아간다.
 
-### 실제 비교
+기억은 두 종류로 나뉜다. 지금 하고 있는 작업의 진행 상황이 단기 기억이고, 과거에 무엇이 통했고 무엇이 실패했는지가 장기 기억이다.
 
-**일반 LLM**:
-```
-사용자: "내 프로젝트를 분석해줘"
-LLM: "파일에 접근할 수 없습니다.
-     파일 내용을 복사해서 보여주세요."
-→ 사용자가 직접 작업해야 함
-```
+## 💡 실제 사례
 
-**AI Agent**:
-```
-사용자: "내 프로젝트를 분석해줘"
+- **여러 도구를 거치는 조사** 검색으로 자료를 모으고 계산기로 수치를 맞춘 다음, 정리해서 한 번에 내놓는다.
+- **파일을 다루는 작업** 폴더를 훑고 조건에 맞는 파일만 골라낸 뒤 내용을 읽어 요약한다.
+- **실패를 딛고 가는 작업** 파일 이름이 틀려 읽기에 실패하면 목록을 먼저 확인하고 이름을 고쳐 다시 읽는다.
 
-Agent:
-1. 프로젝트 폴더 탐색 도구 사용
-2. 파일 목록 확인
-3. 각 파일 읽기
-4. 코드 분석
-5. 보고서 생성
-→ "프로젝트는 Python Flask 앱입니다.
-   10개 파일, 총 2,500줄이며..."
-→ 자동으로 완료!
-```
+## 🚫 흔한 오해
 
-## 🔧 Agent의 핵심 능력
+- **에이전트는 더 똑똑한 모델이다** — 모델은 같은 것을 쓴다. 달라지는 건 도구를 쥐여주고 결과를 다시 보게 만든 바깥 구조다.
+- **목표만 주면 알아서 다 한다** — 쓸 수 있는 도구를 미리 정해줘야 한다. 도구함에 없는 일은 아무리 반복해도 못 한다.
+- **실패해도 재시도하니 결국 성공한다** — 판단 자체가 어긋나 있으면 같은 실수를 되풀이할 뿐이다. 그래서 몇 번까지 돌지 정해둔다.
 
-### 1. 자기 수정 (Self-Correction)
+## 🚨 주의사항
 
-```
-Agent: "파일을 읽어보자"
-→ [오류: 파일 없음]
+- **반복 횟수를 정해둔다.** 목표에 닿지 못하면 끝없이 돈다. 몇 바퀴까지 돌지 정하고 그 뒤에는 멈추게 한다.
+- **도구가 할 수 있는 일의 범위를 정해둔다.** 파일을 지우거나 돈을 쓰는 도구를 쥐여주면 판단이 어긋났을 때 되돌리기 어렵다.
 
-Agent: "경로가 잘못됐구나. 먼저 파일 목록을 확인하자"
-→ [파일 목록 조회]
+## 📝 정리
 
-Agent: "아, 파일명이 'data.txt'가 아니라 'dataset.txt'구나"
-→ [다시 읽기 시도]
-→ [성공!]
-```
+AI Agent는 목표를 받아 생각하고 도구를 쓰고 결과를 보는 일을 반복하는 AI다. 모델이 달라져서가 아니라 도구와 반복이 바깥에 붙어 있어서 일을 끝까지 밀고 간다. 쓸 도구와 멈출 지점을 정하는 것은 사람의 몫으로 남는다.
 
-### 2. 멀티 태스킹
+## ❓ 이해했는지
 
-```
-사용자: "내일 날씨 확인하고, 이메일도 정리해줘"
-
-Agent:
-[작업 1] 날씨 API 호출 → 완료
-[작업 2] 이메일 목록 조회 → 완료
-[작업 3] 중요 이메일 필터링 → 완료
-[작업 4] 결과 통합 → 완료
-```
-
-### 3. 학습 및 개선
-
-Agent는 과거 경험을 기억하고 활용합니다:
-
-```python
-# Memory에 저장된 과거 경험
-memory = {
-    "실패 사례": [
-        "파일 경로를 확인하지 않고 읽으려다 오류 발생"
-    ],
-    "성공 패턴": [
-        "먼저 ls로 파일 목록 확인 → 파일명 확인 → 읽기"
-    ]
-}
-
-# 다음 작업 시 이 경험을 활용
-Agent: "파일을 읽기 전에 먼저 목록을 확인해야겠다"
-      (과거 실패를 기억)
-```
+- 같은 LLM을 쓰는데 에이전트만 여러 단계짜리 일을 끝낼 수 있는 이유는?
+- 도구를 실행했더니 오류가 났다. 에이전트는 그다음에 무엇을 하나?
+- 반복 횟수에 한계를 두지 않으면 무슨 일이 생기나?
 
 ## 🔗 관련 용어
 
-- [[LLM]]: Agent의 추론 엔진
-- [[RAG]]: Agent가 외부 지식에 접근하는 방법
-- [[MCP]]: Agent가 도구와 연결하는 프로토콜
-- [[Orchestrator]]: 여러 Agent를 조율하는 시스템
-- [[ReAct]]: Agent의 대표적인 동작 패턴
-
-## 📚 참고자료
-
-- [LangChain Agents](https://python.langchain.com/docs/modules/agents/)
-- [ReAct Paper](https://arxiv.org/abs/2210.03629)
-- [AutoGPT](https://github.com/Significant-Gravitas/AutoGPT)
-- [LangGraph](https://github.com/langchain-ai/langgraph)
-
----
-*카테고리: AI-ML*
-*생성일: 2026-02-14*
+- [[LLM]] — 에이전트가 판단할 때 쓰는 자리
+- [[ReAct]] — 생각과 행동을 번갈아 하는 대표적인 동작 방식
+- [[MCP]] — 에이전트에 도구를 붙이는 규약
+- [[RAG]] — 에이전트가 외부 지식을 끌어오는 방법
+- [[Orchestrator]] — 에이전트 여럿을 묶어 순서를 정하는 쪽

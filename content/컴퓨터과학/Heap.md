@@ -2,399 +2,91 @@
 
 ## 📝 정의
 
-Heap(힙)은 두 가지 의미를 가집니다:
-1. **메모리 Heap**: 프로그램이 동적으로 할당하는 메모리 영역
-2. **자료구조 Heap**: 최댓값/최솟값을 빠르게 찾는 트리 구조
+Heap 은 **꼭대기에 항상 최댓값이나 최솟값이 오는 트리**다.
 
-### 핵심 개념
+같은 이름으로 부르는 다른 것이 하나 더 있다. 프로그램이 실행 도중에 얻어 쓰는 메모리 영역도 힙이라고 한다. 둘은 이름만 겹칠 뿐 서로 관계가 없다.
 
-**메모리 Heap**:
-- **무엇인가?**: 동적 메모리 할당 영역
-- **왜 필요한가?**: 실행 시간에 크기가 결정되는 데이터 저장
-- **어떻게 작동하나?**: malloc(), new 등으로 할당
+### 비유
+피라미드 모양의 대기 줄. 맨 위 한 명만 바로 꺼낼 수 있고, 빈 자리는 아래에서 올라와 메운다.
 
-**자료구조 Heap**:
-- **무엇인가?**: 우선순위 기반 트리
-- **왜 필요한가?**: 최댓값/최솟값 빠른 조회
-- **어떻게 작동하나?**: 부모 > 자식 (Max Heap) 규칙 유지
+## 🖼️ 그림으로 보기
 
-## 📊 메모리 Heap
-
-
-### Stack vs Heap 메모리
-
-| 특성 | Stack | Heap |
-|------|-------|------|
-| **할당** | 자동 | 수동 (malloc, new) |
-| **해제** | 자동 | 수동 (free, delete) |
-| **크기** | 제한적 (MB) | 크다 (GB) |
-| **속도** | 빠름 | 느림 |
-| **관리** | 컴파일러 | 프로그래머 |
-| **수명** | 함수 내 | 명시적 해제까지 |
-
-### 메모리 Heap 문제점
-
-**문제 상황**:
-```python
-😱 시나리오 1: 메모리 누수
-def memory_leak():
-    """메모리를 계속 할당만 함"""
-    data = []
-    while True:
-        # 계속 할당만 하고 해제 안 함
-        big_list = [0] * 1_000_000
-        data.append(big_list)
-    # Heap 메모리가 계속 증가! 😱
-    # 결국 메모리 부족으로 크래시!
-
-😱 시나리오 2: Dangling Pointer
-ptr = malloc(100)  # Heap에 할당
-free(ptr)          # 해제
-*ptr = 10          # 해제된 메모리 접근! 😱
-→ Segmentation Fault!
-
-😱 시나리오 3: Heap Fragmentation
-반복적인 할당/해제
-→ Heap이 조각조각 나뉨
-→ 큰 메모리 할당 실패 😱
+```도해
+흐름: 값을 넣고 꺼낼 때 힙은 무엇을 하나
+삽입 :: 맨 끝자리에 새 값을 붙인다
+위로 :: 부모보다 작으면 자리를 바꾼다
+정지 :: 부모보다 크면 거기서 멈춘다
+꺼내기 :: 꼭대기 값을 빼서 돌려준다
+메우기 :: 맨 끝 값을 꼭대기로 올린다
+< 아래로 :: 더 작은 자식과 바꿔가며 내려간다
+= 전체를 정렬하지 않고 꼭대기만 맞추기 때문에 넣고 꺼내는 값이 싸다
 ```
 
-**올바른 사용**:
-```python
-✅ 시나리오 1: 적절한 메모리 관리
-def good_memory_management():
-    """사용 후 해제"""
-    data = [0] * 1_000_000
-    process(data)
-    del data  # 명시적 해제
-    gc.collect()  # 가비지 컬렉션
-    # 메모리 누수 방지! ✅
+## ⚠️ 해결하는 문제
 
-✅ 시나리오 2: 스마트 포인터 (C++)
-std::unique_ptr<int> ptr = std::make_unique<int>(10);
-// 자동으로 해제됨! ✅
-
-✅ 시나리오 3: 메모리 풀
-미리 큰 메모리 할당 후 재사용
-→ Fragmentation 방지 ✅
+```도해
+대조: 가장 작은 값을 계속 꺼내야 한다면 무엇을 쓰나
+매번 정렬하면 || 힙을 쓰면
+값 하나 넣기 :: 전체를 다시 본다 || 한 줄기만 본다
+최솟값 꺼내기 :: 정렬이 끝나야 || 바로 꺼낸다
+개수가 늘면 :: 급격히 느려진다 || 완만하게 는다
+= 순서 전체가 필요한 게 아니라면 꼭대기만 맞춰두면 된다
 ```
 
-### Python에서 Heap 메모리
+작업이 계속 들어오는데 그중 가장 급한 것부터 처리해야 하는 상황을 생각해보면 된다. 들어올 때마다 전체를 정렬하면 항목이 늘수록 감당이 안 되고, 정렬하지 않으면 꺼낼 때마다 전부 훑어야 한다.
 
-```python
-import sys
-import gc
+힙은 그 사이를 잡는다. 부모가 자식보다 작다는 규칙 하나만 유지하면 꼭대기는 언제나 최솟값이고, 넣거나 꺼낼 때 손대는 자리는 트리의 한 줄기뿐이다. 넣기와 꺼내기가 O(log n), 꼭대기 보기가 O(1) 이다.
 
-# 작은 객체 (Stack or Heap?)
-small_number = 42
-print(f"int 크기: {sys.getsizeof(small_number)} bytes")
+## ⚙️ 작동 원리
 
-# 큰 객체 (Heap)
-large_list = [0] * 1_000_000
-print(f"큰 리스트 크기: {sys.getsizeof(large_list) / (1024**2):.2f}MB")
-
-# 명시적 삭제
-del large_list
-gc.collect()  # 가비지 컬렉션 강제 실행
-
-# 메모리 사용량 확인
-import psutil
-process = psutil.Process()
-memory_info = process.memory_info()
-print(f"Heap 메모리 사용: {memory_info.rss / (1024**2):.2f}MB")
+```도해
+층: 프로그램의 메모리는 어떻게 나뉘어 있나
+코드 :: 실행할 명령이 올라가는 자리
+전역 :: 프로그램이 사는 동안 남아 있는 값
+스택 :: 함수가 불릴 때 생기고 끝나면 사라진다
+힙 :: 실행 도중에 얻어 쓰고 직접 놓아주는 영역
+= 여기서 말하는 힙은 자료구조와 이름만 같다. 크기를 미리 모를 때 쓰는 자리다
 ```
 
-## 🎯 자료구조 Heap
+메모리 쪽 힙은 크기를 실행 전에 알 수 없는 데이터를 두는 곳이다. `malloc` 이나 `new` 로 얻고 `free` 나 `delete` 로 놓아준다. 놓아주는 것을 잊으면 쓰지 않는 메모리가 계속 쌓이고, 이미 놓아준 자리를 다시 건드리면 프로그램이 죽는다.
 
-### Max Heap (최대 힙)
+파이썬이나 자바처럼 가비지 컬렉션이 있는 언어는 참조가 끊긴 것을 대신 치워준다. 그래도 참조를 어딘가에 계속 담아두면 치울 수 없어서 메모리가 늘어나는 것은 마찬가지다.
 
+## 📊 비교
 
-**규칙**:
-```
-부모 노드 ≥ 자식 노드
-→ 루트가 항상 최댓값
-```
+| | 스택 | 힙 (메모리) |
+|---|---|---|
+| 할당 | 자동 | 직접 요청 |
+| 해제 | 함수가 끝나면 | 직접 놓아주거나 GC |
+| 크기 | 제한이 빡빡함 | 훨씬 크다 |
+| 수명 | 함수 안에서 | 놓아줄 때까지 |
 
-### Min Heap (최소 힙)
+## 💡 실제 사례
 
+- **작업 스케줄러** 급한 순서대로 꺼내야 하는 대기열을 힙으로 만든다.
+- **가장 큰 K 개 찾기** 크기 K 인 힙을 유지하며 훑으면 전체를 정렬하지 않고도 상위 K 개가 남는다.
+- **정렬된 목록 여러 개 합치기** 각 목록의 앞자리만 힙에 넣고 꺼내면서 이어 붙인다.
 
-**규칙**:
-```
-부모 노드 ≤ 자식 노드
-→ 루트가 항상 최솟값
-```
+## 🚫 흔한 오해
 
-## 💡 Python Heap 구현
-
-### heapq 모듈 (Min Heap)
-
-```python
-import heapq
-
-# Min Heap 생성
-heap = []
-
-# 원소 추가
-heapq.heappush(heap, 5)
-heapq.heappush(heap, 3)
-heapq.heappush(heap, 7)
-heapq.heappush(heap, 1)
-
-print(heap)  # [1, 3, 7, 5] - 완전 정렬은 아님
-
-# 최솟값 제거 및 반환
-min_value = heapq.heappop(heap)
-print(f"최솟값: {min_value}")  # 1
-
-# 최솟값 조회 (제거 안 함)
-print(f"현재 최솟값: {heap[0]}")  # 3
-
-# 리스트를 Heap으로 변환
-data = [5, 3, 7, 1, 9, 2]
-heapq.heapify(data)
-print(data)  # [1, 3, 2, 5, 9, 7]
-```
-
-### Max Heap 구현 (음수 활용)
-
-```python
-import heapq
-
-# Max Heap은 음수로 변환하여 구현
-max_heap = []
-
-# 추가 (음수로 변환)
-heapq.heappush(max_heap, -5)
-heapq.heappush(max_heap, -3)
-heapq.heappush(max_heap, -7)
-
-# 최댓값 제거 (음수로 변환했으므로 다시 양수로)
-max_value = -heapq.heappop(max_heap)
-print(f"최댓값: {max_value}")  # 7
-
-# 현재 최댓값
-print(f"현재 최댓값: {-max_heap[0]}")  # 5
-```
-
-## 🔍 실전 활용
-
-### 1. Top K 원소 찾기
-
-```python
-import heapq
-
-def find_top_k(nums, k):
-    """가장 큰 k개 원소 찾기"""
-    # Min Heap 사용 (크기 k 유지)
-    heap = []
-
-    for num in nums:
-        heapq.heappush(heap, num)
-
-        # Heap 크기가 k 초과하면 최솟값 제거
-        if len(heap) > k:
-            heapq.heappop(heap)
-
-    # Heap에 남은 것이 Top K
-    return sorted(heap, reverse=True)
-
-# 테스트
-numbers = [3, 2, 1, 5, 6, 4, 7, 8, 9, 10]
-top_3 = find_top_k(numbers, 3)
-print(f"Top 3: {top_3}")  # [10, 9, 8]
-```
-
-### 2. 우선순위 큐
-
-```python
-import heapq
-
-class PriorityQueue:
-    """우선순위 큐"""
-
-    def __init__(self):
-        self.heap = []
-
-    def push(self, priority, item):
-        """우선순위와 함께 추가"""
-        heapq.heappush(self.heap, (priority, item))
-
-    def pop(self):
-        """우선순위가 가장 높은 항목 제거"""
-        if self.heap:
-            return heapq.heappop(self.heap)[1]
-        return None
-
-    def peek(self):
-        """우선순위가 가장 높은 항목 조회"""
-        if self.heap:
-            return self.heap[0][1]
-        return None
-
-    def is_empty(self):
-        return len(self.heap) == 0
-
-# 사용
-pq = PriorityQueue()
-
-# 우선순위 숫자가 작을수록 높은 우선순위
-pq.push(3, "작업 C")
-pq.push(1, "작업 A")  # 가장 높은 우선순위
-pq.push(2, "작업 B")
-
-while not pq.is_empty():
-    task = pq.pop()
-    print(f"처리: {task}")
-```
-
-**실행 결과**:
-```
-처리: 작업 A
-처리: 작업 B
-처리: 작업 C
-```
-
-### 3. 병합 정렬된 리스트
-
-```python
-import heapq
-
-def merge_k_sorted_lists(lists):
-    """K개의 정렬된 리스트 병합"""
-    heap = []
-    result = []
-
-    # 각 리스트의 첫 원소를 Heap에 추가
-    for i, lst in enumerate(lists):
-        if lst:
-            heapq.heappush(heap, (lst[0], i, 0))
-
-    while heap:
-        value, list_idx, element_idx = heapq.heappop(heap)
-        result.append(value)
-
-        # 다음 원소가 있으면 Heap에 추가
-        if element_idx + 1 < len(lists[list_idx]):
-            next_value = lists[list_idx][element_idx + 1]
-            heapq.heappush(heap, (next_value, list_idx, element_idx + 1))
-
-    return result
-
-# 테스트
-lists = [
-    [1, 4, 7],
-    [2, 5, 8],
-    [3, 6, 9]
-]
-
-merged = merge_k_sorted_lists(lists)
-print(merged)  # [1, 2, 3, 4, 5, 6, 7, 8, 9]
-```
-
-### 4. 중간값 스트림
-
-```python
-import heapq
-
-class MedianFinder:
-    """스트리밍 데이터의 중간값 찾기"""
-
-    def __init__(self):
-        # 작은 값들 (Max Heap)
-        self.small = []
-        # 큰 값들 (Min Heap)
-        self.large = []
-
-    def add_num(self, num):
-        """숫자 추가"""
-        # 작은 쪽에 추가 (Max Heap이므로 음수로)
-        heapq.heappush(self.small, -num)
-
-        # 균형 맞추기
-        if self.small and self.large and (-self.small[0] > self.large[0]):
-            val = -heapq.heappop(self.small)
-            heapq.heappush(self.large, val)
-
-        # 크기 균형
-        if len(self.small) > len(self.large) + 1:
-            val = -heapq.heappop(self.small)
-            heapq.heappush(self.large, val)
-        elif len(self.large) > len(self.small):
-            val = heapq.heappop(self.large)
-            heapq.heappush(self.small, -val)
-
-    def find_median(self):
-        """중간값 반환"""
-        if len(self.small) > len(self.large):
-            return -self.small[0]
-        return (-self.small[0] + self.large[0]) / 2
-
-# 사용
-mf = MedianFinder()
-mf.add_num(1)
-print(mf.find_median())  # 1
-
-mf.add_num(2)
-print(mf.find_median())  # 1.5
-
-mf.add_num(3)
-print(mf.find_median())  # 2
-```
-
-## 🚨 Heap 시간 복잡도
-
-| 연산 | 시간 복잡도 |
-|------|-------------|
-| 삽입 (push) | O(log n) |
-| 삭제 (pop) | O(log n) |
-| 최댓값/최솟값 조회 | O(1) |
-| Heapify | O(n) |
-
-**비교**:
-```
-정렬된 배열:
-- 삽입: O(n)
-- 최솟값: O(1)
-
-Heap:
-- 삽입: O(log n)  ✅ 더 빠름
-- 최솟값: O(1)
-```
-
-## 🔗 관련 용어
-
-- [[Stack]]: LIFO 메모리 영역
-- [[Queue]]: FIFO 자료구조
-- [[Process]]: Stack과 Heap을 가진 실행 단위
-- [[RAM]]: Stack과 Heap이 위치하는 메모리
+- **메모리 힙과 자료구조 힙은 같은 것이다** — 이름만 같다. 하나는 메모리를 얻어 쓰는 영역이고 다른 하나는 트리다.
+- **힙은 정렬된 상태로 저장된다** — 꼭대기만 맞을 뿐 나머지는 순서가 없다. 전부 꺼내야 정렬된 순서가 나온다.
+- **힙이 배열보다 항상 빠르다** — 꼭대기 값을 꺼낼 때만 그렇다. 가운데 값을 찾거나 순서대로 훑는 일에는 맞지 않는다.
 
 ## 📝 정리
 
-**메모리 Heap**:
-```
-Heap = 동적 메모리 할당 영역
-→ malloc(), new로 할당
-→ free(), delete로 해제
-→ 프로그래머가 직접 관리
-```
+자료구조 힙은 꼭대기에 최댓값이나 최솟값이 오도록 유지하는 트리다. 전체를 정렬하지 않고 꼭대기만 맞추기 때문에 우선순위 큐를 만드는 데 쓴다. 메모리 힙은 이름만 같은 다른 개념으로, 크기를 미리 모르는 데이터를 두는 영역이다.
 
-**자료구조 Heap**:
-```
-Heap = 우선순위 기반 트리
-→ 최댓값/최솟값 빠른 조회 O(1)
-→ 삽입/삭제 O(log n)
-→ 우선순위 큐에 사용
-```
+## ❓ 이해했는지
 
-**비유로 기억하기**:
-```
-메모리 Heap = 큰 창고 (동적 할당)
-Stack = 작은 선반 (고정 할당)
+- 힙을 그대로 출력했더니 `[1, 3, 2, 5]` 처럼 뒤섞여 보인다. 왜 그런가?
+- 작업 100만 개 중 가장 급한 것만 계속 꺼내야 한다. 왜 매번 정렬하지 않나?
+- 함수가 끝난 뒤에도 남아 있어야 하는 큰 데이터는 어느 영역에 두나?
 
-자료구조 Heap = 피라미드
-→ 꼭대기가 최대/최소
-```
+## 🔗 관련 용어
 
----
-*카테고리: 컴퓨터과학*
-*생성일: 2026-02-15*
+- [[Stack]] — 함수가 쓰고 반납하는 메모리 영역. 힙과 짝을 이룬다
+- [[Priority Queue]] — 힙으로 만드는 대표적인 자료구조
+- [[Tree]] — 힙이 지키는 모양
+- [[Garbage Collection]] — 메모리 힙에 남은 것을 대신 치워주는 장치
+- [[Time Complexity]] — 넣고 꺼내는 비용을 재는 잣대

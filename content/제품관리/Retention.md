@@ -2,492 +2,86 @@
 
 ## 📝 정의
 
-Retention은 **사용자가 제품을 계속 사용하는 비율**입니다. 신규 사용자를 끌어들이는 것보다 중요한, 제품 성공의 핵심 지표입니다.
+Retention은 **가입한 사람 중 다시 돌아온 비율**이다.
 
-### 핵심 개념
+한 달에 만 명이 가입해도 다음 달에 오백 명만 남으면 사용자 수는 늘지 않는다. 신규 유입은 들어오는 양을 재고, 리텐션은 남는 양을 잰다.
 
-- **무엇인가?**: 사용자가 다시 돌아오는 비율
-- **왜 중요한가?**: "구멍 난 양동이에 물 붓기" 방지
-- **언제 측정?**: Day 1, Day 7, Day 30
+### 비유
+구멍 난 양동이. 위에서 물을 아무리 부어도 바닥이 새면 수위가 오르지 않는다.
 
-### Retention이 해결하는 문제
+## 🖼️ 그림으로 보기
 
-**문제 상황**:
-```
-😱 시나리오 1: 구멍 난 양동이
-신규 가입: 매달 10,000명
-→ 다음 달 사용자: 500명
-→ 9,500명 이탈! 😱
-→ 아무리 마케팅해도 성장 안 함!
-
-😱 시나리오 2: 허상의 성장
-월간 가입자: 증가 중 📈
-월간 활성 사용자: 정체 중 😱
-→ 가입만 하고 안 씀!
-
-😱 시나리오 3: 비용 낭비
-고객 획득 비용: 10,000원
-1달 사용 후 이탈
-→ 10,000원 날림! 😱
+```도해
+흐름: 리텐션은 무엇을 세는 값인가
+가입 :: 같은 날 가입한 사람들을 한 묶음으로 본다
+1 일 후 :: 그중 몇 명이 다시 왔는지 센다
+7 일 후 :: 다시 센다. 대개 여기서 많이 빠진다
+30 일 후 :: 또 센다
+< 곡선 :: 날짜별 비율을 이으면 모양이 나온다
+= 중요한 건 값 하나가 아니라 곡선이 어디서 평평해지는가다
 ```
 
-**Retention의 해결**:
-```
-✅ 시나리오 1: 건강한 성장
-신규 가입: 10,000명
-30일 Retention: 60%
-→ 6,000명 유지! ✅
-→ 매달 누적 성장!
+## ⚠️ 해결하는 문제
 
-✅ 시나리오 2: 진짜 성장
-가입자: 증가
-활성 사용자: 같이 증가
-→ 실제 사용! ✅
-
-✅ 시나리오 3: 투자 회수
-고객 획득: 10,000원
-12개월 유지 (LTV: 50,000원)
-→ 5배 수익! ✅
+```도해
+대조: 가입자 수만 보면 어떻게 되나
+가입자 수만 || 리텐션까지
+성장 판단 :: 늘어난다고 본다 || 남는지를 본다
+마케팅 :: 계속 부어야 한다 || 부은 만큼 쌓인다
+제품 문제 :: 안 보인다 || 빠지는 지점이 보인다
+= 들어오는 양이 아니라 남는 양이 성장을 정한다
 ```
 
-## 💡 Retention 측정
+가입자 수는 마케팅을 늘리면 같이 올라간다. 그래서 이 숫자만 보면 제품이 잘되고 있는지 알 수 없다. 광고를 멈춘 다음 달에야 실제 상태가 드러난다.
 
-### 1. 기본 계산
+리텐션은 그 상태를 먼저 보여준다. 며칠째에 크게 빠지는지가 보이면 제품의 어느 지점이 문제인지도 좁혀진다. 첫날에 빠지면 처음 화면 문제이고, 일주일 뒤에 빠지면 계속 쓸 이유가 없다는 뜻이다.
 
-```python
-def calculate_retention(cohort_data):
-    """
-    Retention Rate 계산
+## ⚙️ 작동 원리
 
-    cohort_data: {
-        'day_0': 1000,  # 가입일
-        'day_1': 800,   # 1일 후
-        'day_7': 600,   # 7일 후
-        'day_30': 400   # 30일 후
-    }
-    """
+같은 날 가입한 사람들을 한 묶음으로 묶고, 그 묶음이 며칠째에 얼마나 남았는지를 센다. 이렇게 묶어 보는 방식을 코호트라고 부른다. 전체 활성 사용자 수로는 신규와 기존이 섞여서 어느 쪽이 움직였는지 알 수 없다.
 
-    retention = {}
+곡선의 모양이 값보다 중요하다. 계속 아래로 내려가면 언젠가 아무도 남지 않는다. 어느 지점에서 평평해지면 그 높이만큼은 계속 쌓인다.
 
-    for day, users in cohort_data.items():
-        if day == 'day_0':
-            rate = 100.0
-        else:
-            rate = (users / cohort_data['day_0']) * 100
-
-        retention[day] = {
-            'users': users,
-            'rate': f"{rate:.1f}%"
-        }
-
-    return retention
-
-# 예시
-cohort = {
-    'day_0': 1000,
-    'day_1': 800,
-    'day_7': 600,
-    'day_30': 400,
-    'day_90': 300
-}
-
-result = calculate_retention(cohort)
-
-print("Retention Rate:")
-for day, data in result.items():
-    print(f"{day}: {data['users']}명 ({data['rate']})")
-
-# 출력:
-# day_0: 1000명 (100.0%)
-# day_1: 800명 (80.0%)  ✅ 좋음
-# day_7: 600명 (60.0%)  ✅ 좋음
-# day_30: 400명 (40.0%)  🟡 보통
-# day_90: 300명 (30.0%)  🟡 개선 필요
+```도해
+층: 리텐션을 올리려면 어디부터 보나
+첫 화면 :: 가입 직후 무엇을 할지 보이는가
+첫 성공 :: 이 제품이 무엇을 해주는지 겪었는가
+재방문 이유 :: 다음에 다시 열 계기가 있는가
+습관 :: 열어보는 것이 일과에 들어갔는가
+= 아래 단계는 위 단계를 통과한 사람에게만 생긴다
 ```
 
-### 2. Cohort Analysis
+## 💡 실제 사례
 
-```python
-import pandas as pd
-import matplotlib.pyplot as plt
+- **가입 첫날 이탈** 가입은 하는데 첫 화면에서 뭘 해야 할지 몰라 그대로 나간다. 처음 할 일을 하나만 남기면 달라진다.
+- **일주일 뒤 이탈** 처음에는 써봤는데 다시 열 이유가 없다. 알림이나 주간 요약처럼 돌아올 계기를 만든다.
+- **곡선이 평평해지는 지점** 30일 이후로 값이 거의 안 떨어지면 그만큼은 계속 남는 사용자라고 볼 수 있다.
 
-def cohort_retention_analysis(data):
-    """
-    코호트별 리텐션 분석
+## 🚫 흔한 오해
 
-    data: {
-        '2024-01': [100, 80, 60, 40, 30],  # 1월 가입자
-        '2024-02': [100, 85, 65, 45, 35],  # 2월 가입자
-        '2024-03': [100, 90, 70, 50, 40]   # 3월 가입자
-    }
-    """
+- **리텐션은 마케팅 지표다** — 제품 지표에 가깝다. 광고로 사람을 데려올 수는 있어도 다시 오게 만드는 것은 제품이 하는 일이다.
+- **숫자가 높을수록 좋은 제품이다** — 제품 종류마다 기준이 다르다. 매일 쓰는 도구와 몇 달에 한 번 쓰는 서비스를 같은 값으로 비교할 수 없다.
+- **떨어지는 건 초기니까 당연하다** — 떨어지는 것 자체는 정상이지만, 평평해지지 않고 끝까지 내려가면 남는 사용자가 없다는 뜻이다.
 
-    # 데이터프레임 생성
-    df = pd.DataFrame(data).T
-    df.columns = ['Week 0', 'Week 1', 'Week 2', 'Week 3', 'Week 4']
+## 🚨 주의사항
 
-    # 시각화
-    plt.figure(figsize=(12, 6))
-
-    for cohort in df.index:
-        plt.plot(df.columns, df.loc[cohort], marker='o', label=cohort)
-
-    plt.xlabel('Week')
-    plt.ylabel('Retention (%)')
-    plt.title('Cohort Retention Analysis')
-    plt.legend()
-    plt.grid(True, alpha=0.3)
-    plt.savefig('cohort_retention.png')
-
-    return df
-
-# 예시
-cohorts = {
-    '2024-01': [100, 75, 55, 40, 32],
-    '2024-02': [100, 80, 60, 45, 38],
-    '2024-03': [100, 85, 68, 52, 45]  # 개선 추세!
-}
-
-analysis = cohort_retention_analysis(cohorts)
-print(analysis)
-```
-
-### 3. Retention Curve
-
-```python
-import numpy as np
-import matplotlib.pyplot as plt
-
-def plot_retention_curve(good_product, bad_product):
-    """
-    좋은 제품 vs 나쁜 제품 리텐션 곡선
-    """
-
-    weeks = np.arange(0, 13)
-
-    # 나쁜 제품: 계속 하락
-    bad = [100, 60, 40, 28, 20, 15, 12, 10, 8, 6, 5, 4, 3]
-
-    # 좋은 제품: 평탄화
-    good = [100, 85, 75, 68, 65, 63, 62, 61, 60, 60, 60, 60, 60]
-
-    plt.figure(figsize=(12, 6))
-    plt.plot(weeks, bad, 'r--', label='나쁜 제품 (PMF 미달성)', linewidth=2)
-    plt.plot(weeks, good, 'g-', label='좋은 제품 (PMF 달성)', linewidth=2)
-
-    plt.axhline(y=40, color='gray', linestyle=':', label='40% 기준선')
-    plt.xlabel('Week')
-    plt.ylabel('Retention (%)')
-    plt.title('Retention Curve: PMF 달성 vs 미달성')
-    plt.legend()
-    plt.grid(True, alpha=0.3)
-    plt.savefig('retention_curve.png')
-
-    print("좋은 제품 특징:")
-    print("→ 초기 하락 후 평탄화")
-    print("→ 40-60% 수준 유지")
-    print("→ PMF 신호!")
-
-plot_retention_curve()
-```
-
-## 🎯 Retention 개선 전략
-
-### 1. Onboarding 최적화
-
-```python
-"""
-신규 사용자 온보딩 = Retention의 핵심
-"""
-
-onboarding_best_practices = {
-    "1. 빠른 가치 제공": {
-        "문제": "가입 후 아무것도 안 보임",
-        "해결": "즉시 샘플 데이터 제공",
-        "예시": "Slack: 가입하자마자 튜토리얼 채널"
-    },
-
-    "2. 점진적 학습": {
-        "문제": "모든 기능 한 번에 설명",
-        "해결": "필요할 때 하나씩 안내",
-        "예시": "Duolingo: 레벨 업할 때마다 새 기능"
-    },
-
-    "3. 첫 성공 경험": {
-        "문제": "어떻게 시작할지 모름",
-        "해결": "첫 작업 가이드",
-        "예시": "Canva: 템플릿으로 바로 시작"
-    },
-
-    "4. Aha Moment 유도": {
-        "문제": "제품 가치 못 느낌",
-        "해결": "핵심 가치 빠르게 경험",
-        "예시": "Facebook: 7명 친구 추가 = Aha!"
-    }
-}
-
-def calculate_onboarding_impact():
-    """온보딩 개선 효과"""
-
-    before = {
-        "가입": 1000,
-        "온보딩 완료": 300,  # 30%
-        "Day 7 retention": 90  # 9%
-    }
-
-    after = {
-        "가입": 1000,
-        "온보딩 완료": 700,  # 70% (+133%)
-        "Day 7 retention": 420  # 42% (+367%)
-    }
-
-    improvement = (
-        (after['Day 7 retention'] - before['Day 7 retention'])
-        / before['Day 7 retention']
-    ) * 100
-
-    print(f"온보딩 개선 효과: +{improvement:.0f}%")
-    print(f"Before: {before['Day 7 retention']}명")
-    print(f"After: {after['Day 7 retention']}명")
-
-calculate_onboarding_impact()
-```
-
-### 2. Habit Building (습관 형성)
-
-```python
-"""
-사용자 습관 만들기
-"""
-
-habit_loop = {
-    "1. Trigger (방아쇠)": {
-        "내부": "심심함, 외로움, 궁금함",
-        "외부": "푸시 알림, 이메일, 친구 초대",
-        "예시": "Instagram: 친구가 사진 올림 알림"
-    },
-
-    "2. Action (행동)": {
-        "조건": "쉬워야 함 (1-2 클릭)",
-        "예시": "앱 열기 → 피드 스크롤",
-        "최적화": "마찰 최소화"
-    },
-
-    "3. Reward (보상)": {
-        "종류": "변동 보상 (예측 불가)",
-        "예시": "새로운 콘텐츠, 좋아요, 댓글",
-        "원리": "도파민 분비"
-    },
-
-    "4. Investment (투자)": {
-        "의미": "사용자가 무언가 남김",
-        "예시": "팔로우, 프로필, 콘텐츠",
-        "효과": "다음 사용 가능성 ⬆"
-    }
-}
-
-# 습관 점수 계산
-def calculate_habit_score(product):
-    """제품의 습관 형성 점수"""
-
-    score = 0
-
-    if product.get('daily_trigger'):
-        score += 25  # 매일 트리거
-    if product.get('easy_action'):
-        score += 25  # 쉬운 액션
-    if product.get('variable_reward'):
-        score += 25  # 변동 보상
-    if product.get('user_investment'):
-        score += 25  # 사용자 투자
-
-    return {
-        'score': score,
-        'habit_forming': score >= 75
-    }
-
-# 예시
-instagram = {
-    'daily_trigger': True,   # 알림
-    'easy_action': True,     # 스크롤
-    'variable_reward': True, # 새 콘텐츠
-    'user_investment': True  # 팔로우, 포스팅
-}
-
-result = calculate_habit_score(instagram)
-print(f"습관 점수: {result['score']}/100")
-print(f"습관 형성: {'✅' if result['habit_forming'] else '❌'}")
-```
-
-### 3. Engagement 촉진
-
-```python
-"""
-사용자 참여 유도
-"""
-
-engagement_tactics = [
-    {
-        "전술": "Streak (연속 기록)",
-        "예시": "Duolingo: 100일 연속 학습",
-        "효과": "이탈 두려움"
-    },
-    {
-        "전술": "Social Proof",
-        "예시": "LinkedIn: '프로필 조회 5배 증가!'",
-        "효과": "경쟁심, 호기심"
-    },
-    {
-        "전술": "Progress Bar",
-        "예시": "프로필 완성도 60%",
-        "효과": "완성 욕구"
-    },
-    {
-        "전술": "Personalization",
-        "예시": "Netflix: '당신을 위한 추천'",
-        "효과": "관련성 ⬆"
-    },
-    {
-        "전술": "Community",
-        "예시": "Reddit: 서브레딧 커뮤니티",
-        "효과": "소속감"
-    }
-]
-```
-
-## 🔍 Retention 벤치마크
-
-### 산업별 기준
-
-```python
-retention_benchmarks = {
-    "Consumer App": {
-        "Day 1": "40%+",
-        "Day 7": "20%+",
-        "Day 30": "10%+",
-        "비고": "일반 소비자 앱"
-    },
-
-    "Social Media": {
-        "Day 1": "60%+",
-        "Day 7": "40%+",
-        "Day 30": "30%+",
-        "비고": "네트워크 효과"
-    },
-
-    "SaaS B2B": {
-        "Day 1": "70%+",
-        "Day 7": "60%+",
-        "Day 30": "50%+",
-        "비고": "업무 필수 도구"
-    },
-
-    "E-commerce": {
-        "Day 1": "30%+",
-        "Day 7": "15%+",
-        "Day 30": "8%+",
-        "비고": "구매 주기 영향"
-    },
-
-    "Gaming": {
-        "Day 1": "40%+",
-        "Day 7": "15%+",
-        "Day 30": "5%+",
-        "비고": "높은 이탈률"
-    }
-}
-
-# 내 제품 평가
-my_product = {
-    "industry": "Consumer App",
-    "day_1": 50,  # 50%
-    "day_7": 25,  # 25%
-    "day_30": 12  # 12%
-}
-
-benchmark = retention_benchmarks[my_product['industry']]
-
-print(f"산업: {my_product['industry']}")
-print(f"Day 1: {my_product['day_1']}% (기준: {benchmark['Day 1']})")
-print(f"Day 7: {my_product['day_7']}% (기준: {benchmark['Day 7']})")
-print(f"Day 30: {my_product['day_30']}% (기준: {benchmark['Day 30']})")
-```
-
-## 🚨 Retention 개선 실수
-
-### ❌ 피해야 할 것
-
-```python
-# 1. 스팸 알림
-bad_practice_1 = {
-    "알림 횟수": "하루 10번+",
-    "결과": "앱 삭제",
-    "올바른 방법": "의미 있는 알림만, 설정 가능"
-}
-
-# 2. 복잡한 온보딩
-bad_practice_2 = {
-    "단계": "10단계 튜토리얼",
-    "결과": "중간에 이탈",
-    "올바른 방법": "점진적, 필요할 때만"
-}
-
-# 3. 기능 폭탄
-bad_practice_3 = {
-    "접근": "모든 기능 한 번에",
-    "결과": "압도당함",
-    "올바른 방법": "핵심 기능부터, 단계적"
-}
-```
-
-## 🔗 관련 용어
-
-- [[PMF]]: 40%+ Retention = PMF 신호
-- [[Funnel]]: Retention은 Funnel의 마지막 단계
-- [[Cohort Analysis]]: Retention 측정 방법
-- [[Churn Rate]]: Retention의 반대 개념
-- [[LTV]]: Retention이 높으면 LTV 증가
+- **재방문의 정의를 먼저 정한다.** 앱을 열기만 한 것과 실제로 무언가 한 것은 전혀 다른 숫자가 된다.
+- **알림을 늘려 값을 올리지 않는다.** 잠깐 오르지만 그다음에 앱을 지우는 사람이 늘어난다.
 
 ## 📝 정리
 
-**Retention의 핵심**:
-```
-Retention = 다시 돌아오는 비율
-→ 제품 건강도 지표
-→ 성장의 기반
-→ PMF의 증거
-```
+Retention은 가입한 묶음이 시간이 지나 얼마나 남았는지를 재는 값이다. 값 하나보다 곡선이 어디서 평평해지는지가 중요하고, 이 값을 보지 않으면 가입자 수가 늘어도 실제로 쌓이는 것이 없다.
 
-**측정 기준**:
-```
-Day 1: 80%+ (우수)
-Day 7: 40%+ (좋음)
-Day 30: 20%+ (보통)
+## ❓ 이해했는지
 
-Curve: 평탄화 = PMF
-```
+- 가입자 수가 매달 늘고 있는데도 사용자가 안 쌓인다면 무엇을 보고 있어야 하나?
+- 가입 첫날에 크게 빠지는 것과 일주일 뒤에 빠지는 것은 각각 무엇을 가리키나?
+- 전체 활성 사용자 수 대신 같은 날 가입한 묶음을 따로 보는 이유는?
 
-**개선 방법**:
-```
-✅ 온보딩 최적화
-✅ Aha Moment 빠르게
-✅ 습관 형성
-✅ 참여 유도
-✅ 가치 지속 제공
-```
+## 🔗 관련 용어
 
-**비유로 기억하기**:
-```
-Retention = 친구 관계
-→ 첫 만남: 좋은 인상 (온보딩)
-→ 재미있음: 다시 만남 (가치)
-→ 습관: 매주 만남 (리텐션)
-→ 오래 유지: 진한 친구 (충성 고객)
-
-"신규 획득 < 기존 유지"
-"구멍 난 양동이 먼저 막아라"
-```
-
----
-*카테고리: 제품관리*
-*생성일: 2026-02-15*
+- [[PMF]] — 곡선이 평평해지는 것을 그 신호로 본다
+- [[Funnel]] — 가입까지 오는 과정. 리텐션은 그 뒤를 본다
+- [[CAC LTV]] — 데려오는 비용과 남아서 만드는 값. 리텐션이 뒷값을 정한다
+- [[North Star Metric]] — 리텐션과 이어지는 지표를 회사의 기준으로 삼는다
+- [[KPI]] — 리텐션을 그중 하나로 두는 경우가 많다

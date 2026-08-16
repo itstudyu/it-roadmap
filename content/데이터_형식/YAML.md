@@ -2,161 +2,84 @@
 
 ## 📝 정의
 
-YAML은 **사람이 읽기 쉬운 데이터 직렬화 형식**입니다. 설정 파일에 주로 사용되며 JSON보다 간결합니다.
+YAML은 **들여쓰기로 구조를 나타내는 설정 파일 형식**이다.
 
-### 핵심 개념
+괄호와 따옴표 대신 줄 바꿈과 공백으로 계층을 표현한다. 사람이 눈으로 읽고 손으로 고치는 파일에 주로 쓴다.
 
-- **무엇인가?**: 들여쓰기 기반 데이터 형식
-- **왜 필요한가?**: 읽기 쉬운 설정 파일
-- **어떻게 작동하나?**: 공백으로 구조 표현
+### 비유
+목차. 제목 아래 소제목을 한 칸 들여 쓰면 무엇이 무엇에 속하는지 따로 표시하지 않아도 보인다.
 
-## 💡 YAML 형식
+## 🖼️ 그림으로 보기
 
-```yaml
-name: Alice
-age: 25
-email: alice@example.com
-
-hobbies:
-  - 독서
-  - 영화
-  - 코딩
-
-address:
-  city: Seoul
-  country: Korea
-
-isStudent: false
-grade: null
+```도해
+층: YAML 에서 계층은 무엇으로 정해지나
+왼쪽 끝 :: 파일의 최상위 항목
+두 칸 들여쓰기 :: 바로 위 항목에 속한 값
+네 칸 들여쓰기 :: 다시 그 아래. 들어갈수록 깊어진다
+하이픈 :: 같은 자리에 여러 개가 올 때의 목록 표시
+= 괄호가 없는 대신 왼쪽 여백이 소속을 정한다
 ```
 
-### JSON vs YAML
+## ⚠️ 해결하는 문제
 
-**JSON**:
-```json
-{
-  "name": "Alice",
-  "age": 25,
-  "hobbies": ["독서", "영화"]
-}
+```도해
+대조: 설정을 JSON 으로 적으면 무엇이 불편한가
+JSON 으로 || YAML 로
+문법 기호 :: 괄호와 따옴표 || 들여쓰기만
+주석 :: 넣을 수 없다 || # 로 남긴다
+손으로 고치기 :: 쉼표에 깨진다 || 줄 단위로 고침
+= 사람이 직접 열어 고치는 파일이면 기호가 적을수록 낫다
 ```
 
-**YAML**:
-```yaml
-name: Alice
-age: 25
-hobbies:
-  - 독서
-  - 영화
-```
+설정 파일은 사람이 읽고 고친다. JSON으로 적으면 중괄호와 대괄호와 따옴표가 화면의 절반을 차지하고, 쉼표 하나를 빠뜨리면 파일 전체가 깨진다. 무엇보다 주석을 달 수 없어서 이 값이 왜 이렇게 되어 있는지 남길 자리가 없다.
 
-## 🎯 사용법
+YAML은 기호를 걷어내고 여백으로 구조를 표현한다. 대신 그 여백이 문법이 되어서, 한 칸이 달라지면 항목이 다른 부모 밑으로 들어간다.
 
-### Python
+## ⚙️ 작동 원리
 
-```python
-import yaml
+`키: 값` 으로 쓰고 콜론 뒤는 한 칸 띄운다. 줄 앞에 하이픈을 붙이면 목록의 한 항목이다. 들여쓰기에는 공백만 쓸 수 있고 탭 문자는 문법 오류가 된다.
 
-# 딕셔너리 → YAML
-data = {
-    "name": "Alice",
-    "age": 25,
-    "hobbies": ["독서", "영화"]
-}
+편집기가 자동으로 탭을 넣으면 화면에서는 공백과 구별되지 않는데 파서는 거부한다. YAML 파일이 이유 없이 안 읽힐 때 여기부터 보는 이유다.
 
-yaml_string = yaml.dump(data, allow_unicode=True)
-print(yaml_string)
+## 💡 실제 사례
 
-# YAML → 딕셔너리
-yaml_content = """
-name: Bob
-age: 30
-city: Seoul
-"""
+- **컨테이너 구성** 어떤 이미지를 어떤 포트로 띄울지 한 파일에 적어두고 그대로 실행한다.
+- **CI 설정** 어떤 사건에 어떤 명령을 돌릴지 저장소 안 파일로 관리해서 변경 이력이 코드와 함께 남는다.
+- **배포 명세** 원하는 상태를 파일로 적어 넘기면 시스템이 그 상태에 맞춘다.
 
-python_dict = yaml.safe_load(yaml_content)
-print(python_dict["name"])
+## 🚫 흔한 오해
 
-# 파일 읽기/쓰기
-with open("config.yaml", "w") as f:
-    yaml.dump(data, f, allow_unicode=True)
-
-with open("config.yaml") as f:
-    config = yaml.safe_load(f)
-```
-
-## 📊 실전 활용
-
-### Docker Compose
-
-```yaml
-version: '3'
-services:
-  web:
-    image: nginx
-    ports:
-      - "80:80"
-    volumes:
-      - ./html:/usr/share/nginx/html
-
-  db:
-    image: postgres
-    environment:
-      POSTGRES_PASSWORD: secret
-```
-
-### CI/CD 설정
-
-```yaml
-# GitHub Actions
-name: CI
-on: [push]
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Run tests
-        run: npm test
-```
-
-### Kubernetes
-
-```yaml
-apiVersion: v1
-kind: Pod
-metadata:
-  name: myapp
-spec:
-  containers:
-    - name: web
-      image: nginx:latest
-      ports:
-        - containerPort: 80
-```
+- **JSON 대신 어디에나 쓰면 된다** — YAML은 사람이 읽고 고치는 설정용이다. 프로그램끼리 주고받는 데이터는 규칙이 단순하고 파싱이 빠른 JSON 쪽이 낫다.
+- **들여쓰기는 보기 좋으라고 하는 것이다** — 들여쓰기가 곧 구조다. 한 칸이 달라지면 그 항목의 부모가 바뀐다.
+- **탭이든 공백이든 화면에서 같으면 상관없다** — 탭은 문법 오류다. 눈으로는 구별되지 않아도 파서는 거부한다.
 
 ## 🚨 주의사항
 
-- 탭 사용 불가 (스페이스만)
-- 들여쓰기가 구조를 결정
-- 따옴표 선택적
+- **따옴표 없는 값은 자동으로 해석된다.** `yes`, `no` 같은 단어나 앞자리가 0인 숫자가 의도와 다른 타입으로 읽힐 수 있어서, 문자열로 두고 싶으면 따옴표를 붙인다.
+- **긴 파일은 눈으로 들여쓰기를 못 잡는다.** 검사 도구로 문법을 먼저 확인하고 올리는 편이 낫다.
 
-## 🔗 관련 용어
+## 📊 비교
 
-- [[JSON]]: 비슷한 데이터 형식
-- [[Docker]]: YAML 사용
-- [[Kubernetes]]: YAML로 설정
+| | YAML | JSON |
+|---|---|---|
+| 구조 표현 | 들여쓰기 | 중괄호와 대괄호 |
+| 주석 | 쓸 수 있다 | 쓸 수 없다 |
+| 오타에 강한가 | 공백 한 칸에 흔들린다 | 쉼표 하나에 깨진다 |
+| 주로 쓰는 곳 | 사람이 고치는 설정 | 프로그램 사이 데이터 |
 
 ## 📝 정리
 
-**YAML의 핵심**:
-```
-YAML = 읽기 쉬운 설정 형식
-→ 들여쓰기로 구조 표현
-→ Docker, K8s 설정에 사용
-→ JSON보다 간결
-```
+YAML은 들여쓰기로 계층을 표현하는 설정 파일 형식이다. 기호가 적어 사람이 읽고 고치기 좋지만 그 대가로 공백 한 칸이 구조를 바꾼다.
 
----
-*카테고리: 데이터_형식*
-*생성일: 2026-02-15*
+## ❓ 이해했는지
+
+- 설정 파일을 JSON 대신 YAML로 쓰는 이유는 무엇인가?
+- 눈으로 보기에 멀쩡한 YAML이 파싱에서 실패한다면 무엇을 의심해야 하나?
+- 값을 그냥 적었더니 문자열이 아닌 타입으로 읽혔다면 어떻게 고치나?
+
+## 🔗 관련 용어
+
+- [[JSON]] — 같은 데이터를 괄호로 표현하는 형식. 프로그램끼리 주고받을 때 쓴다
+- [[Docker]] — 컨테이너 구성을 YAML 파일로 적는다
+- [[Kubernetes]] — 원하는 상태를 YAML로 적어 넘긴다
+- [[Environment Variable]] — 비밀번호처럼 파일에 적으면 안 되는 값을 대신 넣는 자리
