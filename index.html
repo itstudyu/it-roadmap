@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <!-- 확대를 막지 않는다. 학습 앱에서 글자 키우기는 접근성의 기본이다 -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="description" content="Obsidian IT단어장을 읽고, 이해하고, 퀴즈로 확인하는 모바일 학습 목업">
+  <meta name="description" content="IT 단어를 그림으로 보고, 읽고, 퀴즈로 확인하는 모바일 학습 앱">
   <meta name="color-scheme" content="light dark">
   <title>IT 단어 학습</title>
 
@@ -26,7 +26,7 @@
     <nav id="tabbar" class="tabbar" aria-label="주요 화면"></nav>
   </div>
 
-  <!-- 데이터는 tools/obsidian_adapter.py 가 Obsidian vault 에서 생성한다 -->
+  <!-- 데이터는 tools/build.py 가 저장소 안의 content/*.md 에서 굽는다 -->
   <script src="data/vocabulary.js"></script>
 
   <script src="js/ui.js"></script>

@@ -3,8 +3,8 @@
 
 읽기만 한다. 어떤 파일도 고치지 않는다.
 
-    python3 tools/check_template.py docs/examples/DNS.md
-    python3 tools/check_template.py "~/…/IT단어장/네트워크/DNS.md"
+    python3 tools/check_template.py content/네트워크/DNS.md
+    python3 tools/check_template.py content/보안/JWT.md
 
 규칙을 문서에만 적어두면 아무도 안 지킨다. 지킬 수 있게 만들려면
 "어겼다"고 말해주는 게 있어야 한다. 그래서 체크리스트를 그대로 코드로 옮겼다.

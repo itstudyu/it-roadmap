@@ -261,12 +261,33 @@ def walk(root: str) -> list[str]:
     return sorted(found)
 
 
+def blocked(args) -> bool:
+    """이전이 이미 끝났는데 그냥 돌리려 하는가.
+
+    2026-08-16 이후 content/ 의 노트는 전부 손으로 다시 썼다. 지금 이걸 돌리면
+    vault 의 옛 판본이 229편을 덮어쓴다. 되돌릴 수는 있지만(git 이 갖고 있다)
+    그 사실을 모른 채 돌리는 게 문제라서 앞을 막는다.
+    """
+    if args.dry_run or args.i_know_this_overwrites_content:
+        return False
+    sys.stderr.write(
+        "이전은 이미 끝났다. 지금 돌리면 content/ 의 노트를 vault 의 옛 판본으로 덮어쓴다.\n"
+        "무엇이 바뀌는지만 보려면 --dry-run 을 쓴다.\n"
+        "정말 덮어쓰려면 --i-know-this-overwrites-content 를 붙인다.\n"
+    )
+    return True
+
+
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--vault", default=VAULT)
     ap.add_argument("--dest", default=DEST)
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--i-know-this-overwrites-content", action="store_true")
     args = ap.parse_args(argv[1:])
+
+    if blocked(args):
+        return 2
 
     if not os.path.isdir(args.vault):
         sys.stderr.write(f"vault 를 못 찾음: {args.vault}\n")
