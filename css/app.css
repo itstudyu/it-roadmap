@@ -431,11 +431,13 @@ svg {
   overflow: hidden;
 }
 
+/* width 는 transition 하지 않는다. 레이아웃을 매 프레임 다시 계산시킨다.
+   애초에 화면을 통째로 다시 그리는 구조라 이 요소는 매번 새로 만들어진다.
+   이전 값이 없으니 전환이 일어날 수도 없었다. */
 .progress__fill {
   height: 100%;
   border-radius: var(--r-full);
   background: var(--ink);
-  transition: width var(--dur-slow) var(--ease);
 }
 
 .progress--thin {
@@ -453,7 +455,6 @@ svg {
 
 .stacked__seg {
   height: 100%;
-  transition: width var(--dur-slow) var(--ease);
 }
 
 .stacked__seg--passed  { background: var(--st-passed); }
