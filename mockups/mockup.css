@@ -1,0 +1,206 @@
+/* ============================================================
+   템플릿이 새로 요구하는 자리들
+   승인되면 css/app.css 로 옮긴다.
+   ============================================================ */
+
+/* 비유 한 줄. 처음 보는 개념에서 사람을 건너가게 하는 건 대개 이것이라
+   본문에 섞지 않고 따로 세운다. 카드가 아니라 인용에 가깝게 — 왼쪽 선 하나. */
+.analogy {
+  margin-top: var(--sp-5);
+  padding: var(--sp-3) 0 var(--sp-3) var(--sp-4);
+  border-inline-start: 2px solid var(--line-strong);
+  font-size: var(--fs-15);
+  line-height: var(--lh-snug);
+  color: var(--ink-2);
+}
+
+.analogy__k {
+  display: block;
+  margin-bottom: 2px;
+  font-size: var(--fs-11);
+  font-weight: 650;
+  letter-spacing: var(--tracking-label);
+  color: var(--ink-3);
+}
+
+/* 그림 자리. 정의와 접이식 사이에 넉넉히 띄운다 —
+   이 여백이 "여기서 읽기가 멈추고 보기가 시작된다"고 말한다. */
+.figure-slot {
+  margin-top: var(--sp-8);
+}
+
+.panels {
+  margin-top: var(--sp-8);
+}
+
+.prose--def {
+  margin-top: var(--sp-5);
+}
+
+/* 접힌 패널 안의 그림은 이미 패널 배경 위에 있다. 테두리를 한 겹 더 두르면
+   상자 안의 상자가 된다. 배경만 살짝 눌러 구분한다. */
+.disclose__panel .dia {
+  border-color: transparent;
+  background: var(--surface-sunken);
+}
+
+.disclose__panel .dia__mark,
+.disclose__panel .dia__layer--d0 {
+  background: var(--surface);
+}
+
+/* ------------------------------------------------------------
+   흔한 오해
+   틀린 문장을 먼저 세우고 그 밑에서 부순다. 순서가 중요하다 —
+   맞는 말을 먼저 하면 읽는 사람은 자기가 뭘 잘못 알고 있었는지 모르고 지나간다.
+   ------------------------------------------------------------ */
+.myth {
+  display: grid;
+  gap: var(--sp-4);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* .myth 도 prose 안의 ul 이라서 app.css 의 불릿 규칙에 걸린다.
+   ✕ 앞에 점이 하나 더 찍히고 들여쓰기까지 따라온다. 도해에서 겪은 것과 같은 일이다. */
+.prose .myth > li {
+  padding-left: 0;
+}
+
+.prose .myth > li::before {
+  content: none;
+}
+
+.myth__wrong {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: baseline;
+  font-size: var(--fs-15);
+  font-weight: 650;
+  line-height: var(--lh-snug);
+  color: var(--danger);
+  letter-spacing: -0.01em;
+}
+
+/* 취소선을 긋고 싶었지만 한글은 획이 가로로 많아서 선이 글자에 묻힌다.
+   기호와 색으로만 표시하고 글자는 멀쩡히 읽히게 둔다. */
+.myth__x {
+  flex: none;
+  font-size: var(--fs-12);
+}
+
+.myth__right {
+  display: block;
+  margin-top: var(--sp-2);
+  padding-inline-start: calc(var(--fs-12) + var(--sp-2));
+  font-size: var(--fs-14);
+  line-height: var(--lh-body);
+  color: var(--ink-2);
+}
+
+/* ------------------------------------------------------------
+   이해했는지
+   맨 아래, 접지 않고 둔다. 읽기가 끝나는 지점이자
+   "학습 완료" 를 누르기 직전의 마지막 관문이다.
+   ------------------------------------------------------------ */
+.selfcheck {
+  margin-top: var(--sp-10);
+  padding: var(--sp-5) var(--sp-5) var(--sp-6);
+  border: 1px solid var(--line);
+  border-radius: var(--r-container);
+  background: var(--surface);
+}
+
+.selfcheck__head {
+  margin: 0 0 var(--sp-4);
+  font-size: var(--fs-15);
+  font-weight: 650;
+  line-height: var(--lh-snug);
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.selfcheck__list {
+  display: grid;
+  gap: var(--sp-4);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.selfcheck__list li {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: flex-start;
+}
+
+.selfcheck__n {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  border-radius: var(--r-full);
+  background: var(--surface-sunken);
+  /* --ink-3 은 --paper 위에서 4.9:1 로 맞춰둔 색이다.
+     --surface-sunken 위로 올리면 어두운 테마에서 4.36:1 로 떨어져 AA 에 못 미친다. */
+  color: var(--ink-2);
+  font-size: var(--fs-12);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  display: grid;
+  place-items: center;
+}
+
+.selfcheck__q {
+  font-size: var(--fs-15);
+  line-height: var(--lh-body);
+  color: var(--ink-2);
+  word-break: keep-all;
+}
+
+/* ------------------------------------------------------------
+   원문 보기 — 목업에만 있는 장치.
+   "이 글자들이 저 화면이 된다"를 확인하는 용도.
+   ------------------------------------------------------------ */
+.source {
+  margin-top: var(--sp-12);
+  padding-top: var(--sp-5);
+  border-top: 1px solid var(--line);
+}
+
+.source__btn {
+  cursor: pointer;
+  list-style: none;
+  padding: var(--sp-3) 0;
+  font-size: var(--fs-13);
+  color: var(--ink-3);
+}
+
+.source__btn::-webkit-details-marker {
+  display: none;
+}
+
+.source__btn::before {
+  content: "＋ ";
+}
+
+.source[open] .source__btn::before {
+  content: "− ";
+}
+
+.source__body {
+  margin: 0;
+  padding: var(--sp-4);
+  border-radius: var(--r-chip);
+  background: var(--surface-sunken);
+  border: 1px solid var(--line);
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  line-height: 1.7;
+  color: var(--ink-2);
+  white-space: pre-wrap;
+  word-break: break-word;
+  -webkit-overflow-scrolling: touch;
+}

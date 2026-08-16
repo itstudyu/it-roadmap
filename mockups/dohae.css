@@ -1,0 +1,300 @@
+/* ============================================================
+   도해 — 흐름 / 대조 / 층
+
+   이 파일은 tokens.css 의 변수만 쓴다. raw hex 를 두지 않는다.
+   그림이 본문보다 튀면 안 되므로 채도는 학습 상태 색을 그대로 빌린다.
+   ============================================================ */
+
+.dia {
+  margin: 0;
+  padding: var(--sp-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-container);
+  background: var(--surface);
+  color: var(--ink-2);
+  font-size: var(--fs-14);
+  line-height: var(--lh-snug);
+}
+
+/* 이 그림이 답하는 질문. 그림에서 가장 먼저 읽히도록 잉크를 가장 진하게 준다. */
+.dia__cap {
+  display: block;
+  margin-bottom: var(--sp-4);
+  font-size: var(--fs-15);
+  font-weight: 650;
+  line-height: var(--lh-snug);
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+/* 그림 아래 한 줄. 그림이 못 말한 걸 말하는 게 아니라, 그림이 말한 걸 못 박는다. */
+.dia__sum {
+  margin: var(--sp-4) 0 0;
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--line);
+  font-size: var(--fs-13);
+  line-height: var(--lh-snug);
+  color: var(--ink-2);
+}
+
+.dia code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  padding: 1px 4px;
+  border-radius: 5px;
+  background: var(--surface-sunken);
+  color: var(--ink);
+}
+
+.dia b {
+  font-weight: 650;
+  color: var(--ink);
+}
+
+/* ------------------------------------------------------------
+   흐름 — 왼쪽 척추선을 따라 번호가 내려간다
+   ------------------------------------------------------------ */
+
+.dia__steps {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* 척추. 첫 마디 원의 중심에서 마지막 마디 원의 중심까지만 긋는다.
+   끝까지 그으면 선이 허공으로 삐져나가 흐름이 계속되는 것처럼 보인다. */
+.dia__steps::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 21px;
+  bottom: 21px;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--line-strong);
+}
+
+.dia__step {
+  position: relative;
+  display: flex;
+  gap: var(--sp-3);
+  align-items: flex-start;
+  padding-block: var(--sp-2);
+}
+
+/* 응답 구간의 척추. 위의 기본 척추를 같은 자리에서 덮어쓴다.
+   마디 사이 간격까지 이어지도록 padding 안쪽 전체 높이를 쓴다. */
+.dia__step.is-back::before,
+.dia__turn::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--st-reading);
+}
+
+/* 마지막 마디에서 선을 끊는다. 원 아래로 8px 만 삐져나가도
+   길이 아직 이어지는 것처럼 보인다. 21px = 위 여백 8 + 원 반지름 13. */
+.dia__steps > li:last-child::before {
+  bottom: calc(100% - 21px);
+}
+
+.dia__mark {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--r-full);
+  border: 1.5px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink-2);
+  font-size: var(--fs-12);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  display: grid;
+  place-items: center;
+}
+
+.dia__step.is-back .dia__mark {
+  border-color: var(--st-reading);
+  color: var(--st-reading);
+}
+
+.dia__body {
+  display: block;
+  padding-top: 1px;
+}
+
+/* 누가/어디가 — 짧은 이름표. 본문과 폭을 다투지 않도록 한 줄로 세운다. */
+.dia__who {
+  display: block;
+  font-size: var(--fs-13);
+  font-weight: 650;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.dia__what {
+  display: block;
+  margin-top: 1px;
+  font-size: var(--fs-14);
+  line-height: var(--lh-snug);
+  color: var(--ink-2);
+}
+
+/* 길이 접히는 지점. 여기가 그림에서 유일하게 방향이 바뀌는 곳이라
+   눈이 걸리도록 배경을 준다. */
+.dia__turn {
+  position: relative;
+  display: flex;
+  gap: var(--sp-3);
+  align-items: center;
+  padding-block: var(--sp-2);
+  font-size: var(--fs-12);
+  color: var(--st-reading);
+  letter-spacing: -0.01em;
+}
+
+.dia__turnmark {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--r-full);
+  background: var(--st-reading-bg);
+  color: var(--st-reading);
+  display: grid;
+  place-items: center;
+}
+
+/* ------------------------------------------------------------
+   대조 — 두 칸을 나란히
+   ------------------------------------------------------------ */
+
+.dia__vshead,
+.dia__vsrow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+}
+
+/* 칸 이름은 한 번만 나오고, 그 아래로는 줄마다 무엇을 비교하는지가 붙는다.
+   이름줄을 매 줄 반복하면 그림이 표가 되고, 표는 한눈에 안 들어온다. */
+.dia__vshead {
+  margin-bottom: var(--sp-1);
+}
+
+.dia__col {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-chip);
+  font-size: var(--fs-13);
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+/* 색만으로 뜻을 전하지 않는다. ✕ / ✓ 기호가 같은 말을 한 번 더 한다. */
+.dia__sign {
+  font-size: var(--fs-12);
+  line-height: 1;
+}
+
+.dia__col--bad {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.dia__col--good {
+  background: var(--ok-bg);
+  color: var(--ok);
+}
+
+/* 무엇을 비교하는지. 두 칸 위에 걸친다 — 왼쪽에 두면 칸이 좁아져
+   390px 에서 글자가 두 줄씩 더 늘어난다. */
+.dia__k {
+  grid-column: 1 / -1;
+  padding: var(--sp-3) var(--sp-1) var(--sp-1);
+  font-size: var(--fs-12);
+  font-weight: 650;
+  color: var(--ink-3);
+  letter-spacing: -0.01em;
+}
+
+.dia__cell {
+  padding: var(--sp-3);
+  font-size: var(--fs-13);
+  line-height: 1.5;
+  word-break: keep-all; /* 한글은 어절 단위로 끊어야 읽힌다 */
+}
+
+/* 물 타지 않고 토큰 그대로 쓴다. 55% 로 흐리게 했더니 두 칸의 색이 같아 보여서,
+   좌우를 가르는 일을 ✕ / ✓ 기호 혼자 하고 있었다. */
+.dia__cell--bad {
+  background: var(--danger-bg);
+  color: var(--ink-2);
+  border-radius: var(--r-chip) 0 0 var(--r-chip);
+}
+
+.dia__cell--good {
+  background: var(--ok-bg);
+  color: var(--ink-2);
+  border-radius: 0 var(--r-chip) var(--r-chip) 0;
+}
+
+/* ------------------------------------------------------------
+   층 — 위에서 아래로 깊어진다
+   ------------------------------------------------------------ */
+
+.dia__layers {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-radius: var(--r-chip);
+  overflow: hidden;
+}
+
+.dia__layer {
+  padding: var(--sp-3);
+}
+
+/* 깊이는 배경 농도로만 말한다. 들여쓰기로 계단을 만들면
+   아래층일수록 폭이 깎여 정작 설명이 긴 층이 가장 좁아진다. */
+.dia__layer--d0 { background: color-mix(in srgb, var(--surface-sunken) 25%, var(--surface)); }
+.dia__layer--d1 { background: color-mix(in srgb, var(--surface-sunken) 50%, var(--surface)); }
+.dia__layer--d2 { background: color-mix(in srgb, var(--surface-sunken) 75%, var(--surface)); }
+.dia__layer--d3 { background: var(--surface-sunken); }
+.dia__layer--d4 { background: color-mix(in srgb, var(--line) 45%, var(--surface-sunken)); }
+.dia__layer--d5 { background: color-mix(in srgb, var(--line) 80%, var(--surface-sunken)); }
+
+/* ------------------------------------------------------------
+   좁은 화면
+   320px 에서 대조의 한 칸은 140px 남짓이다. 한글 5~6자면 줄이 바뀐다.
+   여기서는 좌우 비교를 포기하고 위아래로 쌓는다 —
+   글자가 세로로 서는 것보다는 눈이 한 번 더 움직이는 편이 낫다.
+   ------------------------------------------------------------ */
+@media (max-width: 22.5rem) {
+  .dia__vshead,
+  .dia__vsrow {
+    grid-template-columns: 1fr;
+  }
+
+  .dia__col {
+    border-radius: var(--r-chip);
+  }
+
+  .dia__cell--bad {
+    border-radius: var(--r-chip) var(--r-chip) 0 0;
+  }
+
+  .dia__cell--good {
+    border-radius: 0 0 var(--r-chip) var(--r-chip);
+  }
+}

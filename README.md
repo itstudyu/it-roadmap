@@ -248,10 +248,36 @@ js/recall.js              떠올리기 (회상 단계)
 js/quiz-screens.js        퀴즈 흐름
 data/vocabulary.js        어댑터가 만든 데이터 (직접 고치지 말 것)
 tools/obsidian_adapter.py vault -> 데이터 변환기
+tools/check_template.py   노트가 템플릿을 지켰는지 검사 (읽기만 한다)
+docs/TERM-TEMPLATE.md     새 단어를 쓸 때 따르는 형식
+docs/examples/DNS.md      템플릿대로 쓴 노트 한 편
+mockups/term-dns.html     템플릿 목업 (아직 앱에 안 붙어 있다)
 DESIGN.md                 디자인 시스템
 ```
 
 디자인 시스템은 [DESIGN.md](DESIGN.md) 에 있다.
+
+## 새 단어를 추가할 때
+
+형식은 [docs/TERM-TEMPLATE.md](docs/TERM-TEMPLATE.md) 에 있다.
+기존 노트 246편에서 반복되는 구조를 추리고, 세 자리를 새로 넣었다.
+
+| 새로 넣은 자리 | 막는 구멍 |
+|---|---|
+| `🖼️ 그림으로 보기` | 읽어야만 알 수 있다 — 대개 안 읽는다 |
+| `🚫 흔한 오해` | 틀린 그림을 그대로 갖고 나간다 |
+| `❓ 이해했는지` | 이해한 줄 알고 넘어간다 |
+
+화면에서 펼쳐진 채로 두는 건 **정의 · 그림 · 이해했는지** 셋뿐이다.
+그림으로 들어와서 확인 질문으로 나가고, 그 사이의 설명은 접힌다.
+
+```bash
+python3 tools/check_template.py docs/examples/DNS.md
+open mockups/term-dns.html    # 그 노트가 화면에서 어떻게 보이는지
+```
+
+**기존 노트는 이 템플릿에 맞춰 고치지 않는다.** 앞으로 쓸 단어에만 적용된다.
+목업 단계라 아직 앱에 연결되어 있지 않다 — 붙이는 방법은 템플릿 문서 끝에 적어뒀다.
 
 ## 확인한 것
 

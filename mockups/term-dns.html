@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="단어 설명 템플릿 목업 — DNS 한 단어로 본 구조와 도해">
+  <meta name="color-scheme" content="light dark">
+  <title>단어 템플릿 목업 · DNS</title>
+
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/app.css">
+  <link rel="stylesheet" href="dohae.css">
+  <link rel="stylesheet" href="mockup.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar topbar--bordered">
+      <span class="meta">템플릿 목업</span>
+      <span class="topbar__spacer"></span>
+      <span class="meta num">4 / 6</span>
+      <button class="step-btn" id="theme" aria-label="밝기 바꾸기"></button>
+    </header>
+
+    <main class="screen screen--reading">
+      <article class="detail" id="detail"></article>
+
+      <details class="source">
+        <summary class="source__btn">이 화면을 만든 원문 Markdown 보기</summary>
+        <pre class="source__body" id="raw"></pre>
+      </details>
+    </main>
+  </div>
+
+  <!-- 템플릿대로 쓴 노트 한 편. 이 글자들이 위 화면의 전부다. -->
+  <script type="text/markdown" id="src">
+# DNS (Domain Name System)
+
+## 📝 정의
+
+DNS는 **도메인 이름을 IP 주소로 바꿔주는 시스템**이다.
+
+사람은 `google.com` 을 기억하고, 컴퓨터는 `142.250.196.78` 로 접속한다. DNS 는 그 사이를 번역한다. 1983년에 만들어졌는데, 그전에는 모든 컴퓨터가 `hosts` 라는 주소록 파일 하나를 각자 들고 있었다.
+
+### 비유
+전화번호부. 친구 이름을 대면 번호를 알려주고, 친구가 번호를 바꿔도 이름은 그대로다.
+
+## 🖼️ 그림으로 보기
+
+```도해
+흐름: 주소창에 google.com 을 치면 무슨 일이 일어나나
+브라우저 :: 캐시에 있나? 있으면 여기서 끝난다
+로컬 DNS :: 없으면 ISP 나 `8.8.8.8` 에 묻는다
+루트 서버 :: ".com 담당은 저쪽이야"
+.com 서버 :: "google.com 담당은 저쪽이야"
+권한 서버 :: "142.250.196.78 이야"
+< 브라우저 :: 받은 IP 로 접속. TTL 동안 캐시에 둔다
+= 다섯 번을 물어 찾아가는 길이지만, 열에 아홉은 첫 줄에서 끝난다
+```
+
+## ⚠️ 해결하는 문제
+
+```도해
+대조: DNS 가 없으면 인터넷은 어떻게 되나
+DNS 없이 || DNS 로
+주소 :: 숫자 12자리를 왼다 || 이름만 기억한다
+서버 이전 :: 접속 경로가 끊긴다 || 레코드만 고치면 된다
+장애 :: 그 서버가 죽으면 끝 || 다른 IP 로 즉시 돌린다
+= 사람은 이름을, 기계는 숫자를 쓴다. DNS 는 그 사이의 번역기다
+```
+
+숫자 주소를 외우게 하면 인터넷은 대중화되지 않았을 것이다. 서버를 옮길 때마다 사용자에게 새 주소를 공지해야 하고, 북마크는 전부 죽는다.
+
+DNS 는 **이름과 주소를 분리**해서 이 셋을 한꺼번에 해결한다. 이름은 그대로 두고 주소만 갈아끼우면 되기 때문이다.
+
+## ⚙️ 작동 원리
+
+```도해
+층: 같은 주소를 두 번째로 열면 왜 빠른가
+브라우저 :: 탭을 닫기 전까지. 수십 초
+운영체제 :: hosts 파일과 OS 캐시. 수 분
+로컬 DNS :: TTL 이 정한 만큼. 보통 5분에서 1시간
+권한 서버 :: 원본. 여기까지 오는 요청은 드물다
+= 위에서 끝날수록 빠르다. TTL 은 "얼마나 위에 머물까"를 정하는 값이다
+```
+
+조회는 **재귀**와 **반복** 두 가지로 나뉜다. 브라우저는 로컬 DNS 에게 "답을 가져와" 라고 한 번만 시키고(재귀), 로컬 DNS 가 루트 → TLD → 권한 서버를 차례로 찾아다닌다(반복). 복잡한 일은 로컬 DNS 가 대신 한다.
+
+## 📊 비교
+
+| 레코드 | 무엇을 가리키나 | 언제 쓰나 |
+|---|---|---|
+| **A** | IPv4 주소 | 가장 기본 |
+| **AAAA** | IPv6 주소 | IPv6 환경 |
+| **CNAME** | 다른 도메인 | `www` 를 본체로 넘길 때 |
+| **MX** | 메일 서버 | 이메일 수신 |
+| **TXT** | 아무 문자열 | 도메인 소유 증명, 메일 인증 |
+
+## 💡 실제 사례
+
+- **무중단 배포** — 새 서버를 띄우고 A 레코드만 바꾸면 사용자는 아무것도 모르는 채 옮겨진다.
+- **지역별 응답** — 같은 도메인을 물어도 한국에서는 서울 IP, 미국에서는 버지니아 IP 를 돌려준다. CDN 이 이 방식으로 동작한다.
+- **장애 대응** — 헬스체크가 실패하면 그 IP 를 레코드에서 빼버린다.
+
+## 🚫 흔한 오해
+
+- **DNS 가 사이트에 연결해준다** — 아니다. IP 주소를 알려주고 거기서 끝난다. 연결은 그다음에 브라우저가 TCP 로 직접 맺는다.
+- **DNS 를 `8.8.8.8` 로 바꾸면 인터넷이 빨라진다** — 조회 몇십 ms 가 줄어들 뿐이다. 다운로드 속도는 그대로다.
+- **도메인을 사면 바로 열린다** — 레코드를 등록하고, 전 세계 캐시가 각자의 TTL 을 소진하기를 기다려야 한다.
+
+## 🚨 주의사항
+
+- **TTL 을 미리 낮춰라.** 이전 당일에 낮추면 이미 퍼진 캐시는 옛 주소를 그대로 물고 있다. 최소 하루 전에 60초로 내려둔다.
+- **전파는 즉시가 아니다.** "DNS 전파 중" 은 전 세계 캐시가 각자의 TTL 을 소진하기를 기다린다는 뜻이다.
+- **DNS 는 기본적으로 평문이다.** 무엇을 조회했는지 중간에서 다 보인다. DoH / DoT 가 이걸 가린다.
+
+## 📝 정리
+
+DNS 는 이름과 주소를 분리하는 장치다. 이 분리 하나로 기억하기 쉬워지고, 서버를 옮길 수 있고, 장애를 우회할 수 있게 된다. 캐시가 그 값을 싸게 만든다.
+
+## ❓ 이해했는지
+
+- google.com 을 두 번째로 열면 왜 더 빠른가?
+- 서버 IP 를 바꿨는데 어떤 사람은 30분 동안 옛 서버로 간다. 왜인가?
+- DNS 가 IP 를 돌려준 다음에는 무슨 일이 일어나나?
+
+## 🔗 관련 용어
+
+- [[TCP]] — DNS 조회가 끝난 뒤 실제 연결을 맺는 계층
+- [[HTTP]] — 받은 IP 로 주고받는 내용
+- [[CDN]] — DNS 응답을 지역별로 다르게 주는 대표적 활용
+- [[Load Balancer]] — 하나의 이름 뒤에 여러 서버를 두는 다른 방법
+  </script>
+
+  <script src="../js/ui.js"></script>
+  <script src="dohae.js"></script>
+  <script src="mockup.js"></script>
+</body>
+</html>
