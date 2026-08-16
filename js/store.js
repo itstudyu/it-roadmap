@@ -29,6 +29,27 @@ window.Store = (function () {
 
   var DAY = 86400000;
 
+  /* 간격 반복. Leitner 상자를 그대로 쓴다.
+     통과할 때마다 한 칸 올라가고 간격이 길어진다. 틀리면 1번 칸으로 떨어진다.
+
+     Anki 의 FSRS 같은 걸 흉내내지 않는다. 목업에 필요한 건 정확한 스케줄이 아니라
+     "통과하면 한동안 안 보이고, 시간이 지나면 스스로 돌아온다"는 사실 하나다.
+     이 표가 없으면 결과 화면의 "며칠 뒤 복습에 다시 올라옵니다"가 거짓말이 된다. */
+  var BOXES = [1, 3, 7, 16, 35];
+
+  function intervalDays(box) {
+    return BOXES[Math.min(Math.max(box, 1), BOXES.length) - 1];
+  }
+
+  var SEED_PLAN = [
+    { book: "net", passed: 3, learned: 1, reading: 1 },
+    { book: "arch", passed: 1, learned: 1, reading: 0 },
+    { book: "ai", passed: 2, learned: 1, reading: 1 },
+  ];
+
+  /* 이 아래로는 초기화 순서가 걸려 있다. load() 가 seed() 를 부르고
+     seed() 가 위의 상수들을 읽으므로, 상수 선언이 반드시 여기보다 위에 있어야 한다.
+     함수 선언은 끌어올려지지만 var 에 담긴 값은 그렇지 않다. */
   var state = load();
 
   function blank() {
@@ -56,49 +77,56 @@ window.Store = (function () {
     }
   }
 
+  /* seed 한 건. 통과한 단어는 실제 스케줄 규칙대로 상자와 기한을 채운다.
+     여기서 규칙을 벗어나면 화면이 코드가 하지 않는 일을 말하게 된다. */
+  function seedTerm(s, term, status, at) {
+    var isPassed = status === "passed";
+    s.terms[term.id] = {
+      status: status,
+      readAt: at,
+      passedAt: isPassed ? at : null,
+      box: isPassed ? 2 : 0,
+      dueAt: isPassed ? at + intervalDays(2) * DAY : null,
+      wrong: 0,
+    };
+    s.history.unshift({ termId: term.id, term: term.term, action: status, at: at });
+  }
+
+  function seedBook(s, plan, now) {
+    var book = (window.VOCABULARY_DATA || []).find(function (b) { return b.id === plan.book; });
+    if (!book) return;
+
+    var i = 0;
+    [
+      { n: plan.passed, status: "passed", ageDays: 5 },
+      { n: plan.learned, status: "learned", ageDays: 2 },
+      { n: plan.reading, status: "reading", ageDays: 0 },
+    ].forEach(function (group) {
+      for (var k = 0; k < group.n && i < book.terms.length; k++, i++) {
+        seedTerm(s, book.terms[i], group.status, now - group.ageDays * DAY - k * 3600000);
+      }
+    });
+  }
+
   /* 첫 실행이 빈 화면이면 디자인을 판단할 수 없다.
      "며칠 써본 사람"의 상태를 만들어 둔다. 목업에서만 하는 일이다. */
   function seed() {
     var s = blank();
-    var data = window.VOCABULARY_DATA || [];
     var now = Date.now();
 
-    var plan = [
-      { book: "net", passed: 3, learned: 1, reading: 1 },
-      { book: "arch", passed: 1, learned: 1, reading: 0 },
-      { book: "ai", passed: 2, learned: 1, reading: 1 },
-    ];
+    SEED_PLAN.forEach(function (plan) { seedBook(s, plan, now); });
 
-    plan.forEach(function (p) {
-      var book = data.find(function (b) { return b.id === p.book; });
-      if (!book) return;
-      var i = 0;
-      var take = function (n, status, ageDays) {
-        for (var k = 0; k < n && i < book.terms.length; k++, i++) {
-          var t = book.terms[i];
-          var at = now - ageDays * DAY - k * 3600000;
-          s.terms[t.id] = {
-            status: status,
-            readAt: at,
-            passedAt: status === "passed" ? at : null,
-            wrong: 0,
-          };
-          s.history.unshift({ termId: t.id, term: t.term, action: status, at: at });
-        }
-      };
-      take(p.passed, "passed", 5);
-      take(p.learned, "learned", 2);
-      take(p.reading, "reading", 0);
-    });
-
-    // 오래된 통과 항목 두 개는 복습 대상으로 돌려놓는다. 복습 UX 를 보여주기 위해서다.
-    var passedIds = Object.keys(s.terms).filter(function (id) {
-      return s.terms[id].status === "passed";
-    });
-    passedIds.slice(0, 2).forEach(function (id) {
-      s.terms[id].status = "review";
-      s.terms[id].passedAt = now - 9 * DAY;
-    });
+    /* 통과 항목 대부분은 아직 기한이 안 된 상태로 밀어둔다.
+       앞의 두 개만 기한이 지나 스스로 복습으로 돌아오게 둔다 —
+       상태를 "review" 로 박아 넣지 않는다. statusOf 가 날짜를 보고 판정해야
+       스케줄이 실제로 도는지 화면에서 확인할 수 있다. */
+    Object.keys(s.terms)
+      .filter(function (id) { return s.terms[id].status === "passed"; })
+      .forEach(function (id, n) {
+        if (n < 2) return;
+        s.terms[id].box = 3;
+        s.terms[id].dueAt = now + (2 + n) * DAY;
+      });
 
     s.history.sort(function (a, b) { return b.at - a.at; });
     s.history = s.history.slice(0, 12);
@@ -114,9 +142,23 @@ window.Store = (function () {
 
   /* ---------------------------------------------------------- 조회 */
 
+  /* 저장된 상태를 그대로 돌려주지 않는다. 통과한 단어는 시간이 지나면
+     스스로 복습으로 돌아온다. 판정은 읽을 때 계산한다 — 저장값을 고쳐 쓰면
+     앱을 안 열어둔 동안에는 아무 일도 일어나지 않기 때문이다. */
   function statusOf(termId) {
     var rec = state.terms[termId];
-    return rec ? rec.status : STATUS.NEW;
+    if (!rec) return STATUS.NEW;
+    if (rec.status === STATUS.PASSED && rec.dueAt && rec.dueAt <= Date.now()) {
+      return STATUS.REVIEW;
+    }
+    return rec.status;
+  }
+
+  /* 복습까지 남은 날. 통과 직후 "며칠 뒤에 다시 물어볼지"를 알려주는 데 쓴다. */
+  function dueInDays(termId) {
+    var rec = state.terms[termId];
+    if (!rec || !rec.dueAt) return null;
+    return Math.max(0, Math.ceil((rec.dueAt - Date.now()) / DAY));
   }
 
   function recordOf(termId) {
@@ -258,16 +300,29 @@ window.Store = (function () {
     save();
   }
 
+  /* 맞히면 상자를 한 칸 올리고 그만큼 멀리 예약한다.
+     돌려주는 값은 "며칠 뒤에 다시 봅니다"를 화면에 그대로 쓰기 위한 것이다. */
   function markPassed(termId) {
     var rec = touch(termId, STATUS.PASSED);
+    var box = Math.min((rec.box || 0) + 1, BOXES.length);
+    var days = intervalDays(box);
+    rec.box = box;
     rec.passedAt = Date.now();
+    rec.dueAt = Date.now() + days * DAY;
     logHistory(termId, "passed");
     save();
+    return days;
   }
 
-  /* 퀴즈에서 틀리면 복습 대기열로 간다. 학습 루프가 닫히는 지점이다. */
+  /* 퀴즈에서 틀리면 복습 대기열로 간다. 학습 루프가 닫히는 지점이다.
+
+     상자를 1이 아니라 0으로 내린다. 1로 내리면 다음에 맞혔을 때 바로 2번 상자(3일)로
+     올라가서, 틀렸던 단어가 처음 보는 단어(1일)보다 더 좋은 대우를 받는다.
+     쌓아온 간격을 처음부터 다시 벌게 하는 게 이 방식의 핵심이다. */
   function markWrong(termId) {
     var rec = touch(termId, STATUS.REVIEW);
+    rec.box = 0;
+    rec.dueAt = Date.now();
     rec.wrong = (rec.wrong || 0) + 1;
     logHistory(termId, "review");
     save();
@@ -284,6 +339,7 @@ window.Store = (function () {
     STATUS: STATUS,
     STATUS_META: STATUS_META,
     statusOf: statusOf,
+    dueInDays: dueInDays,
     recordOf: recordOf,
     allTerms: allTerms,
     bookById: bookById,

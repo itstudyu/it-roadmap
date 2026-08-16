@@ -130,10 +130,127 @@ window.UI = (function () {
     }).join("") + "</ul>";
   }
 
-  // 블록 유형별 처리기. 이름 있는 함수로 두어야 읽을 때 순서가 보인다.
+  /* ---------------------------------------------------------- 코드펜스
+     노트의 ``` 블록 167개 중 113개는 코드가 아니다. 언어 태그가 없고,
+     이모지와 화살표로 개념의 흐름을 그린 "도해"이거나 자리를 맞춘 표다.
+     이걸 <pre><code> 로 내보내면 차분하게 짜놓은 화면을 콘텐츠가 뚫고 나온다.
+     원본 Markdown 은 그대로 두고, 읽는 쪽에서 세 종류로 갈라 조판한다.
+
+       언어 태그 있음        -> 진짜 코드. 고정폭 유지
+       화살표/이모지 있음     -> 개념 도해. 본문 폰트로 눕힌다
+       두 칸 이상 띄운 2열    -> 정렬 표. dt/dd 로 세운다  */
+
+  // 노트에서 실제로 쓰인 것만 다룬다. 추측해서 넓히지 않는다.
+  var TONES = [
+    { chars: "😱❌✗", tone: "bad" },
+    { chars: "⚠", tone: "warn" },
+    { chars: "✅✓", tone: "good" },
+  ];
+  var TONE_CHARS = /[😱❌✗⚠✅✓]️?/gu;
+
+  function toneOf(text) {
+    var first = String(text).match(TONE_CHARS);
+    if (!first) return null;
+    var ch = first[0].replace(/️/g, "");
+    for (var i = 0; i < TONES.length; i++) {
+      if (TONES[i].chars.indexOf(ch) !== -1) return TONES[i].tone;
+    }
+    return null;
+  }
+
+  /* 블록 전체의 톤은 줄들의 톤이 한 방향일 때만 인정한다.
+     한 블록 안에서 ✅ 와 ❌ 를 섞어 대조하는 노트가 많은데,
+     "첫 이모지가 이긴다"로 하면 한계를 설명하는 블록이 초록색이 되어버린다.
+     의견이 갈리면 블록은 중립으로 두고 톤은 줄에만 남긴다. */
+  function agreedTone(tones) {
+    var seen = tones.filter(Boolean);
+    if (!seen.length) return null;
+    for (var i = 1; i < seen.length; i++) {
+      if (seen[i] !== seen[0]) return null;
+    }
+    return seen[0];
+  }
+
+  function stripTone(text) {
+    return String(text).replace(TONE_CHARS, "").replace(/\s{2,}/g, " ").trim();
+  }
+
+  var HANGUL = /[가-힣]/;
+  var ARROW = /[→⇒➜↓]/;
+  var KV_ROW = /^(\S.*?)\s{2,}(\S.*)$/;
+
+  /* 언어 태그를 안 붙이고 쓴 코드가 있다. 특히 SQL 은 한글 주석을 달아두는 일이 많아서
+     "한글이 있으면 코드가 아니다" 규칙만으로는 도해로 새어 나간다.
+     줄 첫머리의 키워드로 잡는다. 문장 중간의 단어는 보지 않는다 —
+     "이 서비스는 UPDATE 가 잦다" 같은 설명문까지 코드로 끌고 가면 안 된다. */
+  var CODE_LEAD = /^\s*(SELECT\s|INSERT\s+INTO\s|UPDATE\s+\w+\s+SET\s|DELETE\s+FROM\s|CREATE\s+(TABLE|INDEX)\s|ALTER\s+TABLE\s|WHERE\s|FROM\s+\w|def\s+\w+\s*\(|class\s+\w+|function\s+\w*\s*\(|import\s+\w|const\s+\w+\s*=|let\s+\w+\s*=|return\s|\$\s+\w|npm\s|pip\s+install|docker\s|curl\s+-)/im;
+
+  function looksLikeCode(text) {
+    if (CODE_LEAD.test(text)) return true;
+    if (HANGUL.test(text)) return false;
+    return /[{};()=<>]/.test(text) && (text.match(/[{};()=<>]/g) || []).length >= 3;
+  }
+
+  function renderCode(body, lang) {
+    var tag = lang ? '<span class="code__lang">' + esc(lang) + "</span>" : "";
+    return '<div class="code">' + tag + "<pre><code>" + esc(body) + "</code></pre></div>";
+  }
+
+  /* 자리를 맞춘 2열 블록. 왼쪽은 코드 토큰이라 고정폭, 오른쪽은 한글이라 본문 폰트.
+     고정폭 안에 한글을 두면 글리프가 없어 자간이 들쭉날쭉해진다. */
+  function renderKeyTable(rows) {
+    return '<dl class="keytable">' + rows.map(function (r) {
+      return '<div class="keytable__row"><dt>' + inline(r[1]) + "</dt><dd>" + inline(r[2]) + "</dd></div>";
+    }).join("") + "</dl>";
+  }
+
+  function diagramLine(raw, blockTone) {
+    var text = raw.trim();
+    // 블록 전체가 한 방향이면 테두리와 배경이 이미 말하고 있다.
+    // 거기에 줄마다 ✕ 를 또 찍으면 같은 말을 두 번 하는 셈이다.
+    var tone = blockTone ? null : toneOf(text);
+    var from = ARROW.test(text.charAt(0));            // "→ 결과" — 앞 줄에서 이어진다
+    if (from) text = text.replace(/^[→⇒➜↓]\s*/, "");
+    var bullet = /^[-*]\s+/.test(text);
+    if (bullet) text = text.replace(/^[-*]\s+/, "");
+    var head = !from && !bullet && /:$/.test(stripTone(text)); // "시나리오:" — 그룹 제목
+
+    var cls = "diagram__line";
+    if (from) cls += " diagram__line--from";
+    if (bullet) cls += " diagram__line--item";
+    if (head) cls += " diagram__line--head";
+    if (tone) cls += " diagram__line--" + tone;
+
+    // 줄 가운데의 화살표는 글자가 아니라 기호다. 따로 감싸서 색과 크기를 준다.
+    var body = inline(stripTone(text)).replace(/\s*[→⇒➜]\s*/g,
+      ' <span class="diagram__to" aria-hidden="true">→</span> ');
+
+    return "<li class=\"" + cls + "\">" + body + "</li>";
+  }
+
+  function renderDiagram(body) {
+    var lines = body.split("\n").filter(function (l) { return l.trim(); });
+    var tone = agreedTone(lines.map(toneOf));
+    var body = lines.map(function (l) { return diagramLine(l, tone); }).join("");
+    return '<figure class="diagram' + (tone ? " diagram--" + tone : "") + '">' +
+      '<ol class="diagram__flow">' + body + "</ol></figure>";
+  }
+
   function takeFence(lines, i) {
-    var body = takeWhile(lines, i + 1, function (l) { return !/^\s*```/.test(l); });
-    return { html: "<pre><code>" + esc(body.lines.join("\n")) + "</code></pre>", next: body.next + 1 };
+    var lang = (lines[i].match(/^\s*```\s*([a-zA-Z0-9_+-]*)/) || [])[1] || "";
+    var block = takeWhile(lines, i + 1, function (l) { return !/^\s*```/.test(l); });
+    var body = block.lines.join("\n");
+    var next = block.next + 1;
+
+    if (lang || looksLikeCode(body)) return { html: renderCode(body, lang), next: next };
+
+    var rows = block.lines.filter(function (l) { return l.trim(); });
+    var kv = rows.map(function (l) { return l.match(KV_ROW); }).filter(Boolean);
+    if (rows.length >= 2 && kv.length >= Math.ceil(rows.length * 0.7)) {
+      return { html: renderKeyTable(kv), next: next };
+    }
+
+    return { html: renderDiagram(body), next: next };
   }
 
   function takeTable(lines, i) {

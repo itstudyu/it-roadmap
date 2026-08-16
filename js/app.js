@@ -83,7 +83,7 @@ window.App = (function () {
   function activeTab(path) {
     if (path === "/home") return "/home";
     if (path.indexOf("/books") === 0 || path.indexOf("/term") === 0) return "/books";
-    if (path.indexOf("/quiz") === 0) return "/quiz";
+    if (path.indexOf("/quiz") === 0 || path.indexOf("/recall") === 0) return "/quiz";
     if (path.indexOf("/progress") === 0) return "/progress";
     return null;
   }

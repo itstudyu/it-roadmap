@@ -36,39 +36,39 @@
 
   /* ---------------------------------------------------------- 범위 고르기 */
 
+  var LIMIT = 8;
+
+  /* 범위마다 실제 문항 수를 미리 센다.
+     시작하기 전에 얼마나 걸릴지 알려주는 건 Duolingo 가 진행 막대로 하는 일이다.
+     여기서는 게임 장치 없이 숫자 하나로 같은 일을 한다.
+     이게 없으면 눌러보고 나서야 1문제짜리였다는 걸 알게 된다. */
   function scopeOptions() {
+    var pool = Store.allTerms();
     var review = Store.reviewQueue();
-    var learned = Store.allTerms().filter(function (t) {
+    var learned = pool.filter(function (t) {
       var s = Store.statusOf(t.id);
       return s === Store.STATUS.LEARNED || s === Store.STATUS.PASSED;
     });
 
+    var entry = function (key, name, icon, targets, emptyNote) {
+      var n = window.Quiz.countQuestions(targets, pool, LIMIT);
+      return {
+        key: key,
+        name: name,
+        icon: icon,
+        count: n,
+        meta: n ? n + "문제" : emptyNote,
+      };
+    };
+
     var list = [
-      {
-        key: "review",
-        name: "복습이 필요한 단어",
-        meta: review.length ? review.length + "개 대기 중" : "지금은 없습니다",
-        count: review.length,
-        icon: "rotate",
-      },
-      {
-        key: "learned",
-        name: "학습 완료한 단어",
-        meta: learned.length ? learned.length + "개 중에서 출제" : "먼저 단어를 읽어주세요",
-        count: learned.length,
-        icon: "check",
-      },
+      entry("review", "복습이 필요한 단어", "rotate", review, "지금은 없습니다"),
+      entry("learned", "학습 완료한 단어", "check", learned, "먼저 단어를 읽어주세요"),
     ];
 
     (window.VOCABULARY_DATA || []).forEach(function (b) {
-      var stats = Store.bookStats(b);
-      list.push({
-        key: "book:" + b.id,
-        name: b.name,
-        meta: b.terms.length + "개 전체에서 출제",
-        count: b.terms.length,
-        icon: "book",
-      });
+      var targets = pool.filter(function (t) { return t.bookId === b.id; });
+      list.push(entry("book:" + b.id, b.name, "book", targets, "출제할 단어 없음"));
     });
 
     return list;
@@ -86,9 +86,10 @@
   }
 
   function scopeRow(o) {
-    return '<button class="scope-row" data-action="start-scope" data-key="' + esc(o.key) + '">' +
+    return '<button class="scope-row" data-action="start-scope" data-key="' + esc(o.key) + '"' +
+      (o.count ? "" : " disabled") + ">" +
       '<span class="scope-row__name">' + esc(o.name) + "</span>" +
-      '<span class="scope-row__count num">' + o.count + "</span>" +
+      '<span class="scope-row__count num">' + (o.count ? o.count + "문제" : "—") + "</span>" +
       '<span class="row__chevron">' + UI.icon("right", 16) + "</span></button>";
   }
 
@@ -151,6 +152,8 @@
 
   /* ---------------------------------------------------------- 문제 풀기 */
 
+  var UNSURE = "__unsure__";
+
   function renderOptions(question, picked) {
     var keys = ["A", "B", "C", "D"];
 
@@ -181,15 +184,42 @@
     }).join("");
   }
 
+  /* 틀렸을 때 정답 설명만 다시 보여주는 건 도움이 안 된다 —
+     방금 지문에서 읽은 문장을 한 번 더 읽게 될 뿐이다.
+     배우는 지점은 "내가 고른 게 사실은 무엇이었나"에 있다.
+     보기마다 출처 단어를 달아둔 이유가 이것이다. */
+  function contrast(question, chosen) {
+    if (!chosen || chosen.correct || !chosen.sourceId) return "";
+    var source = Store.termById(chosen.sourceId);
+    if (!source || source.id === question.termId) return "";
+
+    // 조사 병기("은(는)")를 만들지 않는 문장으로 쓴다. 영문 용어 뒤에 붙는 조사는
+    // 한글 읽기의 받침을 알아야 정해지는데, 그 정보가 노트에 없다.
+    var line = question.kind === window.Quiz.KINDS.DEFINE
+      ? "고른 설명은 " + source.term + "의 것입니다"
+      : "고른 답: " + source.term;
+
+    return '<div class="feedback__contrast">' +
+      '<p class="feedback__contrast-head">' + esc(line) + "</p>" +
+      '<p class="feedback__contrast-body">' + esc(UI.plain(source.summary)) + "</p></div>";
+  }
+
+  var HEAD_COPY = {
+    ok: { tone: "ok", icon: "check", text: "맞았습니다" },
+    no: { tone: "no", icon: "close", text: "다시 볼 단어입니다" },
+    unsure: { tone: "unsure", icon: "rotate", text: "모르는 게 확인됐습니다" },
+  };
+
   function renderFeedback(question, picked) {
     var chosen = question.options.find(function (o) { return o.id === picked; });
     var right = chosen && chosen.correct;
     var isLast = session.index >= session.questions.length - 1;
+    var head = HEAD_COPY[picked === UNSURE ? "unsure" : right ? "ok" : "no"];
 
     return '<div class="feedback" role="status">' +
-      '<p class="feedback__head feedback__head--' + (right ? "ok" : "no") + '">' +
-      UI.icon(right ? "check" : "close", 20) +
-      (right ? "맞았습니다" : "다시 볼 단어입니다") + "</p>" +
+      '<p class="feedback__head feedback__head--' + head.tone + '">' +
+      UI.icon(head.icon, 20) + head.text + "</p>" +
+      contrast(question, chosen) +
       '<div class="feedback__body">' + UI.markdown(question.explain) + "</div>" +
       '<div class="feedback__actions">' +
       // 아이콘만 있는 버튼은 무슨 일이 일어날지 알기 어렵다. 글자를 같이 둔다.
@@ -220,13 +250,20 @@
       Parts.progressBar(percent) +
       "</div>" +
 
-      '<main class="screen" style="padding-inline:0">' +
+      '<main class="screen quiz-run' + (session.picked ? "" : " quiz-run--asking") + '">' +
       '<div class="question">' +
       '<p class="question__kind">' + esc(q.kind) + "</p>" +
       '<h1 class="question__text">' + esc(q.prompt) + "</h1>" +
       (q.quote ? '<div class="question__quote">' + UI.markdown(q.quote) + "</div>" : "") +
       "</div>" +
       '<div class="options">' + renderOptions(q, session.picked) + "</div>" +
+      /* 찍기를 강요하지 않는다. 모르는 걸 모른다고 말할 수 있어야
+         복습 목록이 실제 실력과 맞아떨어진다. 네 개 중 하나를 찍어서 맞으면
+         아는 것으로 기록되고, 그 단어는 한 달 뒤에나 다시 나온다. */
+      (session.picked
+        ? ""
+        : '<div class="unsure"><button class="unsure__btn" data-action="answer" data-id="' +
+          UNSURE + '">모르겠어요</button></div>') +
       "</main>" +
       (session.picked ? renderFeedback(q, session.picked) : "");
   });
@@ -239,10 +276,12 @@
     var right = !!(chosen && chosen.correct);
 
     session.picked = data.id;
-    session.answers.push({ termId: q.termId, correct: right });
+    session.answers.push({ termId: q.termId, correct: right, unsure: data.id === UNSURE });
     if (right) session.correct++;
 
-    // 학습 상태를 바로 반영한다. 맞으면 통과, 틀리면 복습 대기열로.
+    /* 학습 상태를 바로 반영한다. 맞으면 통과, 틀리면 복습 대기열로.
+       "모르겠어요"도 복습으로 간다 — 결과는 오답과 같지만 말투는 다르게 한다.
+       모른다고 인정한 사람에게 틀렸다고 할 이유가 없다. */
     if (right) {
       Store.markPassed(q.termId);
     } else {

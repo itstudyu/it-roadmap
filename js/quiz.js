@@ -77,12 +77,20 @@ window.Quiz = (function () {
     return replacement === "이것" ? fixParticles(out, "이것") : out;
   }
 
+  /* 빈칸 뒤 조사를 원문 그대로 두면 정답의 받침이 새어 나간다.
+     "____은" 이면 받침 있는 말, "____는" 이면 없는 말로 좁혀진다.
+     CDN(씨디엔)만 "은" 을 받는 식이라 실제로 답이 찍힌다.
+     시험지에서 쓰는 병기 표기로 눕혀서 단서를 없앤다. */
+  var NEUTRAL_PARTICLE = { "는": "은(는)", "은": "은(는)", "이란": "(이)란", "란": "(이)란", "이라는": "(이)라는" };
+
   /* 설명에서 용어 찾기용. 앞머리를 빈칸으로 바꾼다.
      빈칸 형태가 모든 보기에서 같아야 모양만 보고 답을 고르지 못한다. */
   function blankSubject(text, term) {
     var out = stripEmphasis(text);
     var lead = out.match(LEAD);
-    if (lead) out = "____" + lead[2] + out.slice(lead[0].length - lead[3].length);
+    if (lead) {
+      out = "____" + (NEUTRAL_PARTICLE[lead[2]] || lead[2]) + out.slice(lead[0].length - lead[3].length);
+    }
     out = replaceName(out, term, "____");
     return out.replace(/(____[\s,·]*){2,}/g, "____ ").trim();
   }
@@ -104,7 +112,6 @@ window.Quiz = (function () {
   function firstSentence(text, maxLen) {
     var s = String(text || "").replace(/\s+/g, " ").trim();
     var limit = maxLen || 110;
-    if (s.length <= limit) return s;
 
     // 문장 끝 위치를 모은다
     var ends = [];
@@ -112,11 +119,17 @@ window.Quiz = (function () {
     var m;
     while ((m = re.exec(s)) !== null) ends.push(m.index + m[0].trimEnd().length);
 
-    // 뜻이 통하는 최소 길이(18자)를 넘기는 첫 문장에서 끊는다.
-    // 한도까지 욕심내면 어떤 보기는 두 문장, 어떤 보기는 한 문장이 되어 들쭉날쭉해진다.
+    /* 뜻이 통하는 최소 길이(18자)를 넘기는 첫 문장에서 끊는다.
+
+       한도를 넘을 때만 자르면 안 된다. 어떤 뜻풀이는 두 문장이 합쳐서 95자라
+       한도(110자) 안에 들어오는데, 그러면 그 보기만 두 문장이 되어 혼자 길어진다.
+       내용을 몰라도 길이만 보고 고를 수 있게 되는 지점이 여기다.
+       길이와 상관없이 항상 첫 문장에서 끊어야 보기가 고르게 보인다. */
     for (var i = 0; i < ends.length; i++) {
       if (ends[i] >= 18) return s.slice(0, ends[i]).trim();
     }
+
+    if (s.length <= limit) return s;
     // 문장 경계가 없으면 중간에서 자르지 않고 한도까지만 보여준다.
     return ends.length ? s.slice(0, ends[ends.length - 1]).trim() : s.slice(0, limit).trim() + "...";
   }
@@ -125,8 +138,10 @@ window.Quiz = (function () {
     var distractors = sample(siblings, 3, target);
     if (distractors.length < 3) return null;
 
+    // sourceId 는 이 보기가 어느 단어에서 왔는지다. 틀렸을 때
+    // "고른 게 뭐였는지"를 되짚어 설명하려면 이 연결이 있어야 한다.
     var options = shuffle([target].concat(distractors)).map(function (t) {
-      return { id: t.id, text: t.term, correct: t.id === target.id };
+      return { id: t.id, sourceId: t.id, text: t.term, correct: t.id === target.id };
     });
 
     return {
@@ -166,13 +181,13 @@ window.Quiz = (function () {
     if (distractors.length < 3) return null;
 
     var options = shuffle([target].concat(distractors)).map(function (t) {
-      return { id: t.id, text: optionText(t), correct: t.id === target.id };
+      return { id: t.id, sourceId: t.id, text: optionText(t), correct: t.id === target.id };
     });
 
     return {
       kind: KINDS.DEFINE,
       termId: target.id,
-      prompt: target.term + " 의 설명으로 맞는 것은?",
+      prompt: target.term + "의 설명으로 맞는 것은?",
       quote: null,
       options: options,
       explain: target.summary,
@@ -193,16 +208,22 @@ window.Quiz = (function () {
     });
     if (unrelated.length < 3) return null;
 
-    var options = shuffle([{ term: answer.term, correct: true }].concat(
-      sample(unrelated, 3).map(function (t) { return { term: t.term, correct: false }; })
+    // 정답은 노트의 "관련 용어"라서 이 목업에 단어로 없을 수 있다. sourceId 는 null 이 된다.
+    var options = shuffle([{ term: answer.term, correct: true, sourceId: null }].concat(
+      sample(unrelated, 3).map(function (t) {
+        return { term: t.term, correct: false, sourceId: t.id };
+      })
     )).map(function (o, i) {
-      return { id: target.id + "-rel-" + i, text: o.term, correct: o.correct };
+      return { id: target.id + "-rel-" + i, sourceId: o.sourceId, text: o.term, correct: o.correct };
     });
 
     return {
       kind: KINDS.RELATED,
       termId: target.id,
-      prompt: target.term + " 와(과) 가장 가까운 개념은?",
+      /* "X 와(과)" 는 조사를 고르지 못해 병기한 흔적이라 서비스에서 바로 티가 난다.
+         영문 약어는 한글 읽기의 받침을 알아야 와/과가 정해지는데 그 정보가 없다.
+         조사가 필요 없는 문장으로 바꾼다. */
+      prompt: target.term + " 하면 같이 나오는 개념은?",
       quote: null,
       options: options,
       explain: answer.note ? answer.term + ": " + answer.note : target.summary,
@@ -235,5 +256,25 @@ window.Quiz = (function () {
     return questions;
   }
 
-  return { build: build, KINDS: KINDS };
+  /* 범위를 고르기 전에 "몇 문제인지" 알려주기 위한 셈.
+
+     build() 를 미리 돌려서 세면 안 된다 — 그 안에서 섞기 때문에 미리 본 개수와
+     실제로 나오는 개수가 달라질 수 있다. 화면이 코드가 하지 않는 말을 하게 된다.
+     그래서 섞지 않고 "문제를 만들 수 있는 단어"만 센다. */
+  function askable(target, pool) {
+    var siblings = pool.filter(function (x) { return x.bookId === target.bookId; });
+    if (siblings.length < 4) siblings = pool;
+    return BUILDERS.some(function (fn) { return !!fn(target, siblings); });
+  }
+
+  function countQuestions(targets, pool, limit) {
+    var n = 0;
+    var cap = limit || 8;
+    for (var i = 0; i < targets.length && n < cap; i++) {
+      if (askable(targets[i], pool)) n++;
+    }
+    return n;
+  }
+
+  return { build: build, countQuestions: countQuestions, KINDS: KINDS };
 })();

@@ -47,7 +47,10 @@
   --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
     "Apple SD Gothic Neo", "Segoe UI", "Noto Sans KR", system-ui, sans-serif;
   --font-head: "Source Serif 4", "Iowan Old Style", Charter, Georgia, "Times New Roman", serif;
-  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo, monospace;
+  /* 라틴 고정폭 뒤에 한글 폰트를 붙인다. 이게 없으면 코드 주석의 한글이
+     글리프 없는 고정폭을 지나 아무 폰트로나 떨어지면서 자간이 들쭉날쭉해진다. */
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo,
+    "Apple SD Gothic Neo", Pretendard, "Noto Sans KR", monospace;
 
   --fs-11: 0.6875rem;
   --fs-12: 0.75rem;
