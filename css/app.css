@@ -2712,6 +2712,28 @@ a {
    맨 아래, 접지 않고 둔다. 읽기가 끝나는 지점이자
    "학습 완료" 를 누르기 직전의 마지막 관문이다.
    ------------------------------------------------------------ */
+/* 한 번 더 정리 — 접이식 뒤, 확인 질문 앞에 놓는 마무리 문단.
+   확인 질문처럼 테두리를 두르면 상자가 둘 연달아 서서 무거워진다.
+   위에 선 하나만 긋고 본문 리듬을 그대로 잇는다. */
+.recap {
+  margin-top: var(--sp-9);
+  padding-top: var(--sp-6);
+  border-top: 1px solid var(--line);
+}
+
+.recap__head {
+  margin: 0 0 var(--sp-3);
+  font-size: var(--fs-13);
+  font-weight: 650;
+  line-height: var(--lh-snug);
+  color: var(--ink-2);
+  letter-spacing: 0.02em;
+}
+
+.recap .prose > p:last-child {
+  margin-bottom: 0;
+}
+
 .selfcheck {
   margin-top: var(--sp-10);
   padding: var(--sp-5) var(--sp-5) var(--sp-6);

@@ -2,512 +2,90 @@
 
 ## 📝 정의
 
-User Story는 **사용자 관점에서 작성한 기능 요구사항**입니다. 사용자가 "무엇을" "왜" 원하는지를 간결하게 표현합니다.
+User Story는 **누가 무엇을 왜 원하는지 짧게 적은 요구사항**이다.
 
-### 핵심 개념
+기능을 기술 용어로 적는 대신 그것을 쓸 사람의 입장에서 적는다. 형식은 정해져 있다. 어떤 역할로서, 무엇을 하고 싶고, 그래서 무엇을 얻는지 세 줄이다.
 
-- **무엇인가?**: 사용자 중심의 기능 설명
-- **왜 필요한가?**: 개발자가 사용자 가치 이해
-- **형식**: As a [사용자], I want [기능], So that [이유]
+### 비유
+식당 메뉴판. 손님이 무엇을 원하는지까지만 적혀 있고 어떻게 조리할지는 주방이 정한다.
 
-### User Story가 해결하는 문제
+## 🖼️ 그림으로 보기
 
-**문제 상황**:
-```
-😱 시나리오 1: 기술 중심 요구사항
-요구사항: "OAuth 2.0 기반 인증 시스템 구축"
-개발자: "왜 만들어야 하죠?"
-→ 목적 불명확! 😱
-→ 사용자 가치 모름! 😱
-
-😱 시나리오 2: 지나치게 상세한 명세
-100페이지 요구사항 문서
-→ 아무도 안 읽음! 😱
-→ 시간 낭비! 😱
-
-😱 시나리오 3: 의사소통 단절
-기획자: "로그인 기능 만들어주세요"
-개발자: (소셜 로그인? 이메일? 2FA?)
-→ 세부사항 불명확! 😱
+```도해
+흐름: 한 줄짜리 요구가 개발까지 어떻게 이어지나
+역할 :: 누가 쓰는지 정한다. 출퇴근하는 직장인
+바람 :: 무엇을 하고 싶은지 적는다. 기사를 저장한다
+이유 :: 왜 필요한지 적는다. 지하철에서 읽으려고
+대화 :: 이 세 줄을 놓고 팀이 세부를 정한다
+< 인수 기준 :: 무엇이 되면 끝인지 함께 적어둔다
+= 세 줄은 답이 아니라 대화를 시작하는 자리다
 ```
 
-**User Story의 해결**:
-```
-✅ 시나리오 1: 사용자 가치 명확
-User Story:
-"As a user,
-I want to log in with Google,
-So that I don't have to remember another password"
+## ⚠️ 해결하는 문제
 
-→ 목적 명확! ✅
-→ 사용자 가치 이해! ✅
-
-✅ 시나리오 2: 간결한 표현
-한 장으로 요약
-→ 누구나 읽음 ✅
-→ 빠른 이해 ✅
-
-✅ 시나리오 3: 대화 촉진
-Story는 시작점
-→ 팀과 논의
-→ 세부사항 협의
-→ 공동 이해! ✅
+```도해
+대조: 요구를 기술 용어로 적으면 무엇을 잃나
+기술로 적으면 || 스토리로 적으면
+읽는 사람 :: 왜 하는지 모름 || 목적이 보인다
+구현 방법 :: 이미 정해져 있음 || 팀이 정한다
+분량 :: 문서 백 쪽 || 세 줄
+= 무엇을 원하는지와 어떻게 만들지를 갈라놓는 장치다
 ```
 
-## 📊 User Story 형식
+"OAuth 기반 인증을 붙인다"라고 적힌 요구를 받으면 만드는 쪽은 왜 필요한지를 모른다. 목적을 모르면 판단할 수가 없어서, 더 간단한 방법이 있어도 제안하지 못하고 우선순위도 비교할 수 없다.
 
+같은 요구를 "계정을 또 만들기 싫어서 쓰던 계정으로 가입하고 싶다"로 적으면 목적이 드러난다. 여기서 팀은 어떤 방식이 그 목적에 맞는지 고를 수 있고, 다른 요구와 견줘 무엇을 먼저 할지 정할 수 있다.
 
-### 기본 템플릿
+## ⚙️ 작동 원리
 
-```
-As a [사용자 역할],
-I want [수행할 작업],
-So that [얻을 가치/이유]
-```
-
-### 실제 예시
-
-```
-✅ 좋은 User Story:
-
-As a busy professional,
-I want to save articles for later,
-So that I can read them during my commute
-
-(바쁜 직장인으로서,
-나중에 읽을 기사를 저장하고 싶다,
-출퇴근 시간에 읽을 수 있도록)
+```도해
+층: 요구는 어느 크기까지 쪼개져 내려오나
+에픽 :: 쇼핑몰을 만든다 급. 여러 스프린트에 걸친다
+스토리 :: 장바구니에 담는다. 한 스프린트 안에 끝난다
+작업 :: 버튼 붙이기, API 만들기. 개발자가 쪼갠 것
+= 스토리는 사용자에게 가치가 남는 가장 작은 단위다
 ```
 
-## 💡 User Story 작성법
+좋은 스토리인지 보는 기준을 INVEST라고 부른다. 다른 스토리를 기다리지 않아도 되고, 구현 방법이 열려 있고, 사용자에게 가치가 있고, 크기를 가늠할 수 있고, 한 스프린트에 들어갈 만큼 작고, 끝났는지 확인할 수 있어야 한다는 여섯 가지다.
 
-### INVEST 원칙
+끝났는지 확인하는 부분은 인수 기준으로 따로 적는다. "어떤 상태에서, 무엇을 하면, 어떻게 된다"의 형태로 몇 줄 쓴다. 검색 스토리라면 검색어를 넣으면 관련 상품이 보인다, 결과가 없으면 없다는 안내가 나온다처럼 적는 식이다. 이게 있어야 스토리가 테스트 가능해진다.
 
-```python
-"""
-좋은 User Story는 INVEST를 따름
-"""
+## 📊 비교: 요구를 적는 세 가지 방식
 
-class INVESTCriteria:
-    """INVEST 체크리스트"""
+| | User Story | Use Case | Requirement |
+|---|---|---|---|
+| 길이 | 세 줄 | 한두 쪽 | 여러 쪽 |
+| 보는 관점 | 사용자 | 시스템 흐름 | 기술 명세 |
+| 상세도 | 낮다 | 중간 | 높다 |
+| 바꾸기 | 쉽다 | 중간 | 어렵다 |
+| 쓰이는 곳 | 애자일 | 설계 단계 | 폭포수 |
 
-    def check_independent(self, story):
-        """I - Independent (독립적)"""
-        # 다른 스토리와 독립적으로 개발 가능?
-        return "다른 스토리에 의존하지 않음"
+## 💡 실제 사례
 
-    def check_negotiable(self, story):
-        """N - Negotiable (협상 가능)"""
-        # 구현 방법은 유연한가?
-        return "How는 열려있고, What만 정의"
+- **장바구니 담기** 여러 개를 한 번에 사려고 담아둔다는 이유를 적고, 개수 표시와 같은 상품 합치기를 인수 기준으로 붙인다.
+- **소셜 로그인** 계정을 또 만들기 싫다는 이유가 적혀 있어서 어떤 방식으로 붙일지 팀이 고를 수 있다.
+- **비밀번호 재설정** 잊어버려도 다시 들어올 수 있게 한다는 가치가 드러나 다른 요구와 우선순위를 비교할 수 있다.
 
-    def check_valuable(self, story):
-        """V - Valuable (가치 있음)"""
-        # 사용자/비즈니스에 가치 제공?
-        return "So that 절에 가치 명시"
+## 🚫 흔한 오해
 
-    def check_estimable(self, story):
-        """E - Estimable (추정 가능)"""
-        # 개발 시간 추정 가능?
-        return "팀이 크기 예상 가능"
-
-    def check_small(self, story):
-        """S - Small (작음)"""
-        # 한 Sprint 안에 완료 가능?
-        return "1-2주 내 완료 가능"
-
-    def check_testable(self, story):
-        """T - Testable (테스트 가능)"""
-        # 완료 여부 확인 가능?
-        return "Acceptance Criteria로 검증"
-
-# 예시
-story = """
-As a user,
-I want to reset my password,
-So that I can regain access if I forget it
-"""
-
-invest = INVESTCriteria()
-print("✅ Independent:", invest.check_independent(story))
-print("✅ Negotiable:", invest.check_negotiable(story))
-print("✅ Valuable:", invest.check_valuable(story))
-print("✅ Estimable:", invest.check_estimable(story))
-print("✅ Small:", invest.check_small(story))
-print("✅ Testable:", invest.check_testable(story))
-```
-
-### Acceptance Criteria (인수 기준)
-
-```python
-"""
-User Story의 완료 조건
-"""
-
-story = """
-As a user,
-I want to search for products,
-So that I can find what I need quickly
-"""
-
-acceptance_criteria = """
-Acceptance Criteria:
-✓ Given I am on the homepage
-  When I enter a search term
-  Then I see relevant products
-
-✓ Given I search for "laptop"
-  When no results are found
-  Then I see "No results" message
-
-✓ Given I search for products
-  When I get results
-  Then I can sort by price/rating
-
-✓ Given I perform a search
-  When results load
-  Then it completes within 2 seconds
-"""
-
-print(story)
-print("\n" + acceptance_criteria)
-```
-
-## 1. 장바구니 기능
-
-**User Story:**
-As a shopper,
-I want to add items to a cart,
-So that I can purchase multiple items at once
-
-**Acceptance Criteria:**
-- [ ] 상품 페이지에서 "장바구니에 추가" 버튼 표시
-- [ ] 버튼 클릭 시 즉시 장바구니에 추가
-- [ ] 장바구니 아이콘에 아이템 개수 표시
-- [ ] 동일 상품 추가 시 수량 증가
-
-**Story Points:** 5
-**Priority:** High
-**Sprint:** Sprint 12
-
----
-
-## 2. 위시리스트 기능
-
-**User Story:**
-As a shopper,
-I want to save items to a wishlist,
-So that I can buy them later
-
-**Acceptance Criteria:**
-- [ ] 상품 페이지에 하트 아이콘 표시
-- [ ] 클릭 시 위시리스트에 저장
-- [ ] 마이페이지에서 위시리스트 확인 가능
-- [ ] 위시리스트에서 장바구니로 이동 가능
-
-**Story Points:** 3
-**Priority:** Medium
-**Sprint:** Sprint 13
-```
-
-### SaaS 제품 예시
-
-```python
-# Jira/Notion 스타일 User Story
-
-user_stories = [
-    {
-        "id": "US-101",
-        "title": "소셜 로그인",
-        "story": """
-        As a new user,
-        I want to sign up with Google,
-        So that I don't have to create another account
-        """,
-        "acceptance_criteria": [
-            "Google OAuth 버튼 표시",
-            "클릭 시 Google 로그인 페이지로 이동",
-            "인증 성공 시 자동 회원가입",
-            "프로필 정보 자동 입력"
-        ],
-        "priority": "P0",
-        "points": 8,
-        "assignee": "개발팀",
-        "status": "In Progress"
-    },
-    {
-        "id": "US-102",
-        "title": "대시보드 커스터마이징",
-        "story": """
-        As a power user,
-        I want to customize my dashboard layout,
-        So that I can see the metrics I care about
-        """,
-        "acceptance_criteria": [
-            "위젯 드래그 앤 드롭 가능",
-            "위젯 크기 조절 가능",
-            "레이아웃 저장 및 불러오기",
-            "기본 레이아웃으로 초기화"
-        ],
-        "priority": "P1",
-        "points": 13,
-        "assignee": "프론트엔드팀",
-        "status": "Backlog"
-    }
-]
-
-# Story 출력
-for story in user_stories:
-    print(f"\n{story['id']}: {story['title']}")
-    print(f"Priority: {story['priority']} | Points: {story['points']}")
-    print(story['story'])
-    print("\nAcceptance Criteria:")
-    for i, criteria in enumerate(story['acceptance_criteria'], 1):
-        print(f"  {i}. {criteria}")
-```
-
-## 🔍 User Story vs 다른 형식
-
-| 구분 | User Story | Use Case | Requirement |
-|------|------------|----------|-------------|
-| **길이** | 짧음 (3줄) | 중간 (1-2페이지) | 김 (여러 페이지) |
-| **관점** | 사용자 | 시스템 | 기술 |
-| **상세도** | 낮음 | 중간 | 높음 |
-| **유연성** | 높음 | 중간 | 낮음 |
-| **용도** | 애자일 | 설계 | 폭포수 |
-
-### User Story
-
-```
-As a user,
-I want to export my data,
-So that I can backup my information
-
-✅ 사용자 중심
-✅ 간결함
-✅ 대화 시작점
-```
-
-### Use Case
-
-```
-Use Case: 데이터 내보내기
-
-Actor: 사용자
-Preconditions: 로그인 상태
-Main Flow:
-  1. 사용자가 설정 메뉴 선택
-  2. "데이터 내보내기" 클릭
-  3. 시스템이 파일 형식 선택 화면 표시
-  4. 사용자가 CSV 선택
-  5. 시스템이 파일 생성
-  6. 사용자가 다운로드
-
-✅ 상세한 흐름
-✅ 예외 처리 포함
-```
-
-### Requirement
-
-```
-REQ-101: 데이터 내보내기 기능
-
-시스템은 다음을 수행해야 함:
-1. CSV, JSON, XML 형식 지원
-2. 최대 파일 크기 100MB
-3. 암호화된 다운로드 링크 제공
-4. 24시간 후 링크 만료
-5. UTF-8 인코딩 사용
-6. ...
-
-✅ 기술적 상세
-✅ 명확한 스펙
-```
-
-## 🚨 흔한 실수
-
-### ❌ 나쁜 User Story
-
-```python
-# 1. 기술 중심
-bad_story_1 = """
-As a developer,
-I want to implement Redis caching,
-So that the database load decreases
-"""
-# ❌ 사용자가 아닌 개발자 관점
-# ❌ 기술 구현 세부사항
-
-# 2. 지나치게 큼
-bad_story_2 = """
-As a user,
-I want a complete e-commerce platform,
-So that I can buy products
-"""
-# ❌ 너무 큼 (Epic 수준)
-# ❌ 한 Sprint에 완료 불가
-
-# 3. 가치 없음
-bad_story_3 = """
-As a user,
-I want to see a loading spinner,
-So that I know something is happening
-"""
-# ❌ 이건 UI 요구사항, 독립적 가치 없음
-# ❌ 다른 스토리의 일부
-
-# 4. 해결책 명시
-bad_story_4 = """
-As a user,
-I want a blue button on the top right,
-So that I can submit the form
-"""
-# ❌ 구현 방법을 지정 (Negotiable 위배)
-# ❌ "What"이 아닌 "How"
-```
-
-### ✅ 좋은 User Story
-
-```python
-# 1. 사용자 가치 중심
-good_story_1 = """
-As a shopper,
-I want to see product recommendations,
-So that I can discover items I might like
-"""
-# ✅ 사용자 관점
-# ✅ 비즈니스 가치 명확
-
-# 2. 적절한 크기
-good_story_2 = """
-As a user,
-I want to add items to my cart,
-So that I can purchase multiple items together
-"""
-# ✅ 한 Sprint에 완료 가능
-# ✅ 독립적
-
-# 3. 명확한 가치
-good_story_3 = """
-As a user,
-I want to receive order confirmation emails,
-So that I have a record of my purchase
-"""
-# ✅ 사용자에게 실질적 가치
-# ✅ 독립적 기능
-
-# 4. 유연한 구현
-good_story_4 = """
-As a user,
-I want to quickly submit my form,
-So that I don't lose my progress
-"""
-# ✅ "What"만 정의
-# ✅ "How"는 팀이 결정 (버튼, 단축키 등)
-```
-
-## 💻 Story Mapping
-
-```python
-"""
-User Story Mapping
-- 사용자 여정에 따라 스토리 배치
-- 우선순위와 릴리스 계획 시각화
-"""
-
-user_journey_map = {
-    "발견": [
-        "검색으로 상품 찾기",
-        "카테고리 탐색",
-        "추천 상품 보기"
-    ],
-    "평가": [
-        "상품 상세 정보 보기",
-        "리뷰 읽기",
-        "가격 비교"
-    ],
-    "구매": [
-        "장바구니 추가",
-        "결제 진행",
-        "배송지 입력"
-    ],
-    "사후": [
-        "주문 추적",
-        "리뷰 작성",
-        "재구매"
-    ]
-}
-
-# MVP (Release 1)
-mvp_stories = [
-    "검색으로 상품 찾기",
-    "상품 상세 정보 보기",
-    "장바구니 추가",
-    "결제 진행"
-]
-
-# Release 2
-release_2 = [
-    "추천 상품 보기",
-    "리뷰 읽기",
-    "주문 추적"
-]
-
-print("User Story Map\n")
-for phase, stories in user_journey_map.items():
-    print(f"\n{phase}:")
-    for story in stories:
-        marker = "🚀 MVP" if story in mvp_stories else "📋 R2" if story in release_2 else "💡 Later"
-        print(f"  {marker} {story}")
-```
-
-## 🔗 관련 용어
-
-- [[Agile]]: User Story를 사용하는 방법론
-- [[Sprint]]: Story를 구현하는 단위
-- [[Backlog]]: Story가 쌓이는 곳
-- [[MVP]]: 핵심 Story 모음
-- [[Product Roadmap]]: Story의 우선순위 계획
+- **형식만 지키면 좋은 스토리다** — "개발자로서 캐시를 넣고 싶다"도 형식은 맞지만 사용자에게 남는 가치가 없다. 기준은 형식이 아니라 누구에게 무엇이 남느냐다.
+- **스토리를 잘 쓰면 다른 문서가 필요 없다** — 스토리는 세부를 담지 않는다. 무엇이 되면 끝인지는 인수 기준으로 따로 적고 나머지는 대화에서 정해진다.
+- **화면과 버튼까지 적어줘야 개발이 빨라진다** — 구현 방법을 지정하면 팀이 더 나은 방법을 고를 여지가 사라진다. 무엇을 원하는지까지만 적는다.
 
 ## 📝 정리
 
-**User Story의 핵심**:
-```
-User Story = 사용자 관점의 기능 요구사항
-→ As a [역할]
-→ I want [기능]
-→ So that [가치]
-```
+User Story는 요구를 사용자 관점에서 역할, 바람, 이유 세 줄로 적은 것이다. 세부를 다 담는 명세가 아니라 팀이 대화를 시작할 지점이고, 끝났는지는 인수 기준으로 따로 정한다. 한 스프린트에 들어가지 않을 만큼 크면 에픽이므로 더 쪼갠다.
 
-**INVEST 원칙**:
-```
-I - Independent (독립적)
-N - Negotiable (협상 가능)
-V - Valuable (가치 있음)
-E - Estimable (추정 가능)
-S - Small (작음)
-T - Testable (테스트 가능)
-```
+## ❓ 이해했는지
 
-**핵심 요소**:
-```
-✅ 사용자 관점
-✅ 가치 명시
-✅ 간결함
-✅ 대화 시작점
-✅ Acceptance Criteria
-```
+- "개발자로서 캐시를 넣고 싶다"가 좋은 스토리가 아닌 이유는?
+- 스토리에 버튼 위치까지 적으면 팀은 무엇을 잃게 되나?
+- 한 스프린트에 못 끝낼 만큼 큰 요구는 무엇이라 부르고 어떻게 다루나?
 
-**비유로 기억하기**:
-```
-User Story = 메뉴판
-→ "무엇"만 보여줌
-→ "어떻게" 요리하는지는 주방장에게
+## 🔗 관련 용어
 
-"사용자가 원하는 것"에 집중
-"어떻게 만들지"는 나중에
-```
-
----
-*카테고리: 제품관리*
-*생성일: 2026-02-15*
+- [[Agile]] — 스토리라는 형식이 나온 배경
+- [[Sprint]] — 스토리 하나가 들어가야 할 기간 단위
+- [[Backlog]] — 아직 손대지 않은 스토리가 쌓이는 곳
+- [[MVP]] — 먼저 만들 스토리만 골라낸 묶음
+- [[Persona]] — 스토리 첫 줄의 역할을 구체적으로 정해둔 것

@@ -2,357 +2,84 @@
 
 ## 📝 정의
 
-RBAC(Role-Based Access Control, 역할 기반 접근 제어)는 **사용자의 역할에 따라 시스템 권한을 부여**하는 접근 제어 방식입니다.
+RBAC은 **권한을 사람이 아니라 역할에 붙이는 방식**이다.
 
-### 핵심 개념
+사용자에게 권한을 하나씩 주면 사람이 들어오고 나갈 때마다 그 목록을 손봐야 한다. RBAC은 권한 묶음에 이름을 붙여 역할로 만들고, 사람에게는 역할만 준다.
 
-- **무엇인가?**: 역할(Role)을 통한 권한 관리
-- **왜 필요한가?**: 사용자마다 일일이 권한 설정 → 관리 복잡
-- **어떻게 작동하나?**: 사용자 → 역할 배정 → 역할에 권한 부여
+### 비유
+회사 출입증. 사람마다 열쇠를 깎아 나눠주는 대신 하는 일에 맞는 카드를 주고, 그만두면 카드만 회수한다.
 
-### RBAC이 해결하는 문제
-
-**문제 상황**:
-```
-😱 시나리오: 직접 권한 부여
-직원 100명 → 각자 권한 설정
-신입 사원 입사 → 10개 권한 일일이 설정
-퇴사자 발생 → 10개 권한 일일이 삭제
-→ 관리 복잡! 누락 위험! 😱
-```
-
-**RBAC의 해결**:
-```
-✅ 역할로 관리:
-역할 정의: "개발자" 역할 (10개 권한 포함)
-신입 개발자 입사 → "개발자" 역할 1개만 배정
-→ 자동으로 10개 권한 부여
-퇴사 → 역할 제거
-→ 모든 권한 자동 회수! ✅
-```
-
-**비유**:
-- **직접 권한 부여** = 출입할 방마다 열쇠 복사
-- **RBAC** = 직급별 통합 출입증 (역할별 자동 권한)
-
-## 📊 RBAC 구조
+## 🖼️ 그림으로 보기
 
 ```도해
-층: RBAC, 어떻게 나뉘어 있나
-Users :: Alice · Bob · Charlie
-Roles :: Admin · Developer · Viewer
-Permissions :: create_user · delete_user · read_code · write_code · read_d…
+흐름: 글 삭제 요청이 들어오면 무엇을 확인하나
+요청 :: 사용자 2번이 글 삭제를 누른다
+역할 조회 :: 이 사용자에게 붙은 역할을 찾는다
+권한 조회 :: 그 역할에 딸린 권한 목록을 편다
+대조 :: 그 안에 `post:delete` 가 있나
+< 응답 :: 없다. 403 으로 돌려보낸다
+= 묻는 것은 "누구냐" 가 아니라 "그 역할에 이 권한이 있나" 다
 ```
 
-## 💡 RBAC 구현
+## ⚠️ 해결하는 문제
 
-### 데이터베이스 스키마
-```sql
--- 사용자 테이블
-CREATE TABLE users (
-    id INT PRIMARY KEY,
-    username VARCHAR(50),
-    email VARCHAR(100)
-);
-
--- 역할 테이블
-CREATE TABLE roles (
-    id INT PRIMARY KEY,
-    name VARCHAR(50),
-    description TEXT
-);
-
--- 권한 테이블
-CREATE TABLE permissions (
-    id INT PRIMARY KEY,
-    name VARCHAR(50),
-    resource VARCHAR(50),
-    action VARCHAR(20)
-);
-
--- 사용자-역할 관계 (Many-to-Many)
-CREATE TABLE user_roles (
-    user_id INT,
-    role_id INT,
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (role_id) REFERENCES roles(id),
-    PRIMARY KEY (user_id, role_id)
-);
-
--- 역할-권한 관계 (Many-to-Many)
-CREATE TABLE role_permissions (
-    role_id INT,
-    permission_id INT,
-    FOREIGN KEY (role_id) REFERENCES roles(id),
-    FOREIGN KEY (permission_id) REFERENCES permissions(id),
-    PRIMARY KEY (role_id, permission_id)
-);
+```도해
+대조: 사람마다 권한을 직접 주면 어떻게 되나
+사람에게 직접 || 역할을 거쳐
+신입 입사 :: 10개를 하나씩 || 역할 하나 배정
+퇴사 :: 빠뜨리면 남는다 || 역할만 뗀다
+규칙 변경 :: 100명을 다 손댄다 || 역할만 고친다
+= 사람은 계속 바뀌고 역할은 잘 안 바뀐다. 안 바뀌는 쪽에 붙인다
 ```
 
-### Python 구현
-```python
-class RBACManager:
-    def __init__(self, db):
-        self.db = db
-    
-    def create_role(self, name, permissions):
-        """역할 생성"""
-        role_id = self.db.roles.insert({
-            'name': name,
-            'permissions': permissions
-        })
-        return role_id
-    
-    def assign_role(self, user_id, role_name):
-        """사용자에게 역할 배정"""
-        self.db.user_roles.insert({
-            'user_id': user_id,
-            'role': role_name
-        })
-    
-    def has_permission(self, user_id, permission):
-        """사용자가 특정 권한을 가지고 있는지 확인"""
-        # 사용자의 역할 조회
-        user_roles = self.db.user_roles.find({'user_id': user_id})
-        
-        # 각 역할의 권한 확인
-        for user_role in user_roles:
-            role = self.db.roles.find_one({'name': user_role['role']})
-            if permission in role['permissions']:
-                return True
-        
-        return False
-    
-    def get_user_permissions(self, user_id):
-        """사용자의 모든 권한 조회"""
-        permissions = set()
-        
-        user_roles = self.db.user_roles.find({'user_id': user_id})
-        for user_role in user_roles:
-            role = self.db.roles.find_one({'name': user_role['role']})
-            permissions.update(role['permissions'])
-        
-        return list(permissions)
+직원이 100명이고 각자 권한이 10개면 관리할 줄이 1000개다. 신입이 들어올 때마다 10개를 찍어주고 나갈 때마다 10개를 지우는데, 하나를 빠뜨리면 권한이 남는다. 남은 권한은 아무도 모르고 아무도 안 지운다.
 
-# 사용 예시
-rbac = RBACManager(db)
+역할을 세우면 사람에게 붙는 줄이 하나로 줄어든다. 권한 규칙이 바뀌어도 역할 하나만 고치면 그 역할을 가진 사람 전부에게 반영된다.
 
-# 역할 생성
-rbac.create_role('admin', [
-    'user:create',
-    'user:read',
-    'user:update',
-    'user:delete',
-    'post:create',
-    'post:read',
-    'post:update',
-    'post:delete'
-])
+## ⚙️ 작동 원리
 
-rbac.create_role('editor', [
-    'post:create',
-    'post:read',
-    'post:update'
-])
-
-rbac.create_role('viewer', [
-    'post:read'
-])
-
-# 사용자에게 역할 배정
-rbac.assign_role(user_id=1, role_name='admin')
-rbac.assign_role(user_id=2, role_name='editor')
-
-# 권한 확인
-if rbac.has_permission(user_id=2, permission='post:delete'):
-    delete_post()
-else:
-    return "Permission denied", 403
+```도해
+층: RBAC 은 무엇과 무엇을 잇나
+사용자 :: 실제 사람. 자주 들어오고 나간다
+역할 :: 관리자, 편집자, 열람자. 몇 개 안 된다
+권한 :: `post:delete` 처럼 잘게 나눈 동작
+= 사용자와 권한을 직접 잇지 않고 가운데에 역할을 세운 것이 전부다
 ```
 
-## 💡 Flask 데코레이터
+역할끼리 물려받게 해두기도 한다. 관리자가 편집자를 물려받고 편집자가 열람자를 물려받으면, 아래 역할에 권한을 더할 때 위쪽에 다시 적지 않아도 된다.
 
-```python
-from functools import wraps
-from flask import abort, g
+역할만으로 안 갈리는 것도 있다. "자기가 쓴 글만 수정"은 사람이 아니라 대상이 누구 것인지를 봐야 하는 조건이라, 역할을 확인한 다음에 소유자인지를 따로 본다. 이렇게 속성으로 따지는 방식을 ABAC이라고 한다.
 
-def require_permission(permission):
-    """권한 확인 데코레이터"""
-    def decorator(f):
-        @wraps(f)
-        def decorated_function(*args, **kwargs):
-            user_id = g.current_user.id
-            
-            if not rbac.has_permission(user_id, permission):
-                abort(403, description=f"Permission denied: {permission}")
-            
-            return f(*args, **kwargs)
-        return decorated_function
-    return decorator
+## 💡 실제 사례
 
-def require_role(role):
-    """역할 확인 데코레이터"""
-    def decorator(f):
-        @wraps(f)
-        def decorated_function(*args, **kwargs):
-            user_id = g.current_user.id
-            user_roles = rbac.get_user_roles(user_id)
-            
-            if role not in user_roles:
-                abort(403, description=f"Role required: {role}")
-            
-            return f(*args, **kwargs)
-        return decorated_function
-    return decorator
+- **신입 입사** 계정을 만들고 역할 하나를 붙이면 그 역할에 딸린 권한이 한꺼번에 들어온다.
+- **역할 물려받기** 관리자에게 편집자 권한을 다시 적지 않고, 편집자를 물려받게 걸어둔다.
+- **자기 글만 수정** 역할로는 안 갈리는 자리라 대상의 소유자가 요청자인지를 따로 확인한다.
 
-# 사용
-@app.route('/users', methods=['POST'])
-@require_permission('user:create')
-def create_user():
-    """사용자 생성 (user:create 권한 필요)"""
-    return jsonify({'created': True})
+## 🚫 흔한 오해
 
-@app.route('/admin/dashboard')
-@require_role('admin')
-def admin_dashboard():
-    """관리자 대시보드 (admin 역할 필요)"""
-    return render_template('admin.html')
-```
+- **역할은 회사 직급이다** — 직급을 그대로 옮겨두면 같은 직급이 다른 일을 맡을 때 막힌다. 역할은 자리가 아니라 "무엇을 할 수 있어야 하는가"로 묶는다.
+- **사용자에게 역할은 하나만 준다** — 여러 개를 겹쳐 붙일 수 있다. 겸직이 흔하니 역할을 잘게 만들고 두 개를 붙이는 편이 예외를 위한 역할을 새로 파는 것보다 낫다.
+- **RBAC을 넣으면 권한 문제가 다 풀린다** — "자기가 쓴 글만 삭제" 같은 조건은 역할로 안 갈린다. 대상이 누구 것인지를 봐야 하고, 그건 RBAC 바깥의 일이다.
 
-## 💡 계층적 역할 (Role Hierarchy)
+## 🚨 주의사항
 
-```python
-class HierarchicalRBAC:
-    """역할 상속 지원"""
-    
-    ROLE_HIERARCHY = {
-        'superadmin': ['admin', 'editor', 'viewer'],
-        'admin': ['editor', 'viewer'],
-        'editor': ['viewer'],
-        'viewer': []
-    }
-    
-    def get_inherited_roles(self, role):
-        """상속받은 역할 포함"""
-        roles = {role}
-        
-        if role in self.ROLE_HIERARCHY:
-            for inherited_role in self.ROLE_HIERARCHY[role]:
-                roles.add(inherited_role)
-                roles.update(self.get_inherited_roles(inherited_role))
-        
-        return roles
-    
-    def has_permission(self, user_id, permission):
-        """상속 고려한 권한 확인"""
-        user_roles = self.get_user_roles(user_id)
-        
-        # 상속받은 역할까지 포함
-        all_roles = set()
-        for role in user_roles:
-            all_roles.update(self.get_inherited_roles(role))
-        
-        # 모든 역할의 권한 확인
-        for role in all_roles:
-            role_permissions = self.get_role_permissions(role)
-            if permission in role_permissions:
-                return True
-        
-        return False
+- **역할을 사람 수만큼 만들지 않는다.** 예외마다 역할을 새로 파면 결국 사람마다 권한을 주던 자리로 돌아간다.
+- **넓은 역할을 기본값으로 두지 않는다.** 편하다고 관리자 역할을 나눠주면 나중에 누구에게서 회수해야 할지 알 수 없다.
 
-# 예시
-# superadmin → admin, editor, viewer 권한 자동 상속
-# admin → editor, viewer 권한 자동 상속
-```
+## 📝 정리
 
-## 💡 동적 권한 (Attribute-Based)
+RBAC은 사용자와 권한 사이에 역할을 세워 사람이 바뀔 때 고칠 곳을 하나로 줄이는 방식이다. 사람은 자주 바뀌고 역할은 잘 안 바뀌므로 안 바뀌는 쪽에 권한을 붙인다. 대상이 누구 것인지 따지는 조건은 역할 밖에서 따로 확인해야 한다.
 
-```python
-def check_resource_permission(user_id, action, resource):
-    """리소스별 권한 확인"""
-    
-    # 1. 기본 RBAC 확인
-    if rbac.has_permission(user_id, f"{resource}:{action}"):
-        return True
-    
-    # 2. 리소스 소유자 확인
-    if action in ['update', 'delete']:
-        resource_owner = get_resource_owner(resource)
-        if resource_owner == user_id:
-            return True  # 자기 것은 수정/삭제 가능
-    
-    # 3. 조직 기반 권한
-    user_dept = get_user_department(user_id)
-    resource_dept = get_resource_department(resource)
-    
-    if user_dept == resource_dept and action == 'read':
-        return True  # 같은 부서 자료는 읽기 가능
-    
-    return False
+## ❓ 이해했는지
 
-# 사용
-@app.route('/posts/<int:post_id>', methods=['DELETE'])
-def delete_post(post_id):
-    user_id = g.current_user.id
-    
-    if not check_resource_permission(user_id, 'delete', post_id):
-        abort(403)
-    
-    # 삭제 로직
-```
-
-## 🎯 실전 예시
-
-### 역할 정의
-```python
-ROLES = {
-    'superadmin': {
-        'description': '최고 관리자',
-        'permissions': '*'  # 모든 권한
-    },
-    'admin': {
-        'description': '관리자',
-        'permissions': [
-            'user:*',        # 사용자 관리
-            'role:*',        # 역할 관리
-            'post:*',        # 게시물 관리
-            'settings:read'
-        ]
-    },
-    'moderator': {
-        'description': '모더레이터',
-        'permissions': [
-            'post:read',
-            'post:update',
-            'post:delete',
-            'comment:delete'
-        ]
-    },
-    'author': {
-        'description': '작성자',
-        'permissions': [
-            'post:create',
-            'post:read',
-            'post:update:own',  # 자기 글만
-            'post:delete:own'
-        ]
-    },
-    'user': {
-        'description': '일반 사용자',
-        'permissions': [
-            'post:read',
-            'comment:create'
-        ]
-    }
-}
-```
+- 권한 규칙 하나가 바뀌었을 때 역할을 쓰면 100명 중 몇 군데를 고치게 되나?
+- 퇴사자에게 권한이 남는 사고가 역할을 쓰면 왜 줄어드나?
+- "자기가 쓴 글만 삭제"를 역할만으로 표현할 수 없는 이유는?
 
 ## 🔗 관련 용어
 
-- [[ACL]]: Access Control List (대안)
-- [[ABAC]]: Attribute-Based Access Control
-- [[OAuth]]: 권한 위임 프로토콜
-
----
-*카테고리: 보안*
-*생성일: 2026-02-14*
+- [[IAM]] — 사용자와 역할, 권한을 묶어 관리하는 상위 체계
+- [[DAC]] — 자원 주인이 직접 권한을 주는 방식. 역할을 거치지 않는다
+- [[JWT]] — 확인된 역할을 담아 요청마다 들고 다니는 토큰
+- [[Audit Log]] — 누가 어떤 권한으로 무엇을 했는지 남기는 기록

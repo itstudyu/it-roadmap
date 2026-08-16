@@ -2,54 +2,94 @@
 
 ## 📝 정의
 
-SQL은 **관계형 데이터베이스를 관리하는 표준 언어**입니다.
+SQL은 **표에 담긴 데이터를 다루는 질의 언어**다.
 
-## 💡 기본 문법
+어디부터 어떻게 찾을지를 적지 않고 무엇이 필요한지만 적으면, 데이터베이스가 찾는 방법을 알아서 정한다. MySQL, PostgreSQL 같은 관계형 데이터베이스가 공통으로 알아듣는다.
 
-```sql
--- 테이블 생성
-CREATE TABLE users (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(100),
-    email VARCHAR(100),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+### 비유
+도서관 사서에게 내미는 요청서. 몇 번 서가를 뒤지라고 적지 않고 어떤 책이 필요한지만 적는다.
 
--- 데이터 삽입
-INSERT INTO users (name, email) VALUES ('John', 'john@example.com');
+## 🖼️ 그림으로 보기
 
--- 조회
-SELECT * FROM users WHERE name = 'John';
-
--- 수정
-UPDATE users SET email = 'new@example.com' WHERE id = 1;
-
--- 삭제
-DELETE FROM users WHERE id = 1;
+```도해
+흐름: SELECT 한 줄이 결과가 되기까지 무엇을 거치나
+질의 :: `SELECT * FROM users WHERE name='John'`
+파서 :: 문법이 맞는지 보고 뜻을 읽어낸다
+플래너 :: 인덱스를 쓸지 전부 훑을지 정한다
+실행 :: 정한 방법대로 해당하는 행을 찾는다
+< 결과 :: 조건에 맞는 행들을 표로 돌려준다
+= 어떻게 찾을지는 적지 않는다. 무엇이 필요한지만 적는다
 ```
 
-## 🎯 JOIN
+## ⚠️ 해결하는 문제
 
-```sql
--- INNER JOIN
-SELECT users.name, orders.product
-FROM users
-INNER JOIN orders ON users.id = orders.user_id;
-
--- LEFT JOIN
-SELECT users.name, orders.product
-FROM users
-LEFT JOIN orders ON users.id = orders.user_id;
+```도해
+대조: 데이터를 꺼내는 방법을 누가 정하나
+직접 코드로 || SQL 로
+찾는 방법 :: 내가 정한다 || DB 가 정한다
+데이터 늘면 :: 코드를 고침 || 그대로 둔다
+두 표 합치기 :: 반복문으로 || JOIN 한 줄로
+= 어떻게 찾을지를 넘기면 데이터가 늘어도 적어둔 것은 그대로다
 ```
+
+파일에서 직접 데이터를 꺼내려면 어디부터 읽고 어떤 순서로 훑을지를 코드에 적어야 한다. 백 건일 때 잘 돌던 방식이 백만 건에서는 느려지고, 그러면 그 코드를 다시 짜야 한다.
+
+SQL은 그 결정을 데이터베이스에 넘긴다. `SELECT * FROM users WHERE name = 'John'` 은 조건만 적었을 뿐 찾는 방법은 적지 않았다. 인덱스가 있으면 그것을 쓰고 없으면 전부 훑는데, 어느 쪽이든 적어둔 질의는 그대로다.
+
+## ⚙️ 작동 원리
+
+데이터에 하는 일은 크게 넷이다.
+
+```도해
+층: 데이터에 하는 일은 무엇으로 나뉘나
+SELECT :: 조건에 맞는 행을 골라 읽는다
+INSERT :: 새 행을 넣는다
+UPDATE :: 있던 행의 값을 바꾼다
+DELETE :: 행을 지운다
+= 읽기는 되돌릴 것이 없다. 나머지 셋은 조건을 빠뜨리면 표 전체에 걸린다
+```
+
+표는 여러 개로 나뉘어 있다. 사용자 표와 주문 표가 따로 있고, 주문 표에는 어느 사용자의 것인지 가리키는 값만 들어 있다. 두 표를 이어 붙여 한 줄로 만드는 것이 JOIN이고, `INNER JOIN orders ON users.id = orders.user_id` 처럼 무엇을 기준으로 이을지를 적는다.
+
+## 📊 비교: INNER JOIN vs LEFT JOIN
+
+| | INNER JOIN | LEFT JOIN |
+|---|---|---|
+| 남는 행 | 양쪽에 다 있는 것만 | 왼쪽 표는 전부 |
+| 주문 없는 사용자 | 결과에서 빠진다 | 남고 주문 칸이 빈다 |
+| 쓰는 자리 | 짝이 있는 것만 볼 때 | 없는 쪽까지 세야 할 때 |
+
+## 💡 실제 사례
+
+- **회원 조회** 가입일이 지난달인 사용자만 골라낸다. 조건은 `WHERE` 에 적는다.
+- **매출 집계** 주문 표를 상품별로 묶어 합계를 낸다. 데이터를 옮겨오지 않고 데이터베이스 안에서 끝낸다.
+- **주문 목록 화면** 사용자 표와 주문 표를 JOIN해서 이름과 상품명을 한 줄에 붙여 내려준다.
+
+## 🚫 흔한 오해
+
+- **SQL은 데이터베이스 이름이다** — MySQL과 PostgreSQL이 데이터베이스고, SQL은 그것들에게 말을 거는 언어다. 이름이 겹쳐 있어서 헷갈린다.
+- **`SELECT *` 로 다 가져와서 코드에서 거르면 된다** — 안 쓸 행까지 전부 옮겨오는 것이라 데이터가 늘수록 느려진다. 거를 조건은 `WHERE` 에 적어 데이터베이스가 처리하게 둔다.
+- **UPDATE나 DELETE는 실행 전에 한 번 물어본다** — 아무것도 묻지 않는다. `WHERE` 를 빠뜨린 `DELETE FROM users` 는 표의 모든 행을 지운다.
+
+## 🚨 주의사항
+
+- **UPDATE와 DELETE는 WHERE부터 쓴다.** 조건 없이 실행하면 표 전체에 걸리고 되돌릴 방법이 없다.
+- **사용자 입력을 문자열로 이어 붙여 질의를 만들지 않는다.** 입력이 질의의 일부가 되는 순간 SQL Injection 이 된다.
 
 ## 📝 정리
 
-```
-SQL = 데이터베이스 언어
-→ SELECT, INSERT, UPDATE, DELETE
-→ JOIN으로 테이블 연결
-→ MySQL, PostgreSQL 등
-```
+SQL은 관계형 데이터베이스에게 무엇이 필요한지를 적어 보내는 언어다. 어떻게 찾을지는 데이터베이스가 정하므로 데이터가 늘어도 적어둔 질의는 그대로 쓸 수 있다. 읽기와 달리 넣기, 바꾸기, 지우기는 조건을 빠뜨리면 표 전체에 걸린다.
 
----
-*카테고리: 데이터베이스*
+## ❓ 이해했는지
+
+- 데이터가 백만 건으로 늘어도 같은 SELECT 문을 그대로 쓸 수 있는 이유는?
+- 주문을 한 번도 안 한 사용자까지 결과에 남기려면 어떤 JOIN을 쓰나?
+- `DELETE FROM users` 를 그대로 실행하면 무슨 일이 일어나나?
+
+## 🔗 관련 용어
+
+- [[DB]] — SQL로 말을 거는 대상
+- [[Index]] — 데이터베이스가 찾는 방법을 정할 때 쓰는 장치
+- [[SQL Injection]] — 사용자 입력이 질의의 일부가 될 때 생기는 공격
+- [[Transaction]] — 여러 문장을 한 덩어리로 묶어 함께 되돌리는 단위
+- [[NoSQL]] — 표와 SQL을 쓰지 않는 쪽

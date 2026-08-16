@@ -1,629 +1,99 @@
 # SSH (Secure Shell)
 
 ## 📝 정의
-**SSH (Secure Shell)**는 **네트워크를 통해 원격 컴퓨터에 안전하게 접속하고 명령을 실행하는 암호화된 프로토콜**입니다.
 
-텔넷(Telnet)과 달리 모든 통신이 암호화되어 안전합니다.
+SSH는 **멀리 있는 컴퓨터에 암호화된 통로로 접속하는 규약**이다.
 
-### 한 줄 요약
-> 암호화된 원격 접속 프로토콜 (TCP 기반)
+원격 접속에는 원래 Telnet을 썼는데 주고받는 내용이 그대로 회선에 흘렀다. SSH는 같은 일을 하면서 오가는 모든 것을 암호화하고, 비밀번호 대신 열쇠 한 쌍으로 신원을 확인하는 방법도 함께 제공한다.
 
 ### 비유
-- 🔐 **비밀 통로**: 안전하게 다른 건물(서버)로 이동해서 작업
-- 📞 **암호 전화**: 도청 불가능한 암호화된 통화
-- 🚪 **보안 출입구**: 지문/카드로 안전하게 입장
+집 열쇠와 자물쇠. 자물쇠는 집 문에 걸어두고 열쇠는 주머니에서 꺼내지 않는다. 자물쇠만 보고는 열쇠를 깎을 수 없다.
 
-## 🎯 핵심 개념
+## 🖼️ 그림으로 보기
 
-### 1. 암호화 통신 (Encrypted Communication)
-모든 데이터가 암호화되어 전송됩니다.
-
-```
-Telnet (암호화 없음):
-Client: "password123" → Network (평문) → Server
-       ⚠️ 해커가 네트워크에서 가로채면 그대로 노출!
-
-SSH (암호화):
-Client: "password123" → 암호화 → Network (암호문) → 복호화 → Server
-                       "a8f3k2d..."
-       ✅ 해커가 가로채도 해독 불가능
-```
-
-### 2. 공개키 인증 (Public Key Authentication)
-비밀번호 대신 키 쌍으로 인증합니다.
-
-```
-사용자가 가지는 것:
-- Private Key (비밀키): 🔑 절대 공개하면 안 됨
-- Public Key (공개키): 🔓 서버에 등록
-
-로그인 과정:
-1. Client: "나 홍길동이야" (공개키로 서명)
-2. Server: 공개키로 검증 → "맞네, 들어와"
-```
-
-### 3. 포트 포워딩 (Port Forwarding)
-SSH 터널을 통해 다른 서비스를 안전하게 사용합니다.
-
-```
-로컬 포트 포워딩:
-[내 컴퓨터:3306] → SSH Tunnel → [서버:3306 MySQL]
-
-원격 포트 포워딩:
-[서버:8080] → SSH Tunnel → [내 컴퓨터:8080]
-
-동적 포트 포워딩:
-[브라우저] → SOCKS Proxy → SSH Tunnel → [인터넷]
-```
-
-### 4. 다중 기능 (Multiple Features)
-SSH는 원격 접속뿐만 아니라 다양한 기능을 제공합니다.
-
-```bash
-# 원격 명령 실행
-ssh user@server 'ls -la'
-
-# 파일 전송 (SCP)
-scp file.txt user@server:/path/
-
-# 파일 전송 (SFTP)
-sftp user@server
-
-# X11 포워딩 (GUI 프로그램 실행)
-ssh -X user@server
-```
-
-### 5. 연결 유지 (Keep-Alive)
-네트워크 장비가 유휴 연결을 끊는 것을 방지합니다.
-
-```bash
-# 클라이언트 설정 (~/.ssh/config)
-Host *
-  ServerAliveInterval 60
-  ServerAliveCountMax 3
-
-# 60초마다 ping 전송
-# 3번 응답 없으면 연결 종료
+```도해
+흐름: 비밀번호 없이 서버에 들어갈 때 무엇이 오가나
+내 컴퓨터 :: 개인키와 공개키 한 쌍을 미리 만들어 둔다
+서버 :: 건네받은 공개키를 authorized_keys 에 넣어둔다
+서버 :: 접속 요청이 오면 아무 값이나 하나 던져준다
+내 컴퓨터 :: 그 값에 개인키로 서명해 돌려보낸다
+< 서버 :: 등록된 공개키로 서명을 확인하고 문을 연다
+= 개인키는 내 컴퓨터를 떠나지 않고 서명만 오간다
 ```
 
 ## ⚠️ 해결하는 문제
 
-### 문제 1: 텔넷의 보안 취약점
-
-**문제 상황 (Telnet)**:
-```bash
-# Telnet은 평문 전송
-$ telnet server.com 23
-login: admin
-password: secret123  # ⚠️ 평문으로 네트워크 전송!
+```도해
+대조: 원격 접속 중에 누가 회선을 엿보면 어떻게 되나
+Telnet 으로 || SSH 로
+비밀번호 :: 평문으로 보인다 || 알아볼 수 없다
+주고받는 명령 :: 그대로 읽힌다 || 암호화되어 있다
+파일 전송 :: 내용이 노출된다 || 그대로 감춰진다
+= 같은 일을 하는데 회선 위에 무엇이 남느냐가 다르다
 ```
 
-해커가 네트워크 패킷을 캡처하면:
-```
-Wireshark 캡처 결과:
-username: admin
-password: secret123
-```
+Telnet이나 FTP로 접속하면 아이디와 비밀번호가 평문으로 나간다. 중간 구간에서 패킷을 뜨는 것만으로 계정이 통째로 넘어간다. 파일을 올릴 때도 내용이 그대로 흐른다.
 
-**SSH 해결**:
-```bash
-# SSH는 암호화
-$ ssh admin@server.com
-password: secret123  # ✅ 암호화되어 전송
-
-Wireshark 캡처 결과:
-암호화된 데이터: 3a8f2k9d1m4p7q...
-→ 해독 불가능
-```
-
-### 문제 2: 비밀번호 관리의 어려움
-
-**문제 상황**:
-```
-10개 서버 관리
-→ 10개 비밀번호 기억
-→ 비밀번호 변경 시 모두 업데이트
-→ 비밀번호 노트에 적어둠 (보안 위험!)
-```
-
-**SSH 키 인증 해결**:
-```bash
-# 1. 한 번만 키 생성
-ssh-keygen -t ed25519
-
-# 2. 공개키를 모든 서버에 복사
-ssh-copy-id user@server1.com
-ssh-copy-id user@server2.com
-# ...
-
-# 3. 비밀번호 없이 로그인
-ssh user@server1.com  # 즉시 접속!
-ssh user@server2.com  # 즉시 접속!
-```
-
-### 문제 3: 방화벽으로 차단된 서비스 접근
-
-**문제 상황**:
-```
-회사 내부 MySQL 서버 (포트 3306)
-→ 외부에서 직접 접근 불가 (방화벽 차단)
-→ 개발자가 집에서 작업 못 함
-```
-
-**SSH 터널링 해결**:
-```bash
-# SSH 터널 생성
-ssh -L 3306:localhost:3306 user@company-server.com
-
-# 이제 localhost:3306으로 접속하면
-# 회사 내부 MySQL 서버에 연결됨
-mysql -h localhost -P 3306 -u dbuser -p
-```
-
-### 문제 4: FTP의 보안 취약점
-
-**문제 상황**:
-```bash
-# FTP는 평문 전송
-ftp server.com
-username: admin
-password: secret  # ⚠️ 평문 전송
-put sensitive-data.txt  # ⚠️ 파일도 평문 전송
-```
-
-**SFTP (SSH FTP) 해결**:
-```bash
-# SFTP는 SSH 터널 사용
-sftp user@server.com
-password: secret  # ✅ 암호화
-put sensitive-data.txt  # ✅ 파일도 암호화
-```
+SSH는 연결을 맺을 때 암호화 통로를 먼저 만들고 그 안에서 모든 것을 주고받는다. 여기에 더해 관리할 서버가 여러 대일 때 생기는 비밀번호 문제도 같이 푼다. 키 한 쌍을 만들어 각 서버에 공개키를 등록해두면 서버마다 다른 비밀번호를 외우거나 적어둘 이유가 없어진다.
 
 ## ⚙️ 작동 원리
 
-### 전체 연결 과정
-
-
-### 공개키 인증 상세
-
 ```도해
-흐름: SSH, 무슨 순서로 오가나
-Client :: 개인키 생성 (id_rsa)
-Client :: 공개키 생성 (id_rsa.pub)
-Client :: 공개키 전송 (ssh-copy-id)
-Server :: ~/.ssh/authorized_keys에 저장
-Client :: 나 홍길동이야
-Server :: 이 랜덤 데이터에 서명해" (Challenge)
-Client :: 개인키로 서명 생성
-Client :: 서명 전송
-Server :: 공개키로 서명 검증
-Server :: 인증 성공!
+층: SSH 통로 하나로 무엇까지 할 수 있나
+원격 셸 :: 서버에 들어가 명령을 친다
+파일 전송 :: SCP 와 SFTP 가 같은 통로를 쓴다
+포트 포워딩 :: 막힌 포트를 이 통로 안으로 끌어온다
+= 통로를 하나 뚫어두면 그 위에 여러 가지를 얹을 수 있다
 ```
 
-## 💻 코드 구현
+인증은 두 갈래다. 비밀번호를 쓰는 방식과 키 쌍을 쓰는 방식이 있고, 서버 관리에는 보통 키 쪽을 쓴다. `ssh-keygen`으로 키를 만들고 `ssh-copy-id`로 공개키를 서버의 `~/.ssh/authorized_keys`에 넣어두면 그다음부터 비밀번호를 묻지 않는다.
 
-### 예시 1: 기본 SSH 접속
+포트 포워딩은 SSH 통로 안으로 다른 서비스의 연결을 끌어오는 기능이다. `-L`은 내 컴퓨터의 포트를 서버 쪽 포트로 이어주고, `-R`은 반대로 서버의 포트를 내 컴퓨터로 이어준다. `-D`는 브라우저가 쓸 수 있는 프록시를 열어 트래픽 전체를 서버를 거쳐 내보낸다.
 
-```bash
-# 기본 접속
-ssh username@hostname
+자주 쓰는 서버는 `~/.ssh/config`에 이름과 주소, 사용자, 키 파일을 적어두면 이름만으로 접속할 수 있다. 중간에 거쳐야 하는 서버가 있으면 여기에 함께 적어둔다.
 
-# 포트 지정
-ssh -p 2222 username@hostname
+## 📊 비교: SSH 와 Telnet
 
-# 특정 키 파일 사용
-ssh -i ~/.ssh/my_key username@hostname
+| | SSH | Telnet |
+|---|---|---|
+| 암호화 | 한다 | 하지 않는다 |
+| 기본 포트 | 22 | 23 |
+| 인증 | 키 또는 비밀번호 | 비밀번호 |
+| 파일 전송 | SCP, SFTP | 없다 |
+| 쓰이는 곳 | 서버 관리 전반 | 오래된 장비 |
 
-# 명령 실행 후 종료
-ssh username@hostname 'uptime && df -h'
+## 💡 실제 사례
 
-# X11 포워딩 (GUI 프로그램 실행)
-ssh -X username@hostname
-firefox  # 원격 서버의 Firefox가 내 화면에 표시됨
-```
+- **서버 여러 대 관리** 키를 한 번 만들고 각 서버에 공개키를 등록해두면 비밀번호 없이 어디든 들어간다.
+- **막힌 DB 포트에 접근** 방화벽이 막아둔 내부 DB를 `ssh -L 3306:localhost:3306` 으로 끌어와 로컬처럼 붙는다.
+- **배포 자동화** 스크립트가 `scp`로 파일을 올리고 `ssh`로 서비스 재시작 명령을 실행한다.
 
-### 예시 2: SSH 키 생성 및 등록
+## 🚫 흔한 오해
 
-```bash
-# 1. SSH 키 생성 (ED25519 권장)
-ssh-keygen -t ed25519 -C "your_email@example.com"
+- **SSH는 접속용이고 파일은 따로 보내야 한다** — SCP와 SFTP가 같은 SSH 연결 위에서 돈다. 통로를 하나 뚫으면 셸, 파일 전송, 포트 포워딩이 모두 그 위에 얹힌다.
+- **키를 쓰면 비밀번호보다 무조건 안전하다** — 개인키 파일이 새면 비밀번호가 샌 것과 같다. 파일 권한을 잠그고 개인키에 암호구절을 걸어야 그 위험이 줄어든다.
+- **포트를 22에서 바꾸면 안전해진다** — 자동 스캔이 조금 줄어들 뿐이다. 비밀번호 로그인을 끄고 키 인증만 남기는 쪽이 실제로 막는 방법이다.
 
-# 또는 RSA (4096비트)
-ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+## 🚨 주의사항
 
-# 출력:
-# Generating public/private ed25519 key pair.
-# Enter file in which to save the key: ~/.ssh/id_ed25519
-# Enter passphrase: [비밀번호 입력 - 선택사항]
+- **개인키를 서버에 올려두지 않는다.** 개인키는 내 컴퓨터에만 두고 서버에는 공개키만 등록한다.
+- **파일 권한을 맞춘다.** `~/.ssh`는 700, 개인키는 600이어야 한다. 느슨하면 SSH가 접속 자체를 거부한다.
+- **비밀번호 로그인을 끈다.** 서버 설정에서 비밀번호 인증과 루트 직접 로그인을 막으면 대입 공격이 통하지 않는다.
 
-# 2. 공개키를 서버에 복사
-ssh-copy-id username@hostname
+## 📝 정리
 
-# 또는 수동으로 복사
-cat ~/.ssh/id_ed25519.pub | ssh username@hostname \
-  "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
+SSH는 원격 접속을 암호화된 통로 안에서 하게 만드는 규약이고 기본 포트는 22다. 개인키는 내 컴퓨터에 두고 공개키만 서버에 등록해 서명으로 신원을 확인하기 때문에 비밀번호를 주고받지 않는다. 통로 하나 위에 셸, 파일 전송, 포트 포워딩이 함께 올라간다.
 
-# 3. 권한 설정 (중요!)
-chmod 700 ~/.ssh
-chmod 600 ~/.ssh/id_ed25519
-chmod 644 ~/.ssh/id_ed25519.pub
-chmod 600 ~/.ssh/authorized_keys  # 서버에서
+## ❓ 이해했는지
 
-# 4. 비밀번호 없이 로그인
-ssh username@hostname  # 즉시 접속!
-```
-
-### 예시 3: SSH Config 파일
-
-```bash
-# ~/.ssh/config
-# 편리한 SSH 설정 파일
-
-# 개발 서버
-Host dev
-    HostName dev.example.com
-    User developer
-    Port 22
-    IdentityFile ~/.ssh/id_ed25519
-    ServerAliveInterval 60
-
-# 프로덕션 서버
-Host prod
-    HostName prod.example.com
-    User admin
-    Port 2222
-    IdentityFile ~/.ssh/prod_key
-    ForwardAgent yes
-
-# 회사 서버 (점프 호스트 사용)
-Host company
-    HostName internal.company.com
-    User myname
-    ProxyJump bastion.company.com
-
-# GitHub
-Host github.com
-    HostName github.com
-    User git
-    IdentityFile ~/.ssh/github_key
-
-# 사용:
-ssh dev      # dev.example.com에 접속
-ssh prod     # prod.example.com에 접속
-ssh company  # bastion을 거쳐 internal에 접속
-```
-
-### 예시 4: 포트 포워딩
-
-```bash
-# 로컬 포트 포워딩
-# localhost:8080 → 서버:80
-ssh -L 8080:localhost:80 user@server
-# 이제 브라우저에서 http://localhost:8080 접속
-# → 서버의 80번 포트로 연결됨
-
-# 원격 MySQL 접근
-ssh -L 3306:localhost:3306 user@db-server
-mysql -h localhost -P 3306 -u dbuser -p
-
-# 동적 포트 포워딩 (SOCKS 프록시)
-ssh -D 1080 user@server
-# 브라우저 프록시 설정: localhost:1080
-# → 모든 트래픽이 서버를 통해 나감
-
-# 원격 포트 포워딩
-# 서버의 8080 → 내 컴퓨터의 3000
-ssh -R 8080:localhost:3000 user@server
-# 서버에서 localhost:8080 접속
-# → 내 컴퓨터의 3000번 포트로 연결됨
-
-# 백그라운드 실행
-ssh -fNL 8080:localhost:80 user@server
-# -f: 백그라운드
-# -N: 명령 실행 안 함
-# -L: 로컬 포트 포워딩
-```
-
-### 예시 5: SFTP 파일 전송
-
-```bash
-# SFTP 접속
-sftp user@hostname
-
-# SFTP 명령어
-sftp> ls                    # 원격 디렉터리 목록
-sftp> lls                   # 로컬 디렉터리 목록
-sftp> pwd                   # 원격 현재 디렉터리
-sftp> lpwd                  # 로컬 현재 디렉터리
-
-sftp> get file.txt          # 다운로드
-sftp> put file.txt          # 업로드
-sftp> get -r folder/        # 폴더 다운로드
-sftp> put -r folder/        # 폴더 업로드
-
-sftp> mkdir backup          # 원격 디렉터리 생성
-sftp> rm file.txt           # 원격 파일 삭제
-sftp> bye                   # 종료
-
-# SCP (간단한 파일 복사)
-scp file.txt user@host:/path/
-scp user@host:/path/file.txt .
-scp -r folder/ user@host:/path/
-
-# rsync over SSH (더 효율적)
-rsync -avz -e ssh folder/ user@host:/path/
-# -a: 아카이브 모드
-# -v: 상세 출력
-# -z: 압축
-```
-
-### 예시 6: SSH 터널 자동화 스크립트
-
-```bash
-#!/bin/bash
-# ssh-tunnel.sh
-
-# SSH 터널 자동 생성 및 유지
-
-REMOTE_HOST="user@server.com"
-LOCAL_PORT=3306
-REMOTE_PORT=3306
-
-while true; do
-    echo "Creating SSH tunnel..."
-
-    ssh -N -L ${LOCAL_PORT}:localhost:${REMOTE_PORT} ${REMOTE_HOST}
-
-    # 연결이 끊어지면 재시도
-    echo "Tunnel disconnected. Retrying in 5 seconds..."
-    sleep 5
-done
-```
-
-### 예시 7: SSH Agent (키 관리)
-
-```bash
-# SSH Agent 시작
-eval $(ssh-agent -s)
-
-# 키 추가
-ssh-add ~/.ssh/id_ed25519
-
-# 추가된 키 목록
-ssh-add -l
-
-# 모든 키 삭제
-ssh-add -D
-
-# Agent Forwarding (점프 호스트)
-ssh -A user@bastion
-# bastion에서 다시 SSH 접속 시 내 키 사용 가능
-ssh internal-server
-```
-
-## 🔄 P3 프로젝트 적용 사례
-
-### 사례 1: 개발 서버 안전한 접속
-
-**Before (비밀번호 로그인)**:
-```bash
-# 매번 비밀번호 입력
-ssh dev@dev-server.com
-Password: ********
-
-# 문제점:
-# - 비밀번호 타이핑 귀찮음
-# - 비밀번호 노출 위험
-# - Brute force 공격 취약
-```
-
-**After (SSH 키 인증)**:
-```bash
-# 1. 한 번만 키 생성 및 등록
-ssh-keygen -t ed25519
-ssh-copy-id dev@dev-server.com
-
-# 2. 즉시 접속
-ssh dev@dev-server.com  # 비밀번호 없이 즉시!
-
-# 3. Config 파일로 더 간단하게
-# ~/.ssh/config
-Host dev
-    HostName dev-server.com
-    User dev
-
-ssh dev  # 이제 이것만 입력!
-```
-
-**결과**:
-- 로그인 시간: 10초 → 1초
-- Brute force 공격 차단 (키 인증만 허용)
-- 개발자 만족도 향상
-
-### 사례 2: 프로덕션 DB 안전한 접근
-
-**Before (직접 접근)**:
-```
-[개발자 컴퓨터] → 인터넷 → [프로덕션 DB]
-⚠️ 문제:
-- DB 포트(3306)를 인터넷에 오픈
-- 보안 위험 극대화
-- DDoS 공격 표적
-```
-
-**After (SSH 터널)**:
-```bash
-# SSH 터널 생성
-ssh -L 3306:localhost:3306 user@bastion-server.com
-
-# 로컬호스트로 안전하게 접속
-mysql -h localhost -P 3306 -u dbuser -p
-
-[개발자] → localhost:3306 → SSH Tunnel → [Bastion] → [DB]
-✅ 장점:
-- DB 포트는 내부망에서만 접근 가능
-- 모든 트래픽 암호화
-- Bastion 서버에서 접근 로그 관리
-```
-
-**결과**:
-- 보안 사고 0건 (이전 연간 2-3건)
-- 감사 통과
-- DB 포트를 인터넷에서 완전 차단
-
-### 사례 3: 자동화 배포 스크립트
-
-```bash
-#!/bin/bash
-# deploy.sh
-
-# 여러 서버에 동시 배포
-
-SERVERS=(
-    "prod1.example.com"
-    "prod2.example.com"
-    "prod3.example.com"
-)
-
-# 빌드
-npm run build
-
-# 모든 서버에 배포
-for server in "${SERVERS[@]}"; do
-    echo "Deploying to $server..."
-
-    # 파일 전송
-    scp -r dist/ user@$server:/var/www/app/
-
-    # 서비스 재시작
-    ssh user@$server 'sudo systemctl restart nginx'
-
-    echo "$server deployment completed"
-done
-
-echo "All deployments completed!"
-```
-
-**결과**:
-- 배포 시간: 30분 → 3분
-- 휴먼 에러 감소
-- 3개 서버 동시 배포 가능
-
-### 사례 4: 로그 실시간 모니터링
-
-```bash
-# 여러 서버의 로그를 동시에 모니터링
-
-# Terminal 1
-ssh prod1 'tail -f /var/log/app.log'
-
-# Terminal 2
-ssh prod2 'tail -f /var/log/app.log'
-
-# 또는 한 번에
-for server in prod1 prod2 prod3; do
-    ssh $server 'tail -f /var/log/app.log' &
-done
-```
-
-**결과**:
-- 장애 발견 시간: 10분 → 1분
-- 실시간 디버깅 가능
-
-## 📊 SSH vs Telnet vs RDP
-
-| 구분 | SSH | Telnet | RDP |
-|------|-----|--------|-----|
-| **암호화** | ✅ 예 | ❌ 아니오 | ✅ 예 |
-| **포트** | 22 | 23 | 3389 |
-| **인증** | 키/비밀번호 | 비밀번호 | 비밀번호 |
-| **GUI** | X11 포워딩 | 없음 | ✅ 원격 데스크톱 |
-| **파일 전송** | SFTP, SCP | 없음 | 드라이브 공유 |
-| **플랫폼** | Linux, Mac, Windows | 모든 플랫폼 | Windows |
-| **용도** | 서버 관리 | 레거시 장비 | Windows 원격 제어 |
-| **보안** | 매우 높음 | 매우 낮음 | 높음 |
-
-## ⚠️ 보안 모범 사례
-
-### 1. 서버 설정 강화
-
-```bash
-# /etc/ssh/sshd_config
-
-# 비밀번호 로그인 비활성화
-PasswordAuthentication no
-
-# 루트 로그인 비활성화
-PermitRootLogin no
-
-# 포트 변경 (선택사항)
-Port 2222
-
-# 특정 사용자만 허용
-AllowUsers developer admin
-
-# 프로토콜 버전 2만 사용
-Protocol 2
-
-# 재시작
-sudo systemctl restart sshd
-```
-
-### 2. 키 파일 권한
-
-```bash
-# 반드시 지켜야 하는 권한
-chmod 700 ~/.ssh
-chmod 600 ~/.ssh/id_rsa           # 개인키
-chmod 644 ~/.ssh/id_rsa.pub       # 공개키
-chmod 600 ~/.ssh/authorized_keys  # 인증 키 목록
-chmod 600 ~/.ssh/config           # 설정 파일
-
-# 틀린 권한이면 SSH가 거부함
-```
-
-### 3. Fail2Ban 설정
-
-```bash
-# SSH Brute Force 공격 방어
-sudo apt install fail2ban
-
-# /etc/fail2ban/jail.local
-[sshd]
-enabled = true
-port = ssh
-filter = sshd
-logpath = /var/log/auth.log
-maxretry = 3
-bantime = 3600
-
-# 5번 실패하면 1시간 차단
-```
-
-### 4. 2단계 인증 (2FA)
-
-```bash
-# Google Authenticator 설치
-sudo apt install libpam-google-authenticator
-
-# 설정
-google-authenticator
-
-# /etc/pam.d/sshd
-auth required pam_google_authenticator.so
-
-# /etc/ssh/sshd_config
-ChallengeResponseAuthentication yes
-```
+- 개인키가 서버로 넘어가지 않는데 서버는 어떻게 나를 알아보나?
+- 방화벽이 막아둔 내부 DB 포트에 어떻게 붙을 수 있나?
+- 키 인증을 쓰는데도 개인키 파일의 권한이 중요한 이유는?
 
 ## 🔗 관련 용어
-- [[Telnet]]: SSH의 이전 프로토콜 (암호화 없음)
-- [[TCP]]: SSH가 사용하는 전송 프로토콜
-- [[포트 포워딩]]: SSH 터널링 기술
-- [[공개키 암호화]]: SSH 인증 방식
-- [[SFTP]]: SSH 기반 파일 전송 프로토콜
-- [[SCP]]: SSH 기반 파일 복사 명령어
-- [[VPN]]: SSH와 비슷한 보안 터널링
 
----
-*카테고리: 보안*
+- [[TCP]] — SSH 연결이 올라타는 아래층
+- [[암호화]] — SSH 통로 안을 가려주는 원리
+- [[Port Forwarding]] — SSH 통로 안으로 다른 포트를 끌어오는 기능
+- [[Bastion Host]] — 내부망에 들어갈 때 SSH로 먼저 거치는 서버
+- [[VPN]] — 통로를 만드는 다른 방법. 적용 범위가 더 넓다

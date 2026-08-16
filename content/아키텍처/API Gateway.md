@@ -81,4 +81,4 @@ API Gateway는 여러 서비스 앞에 서서 공통 작업을 대신 하는 문
 - [[Load Balancer]] — 같은 서버 여럿에 나누는 쪽. 게이트웨이는 다른 서비스로 보낸다
 - [[Reverse Proxy]] — 앞에서 대신 받는다는 점이 같다. 게이트웨이는 거기에 정책이 붙은 것
 - [[Rate Limiting]] — 게이트웨이가 주로 맡는 대표적인 일
-- [[Microservices]] — 게이트웨이가 필요해지는 구조
+- [[Monolith vs Microservices]] — 게이트웨이가 필요해지는 구조

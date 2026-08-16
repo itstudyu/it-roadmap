@@ -1,58 +1,90 @@
 # Package / Module (패키지 / 모듈)
 
 ## 📝 정의
-Package와 Module은 **코드를 구조화하고 재사용하기 위한 단위**입니다.
 
-### 핵심 개념
-- **Module**: 하나의 파일 (.py, .js)
-- **Package**: 모듈들의 묶음 (폴더)
+Module은 코드 파일 하나고, **Package는 그 파일들을 묶은 폴더**다.
 
-## 💡 Python 예시
+`import` 나 `require` 로 남의 코드를 끌어다 쓸 때 끌려오는 단위가 이 둘이다. `pip install requests` 처럼 받아 두는 것도 패키지다.
 
-```python
-# 모듈 사용 (math.py)
-import math
-print(math.sqrt(16))  # 4.0
+### 비유
+서류철. 종이 한 장이 모듈이고, 관련된 장을 모아 이름표를 붙인 바인더가 패키지다.
 
-# 패키지 사용
-from mypackage import utils
-utils.hello()
+## 🖼️ 그림으로 보기
 
-# pip로 설치
-pip install requests
-import requests
+```도해
+흐름: import 한 줄을 쓰면 무슨 일이 벌어지나
+내 코드 :: import requests 라고 적는다
+런타임 :: 그 이름의 모듈을 정해진 자리에서 찾는다
+모듈 파일 :: 찾으면 파일을 한 번 읽어 실행한다
+이름 공간 :: 그 안에 있던 함수와 클래스가 담긴다
+< 내 코드 :: requests.get 처럼 점을 찍어 꺼내 쓴다
+= 파일 하나가 그 안의 이름들을 담는 그릇이 된다
 ```
 
-**디렉토리 구조**:
+## ⚠️ 해결하는 문제
+
+```도해
+대조: 코드를 파일 하나에 다 넣으면 어떻게 되나
+한 파일에 || 나눠서 묶으면
+같은 이름 :: 서로 덮어쓴다 || 앞자리가 다르다
+고칠 자리 :: 전부 훑는다 || 폴더로 찾는다
+남에게 주기 :: 통째로 복사 || 패키지로 설치
+= 이름이 겹치는 걸 막고 필요한 조각만 가져오게 한다
 ```
-myproject/
-├── main.py
-└── mypackage/
-    ├── __init__.py
-    ├── utils.py
-    └── helpers.py
+
+한 파일에 함수 수백 개를 넣으면 같은 이름을 두 번 쓸 수 없다. 뭔가 고치려면 그 파일 전체를 열어야 하고, 그중 일부만 남에게 떼어 주기도 어렵다.
+
+나누면 이름이 파일 단위로 갈린다. `utils.py` 의 `hello` 와 `helpers.py` 의 `hello` 는 앞에 붙는 이름이 달라서 서로 부딪히지 않는다. 남이 만든 것을 가져올 때도 폴더째로 받아 이름 하나로 부른다.
+
+## ⚙️ 작동 원리
+
+부를 때 쓰는 이름은 폴더 이름과 파일 이름을 이어 붙인 것이다. 파이썬은 폴더에 `__init__.py` 를 두어 그 폴더가 패키지라고 표시한다.
+
+```도해
+층: 파이썬에서 부르는 이름은 어떻게 겹겹이 붙나
+myproject :: 프로젝트 폴더. main.py 가 여기 있다
+mypackage :: __init__.py 를 둔 폴더. 패키지가 된다
+utils.py :: 모듈 하나. 함수와 클래스가 들어 있다
+hello :: 부를 때는 mypackage.utils.hello 가 된다
+= 폴더와 파일 이름이 그대로 부르는 이름의 앞자리가 된다
 ```
 
-## 🎯 JavaScript/Node.js
+자바스크립트는 파일 안에서 내보낼 것을 `module.exports` 에 담고, 쓰는 쪽에서 `require` 로 받는다. 이름 붙이는 방식은 다르지만 파일 하나가 단위라는 점은 같다.
 
-```javascript
-// 모듈 내보내기 (utils.js)
-module.exports = {
-    add: (a, b) => a + b
-};
+## 📊 비교: 파이썬과 자바스크립트
 
-// 모듈 가져오기
-const utils = require('./utils');
-console.log(utils.add(2, 3));
+| | 파이썬 | 자바스크립트 |
+|---|---|---|
+| 모듈 하나 | `utils.py` | `utils.js` |
+| 가져오기 | `from mypackage import utils` | `const utils = require('./utils')` |
+| 내보내기 | 파일 안의 이름이 그대로 | `module.exports` 에 담는다 |
+| 설치 | `pip install requests` | `npm install express` |
 
-// npm으로 설치
-npm install express
-const express = require('express');
-```
+## 💡 실제 사례
+
+- **표준 라이브러리** `import math` 처럼 언어가 기본으로 들고 있는 모듈을 그대로 부른다.
+- **남의 패키지 쓰기** `pip install requests` 로 한 번 받아두면 그 뒤로는 내 모듈처럼 부른다.
+- **내 프로젝트 나누기** 계산과 저장과 화면을 각각 모듈로 두고 `mypackage` 폴더에 모아 이름 하나로 준다.
+
+## 🚫 흔한 오해
+
+- **패키지와 모듈은 같은 말이다** — 파일 하나가 모듈이고 그 모듈들을 담은 폴더가 패키지다. 크기가 다르다.
+- **import 하면 그 파일 내용이 복사된다** — 복사가 아니라 한 번 실행하고 그 결과의 이름을 빌려오는 것이다. 같은 모듈을 두 번 import 해도 파일은 한 번만 실행된다.
+- **같은 이름의 함수가 두 파일에 있으면 충돌한다** — 모듈이 다르면 앞자리가 달라진다. `mypackage.utils.hello` 와 `mypackage.helpers.hello` 는 서로 다른 이름이다.
+
+## 📝 정리
+
+Module 은 코드 파일 하나고 Package 는 그 파일들을 묶어 이름을 준 폴더다. 나누는 이유는 이름이 겹치는 걸 막고 필요한 조각만 가져오기 위해서다. 폴더와 파일 이름이 그대로 부를 때의 앞자리가 된다.
+
+## ❓ 이해했는지
+
+- `utils.py` 와 `helpers.py` 에 똑같이 `hello` 가 있어도 괜찮은 이유는?
+- `import requests` 가 실행될 때 런타임이 가장 먼저 하는 일은?
+- `mypackage.utils.hello` 에서 앞의 두 마디는 어디에서 온 이름인가?
 
 ## 🔗 관련 용어
-- [[Function]]: 모듈의 구성 요소
-- [[Class]]: 모듈의 구성 요소
 
----
-*카테고리: 프로그래밍*
+- [[Function]] — 모듈 안에 담기는 것
+- [[Class]] — 모듈 안에 담기는 또 하나
+- [[Framework vs Library]] — 남이 만든 패키지를 쓰는 두 방식
+- [[Build]] — 흩어진 모듈을 하나로 묶어 내보내는 단계

@@ -78,6 +78,6 @@ Pub/Sub은 소식을 주제에 발행하고 구독한 쪽들이 각자 받아가
 ## 🔗 관련 용어
 
 - [[Message Queue]] — 한 메시지를 한 곳이 가져가는 방식
-- [[Kafka]] — 발행한 소식을 저장해두고 나중에도 읽게 해주는 구현
+- [[Event-Driven Architecture]] — 이 방식을 바탕으로 삼는 설계
 - [[Webhook]] — 소식을 HTTP로 밀어주는 더 단순한 방식
-- [[Microservices]] — 서비스가 늘어날수록 이 방식이 필요해진다
+- [[Monolith vs Microservices]] — 서비스가 늘어날수록 이 방식이 필요해진다

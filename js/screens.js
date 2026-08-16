@@ -486,6 +486,15 @@
 
   /* 이해했는지. 맨 아래, 펼쳐진 채로, 다음 버튼 바로 위에 둔다.
      읽기가 끝나는 지점이자 "학습 완료" 를 누르기 직전의 마지막 관문이다. */
+  /* 마무리 문단. 접이식에 두면 6칸 상한에 밀려 대부분의 단어에서 잘려 나간다.
+     되짚고 나서 스스로 물어보는 순서라 확인 질문 바로 앞에 붙인다. */
+  function recapBlock(term) {
+    if (!term.recap) return "";
+    return '<section class="recap">' +
+      '<h2 class="recap__head">한 번 더 정리</h2>' +
+      '<div class="prose">' + UI.markdown(term.recap) + "</div></section>";
+  }
+
   function checkSection(term) {
     if (!term.check || !term.check.length) return "";
     return '<section class="selfcheck">' +
@@ -590,6 +599,7 @@
       analogyBlock(term) +
       figureSection(term) +
       '<div class="panels">' + disclosureSections(term) + relatedSection(term) + "</div>" +
+      recapBlock(term) +
       checkSection(term) +
       "</article></main>" +
       '<div class="action-bar">' + stepBtn(near.prev, "prev") +

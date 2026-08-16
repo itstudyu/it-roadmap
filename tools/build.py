@@ -61,10 +61,16 @@ SECTION_MAP = [
 
 # 표제어 아래 접어서 보여줄 순서. UI 의 progressive disclosure 순서와 같다.
 # figure 와 check 는 여기 없다 — 펼쳐진 채로 두는 자리라서 접이식에 들어가면 안 된다.
-DISCLOSURE_ORDER = ["why", "how", "concept", "compare", "example", "tradeoff", "myth", "caution", "summary"]
+DISCLOSURE_ORDER = ["why", "how", "concept", "compare", "example", "tradeoff", "myth", "caution"]
 
 # 앞에 세우는 자리. 접이식에서 빼고 따로 내보낸다.
-PINNED = ("definition", "figure", "check", "related")
+#
+# summary(📝 정리)가 여기 있는 이유: 접이식 상한이 6칸인데 정리는 순서상 맨 뒤라
+# 229편 중 199편에서 통째로 잘려 나갔다. 템플릿의 필수 항목이 화면에 아예
+# 닿지 못한 것이다. 정리는 카드가 아니라 마무리 문단 하나이고, 바로 뒤의
+# 확인 질문과 짝을 이룬다(되짚고 나서 스스로 물어본다). 접이식에 두고
+# 순서로 다투게 하는 대신 고정 자리로 뺀다.
+PINNED = ("definition", "figure", "check", "related", "summary")
 
 # 접기 버튼에 쓰는 이름. NN/g 의 원칙대로 "더보기" 같은 모호한 말 대신
 # 열면 뭐가 나오는지 알 수 있는 이름을 쓴다.
@@ -368,6 +374,24 @@ def ordered_sections(subs: list[dict], sections: dict[str, str]) -> list[dict]:
     return found
 
 
+def pinned_parts(sections: dict[str, str]) -> dict:
+    """접이식 밖에 고정으로 두는 자리들을 한 번에 꺼낸다.
+
+    접이식을 모으기 전에 불러야 한다. lift_figure 가 끌어올린 도해를
+    원래 자리에서 지우기 때문에, 순서가 바뀌면 같은 그림이 두 번 나온다.
+    """
+    figure_raw = pick(sections, ["🖼️ 그림으로 보기"])
+    recap_raw = pick(sections, ["📝 정리"])
+    check_raw = pick(sections, ["❓ 이해했는지"])
+    related_raw = pick(sections, ["🔗 관련 용어"])
+    return {
+        "figure": clean_body(figure_raw) if figure_raw else lift_figure(sections),
+        "recap": clean_body(recap_raw) if recap_raw else "",
+        "check": parse_check(check_raw) if check_raw else [],
+        "related": parse_related(related_raw) if related_raw else [],
+    }
+
+
 def parse_note(path: str, category: str) -> dict | None:
     with open(path, encoding="utf-8") as f:
         text = f.read()
@@ -382,15 +406,9 @@ def parse_note(path: str, category: str) -> dict | None:
         return None
     summary, rest, definition = split
 
-    # 그림을 먼저 빼낸다. 접이식을 모으기 전에 해야 같은 도해가 두 번 나오지 않는다.
-    figure_raw = pick(sections, ["🖼️ 그림으로 보기"])
-    figure = clean_body(figure_raw) if figure_raw else lift_figure(sections)
-
+    pinned = pinned_parts(sections)
     lead, subs = split_subsections(rest)
-    found = ordered_sections(subs, sections)
     term, reading = parse_title(nfc(title.group(1)))
-    related_raw = pick(sections, ["🔗 관련 용어"])
-    check = pick(sections, ["❓ 이해했는지"])
 
     return {
         "term": term,
@@ -399,10 +417,8 @@ def parse_note(path: str, category: str) -> dict | None:
         "summary": summary,
         "definition": lead,
         "analogy": parse_analogy(definition),
-        "figure": figure,
-        "check": parse_check(check) if check else [],
-        "sections": found[:MAX_SECTIONS],
-        "related": parse_related(related_raw) if related_raw else [],
+        "sections": ordered_sections(subs, sections)[:MAX_SECTIONS],
+        **pinned,
     }
 
 

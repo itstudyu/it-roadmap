@@ -2,460 +2,98 @@
 
 ## 📝 정의
 
-Token 인증은 사용자가 로그인 후 받는 **디지털 출입증(Token)**을 사용하여 신원을 증명하는 인증 방식입니다. 매번 ID/비밀번호를 보내지 않고, Token을 보내서 "나는 인증된 사용자입니다"를 증명합니다.
+Token 인증은 **로그인 때 받은 출입증으로 신원을 증명하는 방식**이다.
 
-### 핵심 개념
+요청마다 아이디와 비밀번호를 다시 보내지 않는다. 한 번 로그인해서 토큰을 받고, 이후 요청에는 그 토큰만 헤더에 붙여 보낸다.
 
-- **무엇인가?**: 디지털 출입증을 통한 신원 증명
-- **왜 필요한가?**: 비밀번호를 매번 전송하지 않아 보안 향상
-- **어떻게 작동하나?**: 로그인 → Token 발급 → Token으로 인증 → 서버 검증
+### 비유
+행사장 팔찌. 입구에서 한 번 신분증을 보이고 팔찌를 받으면 안에서는 팔찌만 보여주면 된다. 팔찌에는 언제까지 유효한지가 적혀 있다.
 
-### Token 인증이 해결하는 문제
-
-**문제 상황**:
-```
-😱 시나리오 1: 매번 비밀번호 전송
-사용자: API 호출마다 ID/비밀번호 전송
-네트워크: 암호화되지 않은 경로에서 중간 탈취
-→ 비밀번호 노출 위험! 😱
-
-😱 시나리오 2: 서버에 세션 저장
-서버1: 로그인 → 세션 저장
-사용자: 다른 요청 → 서버2로 전송
-서버2: "세션 없음, 다시 로그인하세요"
-→ 확장 불가능! 😱
-
-😱 시나리오 3: 모바일 앱 인증 어려움
-모바일 앱: Cookie 지원 제한적
-웹: Session 기반 인증만
-→ 모바일 앱에서 사용 불가! 😱
-```
-
-**Token 인증의 해결**:
-```
-✅ 시나리오 1 (Token 사용):
-로그인 1회: ID/비밀번호 → Token 발급
-이후 요청: Token만 전송 (비밀번호 X)
-→ 비밀번호 노출 최소화 ✅
-
-✅ 시나리오 2 (무상태):
-Token에 모든 정보 포함
-서버1, 서버2 모두 Token 검증 가능
-→ 어느 서버든 인증 가능 ✅
-
-✅ 시나리오 3 (범용성):
-Token은 HTTP Header에 첨부
-웹, 모바일, API 모두 동일 방식
-→ 모든 플랫폼 지원 ✅
-```
-
-**비유**:
-- **비밀번호 인증** = 매번 신분증 제시 (번거롭고 위험)
-- **Token 인증** = 출입증 발급받아 사용 (편리하고 안전)
-
-## 📊 Token 인증 플로우
+## 🖼️ 그림으로 보기
 
 ```도해
-흐름: Token 인증, 무슨 순서로 오가나
-클라이언트 :: 로그인 요청 (ID, Password)
-서버 :: 사용자 확인
-서버 :: Token 생성 (JWT 서명)
-서버 :: Token 반환
-클라이언트 :: API 요청 + Authorization: Bearer {T…
-서버 :: Token 검증 (서명 확인)
-서버 :: 데이터 반환
-서버 :: 401 Unauthorized
+흐름: 로그인부터 API 요청까지 토큰은 어떻게 쓰이나
+클라이언트 :: 아이디와 비밀번호로 로그인한다
+서버 :: 맞는 계정인지 확인한다
+서버 :: 서명을 붙인 토큰을 만들어 돌려준다
+클라이언트 :: `Authorization: Bearer ...` 로 붙여 보낸다
+서버 :: 서명이 맞고 만료 전인지 본다
+< 서버 :: 통과하면 데이터를, 아니면 401 을 돌려준다
+= 비밀번호는 처음 한 번만 오간다. 그다음은 토큰이 대신한다
 ```
 
-## 💡 실제 구현
+## ⚠️ 해결하는 문제
 
-### 1. JWT Token 생성 및 검증
-
-```python
-import jwt
-from datetime import datetime, timedelta
-
-# 비밀 키 (환경변수로 관리)
-SECRET_KEY = "your-secret-key-keep-it-safe"
-
-def create_token(user_id: str, role: str) -> str:
-    """JWT 토큰 생성"""
-
-    # Payload (사용자 정보 + 메타데이터)
-    payload = {
-        'user_id': user_id,
-        'role': role,
-        'exp': datetime.utcnow() + timedelta(hours=24),  # 만료 시간
-        'iat': datetime.utcnow()  # 발급 시간
-    }
-
-    # Token 생성 (서명)
-    token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
-
-    return token
-
-def verify_token(token: str) -> dict:
-    """JWT 토큰 검증"""
-    try:
-        # Token 검증 및 디코딩
-        payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-        return payload
-
-    except jwt.ExpiredSignatureError:
-        raise Exception("Token이 만료되었습니다")
-    except jwt.InvalidTokenError:
-        raise Exception("유효하지 않은 Token입니다")
-
-
-# 사용 예시
-print("=== Token 생성 ===")
-token = create_token(user_id="user123", role="admin")
-print(f"Token: {token[:50]}...\n")
-
-print("=== Token 검증 ===")
-try:
-    payload = verify_token(token)
-    print(f"✅ 사용자 ID: {payload['user_id']}")
-    print(f"✅ 역할: {payload['role']}")
-except Exception as e:
-    print(f"❌ 검증 실패: {e}")
+```도해
+대조: 서버를 여러 대로 늘리면 무엇이 달라지나
+세션으로 || 토큰으로
+로그인 정보 :: 그 서버에만 || 토큰 안에
+다른 서버로 :: 로그인 풀림 || 그대로 통과
+공용 저장소 :: 있어야 한다 || 없어도 된다
+= 서버가 기억하지 않으니 어느 서버로 가든 결과가 같다
 ```
 
-**JWT Token 구조**:
-```
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoidXNlcjEyMyIsInJvbGUiOiJhZG1pbiJ9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+예전 방식은 로그인 정보를 서버가 들고 있었다. 서버 한 대일 때는 문제가 없지만, 두 대로 늘리면 한쪽에서 로그인한 사람의 요청이 다른 쪽으로 갔을 때 거기서는 그를 모른다. 그래서 공용 저장소를 따로 두거나 같은 사람의 요청을 늘 같은 서버로 보내야 했다.
 
-┌────────── Header ──────────┐
-│   알고리즘 정보              │
-│   {"alg":"HS256"}          │
-└────────────────────────────┘
-         ▼
-┌────────── Payload ─────────┐
-│   사용자 정보                │
-│   {"user_id":"user123"}    │
-└────────────────────────────┘
-         ▼
-┌────────── Signature ───────┐
-│   서명 (변조 방지)           │
-│   HMACSHA256(...)          │
-└────────────────────────────┘
+토큰에는 누구인지와 언제까지 유효한지가 들어 있고 서버의 서명이 붙어 있다. 서버는 서명만 확인하면 되므로 아무것도 기억할 필요가 없다.
+
+비밀번호가 오가는 횟수도 줄어든다. 요청마다 비밀번호를 실어 보내면 그만큼 새어 나갈 자리가 늘어나는데, 토큰 방식은 처음 한 번만 보낸다. 헤더에 붙이는 방식이라 쿠키를 쓰기 어려운 모바일 앱에서도 웹과 같은 방식을 그대로 쓴다.
+
+## ⚙️ 작동 원리
+
+JWT 토큰은 세 조각으로 되어 있다.
+
+```도해
+층: 토큰 안에는 무엇이 들어 있나
+Header :: 어떤 방식으로 서명했는지
+Payload :: 누구인지, 역할은 무엇인지, 언제 만료인지
+Signature :: 위의 둘을 비밀 키로 서명한 값
+= 앞의 둘은 누구나 읽을 수 있고, 서명은 고쳐졌는지만 알려준다
 ```
 
-### 2. FastAPI Token 인증
+서명은 내용을 가리는 장치가 아니라 바뀌었는지를 알려주는 장치다. Payload의 역할을 user에서 admin으로 고치면 서명이 맞지 않아 서버가 거절한다. 다만 내용 자체는 누구나 열어볼 수 있으므로 비밀번호나 주민번호를 넣으면 안 된다.
 
-```python
-from fastapi import FastAPI, Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from pydantic import BaseModel
+만료 시간을 짧게 잡으면 토큰이 새어 나가도 쓸 수 있는 기간이 짧다. 대신 자주 다시 받아야 한다. 그래서 수명이 짧은 Access Token과 긴 Refresh Token을 나눠 쓴다. Access Token은 15분, Refresh Token은 7일 정도로 두고, Access가 만료되면 Refresh로 새로 받는다.
 
-app = FastAPI()
-security = HTTPBearer()
+## 📊 비교: 토큰을 어디에 두나
 
-class LoginRequest(BaseModel):
-    username: str
-    password: str
+| 두는 곳 | 좋은 점 | 나쁜 점 |
+|---|---|---|
+| localStorage | 간단하고 새로고침에도 남는다 | 스크립트가 읽을 수 있어 XSS에 약하다 |
+| HttpOnly 쿠키 | 스크립트가 읽지 못한다 | CSRF 대비를 따로 해야 한다 |
+| 메모리 | 새어 나갈 자리가 가장 적다 | 새로고침하면 사라진다 |
 
-# 더미 사용자 DB
-users_db = {
-    "admin": {"password": "admin123", "role": "admin"},
-    "user": {"password": "user123", "role": "user"}
-}
+## 💡 실제 사례
 
-@app.post("/login")
-def login(request: LoginRequest):
-    """로그인 - Token 발급"""
+- **모바일 앱** 쿠키를 쓰기 어려운 환경에서 토큰을 헤더에 붙여 보낸다. 웹과 같은 서버를 그대로 쓴다.
+- **SPA 화면** 로그인 후 받은 토큰을 요청마다 자동으로 붙이고, 401이 오면 로그인 화면으로 되돌린다.
+- **서버 여러 대** 요청이 어느 서버로 붙어도 서명만 확인하면 되므로 로그인이 풀리지 않는다.
 
-    user = users_db.get(request.username)
+## 🚫 흔한 오해
 
-    # 사용자 확인
-    if not user or user['password'] != request.password:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="잘못된 사용자명 또는 비밀번호"
-        )
+- **토큰은 암호화되어 있어서 내용을 못 본다** — JWT의 앞 두 조각은 그냥 인코딩이라 누구나 열어볼 수 있다. 서명은 내용을 가리는 게 아니라 고쳐졌는지 알려주는 것이다.
+- **로그아웃하면 그 토큰은 죽는다** — 서버가 기억하지 않으니 이미 나간 토큰은 만료 전까지 살아 있다. 즉시 막으려면 블랙리스트를 따로 둬야 한다.
+- **토큰이 세션보다 무조건 안전하다** — 새어 나갔을 때 즉시 끊을 수 있는 쪽은 세션이다. 토큰이 얻은 것은 안전이 아니라 서버가 기억하지 않아도 된다는 점이다.
 
-    # Token 생성
-    token = create_token(
-        user_id=request.username,
-        role=user['role']
-    )
+## 🚨 주의사항
 
-    return {
-        "access_token": token,
-        "token_type": "bearer"
-    }
+- **토큰에 비밀번호나 개인정보를 넣지 않는다.** Payload는 누구나 열어볼 수 있다.
+- **HTTPS로만 보낸다.** 토큰이 곧 신분증이라 중간에서 읽히면 그대로 남의 것이 된다.
 
-def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security)
-) -> dict:
-    """현재 사용자 정보 추출 (Token 검증)"""
+## 📝 정리
 
-    token = credentials.credentials
+Token 인증은 로그인 때 받은 서명된 출입증을 요청마다 붙여 신원을 증명하는 방식이다. 서버가 아무것도 기억하지 않아도 되므로 서버를 늘리기 쉽고 웹과 모바일이 같은 방식을 쓴다. 대신 이미 나간 토큰은 만료 전까지 살아 있어서 즉시 끊는 일이 어렵다.
 
-    try:
-        payload = verify_token(token)
-        return payload
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=str(e),
-            headers={"WWW-Authenticate": "Bearer"}
-        )
+## ❓ 이해했는지
 
-@app.get("/protected")
-def protected_route(current_user: dict = Depends(get_current_user)):
-    """보호된 엔드포인트 (인증 필요)"""
-    return {
-        "message": f"안녕하세요, {current_user['user_id']}님!",
-        "role": current_user['role']
-    }
-
-@app.get("/admin")
-def admin_only(current_user: dict = Depends(get_current_user)):
-    """관리자 전용 엔드포인트"""
-
-    if current_user['role'] != 'admin':
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="관리자 권한이 필요합니다"
-        )
-
-    return {"message": "관리자 페이지입니다"}
-```
-
-**사용 예시**:
-```bash
-# 1. 로그인 (Token 받기)
-curl -X POST http://localhost:8000/login \
-  -H "Content-Type: application/json" \
-  -d '{"username":"admin", "password":"admin123"}'
-
-# 응답: {"access_token": "eyJhbGc...", "token_type": "bearer"}
-
-# 2. 인증된 요청
-curl http://localhost:8000/protected \
-  -H "Authorization: Bearer eyJhbGc..."
-
-# 응답: {"message": "안녕하세요, admin님!", "role": "admin"}
-```
-
-### 3. 클라이언트에서 Token 사용
-
-```javascript
-// JavaScript (axios 사용)
-
-// 1. 로그인하여 Token 받기
-async function login(username, password) {
-  const response = await axios.post('/login', {
-    username,
-    password
-  });
-
-  const token = response.data.access_token;
-
-  // Token 저장 (localStorage)
-  localStorage.setItem('access_token', token);
-
-  return token;
-}
-
-// 2. API 요청 시 Token 첨부
-async function fetchProtectedData() {
-  const token = localStorage.getItem('access_token');
-
-  const response = await axios.get('/protected', {
-    headers: {
-      'Authorization': `Bearer ${token}`
-    }
-  });
-
-  return response.data;
-}
-
-// 3. Axios Interceptor로 자동으로 Token 첨부
-axios.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-// 4. Token 만료 시 자동 갱신
-axios.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    if (error.response?.status === 401) {
-      // Token 만료 - 재로그인
-      localStorage.removeItem('access_token');
-      window.location.href = '/login';
-    }
-    return Promise.reject(error);
-  }
-);
-```
-
-### 4. Refresh Token 패턴
-
-Token을 2개로 분리하여 보안 강화:
-
-```python
-def create_tokens(user_id: str, role: str) -> dict:
-    """Access Token + Refresh Token 생성"""
-
-    # Access Token (짧은 수명: 15분)
-    access_token = jwt.encode(
-        {
-            'user_id': user_id,
-            'role': role,
-            'type': 'access',
-            'exp': datetime.utcnow() + timedelta(minutes=15)
-        },
-        SECRET_KEY,
-        algorithm='HS256'
-    )
-
-    # Refresh Token (긴 수명: 7일)
-    refresh_token = jwt.encode(
-        {
-            'user_id': user_id,
-            'type': 'refresh',
-            'exp': datetime.utcnow() + timedelta(days=7)
-        },
-        SECRET_KEY,
-        algorithm='HS256'
-    )
-
-    return {
-        'access_token': access_token,
-        'refresh_token': refresh_token
-    }
-
-@app.post("/refresh")
-def refresh_access_token(refresh_token: str):
-    """Refresh Token으로 새 Access Token 발급"""
-
-    try:
-        payload = verify_token(refresh_token)
-
-        # Refresh Token인지 확인
-        if payload.get('type') != 'refresh':
-            raise Exception("Refresh Token이 아닙니다")
-
-        # 새 Access Token 발급
-        user_id = payload['user_id']
-
-        # 사용자 정보 조회 (DB에서)
-        # user = get_user_from_db(user_id)
-
-        new_access_token = create_token(user_id, "user")
-
-        return {"access_token": new_access_token}
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=str(e)
-        )
-```
-
-**Refresh Token 플로우**:
-```
-로그인
- └─> Access Token (15분) + Refresh Token (7일)
-
-15분 후...
- └─> Access Token 만료
-      └─> Refresh Token으로 새 Access Token 발급
-           └─> 다시 15분 사용 가능
-
-7일 후...
- └─> Refresh Token 만료
-      └─> 재로그인 필요
-```
-
-## 🎯 Token 저장 방법 비교
-
-| 방법 | 장점 | 단점 | 보안 | 권장 |
-|------|------|------|------|------|
-| **localStorage** | 간단, 지속적 | XSS 취약 | ⚠️ 중간 | 개발용 |
-| **Cookie (HttpOnly)** | XSS 방어 | CSRF 취약 | ✅ 높음 | **권장** |
-| **메모리** | 가장 안전 | 새로고침 시 손실 | ✅ 매우 높음 | 특수 케이스 |
-| **sessionStorage** | 탭마다 독립 | 새로고침 시 손실 | ⚠️ 중간 | 제한적 |
-
-**권장 방법**: **HttpOnly Cookie + CSRF Token 조합**
-
-## 🔒 Token 보안 Best Practices
-
-### 1. Token 만료 시간 설정
-
-```python
-# ✅ 좋은 예
-Access Token: 15분~1시간 (짧게)
-Refresh Token: 7일~30일 (길게)
-
-# ❌ 나쁜 예
-Access Token: 30일 (너무 길어서 위험)
-```
-
-### 2. Token 블랙리스트
-
-```python
-# 로그아웃 시 Token 무효화
-blacklisted_tokens = set()
-
-def logout(token: str):
-    """Token을 블랙리스트에 추가"""
-    blacklisted_tokens.add(token)
-
-def is_token_blacklisted(token: str) -> bool:
-    """블랙리스트 확인"""
-    return token in blacklisted_tokens
-```
-
-### 3. HTTPS 필수
-
-```python
-# Token은 반드시 HTTPS로 전송
-if not request.is_secure:
-    raise Exception("HTTPS 연결이 필요합니다")
-```
-
-### 4. Token에 민감 정보 포함 금지
-
-```python
-# ❌ 나쁜 예
-payload = {
-    'user_id': 'user123',
-    'password': 'secret123',  # ❌ 비밀번호 포함 금지!
-    'ssn': '123456-1234567'   # ❌ PII 포함 금지!
-}
-
-# ✅ 좋은 예
-payload = {
-    'user_id': 'user123',
-    'role': 'admin',
-    'exp': ...
-}
-```
+- 서버를 두 대로 늘려도 로그인이 안 풀리는 이유는?
+- 토큰 Payload에 주민번호를 넣으면 왜 안 되나?
+- 로그아웃 버튼을 눌렀는데도 그 토큰으로 요청이 통과할 수 있는 이유는?
 
 ## 🔗 관련 용어
 
-- [[JWT]]: Token 인증의 구체적인 구현
-- [[OAuth]]: 제3자 인증 프로토콜
-- [[Session]]: Token 인증 이전 방식
-- [[HTTPS]]: Token 전송 보안
-- [[PII]]: Token에 포함하면 안 되는 정보
-
-## 📚 참고자료
-
-- [JWT.io](https://jwt.io/) - JWT 디버거
-- [OAuth 2.0](https://oauth.net/2/) - OAuth 표준
-- [OWASP Token Security](https://owasp.org/) - 보안 가이드
-
----
-*카테고리: 보안*
-*생성일: 2026-02-14*
+- [[JWT]] — 토큰 인증에서 가장 많이 쓰는 토큰 형식
+- [[Session]] — 서버가 기억하는 쪽. 즉시 끊기가 쉽다
+- [[Refresh Token]] — 짧은 Access Token을 다시 받아오는 긴 수명의 토큰
+- [[OAuth]] — 다른 서비스의 계정으로 토큰을 받아오는 절차
+- [[HTTPS]] — 토큰이 중간에서 읽히지 않게 감싸는 것

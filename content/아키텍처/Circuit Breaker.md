@@ -81,6 +81,6 @@ Circuit Breaker는 실패가 반복되는 호출을 잠시 끊어 장애가 번�
 ## 🔗 관련 용어
 
 - [[Rate Limiting]] — 들어오는 쪽을 막는다. 차단기는 나가는 쪽을 막는다
-- [[Timeout]] — 차단기가 실패를 세려면 먼저 이게 있어야 한다
-- [[Microservices]] — 서비스를 나누면서 이 장치가 필요해졌다
+- [[Latency]] — 응답이 늦어지는 정도. 차단기가 실패로 셀지 정하는 기준
+- [[Monolith vs Microservices]] — 서비스를 나누면서 이 장치가 필요해졌다
 - [[Fallback]] — 차단기가 열렸을 때 대신 돌려줄 것

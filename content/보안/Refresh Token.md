@@ -2,398 +2,93 @@
 
 ## 📝 정의
 
-Refresh Token(리프레시 토큰)은 **만료된 Access Token을 갱신하기 위한 장기 유효 토큰**으로, 사용자가 재로그인 없이 서비스를 계속 이용할 수 있게 합니다.
+Refresh Token은 **만료된 액세스 토큰을 다시 받아오는 열쇠**다.
 
-### 핵심 개념
+액세스 토큰은 요청마다 실려 다니므로 새어나갈 기회가 많고, 그래서 수명을 짧게 잡는다. 짧게 잡으면 자주 만료되는데, 그때마다 로그인을 다시 시키지 않으려고 따로 두는 것이 리프레시 토큰이다.
 
-- **무엇인가?**: Access Token 재발급용 장기 토큰
-- **왜 필요한가?**: 짧은 Access Token 수명 + 편리한 사용자 경험
-- **어떻게 작동하나?**: Access Token 만료 → Refresh Token으로 재발급
+### 비유
+회원증과 하루짜리 락커 열쇠. 열쇠는 매일 반납하지만 회원증을 내밀면 새 열쇠를 다시 받는다.
 
-### Refresh Token이 해결하는 문제
-
-**문제 상황**:
-```
-😱 시나리오 1: Access Token만 사용
-Access Token 유효기간 30일
-→ 토큰 탈취 시 30일간 악용 가능
-→ 보안 위험! 😱
-
-😱 시나리오 2: 짧은 Access Token
-Access Token 유효기간 1시간
-→ 1시간마다 재로그인 필요
-→ 사용자 불편! 😱
-```
-
-**Refresh Token의 해결**:
-```
-✅ 보안 + 편의성:
-Access Token: 1시간 (짧음)
-Refresh Token: 30일 (김)
-→ 1시간마다 자동 갱신 (재로그인 불필요)
-→ Access Token 탈취 시 피해 최소
-→ 보안 + 편의성! ✅
-```
-
-**비유**:
-- **Access Token만** = 1시간짜리 입장권 (매번 재구매)
-- **Refresh Token** = 정기권 (만료 시 자동 재발급)
-
-## 📊 Refresh Token 흐름
+## 🖼️ 그림으로 보기
 
 ```도해
-흐름: Refresh Token, 무슨 순서로 오가나
-클라이언트 :: 로그인 (ID/PW)
-인증 서버 :: Access Token (1시간) Refresh Token…
-클라이언트 :: API 요청 + Access Token
-API 서버 :: 응답
-클라이언트 :: API 요청 + Access Token (만료됨)
-API 서버 :: 401 Unauthorized
-클라이언트 :: Refresh Token 전송
-인증 서버 :: 새 Access Token 발급
-클라이언트 :: API 요청 + 새 Access Token
-API 서버 :: 응답
+흐름: 액세스 토큰이 만료되면 무슨 일이 일어나나
+클라이언트 :: 만료된 액세스 토큰으로 API 를 부른다
+API 서버 :: 401 을 돌려준다
+클라이언트 :: 인증 서버에 리프레시 토큰을 낸다
+인증 서버 :: 확인하고 새 액세스 토큰을 내준다
+< 클라이언트 :: 원래 요청을 새 토큰으로 다시 보낸다
+= 사용자는 401 이 한 번 오갔다는 사실을 모른다
 ```
 
-## 💡 토큰 발급 구현
+## ⚠️ 해결하는 문제
 
-### JWT 기반 토큰 생성
-```python
-import jwt
-from datetime import datetime, timedelta
-
-SECRET_KEY = 'your-secret-key'
-REFRESH_SECRET_KEY = 'your-refresh-secret-key'
-
-def generate_tokens(user_id):
-    """Access Token + Refresh Token 발급"""
-    
-    # Access Token (1시간)
-    access_payload = {
-        'user_id': user_id,
-        'exp': datetime.utcnow() + timedelta(hours=1),
-        'iat': datetime.utcnow(),
-        'type': 'access'
-    }
-    access_token = jwt.encode(access_payload, SECRET_KEY, algorithm='HS256')
-    
-    # Refresh Token (30일)
-    refresh_payload = {
-        'user_id': user_id,
-        'exp': datetime.utcnow() + timedelta(days=30),
-        'iat': datetime.utcnow(),
-        'type': 'refresh'
-    }
-    refresh_token = jwt.encode(refresh_payload, REFRESH_SECRET_KEY, algorithm='HS256')
-    
-    return access_token, refresh_token
-
-# 로그인 시 발급
-@app.route('/login', methods=['POST'])
-def login():
-    username = request.json['username']
-    password = request.json['password']
-    
-    if authenticate(username, password):
-        user_id = get_user_id(username)
-        access_token, refresh_token = generate_tokens(user_id)
-        
-        return jsonify({
-            'access_token': access_token,
-            'refresh_token': refresh_token,
-            'token_type': 'Bearer'
-        })
-    
-    return {'error': 'Invalid credentials'}, 401
+```도해
+대조: 토큰 하나로만 버티면 무엇을 골라야 하나
+토큰 하나로 || 두 개로 나눠
+수명 :: 길거나 짧거나 || 짧고, 길고
+탈취됐을 때 :: 만료까지 뚫린다 || 한 시간이면 끝
+재로그인 :: 만료되면 다시 || 조용히 갱신
+= 자주 나다니는 것과 오래 사는 것을 갈라놓은 것이다
 ```
 
-### Refresh Token으로 갱신
-```python
-@app.route('/token/refresh', methods=['POST'])
-def refresh():
-    """Refresh Token으로 Access Token 재발급"""
-    refresh_token = request.json.get('refresh_token')
-    
-    if not refresh_token:
-        return {'error': 'Refresh token required'}, 400
-    
-    try:
-        # Refresh Token 검증
-        payload = jwt.decode(
-            refresh_token,
-            REFRESH_SECRET_KEY,
-            algorithms=['HS256']
-        )
-        
-        # 타입 확인
-        if payload.get('type') != 'refresh':
-            return {'error': 'Invalid token type'}, 401
-        
-        # 새 Access Token 발급
-        user_id = payload['user_id']
-        access_payload = {
-            'user_id': user_id,
-            'exp': datetime.utcnow() + timedelta(hours=1),
-            'iat': datetime.utcnow(),
-            'type': 'access'
-        }
-        new_access_token = jwt.encode(access_payload, SECRET_KEY, algorithm='HS256')
-        
-        return jsonify({
-            'access_token': new_access_token,
-            'token_type': 'Bearer'
-        })
-        
-    except jwt.ExpiredSignatureError:
-        return {'error': 'Refresh token expired'}, 401
-    except jwt.InvalidTokenError:
-        return {'error': 'Invalid refresh token'}, 401
+토큰이 하나뿐이면 수명을 길게 잡을지 짧게 잡을지 둘 중 하나를 골라야 한다. 30일로 잡으면 탈취당했을 때 30일 동안 그대로 뚫린다. 1시간으로 잡으면 안전하지만 사용자가 한 시간마다 다시 로그인해야 한다.
+
+토큰을 둘로 나누면 이 선택을 안 해도 된다. 요청마다 나다니는 액세스 토큰은 1시간짜리로 두고, 갱신할 때만 쓰는 리프레시 토큰을 30일짜리로 둔다. 새어나갈 기회가 많은 쪽은 짧게, 오래 사는 쪽은 잘 안 내보내는 것이다.
+
+## ⚙️ 작동 원리
+
+리프레시 토큰은 API 서버에 보내지 않는다. 갱신할 때 인증 서버에만 낸다. 오가는 횟수가 적을수록 중간에 새어나갈 자리도 줄어든다.
+
+갱신할 때 리프레시 토큰까지 새로 발급하고 옛것을 무효로 만드는 방식을 토큰 회전이라고 한다. 여기에 계보를 붙여두면 재사용을 잡아낼 수 있다. 이미 교체된 옛 토큰이 다시 들어온다는 것은 누군가 복사본을 들고 있다는 뜻이므로, 그 계보에 딸린 토큰을 전부 무효로 만들고 다시 로그인시킨다.
+
+```도해
+층: 리프레시 토큰을 어디에 두나
+메모리 :: 새로고침하면 사라진다. 가장 덜 위험하다
+httpOnly 쿠키 :: 스크립트가 못 읽는다. CSRF 대비는 따로 한다
+localStorage :: 다루기 쉽지만 XSS 하나면 그대로 읽힌다
+= 오래 사는 토큰일수록 어디에 두느냐가 수명만큼 중요하다
 ```
 
-## 💡 클라이언트 구현
+## 💡 실제 사례
 
-### 자동 토큰 갱신
-```javascript
-// Axios Interceptor로 자동 갱신
-import axios from 'axios';
+- **조용한 갱신** 401이 돌아오면 클라이언트가 갱신을 한 번 하고 원래 요청을 다시 보낸다. 화면에서는 아무 일도 없어 보인다.
+- **로그아웃** 리프레시 토큰을 서버에서 무효로 표시하면 그 기기는 다음 갱신에서 로그인 화면으로 간다.
+- **재사용 감지** 이미 교체된 옛 토큰이 들어오면 복사본이 돌고 있다고 보고 그 계보를 전부 끊는다.
 
-let isRefreshing = false;
-let failedQueue = [];
+## 🚫 흔한 오해
 
-const processQueue = (error, token = null) => {
-  failedQueue.forEach(prom => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve(token);
-    }
-  });
-  
-  failedQueue = [];
-};
+- **리프레시 토큰은 액세스 토큰보다 안전하다** — 오래 산다는 뜻이지 안전하다는 뜻이 아니다. 새어나가면 30일 동안 새 액세스 토큰을 계속 찍어낼 수 있어서 오히려 더 큰 사고가 된다.
+- **요청마다 리프레시 토큰도 같이 보낸다** — API 요청에 붙이는 것은 액세스 토큰뿐이다. 리프레시 토큰까지 매번 실어 보내면 짧은 수명과 긴 수명을 나눈 이유가 사라진다.
+- **토큰을 둘로 나누면 탈취를 막는다** — 막는 게 아니라 뚫려 있는 시간을 줄이는 것이다. 액세스 토큰이 새더라도 한 시간 뒤에는 쓸모없어진다는 뜻이다.
 
-// 응답 인터셉터
-axios.interceptors.response.use(
-  response => response,
-  async error => {
-    const originalRequest = error.config;
-    
-    // 401 에러 && 재시도 아님
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      
-      if (isRefreshing) {
-        // 이미 갱신 중이면 대기
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        }).then(token => {
-          originalRequest.headers['Authorization'] = 'Bearer ' + token;
-          return axios(originalRequest);
-        });
-      }
-      
-      originalRequest._retry = true;
-      isRefreshing = true;
-      
-      const refreshToken = localStorage.getItem('refresh_token');
-      
-      try {
-        // Refresh Token으로 새 Access Token 발급
-        const response = await axios.post('/token/refresh', {
-          refresh_token: refreshToken
-        });
-        
-        const { access_token } = response.data;
-        
-        // 새 토큰 저장
-        localStorage.setItem('access_token', access_token);
-        
-        // 대기 중인 요청들에 새 토큰 전달
-        processQueue(null, access_token);
-        
-        // 원래 요청 재시도
-        originalRequest.headers['Authorization'] = 'Bearer ' + access_token;
-        return axios(originalRequest);
-        
-      } catch (err) {
-        // Refresh Token도 만료됨 → 로그아웃
-        processQueue(err, null);
-        localStorage.clear();
-        window.location.href = '/login';
-        return Promise.reject(err);
-        
-      } finally {
-        isRefreshing = false;
-      }
-    }
-    
-    return Promise.reject(error);
-  }
-);
-```
+## 📊 비교
 
-### React Hook
-```javascript
-import { useState, useEffect } from 'react';
+| | 액세스 토큰 | 리프레시 토큰 |
+|---|---|---|
+| 수명 | 1시간 정도 | 30일 정도 |
+| 어디에 붙나 | API 요청마다 | 갱신할 때만 |
+| 받는 곳 | API 서버 | 인증 서버 |
+| 새어나갔을 때 | 만료되면 끝난다 | 계속 재발급된다 |
 
-function useAuth() {
-  const [accessToken, setAccessToken] = useState(
-    localStorage.getItem('access_token')
-  );
-  
-  useEffect(() => {
-    // 토큰 만료 5분 전에 자동 갱신
-    const checkTokenExpiry = async () => {
-      if (!accessToken) return;
-      
-      const payload = JSON.parse(atob(accessToken.split('.')[1]));
-      const expiresIn = payload.exp * 1000 - Date.now();
-      
-      // 5분 이내 만료 예정
-      if (expiresIn < 5 * 60 * 1000) {
-        const refreshToken = localStorage.getItem('refresh_token');
-        
-        try {
-          const response = await fetch('/token/refresh', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ refresh_token: refreshToken })
-          });
-          
-          const data = await response.json();
-          localStorage.setItem('access_token', data.access_token);
-          setAccessToken(data.access_token);
-          
-        } catch (error) {
-          // 갱신 실패 → 로그아웃
-          localStorage.clear();
-          window.location.href = '/login';
-        }
-      }
-    };
-    
-    // 1분마다 체크
-    const interval = setInterval(checkTokenExpiry, 60 * 1000);
-    return () => clearInterval(interval);
-    
-  }, [accessToken]);
-  
-  return { accessToken };
-}
-```
+## 🚨 주의사항
 
-## 💡 보안 강화
+- **리프레시 토큰을 `localStorage`에 두지 않는다.** XSS가 한 번 통하면 30일짜리 열쇠가 통째로 나간다.
+- **로그아웃에서 서버 쪽 무효화를 빠뜨리지 않는다.** 클라이언트에서 지우기만 하면 이미 복사된 토큰은 만료일까지 살아 있다.
 
-### 1. Refresh Token Rotation
-```python
-@app.route('/token/refresh', methods=['POST'])
-def refresh_with_rotation():
-    """토큰 갱신 시 Refresh Token도 교체"""
-    refresh_token = request.json.get('refresh_token')
-    
-    # 검증
-    payload = jwt.decode(refresh_token, REFRESH_SECRET_KEY, algorithms=['HS256'])
-    user_id = payload['user_id']
-    
-    # 기존 Refresh Token 무효화
-    revoke_token(refresh_token)
-    
-    # 새 Access Token + 새 Refresh Token 발급
-    new_access_token, new_refresh_token = generate_tokens(user_id)
-    
-    return jsonify({
-        'access_token': new_access_token,
-        'refresh_token': new_refresh_token  # 새로 발급!
-    })
-```
+## 📝 정리
 
-### 2. Token Family (재사용 감지)
-```python
-class RefreshTokenFamily:
-    """Refresh Token 계보 추적"""
-    
-    def __init__(self, db):
-        self.db = db
-    
-    def create_family(self, user_id, refresh_token):
-        """최초 Refresh Token 발급"""
-        family_id = generate_id()
-        
-        self.db.tokens.insert({
-            'family_id': family_id,
-            'user_id': user_id,
-            'token_hash': hash(refresh_token),
-            'generation': 1,
-            'revoked': False
-        })
-        
-        return family_id
-    
-    def rotate_token(self, old_token, new_token):
-        """토큰 교체"""
-        old_record = self.db.tokens.find_one({'token_hash': hash(old_token)})
-        
-        if old_record['revoked']:
-            # 이미 사용된 토큰 재사용 시도 → 해킹 의심
-            # 해당 family 전체 무효화
-            self.db.tokens.update_many(
-                {'family_id': old_record['family_id']},
-                {'$set': {'revoked': True}}
-            )
-            raise SecurityError("Token reuse detected")
-        
-        # 기존 토큰 무효화
-        self.db.tokens.update_one(
-            {'token_hash': hash(old_token)},
-            {'$set': {'revoked': True}}
-        )
-        
-        # 새 토큰 등록
-        self.db.tokens.insert({
-            'family_id': old_record['family_id'],
-            'user_id': old_record['user_id'],
-            'token_hash': hash(new_token),
-            'generation': old_record['generation'] + 1,
-            'revoked': False
-        })
-```
+Refresh Token은 자주 나다니는 토큰과 오래 사는 토큰을 갈라놓기 위한 장치다. 액세스 토큰이 만료되면 이것으로 새로 받아 사용자가 다시 로그인하지 않게 하고, 대신 이 토큰 자체는 잘 내보내지 않고 어디에 두는지도 따진다.
 
-## 🎯 저장 위치
+## ❓ 이해했는지
 
-| 위치 | 장점 | 단점 | 권장 |
-|------|------|------|------|
-| **localStorage** | 간단 | XSS 취약 | ⚠️ |
-| **httpOnly Cookie** | XSS 방어 | CSRF 취약 | ✅ |
-| **메모리 (state)** | 가장 안전 | 새로고침 시 소멸 | ⚠️ |
-
-### httpOnly Cookie 사용 (권장)
-```python
-@app.route('/login', methods=['POST'])
-def login_with_cookie():
-    # 인증 후
-    access_token, refresh_token = generate_tokens(user_id)
-    
-    response = jsonify({'success': True})
-    
-    # Refresh Token은 httpOnly 쿠키에 저장
-    response.set_cookie(
-        'refresh_token',
-        value=refresh_token,
-        httponly=True,      # JavaScript 접근 불가
-        secure=True,        # HTTPS only
-        samesite='Strict',  # CSRF 방어
-        max_age=30*24*60*60 # 30일
-    )
-    
-    # Access Token은 JSON으로 반환
-    return response
-```
+- 액세스 토큰이 만료됐는데도 사용자가 다시 로그인하지 않아도 되는 이유는?
+- 액세스 토큰 수명을 30일로 잡으면 무엇이 위험해지나?
+- 이미 교체한 옛 리프레시 토큰이 다시 들어왔을 때 서버가 계보를 전부 끊는 이유는?
 
 ## 🔗 관련 용어
 
-- [[JWT]]: Refresh Token 구현 방식
-- [[API Token]]: 유사한 토큰 인증
-- [[OAuth]]: Refresh Token 사용
-
----
-*카테고리: 보안*
-*생성일: 2026-02-14*
+- [[Token 인증]] — 로그인 상태를 토큰으로 들고 다니는 방식 전체
+- [[JWT]] — 두 토큰을 담는 데 흔히 쓰는 형식
+- [[OAuth]] — 이 두 토큰 구조를 표준으로 정해둔 규약
+- [[Session]] — 서버가 상태를 들고 있는 방식. 토큰 방식과 갈리는 지점

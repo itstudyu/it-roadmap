@@ -2,380 +2,96 @@
 
 ## 📝 정의
 
-curl(Client URL)은 URL을 사용하여 데이터를 전송하고 받는 **명령줄 도구**입니다. HTTP, HTTPS, FTP 등 다양한 프로토콜을 지원하며, API 테스트, 파일 다운로드, 웹 스크래핑 등에 널리 사용됩니다.
+curl은 **터미널에서 URL 로 요청을 보내고 응답을 받는 명령어**다.
 
-### 핵심 개념
+이름 그대로 Client URL 이다. HTTP 말고 다른 프로토콜도 다루지만 요즘 쓰이는 자리는 대부분 API 를 두드려 보는 쪽이다.
 
-- **무엇인가?**: 터미널에서 HTTP 요청을 보내는 명령어
-- **왜 필요한가?**: GUI 없이 빠르게 API 테스트, 자동화, 스크립트 작성 가능
-- **어떻게 작동하나?**: 서버에 요청 전송 → 응답 수신 → 결과 출력/저장
+### 비유
+전화 주문. 가게에 직접 가지 않고 번호를 눌러 필요한 것만 말한다.
 
-### curl이 해결하는 문제
-
-**문제 상황**:
-```
-😱 시나리오 1: API 테스트가 번거로움
-개발자: "API 테스트하려면..."
-→ Postman 실행
-→ 요청 설정 입력
-→ 매번 GUI 조작
-→ 시간 낭비! 😱
-
-😱 시나리오 2: 자동화 불가능
-DevOps: "매일 API 상태 확인하고 싶어"
-GUI 도구: 수동으로만 가능
-→ 자동화 불가! 😱
-
-😱 시나리오 3: 서버에서 테스트 필요
-서버 (GUI 없음): "API 테스트하려면?"
-Postman: 설치 불가
-→ 테스트 못 함! 😱
-
-😱 시나리오 4: 빠른 다운로드 필요
-사용자: "100개 파일 다운로드"
-브라우저: 하나씩 클릭...
-→ 시간 오래 걸림! 😱
-```
-
-**curl의 해결**:
-```
-✅ 시나리오 1 (한 줄 명령어):
-curl https://api.example.com/users
-→ 즉시 응답 확인! ✅
-
-✅ 시나리오 2 (스크립트 자동화):
-#!/bin/bash
-curl https://api.example.com/health
-→ cron으로 매일 자동 실행 ✅
-
-✅ 시나리오 3 (서버에서 실행):
-ssh server
-curl https://api.example.com/test
-→ 어디서든 테스트 가능 ✅
-
-✅ 시나리오 4 (병렬 다운로드):
-cat urls.txt | xargs -P 10 curl -O
-→ 10개 동시 다운로드! ✅
-```
-
-**비유**:
-- **Postman (GUI)** = 레스토랑에서 직접 주문 (편하지만 느림)
-- **curl (CLI)** = 전화로 주문 (빠르고 자동화 가능)
-
-## 📊 curl 작동 원리
+## 🖼️ 그림으로 보기
 
 ```도해
-흐름: curl, 무슨 순서로 오가나
-사용자 (터미널) :: 명령 실행
-curl 명령어 :: HTTP GET 요청 GET /users HTTP/1.1
-서버 :: 요청 처리
-< 서버 :: HTTP 응답 200 OK + JSON 데이터
-< curl 명령어 :: 결과 출력 (터미널)
+흐름: curl 한 줄을 치면 무엇이 오가나
+터미널 :: curl 뒤에 주소와 옵션을 적고 엔터를 친다
+curl :: 적어준 대로 HTTP 요청 한 통을 만든다
+서버 :: 요청을 처리하고 응답을 돌려준다
+curl :: 상태 코드와 헤더와 본문을 받는다
+< 터미널 :: 기본값은 본문만 화면에 뿌리는 것이다
+= 브라우저가 대신 해주던 일을 눈에 보이는 한 줄로 줄인 것이다
 ```
 
-## 💡 실제 사용
+## ⚠️ 해결하는 문제
 
-### 1. GET 요청 (조회)
-
-```bash
-# 기본 GET 요청
-curl https://api.example.com/users
-
-# 응답을 파일로 저장
-curl https://api.example.com/users -o users.json
-
-# 응답 헤더 포함 (디버깅)
-curl -i https://api.example.com/users
-
-# 자세한 정보 출력 (요청/응답 전체)
-curl -v https://api.example.com/users
+```도해
+대조: API 를 확인할 때 GUI 도구만 쓰면 어떻게 되나
+GUI 도구로 || curl 로
+한 번 확인 :: 창을 열고 채운다 || 한 줄로 끝
+반복 실행 :: 손으로 다시 || 스크립트에 넣는다
+화면 없는 서버 :: 설치가 안 된다 || 그 자리에서 실행
+= 요청 하나가 글자 한 줄이 되면 자동화할 수 있게 된다
 ```
 
-**출력 예시**:
-```json
-{
-  "users": [
-    {"id": 1, "name": "김철수"},
-    {"id": 2, "name": "이영희"}
-  ]
-}
+응답 하나를 보려고 창을 띄우고 주소와 헤더를 채워 넣는 일은 한 번이면 괜찮다. 같은 확인을 매일 해야 하면 사람이 매번 같은 자리를 눌러야 하고, 화면이 없는 서버 안에서는 그 도구를 깔 수도 없다.
+
+curl 은 요청 하나를 글자 한 줄로 만든다. 한 줄이면 파일에 적어 두고 cron 으로 돌릴 수 있고, 남에게 그대로 보내 같은 요청을 재현하게 할 수도 있다. SSH 로 들어간 서버 안에서도 같은 줄을 그대로 친다.
+
+## ⚙️ 작동 원리
+
+한 줄은 크게 넷으로 나뉜다. `-X` 로 메서드를 정하고, `-H` 로 헤더를 붙이고, `-d` 나 `-F` 로 보낼 내용을 담고, 나머지 옵션으로 받은 것을 어떻게 볼지 정한다. `-i` 는 헤더까지 같이 보여주고 `-v` 는 오간 것 전체를 보여주며 `-o` 는 화면 대신 파일에 담는다.
+
+인증도 헤더로 붙는다. `-u user:pass` 는 Basic 이고 `-H "Authorization: Bearer ..."` 는 토큰이다. 리다이렉트는 기본으로 따라가지 않으므로 `-L` 을 붙여야 하고, 쿠키를 이어 쓰려면 `-c` 로 받아 두었다가 `-b` 로 보낸다.
+
+`-w` 를 붙이면 시간이 어디에서 쓰였는지를 나눠 보여준다.
+
+```도해
+흐름: -w 를 붙이면 시간이 어디에서 쓰였다고 나오나
+DNS 조회 :: 주소를 IP 로 바꾸는 데 걸린 시간
+연결 :: TCP 와 TLS 를 맺는 데 걸린 시간
+전송 시작 :: 서버가 첫 바이트를 보내기까지
+총 시간 :: 응답을 다 받을 때까지
+= 느린 게 서버인지 그 앞인지 이 값들로 갈라 볼 수 있다
 ```
 
-### 2. POST 요청 (생성)
+## 📊 비교: curl vs wget vs Postman
 
-```bash
-# JSON 데이터 전송
-curl -X POST https://api.example.com/users \
-  -H "Content-Type: application/json" \
-  -d '{"name":"김철수","email":"kim@example.com"}'
+| | curl | wget | Postman |
+|---|---|---|---|
+| 어디서 쓰나 | 터미널 | 터미널 | 화면 |
+| 잘하는 것 | 요청 만들어 보내기 | 파일 내려받기 | 모아 두고 관리 |
+| 자동화 | 스크립트에 그대로 | 스크립트에 그대로 | 손이 간다 |
 
-# 파일에서 데이터 읽기
-curl -X POST https://api.example.com/users \
-  -H "Content-Type: application/json" \
-  -d @data.json
+## 💡 실제 사례
 
-# Form 데이터 전송
-curl -X POST https://api.example.com/login \
-  -d "username=admin&password=1234"
+- **API 확인** `curl -i https://api.example.com/users` 한 줄로 상태 코드와 응답을 함께 본다.
+- **상태 점검 자동화** 헬스 체크 주소를 부르는 한 줄을 스크립트에 넣고 cron 으로 돌린다.
+- **응답 다듬기** `curl -s ... | jq .` 로 받아온 JSON 을 읽기 좋은 모양으로 바꿔 본다.
 
-# 파일 업로드
-curl -X POST https://api.example.com/upload \
-  -F "file=@document.pdf" \
-  -F "description=계약서"
-```
+## 🚫 흔한 오해
 
-**옵션 설명**:
-- `-X POST`: HTTP 메서드를 POST로 지정
-- `-H`: HTTP 헤더 추가
-- `-d`: 데이터 전송 (data)
-- `-d @파일명`: 파일에서 데이터 읽기
-- `-F`: 파일 업로드 (form-data)
+- **curl 은 파일 내려받는 도구다** — 내려받기도 하지만 주로 쓰이는 자리는 요청을 만들어 보내는 쪽이다. 사이트를 통째로 긁어 오는 일이라면 wget 이 낫다.
+- **주소만 적으면 브라우저처럼 동작한다** — 리다이렉트를 따라가지 않고 쿠키도 저장하지 않는다. `-L` 과 `-c` 를 붙여야 그렇게 된다.
+- **아무것도 안 나오면 실패한 것이다** — 응답 본문이 비어 있을 뿐일 수 있다. `-i` 나 `-v` 를 붙여 상태 코드부터 봐야 한다.
 
-### 3. 인증
+## 🚨 주의사항
 
-```bash
-# Basic Auth (사용자명:비밀번호)
-curl -u username:password https://api.example.com/protected
+- **`-k` 는 인증서 검사를 끄는 옵션이다.** 개발 중에만 쓰고 운영 스크립트에는 남기지 않는다.
+- **명령줄에 적은 토큰은 이력에 남는다.** 셸 히스토리와 프로세스 목록에 그대로 보이므로 환경 변수나 파일로 넘긴다.
 
-# Bearer Token (JWT)
-curl -H "Authorization: Bearer your-token-here" \
-  https://api.example.com/protected
+## 📝 정리
 
-# API Key
-curl -H "X-API-Key: your-api-key" \
-  https://api.example.com/data
-```
+curl은 터미널에서 URL 로 요청을 보내고 응답을 받는 명령어다. 요청 하나가 글자 한 줄이 되기 때문에 스크립트에 넣거나 남에게 그대로 보낼 수 있다. 브라우저가 알아서 해주던 리다이렉트나 쿠키는 옵션으로 직접 켜야 한다.
 
-### 4. PUT / DELETE 요청
+## ❓ 이해했는지
 
-```bash
-# PUT (수정)
-curl -X PUT https://api.example.com/users/123 \
-  -H "Content-Type: application/json" \
-  -d '{"name":"이영희"}'
-
-# DELETE (삭제)
-curl -X DELETE https://api.example.com/users/123 \
-  -H "Authorization: Bearer token"
-```
-
-## 🎯 실용 예시
-
-### API 테스트 스크립트
-
-```bash
-#!/bin/bash
-
-API_URL="https://api.example.com"
-TOKEN="your-jwt-token"
-
-echo "=== 1. 사용자 목록 조회 ==="
-curl -s -H "Authorization: Bearer $TOKEN" \
-  "$API_URL/users" | jq .
-
-echo "\n=== 2. 새 사용자 생성 ==="
-curl -s -X POST "$API_URL/users" \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"name":"테스트","email":"test@example.com"}' \
-  | jq .
-
-echo "\n=== 3. 사용자 정보 수정 ==="
-curl -s -X PUT "$API_URL/users/123" \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"name":"수정됨"}' \
-  | jq .
-
-echo "\n=== 4. 사용자 삭제 ==="
-curl -s -X DELETE "$API_URL/users/123" \
-  -H "Authorization: Bearer $TOKEN"
-
-echo "\n✅ 테스트 완료"
-```
-
-**실행**:
-```bash
-chmod +x api-test.sh
-./api-test.sh
-```
-
-### 파일 다운로드
-
-```bash
-# 단순 다운로드 (원본 파일명)
-curl -O https://example.com/file.zip
-
-# 다른 이름으로 저장
-curl -o my-file.zip https://example.com/file.zip
-
-# 이어받기 (Resume, 중단된 다운로드 계속)
-curl -C - -O https://example.com/large-file.zip
-
-# 진행 표시 바
-curl --progress-bar -O https://example.com/file.zip
-
-# 여러 파일 동시 다운로드
-cat urls.txt | xargs -n 1 -P 10 curl -O
-```
-
-### 성능 측정
-
-```bash
-# 응답 시간 측정
-curl -w "\n응답 시간: %{time_total}초\n" \
-  -o /dev/null -s https://api.example.com
-
-# 상세 성능 정보
-curl -w "DNS 조회: %{time_namelookup}s\n연결: %{time_connect}s\n전송 시작: %{time_starttransfer}s\n총 시간: %{time_total}s\n" \
-  -o /dev/null -s https://api.example.com
-```
-
-**출력 예시**:
-```
-DNS 조회: 0.050s
-연결: 0.120s
-전송 시작: 0.250s
-총 시간: 0.300s
-```
-
-### 웹 스크래핑
-
-```bash
-# HTML 가져오기
-curl https://example.com > page.html
-
-# 특정 요소만 추출 (grep 사용)
-curl -s https://example.com | grep "<title>"
-
-# 리다이렉트 따라가기
-curl -L https://example.com
-
-# User-Agent 변경 (봇 차단 우회)
-curl -A "Mozilla/5.0" https://example.com
-```
-
-## 📊 주요 옵션
-
-| 옵션 | 설명 | 예시 |
-|------|------|------|
-| `-X` | HTTP 메서드 지정 | `-X POST`, `-X DELETE` |
-| `-H` | 헤더 추가 | `-H "Content-Type: application/json"` |
-| `-d` | 데이터 전송 | `-d '{"key":"value"}'` |
-| `-o` | 파일로 저장 (이름 지정) | `-o output.json` |
-| `-O` | 원본 파일명으로 저장 | `-O` |
-| `-i` | 응답 헤더 포함 | `-i` |
-| `-v` | 상세 정보 출력 (verbose) | `-v` |
-| `-s` | 진행 표시 숨김 (silent) | `-s` |
-| `-u` | 인증 정보 | `-u user:pass` |
-| `-L` | 리다이렉트 따라가기 | `-L` |
-| `-k` | SSL 인증서 검증 무시 | `-k` (개발용만!) |
-| `-C -` | 이어받기 | `-C -` |
-
-## 🔧 고급 사용
-
-### 쿠키 관리
-
-```bash
-# 쿠키 저장
-curl -c cookies.txt https://example.com/login \
-  -d "username=admin&password=1234"
-
-# 저장된 쿠키 사용
-curl -b cookies.txt https://example.com/dashboard
-
-# 쿠키 직접 전송
-curl -b "session_id=abc123" https://example.com/api
-```
-
-### 프록시 사용
-
-```bash
-# HTTP 프록시
-curl -x http://proxy.example.com:8080 https://api.example.com
-
-# 인증이 필요한 프록시
-curl -x http://proxy.example.com:8080 \
-  -U proxyuser:proxypass \
-  https://api.example.com
-```
-
-### 조건부 요청
-
-```bash
-# 파일이 변경된 경우만 다운로드
-curl -z file.txt -O https://example.com/file.txt
-
-# 특정 날짜 이후 변경된 경우만
-curl -z "2024-01-01" -O https://example.com/file.txt
-```
-
-## 🎯 curl vs 다른 도구
-
-| 도구 | 특징 | 사용 시기 |
-|------|------|----------|
-| **curl** | 명령줄, 스크립트 자동화 | 서버, 자동화, 빠른 테스트 |
-| **wget** | 파일 다운로드 특화, 재귀 다운로드 | 웹사이트 전체 다운로드 |
-| **Postman** | GUI, 시각적, 컬렉션 관리 | 복잡한 API 개발/문서화 |
-| **httpie** | 사용자 친화적 CLI | 터미널에서 예쁜 출력 |
-
-**선택 가이드**:
-```
-빠른 테스트 → curl
-자동화 스크립트 → curl
-파일 다운로드 → curl / wget
-GUI 필요 → Postman
-예쁜 CLI → httpie
-```
-
-## 🔗 유용한 조합
-
-### curl + jq (JSON 파싱)
-
-```bash
-# 사용자 이름만 추출
-curl -s https://api.example.com/users | jq '.users[].name'
-
-# 특정 필드만 추출
-curl -s https://api.example.com/users | jq '.users[] | {id, name}'
-```
-
-### curl + grep (텍스트 검색)
-
-```bash
-# 특정 키워드 검색
-curl -s https://example.com | grep "keyword"
-
-# 이메일 주소 추출
-curl -s https://example.com | grep -oE '\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-```
-
-### 반복 실행 (모니터링)
-
-```bash
-# 10초마다 API 상태 확인
-watch -n 10 'curl -s https://api.example.com/health | jq .'
-
-# 실패 시 알림
-while true; do
-  curl -f https://api.example.com/health || echo "⚠️ API 다운!"
-  sleep 60
-done
-```
+- 화면이 없는 서버에서 API 를 확인해야 할 때 GUI 도구를 쓰지 못하는 이유는?
+- 응답이 느릴 때 서버가 느린 건지 그 앞이 느린 건지 어떻게 갈라 보나?
+- curl 로 주소를 불렀는데 화면에 아무것도 안 나오면 무엇부터 확인하나?
 
 ## 🔗 관련 용어
 
-- [[HTTP]]: curl이 사용하는 주요 프로토콜
-- [[API]]: curl로 테스트하는 대상
-- [[Token 인증]]: curl로 인증 테스트
-- [[JSON]]: curl 응답 데이터 형식
-
-## 📚 참고자료
-
-- [curl 공식 문서](https://curl.se/docs/)
-- [curl Cheat Sheet](https://devhints.io/curl)
-- [Everything curl](https://everything.curl.dev/) - 완전한 가이드
-
----
-*카테고리: 네트워크*
-*생성일: 2026-02-14*
+- [[HTTP]] — curl 이 만들어 보내는 요청의 규칙
+- [[Terminal]] — curl 을 치는 자리
+- [[CLI]] — 글자로 명령을 주는 방식. curl 이 그 예다
+- [[Token 인증]] — `-H "Authorization: Bearer ..."` 로 붙이는 것
+- [[SSL_TLS]] — `-k` 가 검사를 꺼버리는 대상

@@ -2,424 +2,99 @@
 
 ## 📝 정의
 
-PII(Personally Identifiable Information, 개인식별정보)는 **특정 개인을 식별할 수 있는 모든 정보**입니다. 이름, 주민번호, 전화번호, 이메일, 주소 등 개인을 직접 또는 간접적으로 식별 가능한 데이터를 말합니다.
+PII는 **특정 개인을 알아낼 수 있는 정보**다.
 
-### 핵심 개념
+이름, 주민번호, 전화번호, 이메일, 주소처럼 그 사람을 곧바로 가리키거나 몇 개를 합치면 가리키게 되는 데이터를 말한다. 개인정보보호법, GDPR, CCPA 같은 법이 다루는 대상이 이것이다.
 
-- **무엇인가?**: 개인을 식별할 수 있는 모든 정보
-- **왜 중요한가?**: 유출 시 개인 피해, 법적 처벌, 기업 신뢰 손상
-- **어떻게 보호하나?**: 감지 → 마스킹 → 암호화 → 접근 제어
+### 비유
+집 주소. 길에 써 붙이면 누구나 찾아오고, 금고에 넣으면 허락받은 사람만 꺼내 본다. 정보 자체보다 어디에 두느냐가 위험을 정한다.
 
-### PII가 해결하는 문제
+## 🖼️ 그림으로 보기
 
-**문제 상황**:
-```
-😱 시나리오 1: PII가 그대로 노출
-챗봇: "주민번호를 입력해주세요"
-사용자: "123456-1234567"
-시스템: "김철수님, 주민번호 123456-1234567로 조회했습니다"
-→ 로그에 주민번호 그대로 저장!
-→ 해커가 로그 접근 시 개인정보 유출! 😱
-
-😱 시나리오 2: 권한 없는 사람이 PII 조회
-직원: "급여팀 주민번호 전부 보여줘"
-시스템 (권한 확인 없음):
-"김철수: 123456-1234567
- 이영희: 654321-7654321..."
-→ 기밀 정보 무단 접근! 😱
-
-😱 시나리오 3: 여러 정보 조합으로 개인 식별
-해커: "이름 + 생년월일 + 주소" 수집
-→ 데이터 조합하여 특정 개인 식별
-→ 피싱, 사기 범죄 악용! 😱
+```도해
+흐름: 사용자가 적어 넣은 주민번호는 어디까지 가나
+입력 :: 사용자가 "901231-1234567" 을 적는다
+감지 :: 정해둔 형태와 맞는지 검사한다
+차단 :: 안 받아도 되는 값이면 여기서 막는다
+마스킹 :: 화면과 로그에는 별표로 바꿔 남긴다
+저장 :: 꼭 필요하면 암호화해서 넣는다
+< 조회 :: 권한이 있는 사람만 원본을 본다
+= 막을 자리가 여러 곳이고 앞에서 막을수록 뒤에서 샐 일이 줄어든다
 ```
 
-**PII 보호의 해결**:
-```
-✅ 시나리오 1 (자동 마스킹):
-사용자: "123456-1234567"
-시스템 (PII 감지):
-→ 입력: 차단 "⚠️ 주민번호를 직접 입력하지 마세요"
-→ 출력: 마스킹 "******-*******"
-→ 로그: 안전! ✅
+## ⚠️ 해결하는 문제
 
-✅ 시나리오 2 (접근 제어):
-직원: "주민번호 보여줘"
-시스템 (권한 확인):
-→ ❌ "급여 PII 조회 권한 없음"
-HR 담당자만 접근 가능 ✅
-
-✅ 시나리오 3 (수집 최소화):
-시스템: 주민번호 수집 안 함
-→ 이름만 저장 (식별 불가)
-→ 조합해도 개인 특정 불가 ✅
+```도해
+대조: 주민번호가 로그에 그대로 찍히면 무엇이 달라지나
+보호 없이 || 보호하면
+로그 :: 원문 그대로 || 별표로 남음
+조회 권한 :: 누구나 본다 || 담당자만 본다
+DB 유출 :: 즉시 다 읽힘 || 암호문만 나감
+= 한 겹이 뚫려도 거기서 끝나게 여러 자리에 나눠 막는 것이다
 ```
 
-**비유**:
-- **PII 보호 없음** = 집 주소를 길거리에 써놓음 (누구나 접근)
-- **PII 보호 있음** = 집 주소를 금고에 보관 (허가받은 사람만 접근)
+챗봇에 주민번호를 적어 넣으면 그 값은 화면에만 남지 않는다. 요청 로그, 응답 로그, 에러 추적 도구, 백업까지 따라 들어간다. 로그를 볼 수 있는 사람이 늘어날수록 그 값을 볼 수 있는 사람도 같이 늘어난다.
 
-## 🔒 PII 분류 상세
+또 하나는 조합이다. 이름 하나로는 사람을 특정하지 못하지만 이름과 생년월일과 주소가 같이 있으면 특정된다. 각각은 위험해 보이지 않아서 따로따로 모으다가, 한자리에 놓이는 순간 위험해진다.
 
-### 직접 식별자 (고위험)
-**단독으로 개인을 특정**할 수 있는 정보
+PII를 다룬다는 건 이 둘을 막는 일이다. 안 받아도 되는 것은 처음부터 받지 않고, 받은 것은 볼 수 있는 사람과 남는 자리를 좁힌다.
 
-| PII 항목 | 예시 | 위험도 |
-|---------|------|-------|
-| 주민번호 | 123456-1234567 | ⚠️ 매우 높음 |
-| 여권번호 | M12345678 | ⚠️ 매우 높음 |
-| 운전면허번호 | 12-34-567890-12 | ⚠️ 높음 |
-| 계좌번호 | 110-123-456789 | ⚠️ 높음 |
-| 신용카드번호 | 1234-5678-9012-3456 | ⚠️ 매우 높음 |
+## 📊 비교: 직접 식별자 vs 간접 식별자
 
-### 간접 식별자 (중위험)
-**여러 개가 조합**되면 개인 식별 가능
+| | 직접 식별자 | 간접 식별자 |
+|---|---|---|
+| 예 | 주민번호, 여권번호, 카드번호 | 이름, 생년월일, 주소 |
+| 혼자 있을 때 | 개인을 특정한다 | 특정하지 못한다 |
+| 여럿이 모이면 | 그대로 위험 | 조합되면 특정된다 |
+| 다루는 법 | 안 받거나 암호화 | 모이는 것을 경계 |
 
-| PII 항목 | 예시 | 위험도 | 조합 시 |
-|---------|------|-------|---------|
-| 이름 | 김철수 | ⚡ 낮음 | 이름 + 생년월일 → 식별 가능 |
-| 생년월일 | 1990-01-01 | ⚡ 낮음 | 생년월일 + 주소 → 식별 가능 |
-| 전화번호 | 010-1234-5678 | ⚡ 중간 | 단독으로도 연락 가능 |
-| 이메일 | hong@company.com | ⚡ 중간 | 이메일 + 이름 → 식별 가능 |
-| 주소 | 서울시 강남구 | ⚡ 낮음 | 주소 + 이름 → 식별 가능 |
+## ⚙️ 작동 원리
 
-### PII가 아닌 것
-
-| 항목 | 이유 |
-|-----|------|
-| 회사 규정 문서 | 개인 식별 불가 |
-| FAQ 내용 | 일반적인 정보 |
-| 직급명 (부장, 과장) | 개인 특정 불가 |
-| 익명화된 통계 | 개인 정보 제거됨 |
-
-## 💡 실제 구현
-
-### 1. PII 감지기
-
-```python
-import re
-from typing import List, Dict
-
-class PIIDetector:
-    """PII 자동 감지"""
-
-    def __init__(self):
-        # PII 패턴 정의
-        self.patterns = {
-            'ssn': {
-                'pattern': r'\d{6}-\d{7}',
-                'name': '주민번호',
-                'risk': 'critical'
-            },
-            'phone': {
-                'pattern': r'0\d{1,2}-\d{3,4}-\d{4}',
-                'name': '전화번호',
-                'risk': 'medium'
-            },
-            'email': {
-                'pattern': r'[\w.-]+@[\w.-]+\.\w+',
-                'name': '이메일',
-                'risk': 'medium'
-            },
-            'credit_card': {
-                'pattern': r'\d{4}-\d{4}-\d{4}-\d{4}',
-                'name': '신용카드',
-                'risk': 'critical'
-            }
-        }
-
-    def detect(self, text: str) -> List[Dict]:
-        """텍스트에서 PII 감지"""
-        detected_pii = []
-
-        for pii_type, info in self.patterns.items():
-            matches = re.finditer(info['pattern'], text)
-
-            for match in matches:
-                detected_pii.append({
-                    'type': pii_type,
-                    'name': info['name'],
-                    'value': match.group(),
-                    'risk_level': info['risk']
-                })
-
-        return detected_pii
-
-    def mask(self, text: str) -> str:
-        """PII 자동 마스킹"""
-        masked_text = text
-
-        # 주민번호
-        masked_text = re.sub(
-            r'\d{6}-\d{7}',
-            '******-*******',
-            masked_text
-        )
-
-        # 전화번호
-        masked_text = re.sub(
-            r'0\d{1,2}-\d{3,4}-\d{4}',
-            '***-****-****',
-            masked_text
-        )
-
-        # 이메일
-        masked_text = re.sub(
-            r'([\w.-]+)@([\w.-]+\.\w+)',
-            lambda m: f"{m.group(1)[0]}***@{m.group(2)}",
-            masked_text
-        )
-
-        # 카드번호
-        masked_text = re.sub(
-            r'(\d{4})-(\d{4})-(\d{4})-(\d{4})',
-            r'****-****-****-\4',
-            masked_text
-        )
-
-        return masked_text
-
-
-# 사용 예시
-detector = PIIDetector()
-
-test_text = """
-김철수님의 정보입니다.
-주민번호: 901231-1234567
-전화번호: 010-1234-5678
-이메일: chulsoo@example.com
-"""
-
-print("=== PII 감지 ===")
-detected = detector.detect(test_text)
-for pii in detected:
-    print(f"⚠️ {pii['name']}: {pii['value']} (위험도: {pii['risk_level']})")
-
-print("\n=== 마스킹된 텍스트 ===")
-masked = detector.mask(test_text)
-print(masked)
+```도해
+층: PII 는 어느 자리에서 막나
+수집 :: 안 받아도 되는 것은 처음부터 안 받는다
+전송 :: HTTPS 로 감싸 중간에서 못 읽게 한다
+저장 :: 암호화해서 넣는다
+접근 :: 역할에 따라 원본, 일부, 마스킹으로 나눈다
+로그 :: 남기기 전에 별표로 바꾼다
+= 위쪽에서 막을수록 아래에서 할 일이 줄어든다
 ```
 
-**출력**:
-```
-=== PII 감지 ===
-⚠️ 주민번호: 901231-1234567 (위험도: critical)
-⚠️ 전화번호: 010-1234-5678 (위험도: medium)
-⚠️ 이메일: chulsoo@example.com (위험도: medium)
+가리는 방법 셋은 서로 다르다. 마스킹은 보여줄 때만 별표로 덮는 것이라 원본은 그대로 남아 있다. 암호화는 열쇠가 있으면 되돌릴 수 있으므로 나중에 원본이 필요한 값에 쓴다. 익명화는 해시처럼 되돌릴 수 없게 바꾸는 것이라, 다시 볼 일이 없는 값에 쓴다.
 
-=== 마스킹된 텍스트 ===
-김철수님의 정보입니다.
-주민번호: ******-*******
-전화번호: ***-****-****
-이메일: c***@example.com
-```
+감지는 형태를 보고 한다. 주민번호는 숫자 여섯 자리에 하이픈, 다시 일곱 자리 같은 식으로 모양이 정해져 있어서 들어오는 글에서 찾아낼 수 있다. 찾은 다음에 막을지 덮을지는 그 값을 받아야 하는지에 따라 갈린다.
 
-### 2. PII 접근 제어
+## 💡 실제 사례
 
-```python
-from functools import wraps
-from enum import Enum
+- **챗봇 입력** 주민번호 형태가 감지되면 받지 않고 직접 입력하지 말라는 안내로 되돌린다.
+- **급여 조회** 인사 담당자는 원본을 보고, 팀장은 일부만 보고, 일반 직원에게는 마스킹된 값만 나간다.
+- **에러 추적** 예외 메시지에 전화번호가 섞여 들어가면 저장 전에 `***-****-****` 로 바꾼다.
 
-class PIIAccessLevel(Enum):
-    """PII 접근 권한 레벨"""
-    NONE = 0      # 접근 불가
-    MASKED = 1    # 마스킹된 형태만
-    PARTIAL = 2   # 일부만
-    FULL = 3      # 전체 접근
+## 🚫 흔한 오해
 
-class PIIAccessControl:
-    """PII 접근 제어"""
+- **이름만 저장하니까 PII가 아니다** — 이름 하나로는 특정이 안 되지만 생년월일이나 주소가 같이 있으면 특정된다. 위험은 항목 하나가 아니라 조합에서 생긴다.
+- **암호화해서 저장했으면 끝났다** — 저장만 가린 것이다. 조회할 때 누가 볼 수 있는지, 로그에 원문이 찍히는지는 그대로 남아 있다.
+- **마스킹하면 원본이 사라진다** — 마스킹은 보여줄 때 덮는 것이라 원본은 그 자리에 있다. 없애려면 삭제하거나 익명화해야 한다.
 
-    def __init__(self):
-        # 역할별 권한 정의
-        self.role_permissions = {
-            'admin': PIIAccessLevel.FULL,
-            'hr': PIIAccessLevel.FULL,
-            'manager': PIIAccessLevel.PARTIAL,
-            'employee': PIIAccessLevel.MASKED,
-            'guest': PIIAccessLevel.NONE
-        }
+## 🚨 주의사항
 
-    def require_pii_permission(self, required_level: PIIAccessLevel):
-        """PII 접근 권한 데코레이터"""
-        def decorator(func):
-            @wraps(func)
-            def wrapper(user, *args, **kwargs):
-                # 사용자 권한 확인
-                user_level = self.get_user_access_level(user)
+- **안 받는 것이 가장 확실한 보호다.** 저장하지 않은 값은 유출될 수 없고 나중에 지울 일도 없다.
+- **로그와 백업을 빼먹지 않는다.** 화면은 가려놓고 로그에 원문이 남으면 가린 적이 없는 것과 같다.
 
-                if user_level.value < required_level.value:
-                    raise PermissionError(
-                        f"❌ PII 접근 권한이 부족합니다.\n"
-                        f"   필요: {required_level.name}\n"
-                        f"   현재: {user_level.name}"
-                    )
+## 📝 정리
 
-                return func(user, *args, **kwargs)
+PII는 특정 개인을 알아낼 수 있는 정보다. 항목 하나가 아니라 조합으로 위험해지므로 안 받는 것에서 시작해 전송, 저장, 접근, 로그의 각 자리에서 나눠 막는다. 마스킹과 암호화와 익명화는 되돌릴 수 있는지가 달라서 쓰는 자리도 다르다.
 
-            return wrapper
-        return decorator
+## ❓ 이해했는지
 
-    def get_user_access_level(self, user: dict) -> PIIAccessLevel:
-        """사용자의 PII 접근 권한 확인"""
-        role = user.get('role', 'guest')
-        return self.role_permissions.get(role, PIIAccessLevel.NONE)
-
-
-# 사용 예시
-access_control = PIIAccessControl()
-
-@access_control.require_pii_permission(PIIAccessLevel.FULL)
-def view_ssn(user, employee_id: str):
-    """주민번호 조회 (FULL 권한 필요)"""
-    return f"주민번호: 901231-1234567"
-
-@access_control.require_pii_permission(PIIAccessLevel.PARTIAL)
-def view_phone(user, employee_id: str):
-    """전화번호 조회 (PARTIAL 권한 필요)"""
-    return f"전화번호: 010-1234-5678"
-
-
-# 테스트
-users = [
-    {'id': 'user1', 'role': 'admin'},
-    {'id': 'user2', 'role': 'manager'},
-    {'id': 'user3', 'role': 'employee'}
-]
-
-for user in users:
-    print(f"\n사용자: {user['role']}")
-
-    # 주민번호 조회 시도
-    try:
-        print(f"  {view_ssn(user, 'EMP001')}")
-    except PermissionError as e:
-        print(f"  {e}")
-
-    # 전화번호 조회 시도
-    try:
-        print(f"  {view_phone(user, 'EMP001')}")
-    except PermissionError as e:
-        print(f"  {e}")
-```
-
-**실행 결과**:
-```
-사용자: admin
-  주민번호: 901231-1234567
-  전화번호: 010-1234-5678
-
-사용자: manager
-  ❌ PII 접근 권한이 부족합니다.
-     필요: FULL
-     현재: PARTIAL
-  전화번호: 010-1234-5678
-
-사용자: employee
-  ❌ PII 접근 권한이 부족합니다.
-     필요: FULL
-     현재: MASKED
-  ❌ PII 접근 권한이 부족합니다.
-     필요: PARTIAL
-     현재: MASKED
-```
-
-## 🛡️ PII 보호 방법
-
-### 1. 수집 최소화
-
-**나쁜 예** (불필요한 PII 수집):
-```python
-user_data = {
-    'name': '김철수',
-    'ssn': '901231-1234567',  # ❌ 불필요
-    'email': 'kim@example.com'
-}
-```
-
-**좋은 예** (필요한 정보만):
-```python
-user_data = {
-    'name': '김철수',
-    'email': 'kim@example.com'
-    # SSN 수집하지 않음 ✅
-}
-```
-
-### 2. 암호화 저장
-
-```python
-from cryptography.fernet import Fernet
-
-class PIIEncryptor:
-    """PII 암호화"""
-
-    def __init__(self, key: bytes):
-        self.cipher = Fernet(key)
-
-    def encrypt_pii(self, pii_value: str) -> bytes:
-        """PII 암호화"""
-        return self.cipher.encrypt(pii_value.encode())
-
-    def decrypt_pii(self, encrypted: bytes) -> str:
-        """PII 복호화 (권한 있는 경우만)"""
-        return self.cipher.decrypt(encrypted).decode()
-
-
-# 사용
-key = Fernet.generate_key()
-encryptor = PIIEncryptor(key)
-
-ssn = "901231-1234567"
-encrypted_ssn = encryptor.encrypt_pii(ssn)
-print(f"암호화: {encrypted_ssn}")
-
-# 복호화 (권한 있는 사용자만)
-decrypted = encryptor.decrypt_pii(encrypted_ssn)
-print(f"복호화: {decrypted}")
-```
-
-### 3. 익명화/가명화
-
-```python
-import hashlib
-
-def anonymize_pii(pii_value: str, salt: str = "secret") -> str:
-    """PII 익명화 (복구 불가능)"""
-    combined = pii_value + salt
-    return hashlib.sha256(combined.encode()).hexdigest()
-
-# 원본 데이터를 복구할 수 없음
-ssn = "901231-1234567"
-anonymized = anonymize_pii(ssn)
-print(f"익명화: {anonymized}")
-# → 일방향 해시, 복구 불가능
-```
-
-## 🎯 PII 보호 체크리스트
-
-| 단계 | 확인 사항 | 중요도 |
-|------|----------|--------|
-| **수집** | 필요한 PII만 수집 | ⚠️ 매우 높음 |
-| **전송** | HTTPS로 암호화 전송 | ⚠️ 매우 높음 |
-| **저장** | 암호화하여 저장 | ⚠️ 매우 높음 |
-| **접근** | 권한 기반 접근 제어 | ⚠️ 높음 |
-| **로그** | PII 자동 마스킹 | ⚠️ 높음 |
-| **폐기** | 안전한 삭제 | ⚠️ 중간 |
+- 이름만 모으고 있는데도 개인정보 문제가 생길 수 있다. 어떻게 그런가?
+- DB를 암호화해뒀는데도 주민번호가 새어 나갈 수 있는 경로는?
+- 다시 볼 일이 없는 값에 암호화 대신 해시를 쓰는 이유는?
 
 ## 🔗 관련 용어
 
-- [[Guardrail]]: PII 입출력 차단
-- [[Audit Log]]: PII 접근 기록
-- [[Token 인증]]: 인증 정보 보호
-- [[암호화]]: PII 보호 기술
-
-## 📚 법적 근거
-
-- [개인정보보호법](https://www.law.go.kr/) (한국)
-- [GDPR](https://gdpr.eu/) (유럽)
-- [CCPA](https://oag.ca.gov/privacy/ccpa) (캘리포니아)
-
----
-*카테고리: 보안*
-*생성일: 2026-02-14*
+- [[암호화]] — 되돌릴 수 있게 가리는 방법. 원본이 다시 필요한 값에 쓴다
+- [[Hash]] — 되돌릴 수 없게 바꾸는 쪽. 익명화에 쓴다
+- [[RBAC]] — 역할에 따라 원본을 볼지 마스킹을 볼지 가르는 장치
+- [[Audit Log]] — 누가 언제 PII를 열어봤는지 남기는 기록
+- [[Guardrail]] — 챗봇 입출력에서 PII를 걸러내는 장치

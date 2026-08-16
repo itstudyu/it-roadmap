@@ -2,347 +2,94 @@
 
 ## 📝 정의
 
-Step-up Auth(추가 인증)는 이미 로그인한 사용자가 **민감한 작업을 할 때** 한 번 더 본인 확인을 요구하는 보안 메커니즘입니다.
+Step-up Auth는 **민감한 작업 앞에서 한 번 더 본인을 확인하는 절차**다.
 
-### 핵심 개념
+로그인은 이미 되어 있는 상태다. 그대로 송금이나 비밀번호 변경을 하려 하면 비밀번호나 지문을 다시 묻고, 확인이 끝나면 짧은 시간 동안만 그 권한을 준다.
 
-- **무엇인가?**: 로그인 후에도 중요한 작업 시 추가로 인증하는 것
-- **왜 필요한가?**: 누군가 내 로그인된 기기를 잠깐 사용해도 중요한 작업은 막기 위해
-- **언제 사용하나?**: 송금, 비밀번호 변경, 개인정보 조회 등 민감한 작업 시
+### 비유
+건물 출입증과 금고실 지문 인식. 출입증으로 건물에는 들어가지만 금고실 문 앞에서는 한 번 더 확인한다.
 
-### Step-up Auth가 해결하는 문제
-
-**문제 상황**:
-```
-😱 시나리오 1:
-당신이 은행 앱에 로그인해 둔 상태로 자리를 비웠습니다.
-누군가 당신의 폰을 들고 송금 버튼을 누릅니다.
-→ 로그인되어 있으니 그냥 송금이 됩니다! 😱
-
-😱 시나리오 2:
-회사 인사 시스템에 로그인해둔 상태로 회의를 갑니다.
-동료가 장난으로 당신의 PC에서 급여 정보를 조회합니다.
-→ 이미 로그인되어 있으니 조회가 됩니다! 😱
-```
-
-**Step-up Auth의 해결**:
-```
-✅ 같은 상황:
-송금 버튼을 누르면 → "비밀번호를 다시 입력하세요"
-급여 조회 버튼을 누르면 → "지문 인증을 해주세요"
-→ 본인이 아니면 진행할 수 없습니다! ✅
-```
-
-**비유**:
-- 일반 로그인 = 건물 출입증 (건물에는 들어갈 수 있음)
-- Step-up Auth = 금고실 생체인증 (중요한 곳은 한 번 더 확인)
-
-## 📊 작동 원리
-
-Step-up Auth는 **작업의 민감도**에 따라 추가 인증을 요구합니다.
-
-### 인증 레벨 구조
-
-
-### 작업별 요구 인증 레벨
-
-| 작업 | 필요 레벨 | 추가 인증 |
-|------|----------|----------|
-| 프로필 보기 | Level 1 | ❌ 불필요 |
-| 게시글 작성 | Level 1 | ❌ 불필요 |
-| 이메일 변경 | Level 2 | ✅ 비밀번호 |
-| 송금 | Level 2 | ✅ 비밀번호 + OTP |
-| 계좌 삭제 | Level 2 | ✅ 생체인증 |
-
-## 🔄 동작 시퀀스
-
-사용자가 송금을 시도하는 경우:
+## 🖼️ 그림으로 보기
 
 ```도해
-흐름: Step-up Auth, 무슨 순서로 오가나
-사용자 :: 송금" 버튼 클릭
-앱 :: 송금 요청 + 현재 토큰
-서버 :: 토큰 확인 (Level 1)
-서버 :: 권한 부족 "Step-up 필요
-앱 :: 비밀번호 입력 화면
-사용자 :: 비밀번호 입력
-앱 :: 비밀번호 검증
-인증 시스템 :: 인증 성공
-앱 :: 송금 요청 + 새 토큰 (Level 2, 10분 유효)
-서버 :: 토큰 확인 (Level 2)
-서버 :: 송금 완료
+흐름: 로그인한 사람이 송금을 누르면 무슨 순서로 진행되나
+사용자 :: 송금 버튼을 누른다
+서버 :: 지금 토큰은 Level 1 이라고 확인한다
+서버 :: Level 2 가 필요하다며 거절한다
+앱 :: 비밀번호를 다시 묻는다
+서버 :: 맞으면 10분짜리 Level 2 토큰을 준다
+< 서버 :: Level 2 로 다시 온 송금 요청을 처리한다
+= 로그인은 그대로 두고 민감한 작업 앞에만 문을 하나 더 세운다
 ```
 
-### 각 단계 상세 설명
+## ⚠️ 해결하는 문제
 
-1. **사용자가 민감한 작업 시도**:
-   - 현재 Level 1 (일반 로그인)
-   - Level 2가 필요한 작업 요청
-
-2. **서버가 권한 부족 판단**:
-   - 현재 토큰의 레벨 확인
-   - Level 1 < Level 2 → 거부
-
-3. **Step-up Auth 요구**:
-   - 사용자에게 추가 인증 요청
-   - 비밀번호, OTP, 생체인증 등
-
-4. **인증 성공 시 Level 2 토큰 발급**:
-   - 새 토큰에 Level 2 권한 부여
-   - 제한된 시간(5-10분) 동안만 유효
-
-5. **작업 수행**:
-   - Level 2 토큰으로 작업 진행
-   - 시간 만료 후 자동으로 Level 1로 강등
-
-## 💡 실제 예시
-
-### 은행 앱 시나리오
-
-```
-[일반 로그인 상태 - Level 1]
-사용자: "잔액 조회" 클릭
-앱: ✅ 바로 보여줌 (민감하지 않음)
-
-사용자: "송금" 클릭
-앱: ⚠️ "송금을 위해 비밀번호를 입력하세요"
-
-사용자: 비밀번호 입력
-앱: ✅ Level 2로 승격 (10분간 유효)
-
-[이후 10분 내]
-사용자: "또 다른 송금" 클릭
-앱: ✅ 바로 진행 (Level 2 유지 중)
-
-[10분 후]
-사용자: "또 송금" 클릭
-앱: ⚠️ "다시 비밀번호를 입력하세요" (Level 1로 강등)
+```도해
+대조: 로그인된 폰을 남이 잠깐 집으면 무엇이 달라지나
+추가 인증 없이 || 추가 인증으로
+잔액 조회 :: 그냥 된다 || 그냥 된다
+송금 :: 그냥 된다 || 비밀번호를 물음
+비밀번호 변경 :: 그냥 된다 || 막힌다
+= 로그인 한 번이 모든 작업의 허가가 되지 않게 나누는 것이다
 ```
 
-### 기본 구현 예시
+로그인은 대개 오래 유지된다. 앱을 켤 때마다 다시 묻지 않는 편이 쓰기 좋기 때문이다. 그런데 그 편함은 폰을 두고 자리를 비우는 순간 그대로 위험이 된다. 로그인된 화면에서 송금 버튼을 누르면 그냥 송금이 된다.
 
-```python
-from datetime import datetime, timedelta
-from enum import Enum
+Step-up Auth는 작업마다 필요한 확인 수준을 다르게 둔다. 잔액을 보는 것은 로그인만으로 되고, 돈이 나가거나 계정이 바뀌는 일은 그 자리에서 본인 확인을 다시 받는다.
 
-class AuthLevel(Enum):
-    """인증 레벨"""
-    GUEST = 0      # 비로그인
-    BASIC = 1      # 일반 로그인
-    ELEVATED = 2   # Step-up 완료
+## ⚙️ 작동 원리
 
-class StepUpAuthManager:
-    """Step-up 인증 관리"""
-
-    def __init__(self):
-        self.sessions = {}  # 사용자별 세션 저장
-
-    def check_permission(self, user_id: str, required_level: AuthLevel) -> bool:
-        """권한 확인"""
-        session = self.sessions.get(user_id)
-
-        # 세션이 없으면 거부
-        if not session:
-            return False
-
-        # 시간 만료 확인
-        if datetime.now() > session['expires_at']:
-            # 만료된 경우 Level 1로 강등
-            session['level'] = AuthLevel.BASIC
-            session['expires_at'] = datetime.max
-
-        # 현재 레벨이 요구 레벨보다 낮으면 거부
-        return session['level'].value >= required_level.value
-
-    def step_up_auth(self, user_id: str, password: str) -> bool:
-        """Step-up 인증 수행"""
-
-        # 비밀번호 검증 (실제로는 DB와 비교)
-        if not self._verify_password(user_id, password):
-            return False
-
-        # Level 2로 승격 (10분간 유효)
-        self.sessions[user_id] = {
-            'level': AuthLevel.ELEVATED,
-            'expires_at': datetime.now() + timedelta(minutes=10)
-        }
-
-        return True
-
-    def _verify_password(self, user_id: str, password: str) -> bool:
-        """비밀번호 검증 (더미)"""
-        # 실제로는 해시 비교
-        return password == "correct_password"
-
-
-# 사용 예시
-auth_manager = StepUpAuthManager()
-
-# 사용자가 로그인 (Level 1)
-auth_manager.sessions["user123"] = {
-    'level': AuthLevel.BASIC,
-    'expires_at': datetime.max  # 일반 세션은 만료 없음
-}
-
-# 잔액 조회 (Level 1 필요)
-if auth_manager.check_permission("user123", AuthLevel.BASIC):
-    print("✅ 잔액: 1,000,000원")
-
-# 송금 시도 (Level 2 필요)
-if auth_manager.check_permission("user123", AuthLevel.ELEVATED):
-    print("✅ 송금 진행")
-else:
-    print("⚠️ 추가 인증이 필요합니다")
-
-    # Step-up Auth 수행
-    password = input("비밀번호를 입력하세요: ")
-    if auth_manager.step_up_auth("user123", password):
-        print("✅ 인증 성공! 송금을 진행합니다")
-    else:
-        print("❌ 인증 실패")
+```도해
+층: 인증 수준은 어떻게 나뉘나
+Level 0 :: 로그인하지 않은 상태. 아무것도 못 한다
+Level 1 :: 일반 로그인. 조회와 글쓰기까지
+Level 2 :: 추가 인증을 마친 상태. 5분에서 10분
+= 시간이 지나면 Level 2 는 저절로 Level 1 로 내려간다
 ```
 
-**각 부분 설명**:
+서버는 요청을 받을 때 지금 토큰의 수준과 그 작업에 필요한 수준을 견준다. 모자라면 거절하고 추가 인증을 요구한다. 인증이 끝나면 수준이 오른 토큰을 새로 발급하는데, 이 토큰에는 짧은 만료 시간이 붙는다.
 
-1. **AuthLevel**: 인증 레벨을 정의 (GUEST < BASIC < ELEVATED)
-2. **check_permission**: 현재 레벨이 요구 레벨보다 높은지 확인
-3. **step_up_auth**: 추가 인증을 통해 Level 2로 승격
-4. **expires_at**: Level 2는 10분 후 자동 만료
+시간을 얼마로 둘지가 이 방식의 조절 손잡이다. 짧으면 송금 두 번에 비밀번호를 두 번 넣어야 하고, 길면 자리를 비운 사이에 그 시간이 그대로 열려 있다. 작업마다 다르게 잡기도 한다. 송금은 5분, 설정 변경은 15분 하는 식이다.
 
-### 실무 구현 예시
+## 📊 비교: 일반 로그인 vs Step-up Auth
 
-```python
-from fastapi import FastAPI, Depends, HTTPException, status
-from fastapi.security import HTTPBearer
+| | 일반 로그인 | Step-up Auth |
+|---|---|---|
+| 언제 | 앱을 열 때 | 민감한 작업 직전 |
+| 유효 기간 | 길다 | 5분에서 10분 |
+| 보호 대상 | 앱 전체 접근 | 특정 작업 |
+| 확인 방법 | 아이디와 비밀번호 | 비밀번호, OTP, 생체 |
 
-app = FastAPI()
-security = HTTPBearer()
-auth_manager = StepUpAuthManager()
+## 💡 실제 사례
 
-@app.get("/balance")
-def get_balance(token: str = Depends(security)):
-    """잔액 조회 (Level 1 필요)"""
-    user_id = extract_user_id(token)
+- **은행 앱 송금** 잔액은 바로 보이고 송금 버튼에서만 비밀번호를 다시 묻는다. 10분 안에 한 번 더 보내면 묻지 않는다.
+- **비밀번호 변경** 로그인된 상태여도 지금 쓰는 비밀번호를 한 번 더 넣어야 바꿀 수 있다.
+- **급여 정보 조회** 회의에 간 사이 동료가 열어봐도 지문 인증에서 막힌다.
 
-    if not auth_manager.check_permission(user_id, AuthLevel.BASIC):
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED)
+## 🚫 흔한 오해
 
-    return {"balance": 1000000}
+- **Step-up Auth는 MFA의 다른 이름이다** — MFA는 로그인할 때 수단을 둘 이상 쓰는 것이고, Step-up은 로그인 뒤 특정 작업 앞에서 다시 묻는 것이다. 추가 인증 수단으로 OTP를 쓰면 겹쳐 보일 뿐이다.
+- **한 번 추가 인증하면 그 뒤로 계속 유지된다** — 5분에서 10분이 지나면 저절로 내려간다. 같은 작업을 다시 하려면 또 묻는다.
+- **로그인을 짧게 자주 시키면 같은 효과다** — 그러면 잔액 조회 같은 가벼운 일까지 매번 막힌다. Step-up은 위험한 작업 앞에만 문을 세워 나머지는 그대로 두는 방식이다.
 
-@app.post("/transfer")
-def transfer_money(
-    amount: int,
-    to_account: str,
-    token: str = Depends(security)
-):
-    """송금 (Level 2 필요)"""
-    user_id = extract_user_id(token)
+## 🚨 주의사항
 
-    # Step-up 인증 확인
-    if not auth_manager.check_permission(user_id, AuthLevel.ELEVATED):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Step-up authentication required"
-        )
+- **승격 시간을 작업에 맞춰 다르게 잡는다.** 되돌리기 어려운 일일수록 짧게 둔다.
+- **추가 인증 시도를 기록한다.** 누가 언제 무엇을 하려다 확인을 요구받았는지가 남아야 나중에 되짚을 수 있다.
 
-    # 송금 진행
-    return {"message": f"{amount}원이 {to_account}로 송금되었습니다"}
+## 📝 정리
 
-@app.post("/step-up")
-def step_up(password: str, token: str = Depends(security)):
-    """Step-up 인증"""
-    user_id = extract_user_id(token)
+Step-up Auth는 로그인 뒤에도 민감한 작업 앞에서 본인 확인을 한 번 더 받는 방식이다. 확인이 끝나면 수준이 오른 토큰을 짧은 시간만 주고 그 시간이 지나면 저절로 내려간다. 로그인 한 번이 모든 작업의 허가가 되지 않게 나누는 것이 목적이다.
 
-    if auth_manager.step_up_auth(user_id, password):
-        return {"message": "Step-up 인증 성공", "expires_in": 600}
-    else:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED)
-```
+## ❓ 이해했는지
 
-**동작 흐름**:
-```
-1. 사용자가 /balance 호출 → Level 1이면 OK
-2. 사용자가 /transfer 호출 → Level 2 필요 → 403 에러
-3. 사용자가 /step-up 호출 (비밀번호 전송) → Level 2로 승격
-4. 사용자가 다시 /transfer 호출 → 이제 OK
-```
-
-## 🎯 Step-up Auth vs 일반 로그인
-
-| 특성 | 일반 로그인 | Step-up Auth |
-|------|------------|--------------|
-| **시점** | 앱 실행 시 | 민감한 작업 시 |
-| **빈도** | 1회 (세션 유지) | 매번 또는 주기적 |
-| **유효 기간** | 길다 (일주일~한달) | 짧다 (5-10분) |
-| **보호 대상** | 전체 앱 접근 | 특정 민감 작업 |
-| **사용자 경험** | 편리 (한번만) | 약간 불편 (반복) |
-| **보안 수준** | 기본 | 높음 |
-
-### 언제 어떤 것을 사용할까?
-
-```
-일반 로그인만으로 충분:
-- 게시글 보기/쓰기
-- 친구 목록 보기
-- 일반 설정 변경
-
-Step-up Auth 필요:
-- 송금, 결제
-- 비밀번호 변경
-- 개인정보 조회
-- 계정 삭제
-- 권한 변경
-```
-
-## 🔒 보안 Best Practices
-
-### 1. 적절한 시간 제한
-
-```python
-# 너무 길면 위험, 너무 짧으면 불편
-STEP_UP_DURATION = {
-    '송금': timedelta(minutes=5),   # 짧게
-    '설정 변경': timedelta(minutes=15),  # 좀 길게
-    '관리자 작업': timedelta(minutes=3)   # 매우 짧게
-}
-```
-
-### 2. 인증 방법 다양화
-
-```python
-# 작업의 민감도에 따라 다른 인증 방법
-STEP_UP_METHODS = {
-    '비밀번호 변경': ['password', 'otp'],  # 2가지 필요
-    '소액 송금': ['password'],  # 비밀번호만
-    '대액 송금': ['password', 'otp', 'biometric']  # 3가지 필요
-}
-```
-
-### 3. 로깅 및 모니터링
-
-```python
-def step_up_with_audit(user_id: str, action: str):
-    """Step-up 시도 기록"""
-    log_security_event(
-        user_id=user_id,
-        action=f"step_up_attempt: {action}",
-        timestamp=datetime.now(),
-        ip_address=request.remote_addr
-    )
-```
+- 로그인된 폰을 남이 집었을 때 잔액은 보이는데 송금은 막히는 이유는?
+- 송금을 한 번 하고 3분 뒤에 또 하면 비밀번호를 다시 묻지 않는 이유는?
+- 승격 시간을 길게 잡으면 무엇을 잃나?
 
 ## 🔗 관련 용어
 
-- [[Token 인증]]: Step-up Auth의 기반이 되는 인증 방식
-- [[MFA]]: Step-up Auth의 한 형태 (Multi-Factor Authentication)
-- [[Audit Log]]: Step-up 시도를 기록하는 로그
-- [[세션 관리]]: Step-up 상태를 관리하는 방법
-
-## 📚 참고자료
-
-- [NIST Digital Identity Guidelines](https://pages.nist.gov/800-63-3/)
-- [OAuth 2.0 Step-up Authentication](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-step-up-authn-challenge)
-
----
-*카테고리: 보안*
-*생성일: 2026-02-14*
+- [[Token 인증]] — 지금 인증 수준이 얼마인지를 담아 나르는 수단
+- [[MFA]] — 로그인 시점에 수단을 둘 이상 요구하는 쪽
+- [[Session]] — 승격된 상태를 어디에 들고 있을지의 문제
+- [[Audit Log]] — 추가 인증 시도를 남겨두는 기록

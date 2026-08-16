@@ -91,7 +91,7 @@ Orchestrator 는 요청을 보고 어느 Agent 에게 맡길지 정하고, 결�
 ## 🔗 관련 용어
 
 - [[AI Agent]] — Orchestrator 가 골라서 부르는 실행 단위
-- [[Intent]] — 질문을 갈래로 나눈 결과
+- [[Intent 분류]] — 질문을 갈래로 나눈 결과
 - [[Fallback]] — 맡은 Agent 가 실패했을 때 넘어갈 곳
 - [[LLM]] — 갈래를 정하고 답을 합치는 데 쓰이는 모델
 - [[RAG]] — 문서 검색을 맡은 Agent 가 쓰는 방식

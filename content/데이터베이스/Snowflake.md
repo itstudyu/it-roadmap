@@ -2,229 +2,92 @@
 
 ## 📝 정의
 
-Snowflake는 **클라우드 기반 데이터 웨어하우스 플랫폼**입니다. 대용량 데이터를 저장하고 분석하는 데 최적화되어 있으며, 자동 스케일링과 간편한 관리가 특징입니다.
+Snowflake는 **저장과 계산을 떼어놓은 클라우드 데이터 웨어하우스**다.
 
-### 핵심 개념
+데이터는 클라우드 저장소에 한 벌만 두고, 그것을 계산할 자원은 필요할 때마다 따로 띄웠다 내린다. 대용량을 훑어 집계하는 분석용으로 만들어졌다.
 
-- **무엇인가?**: 클라우드에서 동작하는 대용량 데이터 분석 플랫폼
-- **왜 필요한가?**: 전통 DB는 대용량 분석 느림, 서버 관리 복잡
-- **어떻게 작동하나?**: 데이터 저장 → 자동 스케일링 → SQL로 빠른 분석
+### 비유
+공용 창고와 지게차. 짐은 창고에 한 번만 넣어두고, 옮길 일이 있을 때 지게차를 빌려 쓰다가 일이 끝나면 돌려준다. 지게차를 몇 대 빌리든 창고 안의 짐은 그대로 한 벌이다.
 
-### Snowflake가 해결하는 문제
-
-**문제 상황**:
-```
-😱 시나리오 1: 빅데이터 분석 느림
-전통 DB: 10억 건 데이터 집계
-→ 쿼리 30분 소요
-→ 분석 불가능! 😱
-
-😱 시나리오 2: 서버 용량 관리
-데이터 증가 → 서버 증설 필요
-→ 직접 서버 구매/설치
-→ 시간과 비용 낭비! 😱
-
-😱 시나리오 3: 동시 사용자 처리
-100명이 동시에 쿼리 실행
-→ 서버 다운
-→ 분석 중단! 😱
-```
-
-**Snowflake의 해결**:
-```
-✅ 시나리오 1 (고성능):
-10억 건 데이터 → 분산 처리
-→ 쿼리 30초 완료
-→ 빠른 분석! ✅
-
-✅ 시나리오 2 (자동 스케일링):
-데이터 증가 → 자동으로 용량 증가
-→ 서버 관리 불필요
-→ 편리! ✅
-
-✅ 시나리오 3 (무한 동시성):
-100명 동시 쿼리 → 각자 별도 자원
-→ 서로 영향 없음
-→ 안정적! ✅
-```
-
-**비유**:
-- **전통 DB** = 자가용 (직접 관리, 용량 제한)
-- **Snowflake** = 우버 (필요할 때만 사용, 무제한 확장)
-
-## 📊 Snowflake 아키텍처
+## 🖼️ 그림으로 보기
 
 ```도해
-층: Snowflake, 어떻게 나뉘어 있나
-Storage :: S3/Azure Blob 데이터 저장
-Compute :: Warehouse 1 ETL 작업 · Warehouse 2 분석 쿼리 · Warehouse 3 ML 작업
-Services :: 메타데이터 쿼리 최적화 보안
+흐름: 분석 쿼리 한 건이 들어오면 무엇이 움직이나
+사용자 :: 10억 건짜리 집계 쿼리를 던진다
+서비스 :: 데이터가 어디 있는지 보고 계획을 짠다
+웨어하우스 :: 멈춰 있다가 깨어나 계산을 맡는다
+저장소 :: 필요한 부분만 읽어 웨어하우스로 올린다
+< 사용자 :: 결과를 받는다. 웨어하우스는 곧 다시 멈춘다
+= 계산하는 동안만 깨어 있고 데이터는 한 곳에 그대로 있다
 ```
 
-**3계층 분리의 장점**:
-1. **저장소**: 데이터는 한 곳에, 중복 없음
-2. **컴퓨팅**: 사용자별 독립적인 자원
-3. **서비스**: 중앙에서 최적화 및 보안 관리
+## ⚠️ 해결하는 문제
 
-## 💡 주요 기능
-
-### 1. Virtual Warehouse (가상 컴퓨팅)
-
-```sql
--- Warehouse 생성 (자원 할당)
-CREATE WAREHOUSE analytics_wh
-  WITH WAREHOUSE_SIZE = 'MEDIUM'
-  AUTO_SUSPEND = 600          -- 10분 후 자동 정지
-  AUTO_RESUME = TRUE;         -- 쿼리 시 자동 시작
-
--- Warehouse 사용
-USE WAREHOUSE analytics_wh;
-
--- 쿼리 실행 (자동으로 시작)
-SELECT COUNT(*) FROM large_table;
--- → 10억 건 데이터도 빠르게 처리
-
--- 10분간 사용 안 하면 자동 정지 (비용 절감)
+```도해
+대조: 분석 팀 백 명이 동시에 쿼리를 돌리면 어떻게 되나
+전통 DB 로 || Snowflake 로
+쓰는 자원 :: 한 서버를 나눠 씀 || 팀마다 따로 잡음
+서로 영향 :: 무거운 쿼리에 밀림 || 옆을 건드리지 않음
+용량 늘리기 :: 서버를 새로 산다 || 크기만 바꾼다
+= 계산할 자리를 따로 잡을 수 있으면 서로 기다릴 일이 없다
 ```
 
-**크기별 성능**:
-| 크기 | 노드 | 사용 사례 | 시간당 비용 |
-|------|------|----------|------------|
-| X-Small | 1 | 소규모 쿼리 | $2 |
-| Small | 2 | 일반 분석 | $4 |
-| Medium | 4 | 복잡한 쿼리 | $8 |
-| Large | 8 | 대용량 ETL | $16 |
-| X-Large | 16 | 빅데이터 분석 | $32 |
+전통적인 DB는 저장과 계산이 한 서버에 묶여 있다. 그래서 10억 건을 훑는 집계 하나가 돌기 시작하면 그 서버를 쓰는 나머지 작업이 전부 느려진다. 동시에 백 명이 쿼리를 던지면 서버가 버티지 못한다.
 
-### 2. 자동 스케일링
+용량을 늘리는 일도 번거롭다. 데이터가 늘면 서버를 더 큰 것으로 바꾸거나 새로 사야 하고, 그때까지 몇 주가 걸린다. Snowflake는 계산 자원을 저장소에서 떼어놓아서 이 두 문제를 함께 푼다. 무거운 작업에는 큰 웨어하우스를 붙이고 가벼운 작업에는 작은 것을 붙이면 서로 밀지 않는다.
 
-```sql
--- Multi-Cluster Warehouse (자동 확장/축소)
-CREATE WAREHOUSE scaling_wh
-  WITH WAREHOUSE_SIZE = 'MEDIUM'
-  MIN_CLUSTER_COUNT = 1       -- 최소 1개
-  MAX_CLUSTER_COUNT = 10      -- 최대 10개
-  SCALING_POLICY = 'STANDARD'
-  AUTO_SUSPEND = 300
-  AUTO_RESUME = TRUE;
+## ⚙️ 작동 원리
 
--- 사용자 증가 → 자동으로 Cluster 추가
--- 사용자 감소 → 자동으로 Cluster 제거
+```도해
+층: Snowflake 는 어떻게 세 겹으로 나뉘어 있나
+서비스 :: 메타데이터, 쿼리 계획, 권한을 맡는다
+컴퓨팅 :: 웨어하우스가 계산한다. 여러 개 둘 수 있다
+저장소 :: 데이터가 한 벌만 놓인다. 클라우드 저장소를 쓴다
+= 계산을 몇 개 띄우든 데이터가 복사되지는 않는다
 ```
 
-### 3. Time Travel & Fail-safe
+계산을 맡는 단위를 Virtual Warehouse라고 부른다. 크기는 X-Small부터 X-Large까지 있고 한 단계 올라갈 때마다 노드 수가 두 배가 된다. X-Small이 노드 1개에 시간당 2달러라면 X-Large는 16개에 32달러다. 크기를 바꾸는 데 데이터를 옮길 필요가 없어서 작업 성격에 맞춰 그때그때 고르면 된다.
 
-```sql
--- 실수로 데이터 삭제
-DELETE FROM users WHERE age < 30;
+쓰지 않을 때 멈추는 설정이 요금을 좌우한다. 일정 시간 쿼리가 없으면 자동으로 정지하고 새 쿼리가 오면 자동으로 다시 켜지도록 걸어둔다. 사용자가 몰릴 때 클러스터를 자동으로 늘렸다 줄이는 설정도 따로 있다.
 
--- 1시간 전 데이터 복구
-SELECT * FROM users AT(OFFSET => -3600);
+지난 시점을 다시 보는 기능도 있다. Time Travel은 정해둔 기간 안이라면 몇 시간 전이나 며칠 전 상태의 표를 그대로 읽게 해준다. 이 기간은 1일에서 90일 사이로 설정하고, 그 뒤로도 7일간은 Snowflake가 따로 백업을 들고 있다. 지운 표를 되살리는 명령도 있다.
 
--- 특정 시점으로 복구
-CREATE TABLE users_recovered CLONE users
-  AT(TIMESTAMP => '2024-02-14 10:00:00'::timestamp);
+## 📊 비교: Snowflake 와 전통 DB
 
--- Undrop (삭제한 테이블 복구)
-DROP TABLE users;
-UNDROP TABLE users;
-```
+| | 전통 DB | Snowflake |
+|---|---|---|
+| 인프라 | 직접 관리 | 맡겨둔다 |
+| 확장 | 서버를 바꾼다 | 크기만 바꾼다 |
+| 비용 | 켜둔 시간만큼 고정 | 쓴 만큼 |
+| 동시 사용 | 서로 밀린다 | 자원을 따로 잡는다 |
+| 잘 맞는 일 | 잦고 작은 거래 | 크게 훑는 분석 |
 
-**데이터 보호 기간**:
-- Time Travel: 1~90일 (설정 가능)
-- Fail-safe: 추가 7일 (Snowflake가 백업 보관)
+## 💡 실제 사례
 
-## 🎯 실제 사용 예시
+- **월별 매출 집계** 10억 건 주문 표를 훑는 집계가 30분 걸리던 것이 30초 안에 끝난다.
+- **잘못 지운 데이터 되돌리기** 조건을 잘못 걸어 지웠을 때 한 시간 전 시점의 표를 그대로 읽어 복구한다.
+- **작업별로 웨어하우스 나누기** 적재용, 분석용, 학습용을 따로 두어 무거운 작업이 다른 작업을 밀지 않게 한다.
 
-### 대용량 데이터 분석
+## 🚫 흔한 오해
 
-```sql
--- 10억 건 주문 데이터 집계
-SELECT
-    product_category,
-    DATE_TRUNC('month', order_date) AS month,
-    COUNT(*) AS order_count,
-    SUM(amount) AS total_revenue
-FROM orders
-WHERE order_date >= '2024-01-01'
-GROUP BY product_category, month
-ORDER BY total_revenue DESC;
+- **웨어하우스를 여러 개 만들면 데이터도 그만큼 복사된다** — 데이터는 저장소에 한 벌만 있다. 웨어하우스는 계산할 자리일 뿐이라 몇 개를 띄워도 같은 데이터를 본다.
+- **자동으로 늘어나니까 비용은 신경 쓰지 않아도 된다** — 크기를 한 단계 올리면 시간당 요금이 두 배가 된다. 정지 설정을 안 걸어두면 아무도 안 쓰는 밤에도 켜져 있는다.
+- **일반 DB 대신 여기에 다 넣으면 된다** — 크게 훑어 집계하는 일에 맞춰진 도구다. 주문 한 건을 넣고 잔액 한 줄을 고치는 잦은 거래는 전통 DB 쪽이 맞다.
 
--- 전통 DB: 30분
--- Snowflake: 30초
-```
+## 📝 정리
 
-### ELT 파이프라인
+Snowflake는 데이터를 클라우드 저장소에 한 벌만 두고 계산 자원을 따로 붙였다 떼는 데이터 웨어하우스다. 서비스, 컴퓨팅, 저장소 세 겹으로 나뉘어 있어서 작업마다 웨어하우스를 따로 잡아도 데이터는 복사되지 않는다. 크게 훑는 분석에는 강하지만 잦고 작은 거래에는 맞지 않는다.
 
-```sql
--- 1. 외부 데이터 로드 (S3에서)
-COPY INTO raw_data
-FROM @s3_stage/data/
-FILE_FORMAT = (TYPE = 'PARQUET');
+## ❓ 이해했는지
 
--- 2. 변환
-CREATE TABLE processed_data AS
-SELECT
-    user_id,
-    DATE(timestamp) AS date,
-    SUM(revenue) AS daily_revenue
-FROM raw_data
-GROUP BY user_id, DATE(timestamp);
-
--- 3. 분석용 테이블 생성
-CREATE TABLE analytics_table AS
-SELECT * FROM processed_data
-WHERE daily_revenue > 1000;
-```
-
-## 📊 Snowflake vs 전통 DB
-
-| 항목 | 전통 DB (Oracle, PostgreSQL) | Snowflake |
-|------|--------------------------|-----------|
-| **인프라** | 직접 관리 | 완전 관리형 |
-| **확장** | 수동 (서버 증설) | 자동 |
-| **비용** | 고정 (서버 비용) | 사용량 기반 |
-| **동시성** | 제한적 | 무제한 |
-| **백업** | 수동 | 자동 (Time Travel) |
-| **성능** | 작은 데이터에 빠름 | 대용량 데이터에 빠름 |
-| **용도** | OLTP (거래) | OLAP (분석) |
-
-## 🔒 보안 기능
-
-```sql
--- 1. 데이터 암호화 (자동)
--- → 모든 데이터 AES-256 암호화
-
--- 2. Row-Level Security
-CREATE ROW ACCESS POLICY region_policy AS (region STRING)
-RETURNS BOOLEAN ->
-  CURRENT_ROLE() = 'ADMIN'
-  OR region = CURRENT_REGION();
-
--- 3. Column Masking
-CREATE MASKING POLICY ssn_mask AS (val STRING)
-RETURNS STRING ->
-  CASE
-    WHEN CURRENT_ROLE() IN ('ADMIN', 'HR') THEN val
-    ELSE '***-**-****'
-  END;
-
-ALTER TABLE users MODIFY COLUMN ssn
-  SET MASKING POLICY ssn_mask;
-```
+- 웨어하우스를 세 개 띄워도 데이터가 세 벌이 되지 않는 이유는?
+- 아무도 쿼리를 돌리지 않는 밤에 계산 요금이 거의 안 나오게 하려면 무엇을 설정해야 하나?
+- 실수로 지운 표를 나중에 되살릴 수 있는 근거는 무엇인가?
 
 ## 🔗 관련 용어
 
-- [[Data Warehouse]]: Snowflake가 속한 카테고리
-- [[ETL/ELT]]: Snowflake의 주요 사용 사례
-- [[OLAP]]: Snowflake의 최적화 대상
-- [[Cloud Computing]]: Snowflake의 기반
-
-## 📚 참고자료
-
-- [Snowflake 공식 문서](https://docs.snowflake.com/)
-- [Snowflake University](https://www.snowflake.com/snowflake-university/) - 무료 교육
-
----
-*카테고리: 데이터베이스*
-*생성일: 2026-02-14*
+- [[DB]] — Snowflake가 속한 큰 갈래
+- [[SQL]] — Snowflake에 묻는 언어
+- [[S3]] — 저장소 층이 실제로 쓰는 클라우드 저장소의 예
+- [[Cloud]] — 저장과 계산을 떼어놓는 것이 가능해진 배경
+- [[Auto Scaling]] — 웨어하우스를 자동으로 늘렸다 줄이는 것과 같은 발상

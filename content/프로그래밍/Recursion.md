@@ -2,368 +2,86 @@
 
 ## 📝 정의
 
-Recursion(재귀)은 **함수가 자기 자신을 호출하는 프로그래밍 기법**입니다. 문제를 더 작은 같은 문제로 나누어 해결합니다.
+Recursion은 **함수가 자기 자신을 부르는 방식**이다.
 
-### 핵심 개념
+큰 문제를 같은 모양의 작은 문제로 바꿔놓고, 그 작은 문제를 같은 함수에 다시 맡긴다. 더 줄일 수 없는 자리에 닿으면 거기서 멈추고 답이 거슬러 올라온다.
 
-- **무엇인가?**: 자기 자신을 호출하는 함수
-- **왜 필요한가?**: 복잡한 문제를 간단하게 표현
-- **어떻게 작동하나?**: 기본 사례 + 재귀 호출
+### 비유
+러시아 인형. 열면 같은 모양의 작은 인형이 나오고 또 열면 더 작은 것이 나온다. 마지막 인형은 더 이상 열리지 않고, 거기서부터 다시 닫으며 나온다.
 
-### Recursion이 해결하는 문제
+## 🖼️ 그림으로 보기
 
-**문제 상황**:
-```python
-😱 시나리오 1: 팩토리얼 계산
-# 5! = 5 × 4 × 3 × 2 × 1
-result = 1
-for i in range(1, 6):
-    result *= i
-# 반복문으로는 복잡! 😱
-
-😱 시나리오 2: 트리 구조 순회
-# 폴더 안의 모든 파일 찾기
-# 폴더 안에 또 폴더가...
-# 깊이를 알 수 없음! 😱
-
-😱 시나리오 3: 분할 정복
-# 큰 문제를 작은 문제로
-# 어떻게 나누지? 😱
+```도해
+흐름: 3! 을 재귀로 구하면 어떤 순서로 답이 나오나
+호출 1 :: 3 곱하기 2! 이다. 2! 을 아직 모른다
+호출 2 :: 2 곱하기 1! 이다. 1! 을 아직 모른다
+호출 3 :: 1! 은 1 이다. 더 부르지 않고 멈춘다
+< 호출 2 :: 받은 1 에 2 를 곱해 2 를 돌려준다
+< 호출 1 :: 받은 2 에 3 을 곱해 6 을 돌려준다
+= 끝까지 내려가 멈출 자리를 찍고 나서야 답이 거슬러 올라온다
 ```
 
-**Recursion의 해결**:
-```python
-✅ 시나리오 1: 간단한 표현
-def factorial(n):
-    if n <= 1:
-        return 1
-    return n * factorial(n-1)
+## ⚠️ 해결하는 문제
 
-print(factorial(5))  # 120
-# 수학 공식 그대로! ✅
-
-✅ 시나리오 2: 자연스러운 순회
-def find_files(directory):
-    files = []
-    for item in directory:
-        if is_file(item):
-            files.append(item)
-        else:  # 폴더면
-            files.extend(find_files(item))  # 재귀!
-    return files
-# 깊이 상관없이 처리! ✅
-
-✅ 시나리오 3: 분할 정복
-def merge_sort(arr):
-    if len(arr) <= 1:
-        return arr
-    mid = len(arr) // 2
-    left = merge_sort(arr[:mid])    # 재귀
-    right = merge_sort(arr[mid:])   # 재귀
-    return merge(left, right)
-# 자동으로 나누고 합침! ✅
+```도해
+대조: 폴더 안에 폴더가 몇 겹인지 모를 때 어떻게 훑나
+반복문으로 || 재귀로
+필요한 것 :: 깊이를 알아야 || 몰라도 된다
+코드 :: 겹마다 늘어난다 || 한 벌로 끝난다
+새 깊이 등장 :: 고쳐야 한다 || 그대로 돈다
+= 안에서 같은 모양이 되풀이되는 구조에는 함수 한 벌이면 된다
 ```
 
-## 📊 재귀 작동 원리
+폴더 안의 파일을 전부 찾는다고 하자. 폴더 안에 폴더가 있고 그 안에 또 폴더가 있는데 몇 겹인지는 열어보기 전에 모른다. 반복문으로 짜려면 겹마다 중첩을 하나씩 더 쓰거나 직접 목록을 관리해야 하고, 예상보다 깊은 폴더가 나오면 코드를 고쳐야 한다.
 
+재귀는 이 구조를 그대로 옮긴다. 파일이면 담고 폴더면 같은 함수를 다시 부른다. 깊이가 몇이든 코드는 한 벌이다. 문제 자체가 자기와 닮은 작은 문제를 품고 있을 때 잘 맞는다.
 
-### 재귀 구조
+## ⚙️ 작동 원리
 
-**1. 기본 사례 (Base Case)**:
-```python
-if n <= 1:
-    return 1  # 재귀 종료!
-```
+재귀 함수는 두 부분으로 이루어진다. 하나는 더 이상 자신을 부르지 않고 답을 바로 돌려주는 기본 사례이고, 다른 하나는 문제를 한 단계 줄여 자신을 다시 부르는 재귀 호출이다. 팩토리얼이라면 `n <= 1`일 때 1을 돌려주는 부분이 기본 사례고 `n * factorial(n-1)`이 재귀 호출이다.
 
-**2. 재귀 호출 (Recursive Case)**:
-```python
-return n * factorial(n-1)  # 자신을 호출
-```
+호출이 겹칠 때마다 아직 답을 못 받은 함수들이 스택에 그대로 쌓인다. 위 그림에서 호출 1과 호출 2는 호출 3이 답을 낼 때까지 자기 자리를 잡고 기다린다. 그래서 깊이가 곧 메모리 사용량이고, 반복문보다 무거운 이유도 여기 있다.
 
-## 💡 재귀 예시
+## 📊 비교: 재귀와 반복
 
-### Python
+| | 재귀 | 반복 |
+|---|---|---|
+| 코드 모양 | 문제 정의를 그대로 옮김 | 상태를 직접 관리 |
+| 속도 | 호출 비용이 붙는다 | 더 빠르다 |
+| 메모리 | 깊이만큼 스택을 쓴다 | 거의 안 쓴다 |
+| 맞는 자리 | 트리, 폴더, 분할 정복 | 단순한 되풀이 |
 
-**팩토리얼**:
-```python
-def factorial(n):
-    """n! 계산"""
-    # 기본 사례
-    if n <= 1:
-        return 1
+## 💡 실제 사례
 
-    # 재귀 호출
-    return n * factorial(n - 1)
+- **폴더 안 파일 모두 찾기** 폴더를 만나면 같은 함수를 다시 불러 그 안을 훑는다.
+- **트리 순회** 지금 노드를 처리하고 왼쪽 가지와 오른쪽 가지에 같은 함수를 부르면 전체가 돌아간다.
+- **분할 정복 정렬** 목록을 반으로 갈라 각각을 다시 정렬한 다음 두 결과를 합친다.
 
-print(factorial(5))  # 120
-# 5! = 5 × 4 × 3 × 2 × 1
-```
+## 🚫 흔한 오해
 
-**피보나치 수열**:
-```python
-def fibonacci(n):
-    """n번째 피보나치 수"""
-    # 기본 사례
-    if n <= 1:
-        return n
-
-    # 재귀 호출
-    return fibonacci(n-1) + fibonacci(n-2)
-
-print(fibonacci(6))  # 8
-# 0, 1, 1, 2, 3, 5, 8
-```
-
-**리스트 합계**:
-```python
-def sum_list(numbers):
-    """리스트 합계 (재귀)"""
-    # 기본 사례
-    if not numbers:
-        return 0
-
-    # 재귀 호출
-    return numbers[0] + sum_list(numbers[1:])
-
-print(sum_list([1, 2, 3, 4, 5]))  # 15
-```
-
-## 🎯 실전 활용
-
-### 1. 거듭제곱
-
-```python
-def power(base, exp):
-    """base^exp 계산"""
-    # 기본 사례
-    if exp == 0:
-        return 1
-
-    # 재귀 호출
-    return base * power(base, exp - 1)
-
-print(power(2, 10))  # 1024
-```
-
-### 2. 역순 문자열
-
-```python
-def reverse_string(s):
-    """문자열 뒤집기"""
-    # 기본 사례
-    if len(s) <= 1:
-        return s
-
-    # 재귀 호출
-    return s[-1] + reverse_string(s[:-1])
-
-print(reverse_string("hello"))  # "olleh"
-```
-
-### 3. 트리 순회
-
-```python
-class TreeNode:
-    def __init__(self, value):
-        self.value = value
-        self.left = None
-        self.right = None
-
-def traverse(node):
-    """트리 순회 (전위)"""
-    if node is None:
-        return
-
-    print(node.value)        # 현재 노드
-    traverse(node.left)      # 왼쪽 서브트리
-    traverse(node.right)     # 오른쪽 서브트리
-
-# 사용
-root = TreeNode(1)
-root.left = TreeNode(2)
-root.right = TreeNode(3)
-traverse(root)  # 1, 2, 3
-```
-
-### 4. 이진 검색
-
-```python
-def binary_search(arr, target, left, right):
-    """이진 검색 (재귀)"""
-    # 기본 사례: 못 찾음
-    if left > right:
-        return -1
-
-    mid = (left + right) // 2
-
-    # 기본 사례: 찾음
-    if arr[mid] == target:
-        return mid
-
-    # 재귀 호출
-    if arr[mid] > target:
-        return binary_search(arr, target, left, mid - 1)
-    else:
-        return binary_search(arr, target, mid + 1, right)
-
-arr = [1, 3, 5, 7, 9, 11, 13]
-index = binary_search(arr, 7, 0, len(arr) - 1)
-print(f"7은 인덱스 {index}에 있음")  # 3
-```
-
-### 5. 디렉토리 탐색
-
-```python
-import os
-
-def find_all_files(directory, extension):
-    """특정 확장자 파일 모두 찾기"""
-    result = []
-
-    for item in os.listdir(directory):
-        path = os.path.join(directory, item)
-
-        if os.path.isfile(path):
-            # 파일이면 확장자 확인
-            if path.endswith(extension):
-                result.append(path)
-        else:
-            # 디렉토리면 재귀 탐색
-            result.extend(find_all_files(path, extension))
-
-    return result
-
-# 모든 .py 파일 찾기
-py_files = find_all_files("/project", ".py")
-```
-
-## 🔍 재귀 vs 반복
-
-| 특성 | 재귀 | 반복 |
-|------|------|------|
-| **가독성** | 높음 (간결) | 낮음 (복잡) |
-| **성능** | 느림 (오버헤드) | 빠름 |
-| **메모리** | 많이 사용 (스택) | 적게 사용 |
-| **적합한 경우** | 트리, 분할정복 | 단순 반복 |
-
-**재귀로 표현**:
-```python
-def factorial(n):
-    if n <= 1:
-        return 1
-    return n * factorial(n-1)
-```
-
-**반복문으로 표현**:
-```python
-def factorial(n):
-    result = 1
-    for i in range(1, n+1):
-        result *= i
-    return result
-```
+- **재귀로 쓰면 더 빠르다** — 대개 더 느리다. 호출마다 스택에 자리를 잡는 비용이 붙는다. 재귀가 주는 것은 속도가 아니라 문제 구조가 그대로 드러나는 코드다.
+- **자기를 부르니까 결국 무한히 도는 것 아닌가** — 멈출 자리인 기본 사례가 있으면 멈춘다. 기본 사례가 없거나 호출할 때마다 그쪽으로 가까워지지 않을 때만 무한 재귀가 된다.
+- **재귀로 짜면 계산도 알아서 효율적이 된다** — 피보나치를 그대로 재귀로 쓰면 같은 값을 몇 번씩 다시 계산한다. 계산해둔 값을 기억하는 메모이제이션을 따로 붙여야 한다.
 
 ## 🚨 주의사항
 
-### 1. 무한 재귀
-
-```python
-# ❌ 기본 사례 없음
-def infinite():
-    return infinite()  # RecursionError!
-
-# ✅ 기본 사례 있음
-def countdown(n):
-    if n <= 0:  # 기본 사례
-        return
-    print(n)
-    countdown(n-1)
-```
-
-### 2. 재귀 깊이 제한
-
-```python
-import sys
-
-# 기본 재귀 한도 확인
-print(sys.getrecursionlimit())  # 1000
-
-# ❌ 깊은 재귀
-def deep(n):
-    if n == 0:
-        return
-    deep(n-1)
-
-# deep(2000)  # RecursionError!
-
-# 필요시 한도 증가 (주의!)
-sys.setrecursionlimit(3000)
-```
-
-### 3. 비효율적인 재귀
-
-```python
-# ❌ 비효율적 (중복 계산)
-def fibonacci(n):
-    if n <= 1:
-        return n
-    return fibonacci(n-1) + fibonacci(n-2)
-# fibonacci(40) → 매우 느림!
-
-# ✅ 메모이제이션
-memo = {}
-def fibonacci_memo(n):
-    if n in memo:
-        return memo[n]
-    if n <= 1:
-        return n
-    memo[n] = fibonacci_memo(n-1) + fibonacci_memo(n-2)
-    return memo[n]
-# fibonacci_memo(40) → 빠름!
-```
-
-## 🔗 관련 용어
-
-- [[Function]]: 재귀의 기본 단위
-- [[Stack]]: 재귀 호출이 저장되는 곳
-- [[Loop]]: 재귀의 대안
-- [[Algorithm]]: 재귀를 사용하는 알고리즘
+- **기본 사례부터 쓴다.** 종료 조건이 없으면 호출이 스택을 채우다가 오류로 끝난다.
+- **깊이에 한계가 있다.** 파이썬은 기본 재귀 한도가 1000이라 그보다 깊게 들어가면 멈춘다. 한도를 올리는 것보다 반복문으로 바꾸는 편이 나을 때가 많다.
 
 ## 📝 정리
 
-**재귀의 핵심**:
-```
-Recursion = 자기 자신을 호출
-→ 기본 사례 (종료 조건) 필수
-→ 재귀 호출 (작은 문제로)
-→ 간결하지만 오버헤드 있음
-```
+Recursion은 문제를 같은 모양의 작은 문제로 바꿔 자기 자신에게 다시 맡기는 방식이다. 멈출 자리인 기본 사례와 한 단계 줄여 다시 부르는 재귀 호출, 이 둘이 갖춰져야 돌아간다. 깊이를 모르는 구조를 짧은 코드로 다루는 대신 스택과 호출 비용을 내준다.
 
-**재귀 패턴**:
-```python
-def recursive(problem):
-    # 1. 기본 사례
-    if is_simple(problem):
-        return solve_directly(problem)
+## ❓ 이해했는지
 
-    # 2. 문제를 작게 나누기
-    subproblems = divide(problem)
+- 3!을 재귀로 구할 때 실제로 숫자가 만들어지기 시작하는 지점은 어디인가?
+- 폴더가 몇 겹인지 모르는데도 코드를 한 벌만 써도 되는 이유는?
+- 피보나치를 그대로 재귀로 쓰면 왜 느려지나?
 
-    # 3. 재귀 호출
-    results = [recursive(sub) for sub in subproblems]
+## 🔗 관련 용어
 
-    # 4. 결과 합치기
-    return combine(results)
-```
-
-**비유로 기억하기**:
-```
-Recursion = 러시아 인형
-→ 큰 인형 안에 작은 인형
-→ 작은 인형 안에 더 작은 인형
-→ 가장 작은 인형이 기본 사례
-```
-
----
-*카테고리: 프로그래밍*
-*생성일: 2026-02-15*
+- [[Function]] — 재귀가 딛고 서는 단위
+- [[Stack]] — 아직 답을 못 받은 호출이 쌓이는 곳
+- [[Loop]] — 같은 일을 하는 다른 방법. 비용 계산이 반대다
+- [[Algorithm]] — 분할 정복처럼 재귀를 전제로 짜인 것들이 있다
+- [[자료구조]] — 트리처럼 자기 안에 자기를 품은 구조와 잘 맞는다

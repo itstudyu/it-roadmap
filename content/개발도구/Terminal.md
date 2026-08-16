@@ -2,339 +2,93 @@
 
 ## 📝 정의
 
-Terminal은 **CLI 명령어를 입력하고 실행 결과를 보는 프로그램**입니다. 명령어와 컴퓨터 사이의 "창구" 역할을 합니다.
+Terminal은 **명령어를 치고 결과를 보는 창**이다.
 
-### 핵심 개념
+명령을 실제로 해석하고 실행하는 것은 터미널이 아니라 그 안에서 도는 Shell 이다. 터미널은 글자를 받아 넘기고 돌아온 글자를 화면에 그린다.
 
-- **무엇인가?**: CLI를 사용하기 위한 프로그램
-- **왜 필요한가?**: 명령어 입출력 인터페이스 제공
-- **어떻게 작동하나?**: Shell과 통신하며 명령어 전달
+### 비유
+은행 창구. 고객을 마주하고 요청을 받아 전달하지만 돈을 세는 일은 안쪽 담당자가 한다.
 
-## 🤔 Terminal과 Shell의 차이
-
-```
-Terminal (터미널):
-→ 창 (프로그램)
-→ 입력 받고 출력 보여줌
-→ 예: iTerm2, Windows Terminal
-
-Shell (셸):
-→ 통역사 (명령어 해석기)
-→ 명령어를 해석하고 실행
-→ 예: Bash, Zsh, PowerShell
-
-비유:
-Terminal = 전화기
-Shell = 교환원
-OS = 실제 업무 담당자
-```
-
-## 📊 구조
-
-### Terminal의 구조
-
-
-### Terminal의 구성 요소
-
-```
-┌─────────────────────────────────────┐
-│ Terminal Window                     │
-│                                     │
-│ user@mac ~ % ls -la                │  ← 프롬프트 + 입력
-│ drwxr-xr-x  10 user  staff   320   │  ← 출력
-│ -rw-r--r--   1 user  staff  1234   │
-│                                     │
-│ user@mac ~ % █                     │  ← 커서
-└─────────────────────────────────────┘
-
-프롬프트 (Prompt):
-→ user@mac: 사용자명@컴퓨터명
-→ ~: 현재 위치 (홈 디렉토리)
-→ %: 명령 대기 중
-
-커서 (Cursor):
-→ 입력 위치 표시
-→ 깜빡이는 사각형/줄
-```
-
-## 🔄 작동 원리
-
-### Terminal 실행 흐름
+## 🖼️ 그림으로 보기
 
 ```도해
-흐름: Terminal, 무슨 순서로 오가나
-사용자 :: Terminal 실행
-Terminal 앱 :: Shell 시작
-Shell :: 프롬프트 표시
-Terminal 앱 :: user@mac ~ %
-사용자 :: python app.py" 입력
-Terminal 앱 :: 명령어 전달
-Shell :: Python 실행
-프로그램 :: app.py 실행
-프로그램 :: 결과/출력
-Shell :: 전달
-Terminal 앱 :: 화면에 출력
+흐름: 명령어를 한 줄 치면 어디까지 갔다 오나
+사용자 :: python app.py 를 치고 엔터를 누른다
+터미널 :: 받은 글자를 Shell 에 그대로 넘긴다
+Shell :: 무슨 명령인지 해석해 프로그램을 띄운다
+프로그램 :: 실행하고 결과 글자를 내보낸다
+< 터미널 :: 돌아온 글자를 화면에 그린다
+= 터미널은 글자를 나르기만 하고 해석은 Shell 이 한다
 ```
 
-## 💡 일상적 비유로 이해하기
+## ⚠️ 해결하는 문제
 
-### Terminal = 은행 창구
-
-```
-은행 업무 보기:
-
-고객 (사용자)
-→ 창구 직원 (Terminal)
-→ 내부 담당자 (Shell)
-→ 금고/시스템 (OS)
-
-Terminal:
-→ 고객과 직접 대면
-→ 요청 받고 결과 전달
-→ 하지만 실제 일은 안 함
-
-Shell:
-→ 요청 해석
-→ 적절한 담당자에게 전달
-→ 결과 받아서 전달
+```도해
+대조: 화면 클릭만으로 일하면 어떻게 되나
+터미널 없이 || 터미널로
+반복 작업 :: 매번 손으로 클릭 || 한 줄로 다시 실행
+원격 서버 :: 화면이 있어야 함 || 글자만 오가면 됨
+여러 작업 :: 창을 계속 늘린다 || 탭으로 나란히
+= 오가는 것이 글자뿐이라 어디서든 같은 방식으로 쓴다
 ```
 
-## 🎯 실제 사례 (P3 프로젝트)
+클릭으로 하는 일은 매번 손이 간다. 같은 작업을 날마다 반복해도 같은 자리를 다시 눌러야 하고, 남에게 방법을 알려주려면 화면을 찍어 보내야 한다.
 
-### P3 개발 시 Terminal 사용
+터미널은 그 자리를 글자로 바꾼다. 한 번 친 명령은 이력에 남아 그대로 다시 부를 수 있고, 남에게는 그 한 줄을 보내면 된다. 오가는 게 글자뿐이라 화면 없는 원격 서버에도 같은 방식으로 붙는다.
 
-```
-하루 일과:
+## ⚙️ 작동 원리
 
-09:00 - Terminal 실행
-→ iTerm2 열기
-→ 프로젝트 폴더로 이동
-
-09:10 - Git 작업
-→ git pull origin main
-→ git checkout -b feature/new
-
-10:00 - 개발 서버 실행
-→ docker-compose up
-→ 여러 Tab에서 로그 확인
-
-15:00 - 테스트
-→ pytest tests/
-→ 결과 확인
-
-17:00 - 커밋 & 푸시
-→ git add .
-→ git commit
-→ git push
+```도해
+층: 내가 친 글자는 누구를 거쳐 가나
+터미널 :: 글자를 받고 화면에 그리는 창
+Shell :: 그 글자를 명령으로 해석하는 통역사
+운영체제 :: 프로그램을 띄우고 파일을 실제로 다룬다
+= 터미널을 바꿔도 Shell 은 그대로고 그 반대도 된다
 ```
 
-### Tab과 Window 활용
+그래서 iTerm2 를 쓸지 Windows Terminal 을 쓸지 고르는 것과 Bash 를 쓸지 Zsh 를 쓸지 고르는 것은 별개다. 글꼴과 색과 탭과 화면 분할은 터미널 쪽 설정이다.
 
-```
-Tab 1: 개발 서버
-→ uvicorn main:app --reload
+프롬프트 모양이나 별칭이나 PATH 는 Shell 설정 파일에 적는다. Zsh 라면 `~/.zshrc`, Bash 라면 `~/.bashrc` 다. 지금 무엇을 쓰는지는 `echo $SHELL` 로 보고 `chsh -s /bin/zsh` 로 바꾼다.
 
-Tab 2: Git 작업
-→ git status
-→ git commit
+## 📊 비교: Terminal vs Shell
 
-Tab 3: 로그 확인
-→ tail -f logs/app.log
+| | Terminal | Shell |
+|---|---|---|
+| 무엇인가 | 글자를 주고받는 창 | 명령을 해석하는 프로그램 |
+| 예 | iTerm2, Windows Terminal | Bash, Zsh, PowerShell |
+| 정하는 것 | 글꼴, 색, 탭, 화면 분할 | 프롬프트, 별칭, PATH |
+| 설정 자리 | 앱 환경설정 | `~/.zshrc` 같은 파일 |
 
-Tab 4: Docker 관리
-→ docker ps
-→ docker logs backend
+## 💡 실제 사례
 
-→ 여러 작업 동시 진행 ✅
-```
+- **탭 나눠 쓰기** 한 탭에 개발 서버, 다른 탭에 로그 보기, 또 다른 탭에 Git 작업을 두고 오간다.
+- **명령 이력 찾기** `Ctrl + R` 로 지난주에 쳤던 긴 명령을 그대로 다시 꺼내 쓴다.
+- **멈춘 명령 끊기** 돌아오지 않는 명령을 `Ctrl + C` 로 끊고 다음 명령을 친다.
 
-## 💻 코드 구현 (간단하게)
+## 🚫 흔한 오해
 
-### Terminal 기본 사용
-
-```bash
-# 새 Terminal 열기
-Cmd + T (macOS)
-Ctrl + Shift + T (Linux)
-
-# Tab 이동
-Cmd + 숫자 (macOS)
-Ctrl + Tab (Linux)
-
-# 화면 지우기
-clear
-또는 Cmd + K
-
-# 명령어 중단
-Ctrl + C
-
-# 프로세스 일시정지
-Ctrl + Z
-```
-
-### 유용한 단축키
-
-```bash
-# 이동
-Ctrl + A: 줄 처음
-Ctrl + E: 줄 끝
-Ctrl + U: 줄 전체 삭제
-Ctrl + W: 단어 삭제
-
-# 검색
-Ctrl + R: 명령어 이력 검색
-Ctrl + L: 화면 지우기 (clear)
-
-# 복사/붙여넣기
-Cmd + C: 복사
-Cmd + V: 붙여넣기
-```
-
-### Shell 변경
-
-```bash
-# 현재 Shell 확인
-echo $SHELL
-→ /bin/bash 또는 /bin/zsh
-
-# 사용 가능한 Shell 목록
-cat /etc/shells
-
-# Shell 변경 (Bash → Zsh)
-chsh -s /bin/zsh
-
-# 다시 로그인하면 적용
-```
-
-## 🔍 주요 Terminal 프로그램
-
-### macOS
-
-**Terminal (기본)**:
-- 가볍고 빠름
-- 기본 기능만
-
-**iTerm2 (추천)**:
-- Split Panes (화면 분할)
-- 검색 강화
-- 테마/폰트 커스터마이징
-- Hotkey Window
-
-### Windows
-
-**PowerShell**:
-- Windows 기본
-- 강력한 스크립팅
-- .NET 통합
-
-**Windows Terminal (추천)**:
-- 여러 Shell 지원
-- Tab 기능
-- GPU 가속
-- 테마 지원
-
-**Git Bash**:
-- Linux 명령어 사용 가능
-- Git과 통합
-
-### Linux
-
-**GNOME Terminal (기본)**:
-- 간단하고 빠름
-
-**Terminator**:
-- 화면 분할
-- 여러 Terminal 동시
+- **터미널이 명령어를 실행한다** — 터미널은 글자를 나르고 그리는 창이다. 해석하고 실행하는 것은 그 안에서 도는 Shell 이다.
+- **터미널을 바꾸면 쓰던 명령어도 달라진다** — 명령어를 정하는 건 Shell 쪽이다. iTerm2 에서 쓰던 명령은 기본 터미널에서도 그대로 쓰인다.
+- **검은 화면은 다 리눅스다** — 창의 생김새일 뿐이다. 안에서 도는 것이 PowerShell 일 수도 있고 Zsh 일 수도 있다.
 
 ## 🚨 주의사항
 
-### 1. Shell 설정 파일
-
-```bash
-# Bash
-~/.bashrc     # 설정 파일
-~/.bash_profile
-
-# Zsh
-~/.zshrc      # 설정 파일
-
-# 수정 후 적용
-source ~/.zshrc
-```
-
-### 2. PATH 환경 변수
-
-```bash
-# PATH 확인
-echo $PATH
-
-# PATH 추가 (임시)
-export PATH=$PATH:/new/path
-
-# PATH 추가 (영구)
-# ~/.zshrc에 추가:
-export PATH=$PATH:/new/path
-```
-
-### 3. 한글 깨짐
-
-```bash
-# 인코딩 확인
-locale
-
-# UTF-8로 설정
-export LANG=ko_KR.UTF-8
-export LC_ALL=ko_KR.UTF-8
-```
-
-## 🔗 관련 용어
-
-- [[CLI]]: Terminal에서 사용하는 인터페이스
-- [[Shell]]: Terminal에서 실행되는 명령어 해석기
-- [[Bash]]: 가장 흔한 Shell
-- [[SSH]]: 원격 Terminal 접속
-- [[tmux]]: Terminal 멀티플렉서
+- **설정 파일을 고쳤으면 다시 읽혀야 한다.** `source ~/.zshrc` 를 하거나 터미널을 새로 열어야 반영된다.
+- **한글이 깨지면 인코딩부터 본다.** `locale` 로 확인하고 UTF-8 로 맞춘다.
 
 ## 📝 정리
 
-**Terminal 핵심 3줄**:
-```
-1. CLI 명령어를 입력하는 "창"
-2. Shell과 통신하며 명령 전달
-3. 개발자의 작업 공간
+Terminal은 명령어를 치고 결과를 보는 창이고, 그 안에서 명령을 해석하는 것은 Shell 이다. 둘을 나눠 보면 글꼴과 탭은 터미널에서, 프롬프트와 PATH 는 Shell 설정 파일에서 고친다는 게 분명해진다. 오가는 것이 글자뿐이라 화면 없는 원격 서버에도 같은 방식으로 붙는다.
 
-→ Terminal ≠ Shell (자주 헷갈림!)
-```
+## ❓ 이해했는지
 
-**비유로 기억하기**:
-```
-Terminal = 은행 창구
-→ 고객(사용자)과 대면
-→ 요청 받고 결과 전달
-→ 실제 일은 Shell이 함
+- `ls` 를 쳤을 때 그 글자를 실제로 해석하는 것은 무엇인가?
+- 글꼴을 바꾸고 싶은데 `~/.zshrc` 를 열면 안 되는 이유는?
+- 화면이 달려 있지 않은 원격 서버를 터미널로 다룰 수 있는 이유는?
 
-Shell = 내부 담당자
-→ 요청 해석
-→ 실제 업무 처리
-→ 결과 Terminal로 전달
-```
+## 🔗 관련 용어
 
-**Terminal vs Shell**:
-```
-Terminal (프로그램):
-→ iTerm2, Windows Terminal
-→ 입출력 인터페이스
-→ 창 (Window)
-
-Shell (해석기):
-→ Bash, Zsh, PowerShell
-→ 명령어 해석/실행
-→ 로직 처리
-
-둘은 다른 것!
-```
-
----
-*카테고리: 개발도구*
-*생성일: 2026-02-15*
-*마지막 업데이트: 2026-02-15*
+- [[CLI]] — 글자로 명령을 주고받는 방식 그 자체
+- [[Environment Variable]] — PATH 처럼 Shell 설정 파일에 적어두는 값
+- [[SSH]] — 원격 서버의 Shell 을 내 터미널에 붙이는 방법
+- [[Git]] — 터미널에서 가장 많이 치게 되는 명령

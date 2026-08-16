@@ -2,485 +2,85 @@
 
 ## 📝 정의
 
-Lambda는 **서버 관리 없이 코드를 실행할 수 있는 서버리스 컴퓨팅 서비스**입니다. 이벤트 발생 시 자동으로 코드를 실행하고 사용한 만큼만 비용을 지불합니다.
+Lambda는 **함수만 올려두고 부를 때만 실행하는 서비스**다.
 
-### 핵심 개념
+서버를 미리 띄워두지 않는다. 정해둔 사건이 생기면 그때 코드가 돌고, 끝나면 멈추고, 돌아간 시간만큼만 요금이 붙는다.
 
-- **무엇인가?**: 서버 없이 함수 실행
-- **왜 필요한가?**: 서버 관리 부담 제거, 비용 절감
-- **어떻게 작동하나?**: 이벤트 트리거 → 함수 실행 → 자동 종료
+### 비유
+택시. 필요할 때 부르고 탄 만큼만 낸다. 자가용은 세워두기만 해도 보험과 주차비가 나간다.
 
-### Lambda가 해결하는 문제
+## 🖼️ 그림으로 보기
 
-**문제 상황**:
-```python
-😱 시나리오 1: 항상 켜져있는 서버
-간단한 이미지 리사이즈 API
-→ 하루에 10번만 호출됨
-→ 서버는 24시간 켜져있음
-→ 23시간 50분은 놀고 있음! 😱
-→ 서버 유지 비용 월 $50
-
-😱 시나리오 2: 트래픽 변동
-새벽: 사용자 0명
-점심: 사용자 1000명
-→ 1000명 기준으로 서버 유지? 😱
-→ 대부분 시간에 자원 낭비!
-
-😱 시나리오 3: 서버 관리
-서버 설정, OS 업데이트, 보안 패치
-스케일링, 모니터링, 로그 관리
-→ 코드보다 인프라 관리에 시간 소비! 😱
+```도해
+흐름: S3 에 사진을 올리면 그다음 무슨 일이 일어나나
+S3 :: 사진이 올라왔다는 사건을 알린다
+Lambda :: 컨테이너를 띄우고 코드를 올린다
+함수 :: 사진을 줄여 썸네일을 만든다
+함수 :: 만든 썸네일을 다른 경로에 저장한다
+< Lambda :: 함수가 끝나면 과금을 멈춘다
+= 사건이 없으면 아무것도 돌지 않고 돈도 나가지 않는다
 ```
 
-**Lambda의 해결**:
-```python
-✅ 시나리오 1: 사용한 만큼만 지불
-Lambda 함수 생성
-→ 호출될 때만 실행
-→ 실행 시간만 과금 (0.0001초 단위)
-→ 하루 10번 × 100ms = 1초
-→ 비용: 거의 무료! ✅
+## ⚠️ 해결하는 문제
 
-✅ 시나리오 2: 자동 스케일링
-Lambda는 자동으로 확장
-→ 1명이든 1000명이든
-→ 동시 실행 자동 처리
-→ 걱정할 필요 없음! ✅
-
-✅ 시나리오 3: 인프라 관리 제로
-코드만 업로드
-→ AWS가 모든 인프라 관리
-→ 스케일링, 패치, 모니터링 자동
-→ 개발에만 집중! ✅
+```도해
+대조: 하루 열 번 불리는 기능을 어디에 두는 게 나은가
+서버에 두면 || Lambda 에 두면
+켜 두는 시간 :: 24시간 내내 || 실행되는 순간만
+비용 :: 놀아도 나간다 || 쓴 만큼만
+사람이 몰리면 :: 미리 늘려둬야 || 알아서 늘어난다
+= 놀고 있는 시간에 돈을 내지 않는 것이 서버리스가 파는 것이다
 ```
 
-## 📊 Lambda 작동 원리
+이미지를 줄여주는 API 하나를 만든다고 하자. 하루에 열 번 불린다. 그래도 서버는 24시간 켜져 있어야 하고 요금은 켜져 있는 시간만큼 나간다. 실제로 일한 시간은 하루에 몇 초뿐이다.
 
+반대로 새벽에는 아무도 안 쓰다가 점심에 천 명이 몰리는 기능도 곤란하다. 천 명 기준으로 서버를 잡아두면 나머지 시간이 통째로 낭비다. Lambda는 부를 때만 돌고 동시 요청이 늘면 그만큼 알아서 늘어나므로 두 경우 모두 미리 정해둘 것이 없다.
 
-### Lambda 라이프사이클
+## ⚙️ 작동 원리
 
-**1. Cold Start (초기 시작)**:
-```
-함수 첫 호출
-→ 컨테이너 생성
-→ 코드 로드
-→ 함수 실행
-→ 응답 시간: 100-1000ms
-```
-
-**2. Warm Start (재사용)**:
-```
-이미 생성된 컨테이너
-→ 바로 함수 실행
-→ 응답 시간: 1-10ms
+```도해
+층: 같은 함수를 두 번째로 부르면 왜 더 빠른가
+첫 호출 :: 컨테이너를 만들고 코드를 올린다. 100~1000ms
+이어지는 호출 :: 있는 컨테이너를 그대로 쓴다. 1~10ms
+한동안 뜸하면 :: 컨테이너가 치워진다. 다음엔 다시 첫 호출
+= 뜸하게 불리는 함수일수록 느린 첫 호출에 자주 걸린다
 ```
 
-**3. Timeout (종료)**:
-```
-일정 시간 사용 안 하면
-→ 컨테이너 자동 제거
-→ 다음 호출 시 Cold Start
-```
+첫 호출이 느린 것을 콜드 스타트라고 한다. 데이터베이스 연결이나 라이브러리 불러오기를 함수 안이 아니라 바깥에 두면 이 준비가 첫 호출에서 한 번만 일어나고, 남아 있는 컨테이너를 쓰는 동안에는 건너뛴다.
 
-## 💡 Lambda 함수 작성
+대신 제한이 있다. 한 번 실행은 최대 15분까지고, 메모리는 128MB에서 10,240MB 사이에서 고른다. 메모리를 올리면 CPU도 같이 올라가는 대신 요금이 오른다. 올릴 수 있는 코드 묶음은 압축 50MB, 풀어서 250MB까지이고 넘으면 Lambda Layer로 나눈다.
 
-### Python Lambda
+## 💡 실제 사례
 
-```python
-# lambda_function.py
-import json
+- **파일 올리면 자동 처리** S3에 사진이 올라오면 썸네일을 만들어 다른 경로에 넣는다.
+- **API 엔드포인트** API Gateway가 요청을 받아 Lambda로 넘기고, 응답을 만들어 돌려준다.
+- **정해진 시각에 도는 작업** 매일 자정에 DB 스냅샷을 뜨는 일처럼 하루 한 번이면 되는 것을 맡긴다.
 
-def lambda_handler(event, context):
-    """Lambda 함수 핸들러"""
-    
-    # 이벤트에서 데이터 추출
-    name = event.get('name', 'Guest')
-    
-    # 비즈니스 로직
-    message = f"Hello, {name}!"
-    
-    # 응답 반환
-    return {
-        'statusCode': 200,
-        'body': json.dumps({
-            'message': message
-        })
-    }
-```
+## 🚫 흔한 오해
 
-### Node.js Lambda
+- **서버리스니까 서버가 없다** — 서버는 그대로 있다. AWS가 대신 띄우고 끄고 패치하기 때문에 내가 볼 일이 없을 뿐이다.
+- **Lambda 로 옮기면 무조건 싸진다** — 쉬지 않고 도는 기능이라면 EC2를 켜두는 편이 싸다. 뜸하게 불릴 때만 유리한 계산이다.
+- **함수는 부를 때마다 깨끗하게 새로 시작한다** — 앞선 호출이 쓰던 컨테이너가 남아 있으면 그대로 재사용한다. 전역에 넣어둔 값이 다음 호출까지 살아 있을 수 있다.
 
-```javascript
-// index.js
-exports.handler = async (event) => {
-    // 이벤트에서 데이터 추출
-    const name = event.name || 'Guest';
-    
-    // 비즈니스 로직
-    const message = `Hello, ${name}!`;
-    
-    // 응답 반환
-    return {
-        statusCode: 200,
-        body: JSON.stringify({
-            message: message
-        })
-    };
-};
-```
+## 🚨 주의사항
 
-## 🎯 실전 활용
-
-### 1. 이미지 리사이즈
-
-```python
-import boto3
-from PIL import Image
-import io
-
-def lambda_handler(event, context):
-    """S3에 업로드된 이미지 자동 리사이즈"""
-    
-    s3 = boto3.client('s3')
-    
-    # S3 이벤트에서 정보 추출
-    bucket = event['Records'][0]['s3']['bucket']['name']
-    key = event['Records'][0]['s3']['object']['key']
-    
-    # 원본 이미지 다운로드
-    obj = s3.get_object(Bucket=bucket, Key=key)
-    img = Image.open(obj['Body'])
-    
-    # 리사이즈
-    img_resized = img.resize((800, 600))
-    
-    # 버퍼에 저장
-    buffer = io.BytesIO()
-    img_resized.save(buffer, 'JPEG')
-    buffer.seek(0)
-    
-    # 썸네일 업로드
-    thumb_key = f"thumbnails/{key}"
-    s3.put_object(
-        Bucket=bucket,
-        Key=thumb_key,
-        Body=buffer,
-        ContentType='image/jpeg'
-    )
-    
-    return {'statusCode': 200, 'body': 'Success'}
-```
-
-**트리거 설정**:
-```
-S3 버킷에 이미지 업로드
-→ Lambda 자동 실행
-→ 썸네일 생성
-→ 다른 S3 경로에 저장
-```
-
-### 2. API 엔드포인트
-
-```python
-def lambda_handler(event, context):
-    """REST API 엔드포인트"""
-    
-    # HTTP 메서드 확인
-    method = event['httpMethod']
-    
-    if method == 'GET':
-        # 데이터 조회
-        return get_users()
-    elif method == 'POST':
-        # 데이터 생성
-        body = json.loads(event['body'])
-        return create_user(body)
-    
-def get_users():
-    # DynamoDB에서 사용자 조회
-    users = dynamodb.scan(TableName='Users')
-    return {
-        'statusCode': 200,
-        'body': json.dumps(users['Items'])
-    }
-```
-
-**API Gateway 연결**:
-```
-GET  /users  → Lambda 함수 호출
-POST /users  → Lambda 함수 호출
-```
-
-### 3. 스케줄 작업
-
-```python
-import boto3
-from datetime import datetime
-
-def lambda_handler(event, context):
-    """매일 밤 12시 DB 백업"""
-    
-    rds = boto3.client('rds')
-    
-    # 타임스탬프
-    timestamp = datetime.now().strftime('%Y%m%d-%H%M%S')
-    
-    # DB 스냅샷 생성
-    response = rds.create_db_snapshot(
-        DBSnapshotIdentifier=f'backup-{timestamp}',
-        DBInstanceIdentifier='my-database'
-    )
-    
-    return {
-        'statusCode': 200,
-        'body': f"Backup created: {timestamp}"
-    }
-```
-
-**CloudWatch Events 설정**:
-```
-매일 00:00 UTC
-→ Lambda 자동 실행
-→ DB 백업
-```
-
-### 4. 실시간 데이터 처리
-
-```python
-def lambda_handler(event, context):
-    """Kinesis 스트림 데이터 처리"""
-    
-    for record in event['Records']:
-        # Base64 디코딩
-        payload = base64.b64decode(record['kinesis']['data'])
-        data = json.loads(payload)
-        
-        # 데이터 처리
-        if data['temperature'] > 30:
-            send_alert(f"High temp: {data['temperature']}")
-        
-        # DynamoDB에 저장
-        save_to_dynamodb(data)
-    
-    return {'statusCode': 200}
-```
-
-## 🔍 Lambda 제한사항
-
-### 시간 제한
-
-```
-최대 실행 시간: 15분
-→ 장시간 작업은 부적합
-→ ECS/Fargate 사용 권장
-```
-
-### 메모리 제한
-
-```
-최소: 128MB
-최대: 10,240MB (10GB)
-
-메모리 ↑ = CPU 성능 ↑ = 비용 ↑
-```
-
-### 동시 실행 제한
-
-```
-기본: 1,000개 동시 실행
-→ 증가 요청 가능
-→ 너무 많으면 Reserved Concurrency 설정
-```
-
-### 패키지 크기
-
-```
-압축: 50MB
-압축 해제: 250MB
-
-큰 라이브러리는 Lambda Layer 사용
-```
-
-## 💻 Lambda 배포
-
-### AWS CLI로 배포
-
-```bash
-# 코드 압축
-zip function.zip lambda_function.py
-
-# Lambda 함수 생성
-aws lambda create-function \
-  --function-name my-function \
-  --runtime python3.9 \
-  --role arn:aws:iam::123456789012:role/lambda-role \
-  --handler lambda_function.lambda_handler \
-  --zip-file fileb://function.zip
-
-# 함수 업데이트
-aws lambda update-function-code \
-  --function-name my-function \
-  --zip-file fileb://function.zip
-```
-
-### Serverless Framework
-
-```yaml
-# serverless.yml
-service: my-service
-
-provider:
-  name: aws
-  runtime: python3.9
-
-functions:
-  hello:
-    handler: handler.hello
-    events:
-      - http:
-          path: hello
-          method: get
-```
-
-```bash
-# 배포
-serverless deploy
-```
-
-### SAM (Serverless Application Model)
-
-```yaml
-# template.yaml
-AWSTemplateFormatVersion: '2010-09-09'
-Transform: AWS::Serverless-2016-10-31
-
-Resources:
-  HelloFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Handler: app.lambda_handler
-      Runtime: python3.9
-      Events:
-        HelloApi:
-          Type: Api
-          Properties:
-            Path: /hello
-            Method: get
-```
-
-## 🚨 Lambda 최적화
-
-### 1. Cold Start 최소화
-
-```python
-# ❌ 나쁜 예: 함수 안에서 초기화
-def lambda_handler(event, context):
-    import boto3  # 매번 import!
-    s3 = boto3.client('s3')  # 매번 생성!
-
-# ✅ 좋은 예: 전역에서 초기화
-import boto3
-s3 = boto3.client('s3')  # 한 번만!
-
-def lambda_handler(event, context):
-    # s3 재사용
-    pass
-```
-
-### 2. 메모리 최적화
-
-```
-메모리 적게 = 느림 + 저렴
-메모리 많이 = 빠름 + 비쌈
-
-실험해서 최적값 찾기!
-→ 128MB: $0.0000000021/100ms
-→ 1024MB: $0.0000166667/100ms
-```
-
-### 3. 불필요한 코드 제거
-
-```python
-# ❌ 무거운 라이브러리
-import pandas  # 사용 안 하는데 import
-
-# ✅ 필요한 것만
-from datetime import datetime
-```
-
-## 📊 Lambda 비용
-
-### 요금 계산
-
-```
-요청 수: $0.20 per 1M requests
-실행 시간: $0.0000166667 per GB-second
-
-예시:
-- 100만 건 요청
-- 각 128MB, 100ms 실행
-- 요청 비용: $0.20
-- 실행 비용: $0.21
-- 총: $0.41
-```
-
-### 무료 티어
-
-```
-매월 무료:
-- 100만 건 요청
-- 40만 GB-초 실행 시간
-
-개인 프로젝트는 거의 무료!
-```
-
-## 🔗 관련 용어
-
-- [[Serverless]]: Lambda는 서버리스의 대표
-- [[API Gateway]]: Lambda와 자주 함께 사용
-- [[S3]]: Lambda 트리거로 사용
-- [[DynamoDB]]: Lambda와 함께 사용하는 DB
-- [[CloudWatch]]: Lambda 로그 및 모니터링
+- **15분을 넘기는 작업은 맡기지 않는다.** 긴 배치나 영상 변환은 도중에 잘린다. ECS나 Fargate 쪽이 맞다.
+- **전역 변수에 사용자별 데이터를 담지 않는다.** 컨테이너가 재사용되면 다음 사람 요청에 앞 사람 값이 섞인다.
 
 ## 📝 정리
 
-**Lambda의 핵심**:
-```
-Lambda = 서버 없이 함수 실행
-→ 이벤트 발생 시 자동 실행
-→ 사용한 만큼만 비용
-→ 자동 스케일링
-→ 인프라 관리 제로
-```
+Lambda는 서버를 띄워두지 않고 함수만 올려두었다가 사건이 생길 때만 실행하는 서비스다. 노는 시간에 돈이 나가지 않고 몰릴 때 알아서 늘어나는 대신, 첫 호출이 느리고 실행 시간과 크기에 제한이 있다. 뜸하게 불리는 짧은 작업에 맞고 쉬지 않고 도는 작업에는 맞지 않는다.
 
-**언제 사용?**:
-```
-✅ 좋은 경우:
-- 이벤트 기반 처리
-- 짧은 실행 시간 (<15분)
-- 간헐적 실행
-- API 엔드포인트
+## ❓ 이해했는지
 
-❌ 안 좋은 경우:
-- 장시간 실행 (>15분)
-- 대용량 메모리 (>10GB)
-- 지속적 실행 (24/7)
-```
+- 같은 함수를 연달아 두 번 부르면 두 번째가 더 빠른 이유는?
+- 하루 종일 쉬지 않고 도는 기능을 Lambda 로 옮기면 왜 손해인가?
+- 30분 걸리는 영상 변환을 Lambda 에 맡길 수 없는 이유는?
 
-**비유로 기억하기**:
-```
-Lambda = 택시
-→ 필요할 때만 호출
-→ 탄 만큼만 요금
-→ 차량 관리는 회사가
+## 🔗 관련 용어
 
-서버 = 자가용
-→ 항상 소유
-→ 고정 비용 (보험, 주차)
-→ 직접 관리 필요
-```
-
----
-*카테고리: 클라우드*
-*생성일: 2026-02-15*
+- [[Serverless]] — Lambda가 속한 큰 갈래
+- [[API Gateway]] — HTTP 요청을 Lambda로 넘겨주는 앞단
+- [[S3]] — 파일이 올라온 사건으로 Lambda를 깨우는 곳
+- [[EC2]] — 켜두고 쓰는 쪽. 비용 계산이 반대로 간다
+- [[Container]] — Lambda가 함수를 담아 띄우는 단위

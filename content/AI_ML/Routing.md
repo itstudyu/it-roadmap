@@ -2,326 +2,89 @@
 
 ## 📝 정의
 
-Routing(라우팅)은 사용자 요청을 분석하여 **적절한 Agent나 서비스로 전달**하는 과정입니다. 마치 우체국이 편지를 올바른 주소로 배달하듯이, 요청을 정확한 처리자에게 보냅니다.
+Routing은 **요청을 어느 처리자에게 넘길지 정하는 일**이다.
 
-### 핵심 개념
+같은 시스템 안에 메뉴 안내, 규정 검색, 급여 조회처럼 서로 다른 처리자가 여럿 있으면 누가 맡을지부터 정해야 한다. 라우팅은 그 판단만 맡고 답은 만들지 않는다.
 
-- **무엇인가?**: 요청을 올바른 Agent로 연결하는 과정
-- **왜 필요한가?**: 각 Agent의 전문성을 활용하기 위해
-- **어떻게 작동하나?**: Intent 분류 → 매핑 규칙 → Agent 선택
+### 비유
+회사 대표번호의 자동 교환. 용건을 듣고 담당 부서로 이어주기만 하고, 상담은 그쪽에서 한다.
 
-### Routing이 해결하는 문제
+## 🖼️ 그림으로 보기
 
-**문제 상황**:
-```
-😱 시나리오 1: 잘못된 Agent 선택
-사용자: "급여명세서 보고 싶어"
-
-잘못된 시스템:
-→ Navigation Agent: "메뉴를 찾을 수 없습니다"
-→ 시간 낭비, 사용자 불만! 😱
-
-올바른 Agent는 Payroll Agent!
-
-😱 시나리오 2: 모든 Agent가 응답
-사용자: "주소 변경"
-
-시스템:
-→ FAQ Agent: "FAQ 검색 중..."
-→ Knowledge Agent: "문서 검색 중..."
-→ Navigation Agent: "메뉴 안내 중..."
-→ 3개가 동시에 응답! 혼란! 😱
-
-😱 시나리오 3: 라우팅 규칙 없음
-개발자: "새 Agent 추가했는데..."
-시스템: "어디로 보내야 하지?"
-→ 수동으로 코드 수정 필요! 😱
+```도해
+흐름: "주소 변경하고 싶어" 는 어디로 가나
+입력 :: 사용자가 문장 하나를 던진다
+분류기 :: 무엇에 대한 말인지 가른다. navigation
+신뢰도 :: 기준보다 낮으면 모름 쪽으로 돌린다
+규칙표 :: navigation 에 걸어둔 처리자를 꺼낸다
+< 처리자 :: 그 하나만 실행되어 답을 만든다
+= 라우터는 답을 만들지 않는다. 누가 만들지만 정한다
 ```
 
-**Routing의 해결**:
-```
-✅ 시나리오 1:
-Intent 분류: "payroll" (급여)
-→ Payroll Agent만 선택
-→ 정확한 답변! ✅
+## ⚠️ 해결하는 문제
 
-✅ 시나리오 2:
-Router가 하나만 선택
-"주소 변경" → Intent: navigation
-→ Navigation Agent만 실행
-→ 깔끔한 응답! ✅
-
-✅ 시나리오 3:
-Router에 규칙만 추가
-{IntentType.NEW_TASK: new_agent}
-→ 자동으로 라우팅! ✅
+```도해
+대조: 요청을 가려 보내지 않으면 어떻게 되나
+라우터 없이 || 라우터로
+응답 :: 전부 답한다 || 하나만 답한다
+못 맞혔을 때 :: 못 찾는다고 답 || 맞는 쪽이 답
+처리자 추가 :: 코드를 고친다 || 규칙 한 줄
+= 답할 수 있는 곳이 여럿이면 고르는 자리가 따로 있어야 한다
 ```
 
-**비유**:
-- **Routing 없음** = 모든 전화가 대표번호로 → 직접 찾아야 함
-- **Routing 있음** = 자동 교환 "영업은 1번, 고객센터는 2번" → 자동 연결
+"급여명세서 보고 싶어"라는 말이 메뉴 안내 담당에게 가면 못 찾는다는 답이 돌아온다. 반대로 모든 처리자가 각자 답하면 세 개의 답이 한꺼번에 나와서 어느 것을 봐야 할지 알 수 없다.
 
-## 📊 작동 원리
+라우터는 그 앞에 서서 하나만 고른다. 처리자를 새로 붙일 때도 규칙표에 한 줄을 더하면 되고, 부르는 쪽 코드는 건드리지 않는다.
 
+## ⚙️ 작동 원리
 
-### Routing 과정
-
-**1단계: Intent 파악**
-```
-사용자: "주소 변경하고 싶어"
-→ Intent Classifier 호출
-→ Intent: "navigation" (신뢰도 95%)
-```
-
-**2단계: 라우팅 규칙 적용**
-```python
-routing_rules = {
-    "navigation": NavigationAgent,
-    "knowledge": KnowledgeAgent,
-    "faq": FAQAgent,
-    "payroll": PayrollAgent
-}
-
-# Intent "navigation"에 맞는 Agent 선택
-selected_agent = routing_rules["navigation"]
+```도해
+층: 어느 처리자인지 무엇으로 가리나
+규칙 :: 정해둔 낱말이 있으면 바로 그쪽으로
+분류 모델 :: 문장의 의도를 이름 하나로 가른다
+의미 유사도 :: 처리자 설명과 얼마나 가까운지 잰다
+모름 :: 어느 쪽도 확실하지 않을 때 가는 자리
+= 위쪽일수록 싸고 확실하고, 아래로 갈수록 넓게 잡는다
 ```
 
-**3단계: Agent 실행**
-```
-NavigationAgent.process("주소 변경하고 싶어")
-→ "P3 > 인사정보 > 변경신청에서 가능합니다"
-```
+분류 결과에는 신뢰도가 따라온다. 기준을 정해두고 그 아래면 어느 처리자에게도 넘기지 않는다. 애매한 것을 억지로 보내는 것보다 되묻는 편이 낫기 때문이다.
 
-## 💡 실제 구현
+처리자를 고른 다음에도 바로 넘기지 않을 수 있다. 그 사용자에게 조회 권한이 있는지, 지금이 처리 가능한 시간인지, 입력에 개인정보가 섞여 있지는 않은지를 라우터 자리에서 먼저 본다.
 
-### 기본 Router
+## 💡 실제 사례
 
-```python
-from typing import Dict, Callable
-from enum import Enum
+- **권한 확인** 급여 쪽으로 갈 요청이라도 조회 권한이 없으면 처리자에 닿기 전에 막고 안내로 돌린다.
+- **모름 처리** 분류 신뢰도가 기준 아래면 아무에게도 넘기지 않고 무엇을 원하는지 되묻는다.
+- **처리자 추가** 새 처리자를 붙일 때 규칙표에 한 줄만 더하고 기존 코드는 그대로 둔다.
 
-class IntentType(Enum):
-    """Intent 카테고리"""
-    NAVIGATION = "navigation"
-    KNOWLEDGE = "knowledge"
-    FAQ = "faq"
-    PAYROLL = "payroll"
-    UNKNOWN = "unknown"
+## 🚫 흔한 오해
 
-class Router:
-    """기본 라우터"""
+- **라우터가 답을 만든다** — 고르기만 한다. 답의 내용은 고른 처리자에게 달려 있고, 라우터가 잘못 고르면 좋은 처리자가 있어도 엉뚱한 답이 나온다.
+- **라우팅과 오케스트레이션은 같은 말이다** — 라우터는 하나를 골라 넘기고 끝난다. 여러 처리자를 차례로 부르고 결과를 합치는 것은 오케스트레이터의 일이다.
+- **애매하면 가장 가까운 쪽으로 보내면 된다** — 억지로 보내면 엉뚱한 답이 확신에 찬 말투로 돌아온다. 기준 아래는 모름으로 따로 빼서 되묻는 편이 낫다.
 
-    def __init__(
-        self,
-        intent_classifier,
-        agents: Dict[IntentType, Callable]
-    ):
-        """
-        Args:
-            intent_classifier: Intent 분류기
-            agents: Intent → Agent 매핑
-        """
-        self.classifier = intent_classifier
-        self.agents = agents
+## 📊 비교
 
-    def route(self, user_input: str) -> str:
-        """요청을 적절한 Agent로 라우팅"""
+| | Routing | Orchestration |
+|---|---|---|
+| 하는 일 | 하나를 고른다 | 여럿을 부린다 |
+| 결과 합치기 | 없다 | 있다 |
+| 요청 모양 | 한 가지 용건 | 여러 용건이 섞임 |
+| 복잡도 | 규칙표 하나 | 순서와 예외까지 |
 
-        # 1. Intent 분류
-        result = self.classifier.classify(user_input)
-        intent = IntentType(result['intent'])
-        confidence = result['confidence']
+## 📝 정리
 
-        print(f"[Router] Intent: {intent.value} ({confidence:.0%})")
+Routing은 요청을 읽고 누가 맡을지만 정하는 자리다. 답을 만들지 않으므로 잘 고르는 것과 못 고를 때 모름으로 빼는 것이 전부이고, 용건이 여러 개 섞인 요청은 여기서 끝나지 않는다.
 
-        # 2. 신뢰도 체크
-        if confidence < 0.7:
-            print("[Router] 낮은 신뢰도 → Fallback")
-            intent = IntentType.UNKNOWN
+## ❓ 이해했는지
 
-        # 3. Agent 선택
-        agent = self.agents.get(intent)
-        if not agent:
-            agent = self.agents[IntentType.UNKNOWN]
-
-        # 4. Agent 실행
-        return agent(user_input)
-
-# 사용 예시
-agents = {
-    IntentType.NAVIGATION: lambda x: f"[메뉴 안내] {x}",
-    IntentType.KNOWLEDGE: lambda x: f"[규정 검색] {x}",
-    IntentType.FAQ: lambda x: f"[FAQ] {x}",
-    IntentType.PAYROLL: lambda x: f"[급여 정보] {x}",
-    IntentType.UNKNOWN: lambda x: "죄송합니다. 이해하지 못했습니다."
-}
-
-router = Router(intent_classifier, agents)
-response = router.route("주소 변경하고 싶어")
-```
-
-**실행 결과**:
-```
-[Router] Intent: navigation (95%)
-[메뉴 안내] 주소 변경하고 싶어
-```
-
-### 조건부 Routing
-
-특정 조건을 추가로 확인:
-
-```python
-class SmartRouter(Router):
-    """조건을 확인하는 Router"""
-
-    def route_with_conditions(
-        self,
-        user_input: str,
-        user_context: dict
-    ) -> str:
-        """조건을 고려한 라우팅"""
-
-        intent = self.classify_intent(user_input)
-
-        # 조건 1: 권한 확인
-        if intent == IntentType.PAYROLL:
-            if not user_context.get('has_payroll_access'):
-                return "❌ 급여 정보 조회 권한이 없습니다."
-
-        # 조건 2: 업무 시간 확인
-        if intent == IntentType.PAYROLL:
-            from datetime import datetime
-            hour = datetime.now().hour
-            if not (9 <= hour < 18):
-                return "⏰ 급여 조회는 업무시간(9-18시)만 가능합니다."
-
-        # 조건 3: PII 감지
-        if self.contains_pii(user_input):
-            return "🔒 개인정보가 감지되어 처리할 수 없습니다."
-
-        # 기본 라우팅
-        return self.route(user_input)
-```
-
-**사용 예시**:
-```python
-user_context = {
-    'user_id': 'user123',
-    'has_payroll_access': False  # 권한 없음
-}
-
-response = router.route_with_conditions(
-    "급여명세서 보여줘",
-    user_context
-)
-# → "❌ 급여 정보 조회 권한이 없습니다."
-```
-
-## 🎯 Routing vs Orchestration
-
-많은 사람들이 혼동하는 개념:
-
-| 특성 | Routing | Orchestration |
-|------|---------|---------------|
-| **역할** | 1개 Agent 선택 | 여러 Agent 조율 |
-| **복잡도** | 단순 | 복잡 |
-| **결과 통합** | 없음 | 있음 |
-| **Fallback** | 기본적 | 고급 |
-
-**비유**:
-- **Router** = 교환원 (전화를 담당 부서로 연결)
-- **Orchestrator** = 프로젝트 매니저 (여러 팀을 조율)
-
-**실제 예시**:
-
-**Router**:
-```
-사용자: "주소 변경 방법?"
-Router: Navigation Agent로 연결
-→ 끝
-```
-
-**Orchestrator**:
-```
-사용자: "주소 변경하고, 육아휴직도 신청하고 싶어"
-Orchestrator:
-1. Navigation Agent: 주소 변경 방법
-2. Knowledge Agent: 육아휴직 규정
-3. 결과 통합: "1. 주소는... 2. 육아휴직은..."
-→ 통합 답변
-```
-
-## 🔧 고급 Routing 기법
-
-### 1. Semantic Routing (의미 기반)
-
-벡터 유사도로 Agent 선택:
-
-```python
-class SemanticRouter:
-    """의미 기반 라우터"""
-
-    def __init__(self):
-        # 각 Agent의 설명을 임베딩으로 변환
-        self.agent_embeddings = {
-            "navigation": embed("시스템 사용법 안내"),
-            "knowledge": embed("회사 규정 검색"),
-            "faq": embed("자주 묻는 질문")
-        }
-
-    def route(self, user_input: str) -> str:
-        # 사용자 입력을 임베딩으로 변환
-        input_embedding = embed(user_input)
-
-        # 각 Agent와의 유사도 계산
-        similarities = {
-            agent: cosine_similarity(input_embedding, emb)
-            for agent, emb in self.agent_embeddings.items()
-        }
-
-        # 가장 유사한 Agent 선택
-        best_agent = max(similarities, key=similarities.get)
-        return best_agent
-```
-
-### 2. Load Balancing (부하 분산)
-
-여러 Agent 인스턴스 중 선택:
-
-```python
-class LoadBalancingRouter:
-    """부하 분산 라우터"""
-
-    def __init__(self, agent_pools):
-        # Intent별 여러 Agent 인스턴스
-        self.pools = {
-            IntentType.FAQ: [agent1, agent2, agent3]
-        }
-        self.index = 0
-
-    def route(self, user_input: str):
-        intent = self.classify(user_input)
-        pool = self.pools[intent]
-
-        # 라운드 로빈으로 선택
-        agent = pool[self.index % len(pool)]
-        self.index += 1
-
-        return agent.process(user_input)
-```
+- 처리자가 넷인데 하나만 답하게 만드는 것은 어디가 하는 일인가?
+- 급여 요청인 걸 맞게 가렸는데도 답을 못 받는 경우가 있는 이유는?
+- "주소도 바꾸고 육아휴직도 신청하고 싶어"가 라우터만으로 안 되는 이유는?
 
 ## 🔗 관련 용어
 
-- [[Intent 분류]]: Routing의 첫 단계
-- [[Orchestrator]]: Routing의 확장 개념
-- [[AI Agent]]: Routing의 대상
-- [[Fallback]]: Routing 실패 시 대응
-
-## 📚 참고자료
-
-- [LangChain Routing](https://python.langchain.com/docs/how_to/routing/)
-- [Semantic Routing](https://github.com/aurelio-labs/semantic-router)
-
----
-*카테고리: AI-ML*
-*생성일: 2026-02-14*
+- [[Intent 분류]] — 라우팅이 판단 근거로 쓰는 앞 단계
+- [[Orchestrator]] — 여럿을 부르고 결과를 합치는 쪽. 라우터 다음 단계
+- [[AI Agent]] — 라우터가 골라서 넘기는 대상
+- [[Fallback]] — 어느 쪽도 확실하지 않을 때 가는 자리

@@ -2,329 +2,97 @@
 
 ## 📝 정의
 
-세션(Session)은 **사용자가 웹사이트에 접속한 시점부터 종료할 때까지의 상태 정보**를 서버에 저장하는 메커니즘입니다.
+세션은 **서버가 접속한 사람을 기억해두는 방식**이다.
 
-### 핵심 개념
+HTTP는 요청 하나가 끝나면 아무것도 기억하지 않는다. 로그인한 사람에게 번호표를 하나 주고 서버가 그 번호에 정보를 붙여두면, 다음 요청에서 번호만 보고도 누구인지 알 수 있다.
 
-- **무엇인가?**: 사용자의 상태를 서버에 저장
-- **왜 필요한가?**: HTTP는 상태가 없어서 (Stateless) 로그인 유지 불가
-- **어떻게 작동하나?**: 로그인 → Session ID 발급 → 쿠키에 저장 → 매 요청마다 전송
+### 비유
+식당 회원카드. 갈 때마다 신분증을 다시 내밀지 않고 카드만 보여주면 된다. 정보는 카드가 아니라 식당 장부에 있다.
 
-### 세션이 해결하는 문제
-
-**문제 상황**:
-```
-😱 시나리오: HTTP Stateless 특성
-사용자 → 로그인 성공
-사용자 → 다음 페이지 이동
-서버 → "누구세요?" (이전 로그인 정보 없음)
-→ 매번 로그인 필요! 😱
-```
-
-**세션의 해결**:
-```
-✅ 상태 유지:
-사용자 → 로그인 성공
-서버 → Session ID 발급 (예: abc123)
-브라우저 → 쿠키에 저장
-다음 요청 → Session ID 전송
-서버 → "아, abc123님이시군요!" (인증 유지)
-→ 한 번 로그인으로 계속 사용! ✅
-```
-
-**비유**:
-- **세션 없음** = 식당 방문할 때마다 신분증 제시
-- **세션** = 회원카드 (한 번만 확인 후 계속 사용)
-
-## 📊 세션 동작 흐름
+## 🖼️ 그림으로 보기
 
 ```도해
-흐름: 세션, 무슨 순서로 오가나
-브라우저 :: 로그인 (ID/PW)
-서버 :: 인증 확인
-서버 :: 세션 생성 Session ID: abc123 User: us…
-서버 :: Set-Cookie: session_id=abc123
-브라우저 :: 요청 + Cookie: session_id=abc123
-서버 :: 세션 조회 (abc123)
-세션 저장소 :: User: user@example.com
-서버 :: 인증된 사용자로 응답
+흐름: 로그인 한 번이 다음 요청까지 어떻게 이어지나
+브라우저 :: 아이디와 비밀번호를 보낸다
+서버 :: 맞는 계정인지 확인한다
+서버 :: 세션을 만들고 abc123 이라는 번호를 붙인다
+서버 :: `Set-Cookie: session_id=abc123` 으로 내려보낸다
+브라우저 :: 다음 요청마다 그 쿠키를 같이 보낸다
+< 서버 :: abc123 으로 저장소를 뒤져 누구인지 알아본다
+= 브라우저는 번호만 들고 다니고 내용은 서버에 남아 있다
 ```
 
-## 💡 세션 구현
+## ⚠️ 해결하는 문제
 
-### Flask 세션
-```python
-from flask import Flask, session, redirect, url_for, request
-
-app = Flask(__name__)
-app.secret_key = 'your-secret-key-here'  # 세션 암호화 키
-
-@app.route('/login', methods=['POST'])
-def login():
-    """로그인 시 세션 생성"""
-    username = request.form['username']
-    password = request.form['password']
-    
-    if authenticate(username, password):
-        # 세션에 사용자 정보 저장
-        session['user_id'] = username
-        session['logged_in'] = True
-        session['role'] = 'admin'
-        
-        return redirect('/dashboard')
-    else:
-        return 'Login failed', 401
-
-@app.route('/dashboard')
-def dashboard():
-    """세션 확인"""
-    if not session.get('logged_in'):
-        return redirect('/login')
-    
-    user_id = session.get('user_id')
-    return f'Welcome {user_id}!'
-
-@app.route('/logout')
-def logout():
-    """세션 삭제"""
-    session.clear()
-    return redirect('/')
+```도해
+대조: HTTP 가 이전 요청을 기억하지 않으면 무엇이 달라지나
+세션 없이 || 세션으로
+페이지 이동 :: 매번 로그인 || 그대로 유지
+서버가 아는 것 :: 요청 하나뿐 || 누구인지 안다
+장바구니 :: 남지 않는다 || 계속 담긴다
+= 서버에 기억할 자리를 만들고 브라우저에는 그 자리 번호만 준다
 ```
 
-### Express 세션
-```javascript
-const express = require('express');
-const session = require('express-session');
+HTTP는 요청마다 처음 보는 사이처럼 동작한다. 로그인에 성공했더라도 다음 페이지 요청은 별개의 요청이라, 서버는 방금 누가 들어왔는지 모른다. 이대로 두면 화면을 넘길 때마다 다시 로그인해야 한다.
 
-const app = express();
+세션은 서버 쪽에 기억할 자리를 만든다. 로그인이 끝나면 그 사람 정보를 저장소에 넣고 번호를 붙인 뒤, 번호만 쿠키로 내려보낸다. 다음 요청에 그 번호가 실려 오면 저장소에서 꺼내 누구인지 알아본다.
 
-// 세션 미들웨어 설정
-app.use(session({
-  secret: 'your-secret-key',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    maxAge: 1000 * 60 * 60 * 24,  // 24시간
-    httpOnly: true,                // XSS 방지
-    secure: true                   // HTTPS only
-  }
-}));
+## ⚙️ 작동 원리
 
-// 로그인
-app.post('/login', (req, res) => {
-  const { username, password } = req.body;
-  
-  if (authenticate(username, password)) {
-    // 세션에 저장
-    req.session.userId = username;
-    req.session.loggedIn = true;
-    
-    res.json({ success: true });
-  } else {
-    res.status(401).json({ error: 'Invalid credentials' });
-  }
-});
+저장할 자리를 골라야 한다.
 
-// 세션 확인 미들웨어
-function requireAuth(req, res, next) {
-  if (req.session.loggedIn) {
-    next();
-  } else {
-    res.status(401).json({ error: 'Unauthorized' });
-  }
-}
-
-// 보호된 라우트
-app.get('/dashboard', requireAuth, (req, res) => {
-  res.json({ user: req.session.userId });
-});
-
-// 로그아웃
-app.post('/logout', (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      return res.status(500).json({ error: 'Logout failed' });
-    }
-    res.json({ success: true });
-  });
-});
+```도해
+층: 세션은 어디에 저장하나
+서버 메모리 :: 설정이 필요 없지만 재시작하면 사라진다
+Redis :: 서버 여러 대가 같은 세션을 본다
+데이터베이스 :: 오래 남지만 요청마다 조회가 붙는다
+= 서버가 한 대를 넘어가는 순간 메모리로는 안 된다
 ```
 
-## 💡 세션 저장소
+서버 메모리에 두면 서버를 재시작할 때 로그인해 있던 사람이 전부 튕긴다. 서버를 두 대로 늘리면 한쪽에서 만든 세션을 다른 쪽이 모르므로, 요청이 어디로 붙느냐에 따라 로그인이 풀렸다 붙었다 한다. Redis 같은 공용 저장소에 두면 이 둘이 같이 풀린다.
 
-### 1. 메모리 (기본, 비추천)
-```python
-# Flask 기본 - 서버 메모리에 저장
-# 단점: 서버 재시작 시 소멸, 다중 서버 불가
-```
+세션에는 만료 시간을 건다. 정해둔 시간 동안 아무 요청이 없으면 저장소에서 지우고 다시 로그인하게 한다. 자리를 뜬 뒤에도 로그인 상태가 남아 있는 시간을 이걸로 줄인다.
 
-### 2. Redis (권장)
-```python
-from flask import Flask, session
-from flask_session import Session
-import redis
+## 📊 비교: 세션 vs JWT 토큰
 
-app = Flask(__name__)
+| | 세션 | JWT 토큰 |
+|---|---|---|
+| 정보가 있는 곳 | 서버 저장소 | 토큰 안 |
+| 브라우저가 든 것 | 번호만 | 내용 전체 |
+| 서버 늘리기 | 공용 저장소가 필요 | 그냥 늘린다 |
+| 즉시 무효화 | 저장소에서 지우면 끝 | 만료 전까지 살아 있다 |
 
-# Redis에 세션 저장
-app.config['SESSION_TYPE'] = 'redis'
-app.config['SESSION_REDIS'] = redis.Redis(
-    host='localhost',
-    port=6379,
-    db=0
-)
+## 💡 실제 사례
 
-Session(app)
+- **장바구니** 로그인하지 않아도 담은 상품을 세션에 넣어두면 페이지를 옮겨도 남아 있다.
+- **관리자 화면** 30분 동안 아무 요청이 없으면 세션을 지우고 로그인 화면으로 돌려보낸다.
+- **로그아웃** 저장소에서 그 세션을 지운다. 브라우저에 남은 번호는 가리킬 곳이 없어져 쓸모가 없다.
 
-# 이제 session 사용 시 Redis에 저장됨
-@app.route('/login')
-def login():
-    session['user_id'] = 'user123'
-    # Redis에 저장: SET session:abc123 "{'user_id': 'user123'}"
-```
+## 🚫 흔한 오해
 
-### 3. 데이터베이스
-```python
-from flask_sqlalchemy import SQLAlchemy
+- **세션은 브라우저에 저장된다** — 브라우저에 있는 건 번호뿐이고 내용은 서버에 있다. 쿠키를 열어봐도 `session_id=abc123` 같은 값만 보인다.
+- **세션 ID만 가지고는 아무것도 못 한다** — 그 번호가 곧 신분증이다. 남이 값을 가로채 그대로 보내면 서버는 본인으로 취급한다.
+- **세션과 쿠키는 같은 말이다** — 쿠키는 값을 브라우저와 서버 사이에 실어 나르는 방법이고, 세션은 서버가 기억하는 방식이다. 세션 번호를 나르는 데 쿠키를 쓸 뿐이다.
 
-# DB 테이블
-class Session(db.Model):
-    id = db.Column(db.String(255), primary_key=True)
-    data = db.Column(db.Text)
-    expiry = db.Column(db.DateTime)
-    
-    def is_expired(self):
-        return datetime.now() > self.expiry
-```
+## 🚨 주의사항
 
-## 💡 세션 보안
+- **세션 쿠키에 `httpOnly` 와 `secure` 를 건다.** 스크립트가 못 읽게 하고 HTTPS로만 실려 가게 하는 설정이다.
+- **비활성 시간을 정해둔다.** 30분처럼 기준을 두고 그동안 요청이 없으면 세션을 지운다.
 
-### 1. Session Hijacking 방어
-```python
-from flask import session, request
-import hashlib
+## 📝 정리
 
-def create_session_token(user_id):
-    """세션 생성 시 추가 보안"""
-    # User Agent + IP로 추가 검증
-    user_agent = request.headers.get('User-Agent', '')
-    ip_address = request.remote_addr
-    
-    session['user_id'] = user_id
-    session['fingerprint'] = hashlib.sha256(
-        f"{user_agent}{ip_address}".encode()
-    ).hexdigest()
+세션은 서버가 접속한 사람의 정보를 들고 있고 브라우저에는 그 자리 번호만 주는 방식이다. HTTP가 이전 요청을 기억하지 않는다는 점을 이것으로 메운다. 번호가 곧 신분증이라 쿠키 설정과 만료 시간이 안전한지 아닌지를 거의 정한다.
 
-def verify_session():
-    """세션 검증"""
-    if 'user_id' not in session:
-        return False
-    
-    # Fingerprint 확인
-    user_agent = request.headers.get('User-Agent', '')
-    ip_address = request.remote_addr
-    current_fingerprint = hashlib.sha256(
-        f"{user_agent}{ip_address}".encode()
-    ).hexdigest()
-    
-    if session.get('fingerprint') != current_fingerprint:
-        # 세션 탈취 의심
-        session.clear()
-        return False
-    
-    return True
-```
+## ❓ 이해했는지
 
-### 2. 세션 타임아웃
-```python
-from datetime import datetime, timedelta
-
-@app.before_request
-def check_session_timeout():
-    """비활성 시간 체크"""
-    if 'user_id' in session:
-        last_activity = session.get('last_activity')
-        
-        if last_activity:
-            inactive_time = datetime.now() - datetime.fromisoformat(last_activity)
-            
-            # 30분 비활성 시 로그아웃
-            if inactive_time > timedelta(minutes=30):
-                session.clear()
-                return redirect('/login')
-        
-        # 마지막 활동 시간 업데이트
-        session['last_activity'] = datetime.now().isoformat()
-```
-
-### 3. CSRF 방지
-```python
-import secrets
-
-@app.route('/form')
-def show_form():
-    """CSRF 토큰 생성"""
-    csrf_token = secrets.token_hex(16)
-    session['csrf_token'] = csrf_token
-    
-    return render_template('form.html', csrf_token=csrf_token)
-
-@app.route('/submit', methods=['POST'])
-def submit_form():
-    """CSRF 토큰 검증"""
-    token = request.form.get('csrf_token')
-    
-    if token != session.get('csrf_token'):
-        return 'CSRF attack detected', 403
-    
-    # 정상 처리
-    return 'Success'
-```
-
-## 🎯 세션 vs 쿠키 vs 토큰
-
-| 항목 | 세션 | 쿠키 | JWT 토큰 |
-|------|------|------|----------|
-| **저장 위치** | 서버 | 클라이언트 | 클라이언트 |
-| **보안** | 높음 | 낮음 | 중간 |
-| **확장성** | 낮음 (서버 상태) | 높음 | 높음 |
-| **크기** | 제한 없음 | 4KB | 수 KB |
-| **사용 사례** | 전통적 웹앱 | 간단한 정보 | API, SPA |
-
-## 💡 실전 예시
-
-### 장바구니 세션
-```python
-@app.route('/cart/add', methods=['POST'])
-def add_to_cart():
-    """장바구니에 상품 추가"""
-    product_id = request.json['product_id']
-    
-    # 세션에 장바구니 초기화
-    if 'cart' not in session:
-        session['cart'] = []
-    
-    # 상품 추가
-    session['cart'].append(product_id)
-    session.modified = True  # 변경 사항 저장
-    
-    return {'cart_count': len(session['cart'])}
-
-@app.route('/cart')
-def view_cart():
-    """장바구니 조회"""
-    cart = session.get('cart', [])
-    products = [get_product(id) for id in cart]
-    
-    return render_template('cart.html', products=products)
-```
+- 로그인한 다음 페이지를 열었을 때 서버가 누구인지 아는 근거는?
+- 서버를 두 대로 늘렸더니 로그인이 자꾸 풀린다. 왜 그런가?
+- 세션 번호가 담긴 쿠키를 남이 가져가면 무슨 일이 생기나?
 
 ## 🔗 관련 용어
 
-- [[쿠키]]: 세션 ID 저장
-- [[JWT]]: 세션 대안
-- [[Redis]]: 세션 저장소
-
----
-*카테고리: 보안*
-*생성일: 2026-02-14*
+- [[Cookie]] — 세션 번호를 브라우저와 서버 사이에 실어 나르는 수단
+- [[JWT]] — 서버에 저장하지 않고 토큰 안에 정보를 담는 다른 방식
+- [[Redis]] — 서버 여러 대가 같은 세션을 보게 할 때 쓰는 저장소
+- [[CSRF]] — 로그인된 세션을 본인 모르게 쓰게 만드는 공격
+- [[Token 인증]] — 번호 대신 토큰으로 신분을 확인하는 쪽
