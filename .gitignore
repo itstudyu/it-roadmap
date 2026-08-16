@@ -1,0 +1,10 @@
+.DS_Store
+__pycache__/
+*.pyc
+node_modules/
+.vscode/
+.idea/
+
+# 로컬 도구 상태 (gstack browse, impeccable hook)
+.gstack/
+.impeccable/

@@ -1,0 +1,184 @@
+/* ============================================================
+   Design tokens
+   여기만 고치면 앱 전체의 인상이 바뀐다. 컴포넌트에는 raw hex 를 쓰지 않는다.
+
+   방향: 종이 같은 따뜻한 중립색 + 잉크. 브랜드 색을 따로 두지 않고
+   "가장 진한 잉크"가 곧 주요 액션 색이다. 콘텐츠보다 UI 가 튀면 안 되기 때문.
+   ============================================================ */
+
+:root {
+  color-scheme: light dark;
+
+  /* ---------- 표면 ---------- */
+  --paper: #fbfaf8;          /* 앱 배경. 순백이 아니라 살짝 따뜻하다 */
+  --surface: #ffffff;        /* 카드 */
+  --surface-sunken: #f3f1ec; /* 입력창, 코드블록 */
+  --line: #e9e5de;           /* 기본 헤어라인 */
+  --line-strong: #d5cfc4;    /* 강조 구분선 */
+
+  /* ---------- 잉크 (텍스트 + 주요 액션) ---------- */
+  --ink: #1a1917;      /* 본문, 표제어, primary 버튼 배경. 대비 15.6:1 */
+  --ink-2: #57524a;    /* 보조 텍스트. 대비 7.4:1 */
+  --ink-3: #726c60;    /* 메타/캡션. 대비 4.9:1, AA 통과 */
+  --ink-inverse: #fbfaf8;
+
+  /* ---------- 학습 상태 ----------
+     색 하나로만 뜻을 전달하지 않는다. 항상 아이콘 + 라벨과 같이 쓴다. */
+  --st-new: #726c60;
+  --st-new-bg: #f0eee9;
+  --st-reading: #2c5f7c;     /* 읽는 중 */
+  --st-reading-bg: #e9f1f5;
+  --st-learned: #3a6b4c;     /* 학습 완료 */
+  --st-learned-bg: #eaf2ec;
+  --st-passed: #235c43;      /* 퀴즈 통과 */
+  --st-passed-bg: #e0ece5;
+  --st-review: #8a5a18;      /* 복습 필요 */
+  --st-review-bg: #f7efe0;
+
+  /* ---------- 피드백 ---------- */
+  --ok: #235c43;
+  --ok-bg: #e0ece5;
+  --danger: #a33a31;
+  --danger-bg: #f8eae7;
+
+  /* ---------- 타이포 ----------
+     표제어만 세리프를 쓴다. 사전이라는 장르의 관습이고,
+     영문 용어와 한글 설명을 시각적으로 분리해준다. */
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+    "Apple SD Gothic Neo", "Segoe UI", "Noto Sans KR", system-ui, sans-serif;
+  --font-head: "Source Serif 4", "Iowan Old Style", Charter, Georgia, "Times New Roman", serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo, monospace;
+
+  --fs-11: 0.6875rem;
+  --fs-12: 0.75rem;
+  --fs-13: 0.8125rem;
+  --fs-14: 0.875rem;
+  --fs-15: 0.9375rem;
+  --fs-16: 1rem;       /* 모바일 본문 최소값 */
+  --fs-17: 1.0625rem;  /* 긴 글 읽기용 */
+  --fs-20: 1.25rem;
+  --fs-24: 1.5rem;
+  --fs-28: 1.75rem;
+  --fs-34: 2.125rem;   /* 표제어 */
+
+  --lh-tight: 1.25;
+  --lh-snug: 1.45;
+  --lh-body: 1.72;     /* 한글은 라틴 문자보다 행간이 더 필요하다 */
+  --lh-head: 1.1;
+
+  --tracking-label: 0.06em;
+
+  /* ---------- 간격 (4px 배수) ---------- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+
+  --gutter: var(--sp-5); /* 화면 좌우 여백 */
+
+  /* ---------- 모서리 ----------
+     규칙: 컨테이너 16 / 인터랙티브 12 / 칩 8 / 알약은 full.
+     이 규칙 밖의 값은 쓰지 않는다. */
+  --r-chip: 8px;
+  --r-control: 12px;
+  --r-container: 16px;
+  --r-full: 999px;
+
+  /* ---------- 그림자 ----------
+     거의 쓰지 않는다. 계층은 헤어라인과 여백으로 만든다.
+     쓸 때는 배경의 따뜻한 색조를 섞는다. 순수 검정 그림자는 쓰지 않는다. */
+  --shadow-raised: 0 1px 2px rgba(26, 25, 23, 0.05);
+  --shadow-sheet: 0 -2px 16px -6px rgba(26, 25, 23, 0.1);
+
+  /* ---------- 모션 ----------
+     150-220ms. 방향과 인과를 전달할 때만 쓴다. */
+  --dur-fast: 120ms;
+  --dur: 180ms;
+  --dur-slow: 260ms;
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* ---------- 레이어 ---------- */
+  --z-sticky: 10;
+  --z-nav: 20;
+  --z-sheet: 40;
+  --z-toast: 60;
+
+  /* ---------- 레이아웃 ---------- */
+  --measure: 34rem;     /* 본문 최대 폭. 한 줄 40-50자 */
+  --app-max: 30rem;     /* 모바일 기준 캔버스 */
+  --navbar-h: 56px;
+  --tabbar-h: 60px;
+}
+
+/* 어두운 곳에서 읽는 시간이 길다. 시스템 설정을 따르고 수동 토글도 둔다. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #141310;
+    --surface: #1c1b17;
+    --surface-sunken: #232219;
+    --line: #2f2d26;
+    --line-strong: #45423a;
+
+    --ink: #f2efe8;
+    --ink-2: #b0aa9c;
+    --ink-3: #8b8578;
+    --ink-inverse: #141310;
+
+    --st-new: #8b8578;
+    --st-new-bg: #26241e;
+    --st-reading: #8cbdd6;
+    --st-reading-bg: #1b2a32;
+    --st-learned: #86c2a0;
+    --st-learned-bg: #1b2a22;
+    --st-passed: #9ad3b2;
+    --st-passed-bg: #17281f;
+    --st-review: #e0ac5e;
+    --st-review-bg: #2c2317;
+
+    --ok: #9ad3b2;
+    --ok-bg: #17281f;
+    --danger: #e08b81;
+    --danger-bg: #2e1d1a;
+
+    --shadow-raised: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-sheet: 0 -2px 16px -6px rgba(0, 0, 0, 0.5);
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper: #141310;
+  --surface: #1c1b17;
+  --surface-sunken: #232219;
+  --line: #2f2d26;
+  --line-strong: #45423a;
+
+  --ink: #f2efe8;
+  --ink-2: #b0aa9c;
+  --ink-3: #8b8578;
+  --ink-inverse: #141310;
+
+  --st-new: #8b8578;
+  --st-new-bg: #26241e;
+  --st-reading: #8cbdd6;
+  --st-reading-bg: #1b2a32;
+  --st-learned: #86c2a0;
+  --st-learned-bg: #1b2a22;
+  --st-passed: #9ad3b2;
+  --st-passed-bg: #17281f;
+  --st-review: #e0ac5e;
+  --st-review-bg: #2c2317;
+
+  --ok: #9ad3b2;
+  --ok-bg: #17281f;
+  --danger: #e08b81;
+  --danger-bg: #2e1d1a;
+
+  --shadow-raised: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-sheet: 0 -2px 16px -6px rgba(0, 0, 0, 0.5);
+}
