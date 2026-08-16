@@ -400,6 +400,102 @@ a {
   background: var(--surface-sunken);
 }
 
+/* 되돌릴 수 없는 단추. 주 단추와 같은 무게로 두면 손가락이 습관대로 간다.
+   색만으로 말하지 않고 글자로도 "전부 지우기" 라고 적는다. */
+.btn--danger {
+  background: var(--danger);
+  color: #fff;
+  border: 1px solid var(--danger);
+}
+
+.btn--danger:hover {
+  filter: brightness(1.08);
+}
+
+/* ------------------------------------------------------------
+   물어보는 상자
+
+   브라우저 기본 confirm() 을 안 쓴다. 앱 밖에서 뜨는 회색 상자는 지금까지
+   만든 화면과 아무 관계가 없어 보이고, 무엇이 지워지는지 적을 자리도 없다.
+   ------------------------------------------------------------ */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-toast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--gutter);
+  background: rgba(0, 0, 0, 0.45);
+  animation: fade-in var(--dur) var(--ease);
+}
+
+.modal__box {
+  width: 100%;
+  max-width: 360px;
+  padding: var(--sp-6);
+  border-radius: var(--r-container);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-sheet);
+  animation: sheet-in var(--dur-slow) var(--ease);
+}
+
+.modal__title {
+  font-size: var(--fs-20);
+  line-height: var(--lh-tight);
+  color: var(--ink);
+}
+
+.modal__body {
+  margin-top: var(--sp-3);
+  font-size: var(--fs-14);
+  line-height: var(--lh-body);
+  color: var(--ink-2);
+}
+
+/* 무엇이 사라지는지 숫자로 보여준다. "정말요?" 만 묻는 상자는
+   무엇을 잃는지 모른 채 누르게 만든다. */
+.modal__list {
+  margin-top: var(--sp-5);
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--r-chip);
+  background: var(--surface-sunken);
+  list-style: none;
+}
+
+.modal__list li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding-block: var(--sp-2);
+  font-size: var(--fs-14);
+  color: var(--ink-2);
+}
+
+.modal__list li + li {
+  border-top: 1px solid var(--line);
+}
+
+.modal__list .num {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 세로로 쌓는다. 390px 에서 나란히 두면 "전부 지우기" 가 두 줄로 접힌다.
+   그리고 그대로 두는 쪽을 위에 둔다 — 엄지가 먼저 닿는 자리다. */
+.modal__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin-top: var(--sp-6);
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .btn--ghost {
   color: var(--ink-2);
 }

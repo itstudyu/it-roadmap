@@ -224,7 +224,7 @@
           '<div class="book__top"><div>' +
           '<div class="book__name">' + esc(x.book.name) + "</div>" +
           '<div class="book__blurb">' + esc(x.book.blurb) + "</div></div>" +
-          '<div class="book__count num">' + x.stats.done + " / " + x.stats.total + "</div></div>" +
+          '<div class="book__count num">통과 ' + x.stats.done + " / " + x.stats.total + "</div></div>" +
           '<div class="book__bar">' + stackedBar(x.stats) + "</div></button>";
       }).join("") + "</div></section>";
   }
@@ -275,7 +275,7 @@
           '<div class="book__top"><div>' +
           '<div class="book__name">' + esc(b.name) + "</div>" +
           '<div class="book__blurb">' + esc(b.blurb) + "</div></div>" +
-          '<div class="book__count num">' + stats.done + " / " + stats.total + "</div></div>" +
+          '<div class="book__count num">통과 ' + stats.done + " / " + stats.total + "</div></div>" +
           '<div class="book__bar">' + stackedBar(stats) + "</div>" +
           bookLegend(stats) + "</button>";
       }).join("") + "</div></main>";
@@ -1030,9 +1030,8 @@
       nextStepBlock() +
 
       '<div style="margin-top:40px;text-align:center">' +
-      '<button class="link-btn" data-action="reset-progress">' +
-      (resetArmed ? "정말 지울까요? 한 번 더 누르면 지워집니다" : "데이터 초기화") +
-      "</button></div>" +
+      '<button class="link-btn" data-action="reset-progress">데이터 초기화</button></div>' +
+      resetModal(s, history.length) +
       "</main>";
   });
 
@@ -1046,32 +1045,58 @@
 
   /* 초기화는 되돌릴 수 없다. 읽은 것 · 퀴즈 통과 · 복습 일정 · 학습 기록이
      한 번에 사라지고 돌려놓을 방법이 없다. 그런 단추가 한 번 눌러 끝나면 안 된다.
-     기본 confirm() 을 띄우는 대신 단추 자신이 물어보게 한다 — 화면을 벗어나지 않고,
-     다른 데를 누르거나 잠깐 두면 저절로 없던 일이 된다. */
-  var resetArmed = false;
-  var resetTimer = null;
 
-  function disarmReset() {
-    if (!resetArmed) return;
-    resetArmed = false;
-    clearTimeout(resetTimer);
+     브라우저 기본 confirm() 을 쓰지 않는다. 저건 앱 밖에서 뜨는 회색 상자라
+     지금까지 만든 화면과 아무 관계가 없어 보이고, 무엇이 지워지는지 적을 자리도 없다.
+     대신 무엇이 사라지는지를 숫자로 보여주고 고르게 한다 — 이미 있는 시트 어휘를 쓴다. */
+
+  var resetOpen = false;
+
+  function resetModal(stats, historyCount) {
+    if (!resetOpen) return "";
+    var rows = [
+      { label: "퀴즈 통과", n: stats.passed },
+      { label: "공부한 단어", n: stats.studied },
+      { label: "복습 대기", n: stats.review },
+      { label: "학습 기록", n: historyCount },
+    ].filter(function (r) { return r.n; });
+
+    return '<div class="modal" data-action="reset-cancel">' +
+      '<div class="modal__box" role="dialog" aria-modal="true" aria-labelledby="reset-title">' +
+      '<h2 class="modal__title" id="reset-title">기록을 전부 지울까요</h2>' +
+      '<p class="modal__body">지우면 되돌릴 수 없습니다. 단어 자체는 그대로 있고, ' +
+      "어디까지 공부했는지만 사라집니다.</p>" +
+      (rows.length
+        ? '<ul class="modal__list">' + rows.map(function (r) {
+            return "<li><span>" + esc(r.label) + '</span><span class="num">' + r.n + "</span></li>";
+          }).join("") + "</ul>"
+        : '<p class="modal__body">지울 기록이 아직 없습니다.</p>') +
+      '<div class="modal__actions">' +
+      '<button class="btn btn--secondary" data-action="reset-cancel">그대로 두기</button>' +
+      '<button class="btn btn--danger" data-action="reset-confirm">전부 지우기</button>' +
+      "</div></div></div>";
   }
 
   App.on("reset-progress", function () {
-    if (!resetArmed) {
-      resetArmed = true;
-      clearTimeout(resetTimer);
-      resetTimer = setTimeout(function () {
-        resetArmed = false;
-        App.render();
-      }, 5000);
-      App.render();
-      return;
-    }
-    disarmReset();
+    resetOpen = true;
+    App.render();
+  });
+
+  App.on("reset-cancel", function () {
+    resetOpen = false;
+    App.render();
+  });
+
+  App.on("reset-confirm", function () {
+    resetOpen = false;
     Store.reset();
     UI.toast("전부 지웠습니다", "rotate");
     App.render();
+  });
+
+  // 화면을 옮기면 열어둔 것을 닫는다. 다음에 들어왔을 때 모달이 떠 있으면 안 된다.
+  document.addEventListener("screen:rendered", function (event) {
+    if (!event.detail || event.detail.path !== "/progress") resetOpen = false;
   });
 
   // 화면을 옮기면 물어보던 것을 없던 일로 한다. 다음에 들어왔을 때
