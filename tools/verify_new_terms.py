@@ -79,12 +79,35 @@ def check_dry_run() -> tuple[bool, str]:
 
 
 def new_term_files() -> list[str]:
-    """이번 변경으로 새로 생긴 content/ 아래 .md 파일."""
+    """아직 커밋되지 않은, content/ 아래 새로 생긴 .md 파일.
+
+    `git status --porcelain -z` 를 쓴다. 두 가지를 한꺼번에 피하려는 것이다.
+
+    첫째, `git diff --diff-filter=A HEAD` 는 **git add 를 한 파일만** 본다.
+    루틴은 검증을 커밋 전에 부르므로 그 시점의 새 파일은 대개 untracked 고,
+    diff 로 보면 0건이 나온다.
+
+    둘째, git 은 기본 설정(core.quotepath=true)에서 비ASCII 경로를
+    "content/\\352\\260..." 처럼 따옴표와 8진 이스케이프로 감싼다. 이 저장소의
+    폴더는 거의 전부 한글이라 줄 단위로 받으면 .md 로 끝나지 않는다.
+    -z 는 NUL 로 끊어 주고 따옴표를 씌우지 않는다.
+
+    두 실패 모두 결과가 같다 — 빈 목록. 그러면 아래 템플릿 검사가 아무것도 안 보고
+    "0/0 통과" 도장을 찍는다. 안전망이 뚫린 것을 통과로 읽는 쪽이 안전망이 아예
+    없는 쪽보다 나쁘다. 실제로 첫 루틴 실행에서 이 일이 일어났다.
+    """
     r = subprocess.run(
-        ["git", "diff", "--name-only", "--diff-filter=A", "HEAD", "--", "content/"],
+        ["git", "status", "--porcelain", "-z", "--", "content/"],
         cwd=ROOT, capture_output=True, text=True,
     )
-    return [p for p in r.stdout.splitlines() if p.endswith(".md")]
+    out = []
+    for entry in r.stdout.split("\0"):
+        # "XY <경로>" 꼴. X 는 인덱스, Y 는 작업트리 상태다.
+        # A=추가됨, ?=untracked. 첫 글자만 본다 — 스테이징한 뒤 다시 고치면
+        # "AM" 이 되는데 그것도 여전히 이번에 생긴 파일이다.
+        if len(entry) > 3 and entry[0] in ("A", "?") and entry[3:].endswith(".md"):
+            out.append(entry[3:])
+    return out
 
 
 def check_template(paths: list[str]) -> tuple[bool, str]:
@@ -133,15 +156,28 @@ def main() -> int:
     if check_count(args.expect):
         return 1
 
+    if check_new_files(args.expect):
+        return 1
+
+    sys.stderr.write("\n통과. 커밋해도 된다.\n")
+    return 0
+
+
+def check_new_files(expect: int) -> int:
     files = new_term_files()
-    if len(files) != args.expect:
-        sys.stderr.write(f"warn  새 파일이 {len(files)}개다 (단어 수는 맞음)\n")
+    if len(files) != expect:
+        # 경고로 넘기면 안 된다. 파일을 못 찾으면 아래 템플릿 검사가 빈 목록을 받고
+        # "0/0 통과" 라는 거짓 통과를 낸다.
+        return fail(
+            f"새로 생긴 .md 가 {len(files)}개인데 {expect}개를 기대했다.\n"
+            "      단어 수는 맞는데 파일 수가 다르면 기존 파일을 고쳤다는 뜻이다.\n"
+            "      루틴은 추가만 한다 — 기존 단어를 고치지 마라. 아래로 확인해라:\n"
+            "      git status --porcelain -- content/"
+        )
     passed, why = check_template(files)
     if not passed:
         return fail("템플릿 미통과 — " + why)
     ok(f"템플릿 {len(files)}/{len(files)} 통과")
-
-    sys.stderr.write("\n통과. 커밋해도 된다.\n")
     return 0
 
 

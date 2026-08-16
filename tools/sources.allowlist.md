@@ -6,6 +6,30 @@
 원칙: **1차 출처만.** 표준 문서와 공식 문서. 해설이 아니라 정의의 원본.
 각 단어는 서로 다른 도메인의 출처를 **최소 2개** 인용해야 한다.
 
+## ⚠️ 클라우드 루틴에서는 대부분 막혀 있다
+
+2026-08-16 첫 실행에서 확인한 것이다. 클라우드 세션의 egress 정책이 아래 목록의
+**대부분을 CONNECT 단계에서 403 으로 막는다.** 정책을 우회하지 마라 — 못 여는
+출처는 못 여는 것으로 보고하고 다른 후보를 골라라.
+
+**닿은 것** — `nodejs.org`, `pkg.go.dev`, `json-schema.org`, `pypi.org`,
+`registry.npmjs.org`, `cloud.google.com`(문서 서브도메인으로 넘어가면 막힘)
+
+**막힌 것** — MDN, RFC/IETF, W3C, WHATWG, OWASP, NIST, MITRE,
+`postgresql.org`, `dev.mysql.com`, `redis.io`, `mongodb.com`, `sqlite.org`,
+`git-scm.com`, `docs.npmjs.com`, `packaging.python.org`, `kubernetes.io`,
+`docs.docker.com`, `nginx.org`, `httpd.apache.org`, `docs.aws.amazon.com`,
+`learn.microsoft.com`, `go.dev`, `react.dev`, `docs.python.org`, `grpc.io`,
+`graphql.org`, `arxiv.org`, `huggingface.co`, `platform.openai.com`,
+`modelcontextprotocol.io`, `opentelemetry.io`, `prometheus.io`,
+`developer.hashicorp.com`, `oauth.net`, `openid.net`, `semver.org`, `eslint.org`
+
+그래서 **후보 선정이 "무엇이 중요한가" 가 아니라 "무엇을 1차 출처로 확인할 수
+있는가" 로 한 번 더 걸러진다.** 이건 제약이지 결함이 아니다. 근거를 못 여는 단어를
+기억으로 쓰는 것보다, 이번 주에 한 개만 넣거나 빈손으로 끝나는 편이 낫다.
+
+막힌 도메인 목록은 실행마다 달라질 수 있다. 실제로 열어 보고 판단해라.
+
 ## 허용
 
 ### 표준화 기구
@@ -31,6 +55,8 @@
 - `postgresql.org`, `mysql.com/doc`, `dev.mysql.com`, `redis.io`, `mongodb.com/docs`
 - `react.dev`, `nodejs.org`, `python.org/doc`, `docs.python.org`
 - `graphql.org`, `grpc.io`, `openapis.org`, `json-schema.org`
+- `pkg.go.dev` — Go 표준 라이브러리·명령 공식 문서
+- `pypi.org`, `registry.npmjs.org` — 패키지 레지스트리 공식 메타데이터
 - `oauth.net`, `openid.net`
 - `prometheus.io`, `grafana.com/docs`, `opentelemetry.io`
 - `terraform.io`, `developer.hashicorp.com`
