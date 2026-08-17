@@ -66,6 +66,15 @@ kubernetes.io, opentelemetry.io, learn.microsoft.com, git-scm.com, semver.org �
 - `oauth.net`, `openid.net`
 - `prometheus.io`, `grafana.com/docs`, `opentelemetry.io`
 - `terraform.io`, `developer.hashicorp.com`
+- `sqlite.org`
+- `kernel.org` — Linux 커널 공식 문서. 커널·파일 시스템·인터럽트
+- `gnu.org/software/bash` — Bash 참조 매뉴얼
+- `pubs.opengroup.org` — POSIX / Single UNIX Specification
+- `docs.github.com` — GitHub. Pull Request 는 GitHub 이 만든 개념이라 여기가 원본이다
+- `eslint.org`, `prettier.io` — 린터·포매터
+- `openfeature.dev` — CNCF. Feature Flag 규격
+- `unicode.org` — 유니코드 컨소시엄. 문자 인코딩
+- `ieee.org`, `standards.ieee.org` — IEEE 표준 (MAC 주소, 802 계열, 부동소수점 754)
 - 그 밖의 프로젝트도 **그 기술의 공식 도메인 문서**라면 같은 자격으로 허용한다.
   판단 기준: 그 기술을 만든 조직이 직접 운영하는 문서인가.
 
@@ -94,6 +103,7 @@ kubernetes.io, opentelemetry.io, learn.microsoft.com, git-scm.com, semver.org �
 - `kanbanguides.org` — Kanban Guide
 - `agilemanifesto.org` — Agile 선언문과 12원칙
 - `12factor.net` — Twelve-Factor App 원전
+- `trunkbaseddevelopment.com` — Trunk Based Development 규범 문서
 - `sre.google/sre-book`, `sre.google/workbook` — Google SRE Book. SLI·SLO·SLA·Error Budget·Postmortem 의 정의 원본
 - `netpromotersystem.com` — Bain. NPS 를 만든 곳의 산식 문서
 

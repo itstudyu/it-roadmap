@@ -99,6 +99,7 @@ db	N+1 Problem	N 더하기 1 문제
 db	Query Plan	쿼리 실행 계획
 db	Eventual Consistency	최종 일관성
 db	Key-Value Store	키 값 저장소
+db	Query	쿼리
 arch	High Availability	고가용성
 arch	Scalability	확장성
 arch	Fault Tolerance	장애 허용성

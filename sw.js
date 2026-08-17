@@ -12,7 +12,7 @@
       tools/build.py 를 돌린 커밋에는 반드시 이 줄이 같이 들어가야 한다.
    ============================================================ */
 
-var CACHE_VERSION = "aa41b53afe14";
+var CACHE_VERSION = "f8857b82eb8a";
 var CACHE = "it-vocab-" + CACHE_VERSION;
 
 /* 설치할 때 받아둘 것 전부.

@@ -817,6 +817,72 @@ def assign_ids(books: list[dict]) -> list[dict]:
     return books
 
 
+_ALIAS_SPLIT = re.compile(r"\s+vs\.?\s+|\s*&\s*|\s*/\s*|\s*_\s*|\s*·\s*", re.I)
+
+# 쪼개도 별칭으로 삼지 않을 조각. 혼자서는 아무 단어도 가리키지 않는다.
+_ALIAS_STOP = {"vs", "and", "or", "the", "a", "an", "of", "등", "및"}
+
+
+def _alias_parts(name: str) -> list[str]:
+    """복합 이름을 조각으로 쪼갠다. 쪼갤 게 없으면 빈 목록.
+
+    `SSL/TLS` 의 별칭이 `ssl/tls` 와 `ssl_tls` 뿐이어서 본문의 "TLS" 가 이 앱이
+    아는 말이 아니었다. HTTPS 의 정의 첫 문장이 "HTTP를 TLS로 감싸서" 인데
+    그 TLS 를 누를 수 있게 만들어 줄 수조차 없었다는 뜻이다.
+
+    공백은 함부로 쪼개지 않는다 — `HTTP Status Code` 를 쪼개면 "http" 가 나와서
+    net--http 의 이름을 빼앗는다. 전부 대문자 약어가 늘어선 이름만 예외로
+    공백에서도 쪼갠다(`SLA SLO SLI`, `DAU MAU`).
+    """
+    if not name:
+        return []
+    parts = [p.strip() for p in _ALIAS_SPLIT.split(name) if p.strip()]
+    if len(parts) > 1:
+        # 조각 하나가 한 글자면 구분자가 이름 안쪽에 있었다는 뜻이다.
+        # `A/B Testing` 은 A 와 B 를 가른 것이 아니라 "A/B" 가 한 낱말이다.
+        # 이걸 쪼개면 "B Testing" 같은 아무것도 아닌 별칭이 생긴다.
+        if any(len(p) < 2 for p in parts):
+            return []
+        return parts
+    toks = name.split()
+    if len(toks) > 1 and all(re.fullmatch(r"[A-Z][A-Z0-9-]+", t) for t in toks):
+        return toks
+    return []
+
+
+def widen_aliases(books: list[dict]) -> list[tuple[str, list[str]]]:
+    """복합 이름의 조각을 별칭에 더한다. 남이 쓰는 이름은 빼앗지 않는다.
+
+    충돌 검사가 전체를 봐야 하므로 노트별로는 못 하고 후처리로 한다.
+    이미 누가 그 이름을 갖고 있으면 조용히 건너뛴다 — 별칭이 겹치면
+    `[[링크]]` 가 엉뚱한 노트로 가고, 그건 조각 하나 얻는 값어치보다 나쁘다.
+    """
+    owned: dict[str, str] = {}
+    for b in books:
+        for t in b["terms"]:
+            for a in t.get("aliases", ()):
+                owned.setdefault(a, t["id"])
+
+    gained: list[tuple[str, list[str]]] = []
+    for b in books:
+        for t in b["terms"]:
+            add: list[str] = []
+            for source in (t["term"], t.get("reading") or "",):
+                for part in _alias_parts(source):
+                    p = part.strip().lower()
+                    if len(p) < 2 or p in _ALIAS_STOP or p.isdigit():
+                        continue
+                    if p in owned or p in add:
+                        continue
+                    add.append(p)
+            if add:
+                t["aliases"] = list(t["aliases"]) + add
+                for p in add:
+                    owned[p] = t["id"]
+                gained.append((t["id"], add))
+    return gained
+
+
 def report_stock(books: list[dict]) -> None:
     """퀴즈가 쓸 재료가 몇 편에 실렸는지 센다.
 
@@ -1081,6 +1147,7 @@ def main() -> int:
 
     books, dropped = collect()
     assign_ids(books)
+    widen_aliases(books)
     report(books, dropped)
 
     if args.dry_run:
