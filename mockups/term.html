@@ -3,31 +3,208 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="description" content="단어 노트 목업 — 원문 Markdown 이 어떤 화면이 되는지 나란히 본다">
+  <meta name="description" content="단어 노트 템플릿 목업 — 그림과 설명만으로 단어를 이해시키는 판">
   <meta name="color-scheme" content="light dark">
-  <title>단어 노트 목업</title>
+  <title>단어 노트 템플릿 목업</title>
 
   <link rel="stylesheet" href="../css/tokens.css">
   <link rel="stylesheet" href="../css/app.css">
   <link rel="stylesheet" href="mockup.css">
+
+  <style>
+    /* ==========================================================
+       이 셋은 2026-08-18 에 앱으로 들어갔다. 여기 남아 있는 것은
+       "이 글자들이 저 화면이 된다" 를 나란히 보기 위해서다.
+       진짜 구현은 css/app.css 와 js/reading.js 에 있고,
+       한 가지가 다르다 — 용어 사전이 앱에서는 단어장 색인
+       327편(제목·별칭·한 줄 뜻)이고 여기서는 아래 GLOSS 표다.
+
+       이 목업이 더한 것 셋. 전부 앱 토큰만 쓴다.
+
+       ① 용어 점(°) — 정의와 그림 속 공식 용어를 탭하면 그 자리
+          바로 아래 한 줄 풀이가 뜬다. 풀이를 멀리 두지 않는 이유:
+          글은 그림의 해당 부분 옆에 있을 때 배워진다(공간 근접).
+       ② 한 단계씩 보기 — 흐름 그림을 탭으로 밝혀 간다. 속도는
+          유저가 정하고, 지나온 단계는 사라지지 않는다(분절).
+          자동 재생은 없다 — 움직이는 정보는 기억에서 먼저 사라진다.
+       ③ 항상 보이는 두 칸 — "왜 필요한가"(대조)와 "무엇으로
+          되어 있나"(층)를 접지 않는다. 이 둘이 정의·흐름과 함께
+          이해의 네 기둥이다.
+       ========================================================== */
+
+    /* ---------- ① 용어 표시: 점선 밑줄 ---------- */
+
+    /* 글자색도 배경도 기호도 없다. 단어 밑의 점선 하나가 전부다.
+       규칙은 안내 한 줄이 가르친다(.glosshint — 처음 한 번만 보인다).
+       display:inline — inline-block 이면 "인증서를" 이 "인증"/"서를" 로 꺾인다.
+       본문 줄 상자가 27px 남짓이라 위아래 8px 을 음수 마진으로 상쇄해
+       눌리는 넓이만 44px 급으로 키운다. 배경이 없으니 겹쳐도 안 보인다. */
+    .tmark {
+      display: inline;
+      padding: 8px 2px;
+      margin: -8px -2px;
+      border: 0;
+      background: none;
+      font: inherit;
+      color: inherit;
+      cursor: pointer;
+      text-decoration: underline dotted var(--ink-3);
+      text-decoration-thickness: 1.5px;
+      text-underline-offset: 4px;
+    }
+
+    /* 열려 있는 동안만 점선이 실선이 되고 색이 든다 */
+    .tmark[aria-expanded="true"] {
+      color: var(--st-reading);
+      text-decoration-style: solid;
+      text-decoration-color: var(--st-reading);
+    }
+
+    /* 한 번 열어 본 단어는 점선이 옅어진다. 진한 점선이 하나씩
+       줄어드는 것이 곧 진도고, 남은 옅은 선이 "다시 볼 수 있다" 를 말한다. */
+    .tmark[data-known="1"] {
+      text-decoration-color: var(--line-strong);
+    }
+
+    /* 규칙을 가르치는 한 줄. 풀이를 처음 열면 영영 사라진다. */
+    .glosshint {
+      margin: var(--sp-2) 0 0;
+      font-size: var(--fs-12);
+      color: var(--ink-3);
+    }
+
+    /* 풀이 카드. 탭한 줄 바로 아래에 선다. */
+    .gloss {
+      display: block;
+      margin-top: var(--sp-2);
+      padding: var(--sp-3) var(--sp-4);
+      border: 1px solid var(--line);
+      border-inline-start: 2px solid var(--st-reading);
+      border-radius: var(--r-chip);
+      background: var(--surface-sunken);
+      font-size: var(--fs-13);
+      font-weight: 400;
+      line-height: var(--lh-snug);
+      letter-spacing: 0;
+      color: var(--ink-2);
+    }
+
+    .gloss__term {
+      font-weight: 650;
+      color: var(--ink);
+      margin-inline-end: 6px;
+    }
+
+    /* 층 그림의 줄이 flex 라면 풀이가 옆으로 끼지 않게 아랫줄로 내린다 */
+    .dia__layer { flex-wrap: wrap; }
+    .dia__layer .gloss { flex: 1 1 100%; }
+    .dia__vsrow .gloss { grid-column: 1 / -1; }
+
+    /* ---------- ② 한 단계씩 보기 ---------- */
+
+    .dia--walk .dia__step,
+    .dia--walk .dia__turn,
+    .dia--walk .dia__loop,
+    .dia--walk .dia__sum {
+      transition: opacity 0.25s var(--ease);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .dia--walk .dia__step,
+      .dia--walk .dia__turn,
+      .dia--walk .dia__loop,
+      .dia--walk .dia__sum {
+        transition: none;
+      }
+    }
+
+    .dia--walk .is-later {
+      opacity: 0.32;
+    }
+
+    .dia--walk li.is-later {
+      cursor: pointer; /* 흐린 줄을 탭하면 거기까지 간다 */
+    }
+
+    .dia--walk li.is-now .dia__mark {
+      border-color: var(--st-reading);
+      background: var(--st-reading-bg);
+      color: var(--st-reading);
+    }
+
+    .dia--walk li.is-now .dia__who {
+      color: var(--st-reading);
+    }
+
+    /* 진행 장치를 따로 두지 않는다 — 그림 자체가 단추다.
+       밝아진 줄 수가 곧 진행이라 숫자도 점도 필요 없다. */
+    .dia--walk.is-walking {
+      cursor: pointer;
+    }
+
+    .walkhint {
+      display: block;
+      margin-top: var(--sp-3);
+      font-size: var(--fs-12);
+      color: var(--ink-3);
+    }
+
+    .walkhint[hidden] {
+      display: none;
+    }
+
+    /* ---------- ③ 항상 보이는 칸 ---------- */
+
+    .pinsec {
+      margin-top: var(--sp-8);
+      scroll-margin-top: calc(var(--navbar-h) + var(--sp-3));
+    }
+
+    .pinsec__head {
+      margin: 0 0 var(--sp-3);
+      font-size: var(--fs-13);
+      font-weight: 650;
+      line-height: var(--lh-snug);
+      color: var(--ink-2);
+      letter-spacing: 0.02em;
+    }
+
+    .pinsec.is-landed .pinsec__head {
+      color: var(--st-reading);
+    }
+
+    .pinsec__body.prose {
+      font-size: var(--fs-15);
+    }
+  </style>
 </head>
 <body>
   <div class="app">
     <header class="topbar topbar--bordered">
-      <span class="meta">단어 노트 목업</span>
+      <span class="meta">단어 노트 템플릿 목업</span>
       <span class="topbar__spacer"></span>
       <button class="step-btn" id="theme" aria-label="밝기 바꾸기"></button>
     </header>
 
     <main class="screen screen--reading">
       <nav class="switch">
-        <button class="switch__btn" type="button" data-note="note-dns" aria-pressed="true">DNS</button>
+        <button class="switch__btn" type="button" data-note="note-https" aria-pressed="true">HTTPS</button>
+        <button class="switch__btn" type="button" data-note="note-dns" aria-pressed="false">DNS</button>
         <button class="switch__btn" type="button" data-note="note-cb" aria-pressed="false">Circuit Breaker</button>
-        <button class="switch__btn" type="button" data-note="note-jwt" aria-pressed="false">JWT</button>
       </nav>
 
       <article class="detail" id="detail"></article>
 
+      <details class="source">
+        <summary class="source__btn">이 템플릿이 무엇을 왜 하는가 — 근거와 함께</summary>
+        <div class="source__body" style="white-space: normal; font-family: inherit; font-size: var(--fs-13); line-height: 1.8;">
+          <p><b>1 · 그림을 한 단계씩 본다.</b> 탭할 때마다 다음 단계가 밝아지고, 지나온 단계는 사라지지 않는다. 자동 재생은 없다. — Mayer 분절 원리(학습자가 속도를 정할 때 깊이 배운다), Tversky·Morrison(자동 애니메이션은 기억에서 먼저 사라져 정지 그림보다 못하다. 상호작용일 때만 이긴다)</p>
+          <p><b>2 · 공식 용어는 점선 밑줄로만 표시된다.</b> 기호도 글자색도 배경도 없어 본문 읽기를 방해하지 않는다. 규칙은 정의 카드 밑 안내 한 줄이 가르치고, 풀이를 처음 열면 안내는 영영 사라진다. 탭하면 그 줄 바로 아래 한 줄 풀이가 펼쳐지고, 열어 본 단어는 어디서든 점선이 옅어진다 — 진한 점선이 줄어드는 게 진도다. 그림 하나당 새 용어 3개까지, = 요약 줄은 제외. — MDN 용어집(용어를 피하지 않고 첫 문장에서 링크로 푼다), Mayer 공간 근접·사전 훈련</p>
+          <p><b>3 · 순서가 질문을 따라간다.</b> 무엇인가(정의) → 어떻게 되나(흐름) → 왜 필요한가(대조) → 무엇으로 되어 있나(층). 앞의 넷은 접지 않고, 상세는 접는다. — NN/g 점진적 공개</p>
+          <p><b>4 · 정의 카드에 "예" 한 줄.</b> 비유 다음에 실제 세계의 예 하나. — Google ML 용어집의 "For example," 자리</p>
+          <p><b>5 · 이어보기.</b> 어디까지 봤고 어떤 용어를 열었는지 기억한다(localStorage, 목업 전용 키).</p>
+        </div>
+      </details>
 
       <details class="source">
         <summary class="source__btn">이 화면을 만든 원문 Markdown 보기</summary>
@@ -38,12 +215,114 @@
 
   <!-- ============================================================
        노트 세 편. 이 글자들이 위 화면의 전부다.
-       세 편이 도해 표기를 고루 쓴다 — DNS 는 흐름·대조·층,
-       Circuit Breaker 는 @(순환), JWT 는 |=|(우열 없는 대조).
+       HTTPS 가 개선 템플릿의 전부를 보여준다 — 정의의 "### 예" 와
+       "## 🧱 구성" 이 새 제안이다. DNS 는 구성 없이도 판이 서는 것을,
+       Circuit Breaker 는 @(순환) 흐름이 단계 보기와 함께 도는 것을 본다.
        ============================================================ -->
 
-  <script type="text/markdown" id="note-dns" data-cat="네트워크 기초"
-    data-why="바뀐 것은 확인 질문의 → 셋. 도해 표기는 손대지 않았다 — DNS 의 대조는 진짜 '있고 없고'라 ✕ / ✓ 가 맞는 말이다.">
+  <script type="text/markdown" id="note-https" data-cat="네트워크 기초">
+# HTTPS (HTTP Secure)
+
+## 📝 정의
+
+HTTPS는 **HTTP를 TLS로 감싸서 내용을 가린 웹 통신**이다.
+
+주고받는 양식은 HTTP 그대로다. 달라지는 건 그 내용이 중간에서 읽히지 않는다는 점, 그리고 상대가 진짜 그 사이트인지 인증서로 확인한다는 점이다.
+
+### 비유
+엽서와 봉투. 엽서는 배달하는 사람이 다 읽을 수 있지만 봉투에 넣어 밀봉하면 받는 사람만 연다. 봉투에 찍힌 도장이 보낸 곳을 증명한다.
+
+### 예
+주소창의 자물쇠가 곧 HTTPS다. 오늘 여는 사이트 열에 아홉이 이걸로 연결된다.
+
+## 🖼️ 그림으로 보기
+
+```도해
+흐름: 자물쇠가 걸리기까지 무슨 일이 있나
+브라우저 :: "암호화해서 얘기하자" 하고 인사한다
+서버 :: 인증서를 보낸다. 여기 내 신분증이다
+브라우저 :: 이 인증서를 믿을 만한 곳이 발급했나 확인
+브라우저 :: 확인되면 이번 대화에만 쓸 열쇠를 만든다
+서버 :: 같은 열쇠를 나눠 갖는다
+= 이 인사가 끝나야 첫 요청이 나간다. 그 뒤로는 평범한 HTTP다
+```
+
+## ⚠️ 해결하는 문제
+
+```도해
+대조: 카페 와이파이에서 로그인하면 무슨 차이가 나나
+HTTP 만 || HTTPS 로
+비밀번호 :: 그대로 보인다 || 암호문만 보인다
+페이지 내용 :: 중간에서 바꿀 수 있다 || 바꾸면 들킨다
+상대 확인 :: 가짜 사이트인지 모른다 || 인증서로 확인
+= 가리는 것과 상대를 확인하는 것, 둘 다 해야 안전해진다
+```
+
+같은 와이파이에 붙은 사람은 오가는 내용을 그대로 볼 수 있다. HTTP로 로그인하면 아이디와 비밀번호가 평문으로 지나간다. 내용을 바꿔 넣는 것도 가능해서, 받는 페이지에 광고나 악성 코드가 끼워지기도 했다.
+
+HTTPS는 내용을 가리고, 인증서로 "이 서버가 진짜 그 도메인의 주인"임을 확인한다. 가리기만 해서는 부족하다. 가짜 사이트와 암호화된 대화를 나눠봐야 소용이 없기 때문이다.
+
+## 🧱 구성
+
+```도해
+층: HTTPS 는 무엇을 무엇으로 감싼 것인가
+HTTP :: 주고받는 내용. 요청과 응답의 양식
+TLS :: 그 내용을 암호화하는 보안 계층
+TCP :: 암호문을 실어 나르는 연결
+IP :: 목적지 컴퓨터까지 찾아가는 주소 체계
+= HTTPS 라는 새 프로토콜이 따로 있는 게 아니다. HTTP 와 TCP 사이에 TLS 가 한 겹 낀 것이다
+```
+
+## ⚙️ 작동 원리
+
+인증서는 도메인 소유자가 인증 기관(CA)에서 받는다. 브라우저는 신뢰하는 CA 목록을 미리 갖고 있어서, 그 목록에 있는 곳이 서명한 인증서만 통과시킨다.
+
+```도해
+층: 인증서는 누가 누구를 보증하나
+루트 CA :: 브라우저에 미리 박혀 있는 최상위. 여기가 기준점
+중간 CA :: 루트가 서명해준 발급 기관
+서버 인증서 :: 중간 CA 가 이 도메인 것이라고 서명
+= 사슬이 루트까지 이어지지 않으면 브라우저가 경고를 띄운다
+```
+
+암호화 자체는 두 단계다. 인사할 때는 느리지만 안전한 방식으로 열쇠를 나누고, 그다음부터는 빠른 방식으로 실제 내용을 주고받는다.
+
+## 💡 실제 사례
+
+- **자물쇠 아이콘** — 주소창의 자물쇠는 "이 연결은 암호화됐고 인증서가 유효하다"는 뜻이다. 사이트가 착하다는 뜻은 아니다.
+- **무료 인증서** — Let's Encrypt가 나오면서 인증서 비용이 사라졌고, HTTPS가 기본이 됐다.
+- **HSTS** — 서버가 "앞으로 이 도메인은 무조건 HTTPS로 오라"고 브라우저에 기억시켜두는 헤더다.
+
+## 🚫 흔한 오해
+
+- **자물쇠가 있으면 안전한 사이트다** — 자물쇠는 연결이 암호화됐다는 뜻이지 사이트를 믿어도 된다는 뜻이 아니다. 피싱 사이트도 인증서를 받는다.
+- **HTTPS면 서버에 저장된 데이터도 안전하다** — 오가는 길만 가린다. 서버에 평문으로 저장돼 있으면 털릴 때 그대로 털린다.
+- **어디에 접속하는지도 가려진다** — 도메인 이름은 대체로 보인다. 어느 페이지를 봤는지는 가려지지만 어느 사이트에 갔는지는 남는다.
+
+## 🚨 주의사항
+
+- **인증서에는 만료일이 있다.** 갱신을 놓치면 사이트 전체가 경고 화면으로 바뀐다. 자동 갱신을 걸어두고 만료 알림도 따로 받는다.
+- **혼합 콘텐츠를 조심한다.** HTTPS 페이지가 HTTP로 이미지나 스크립트를 부르면 브라우저가 막거나 자물쇠를 떼어낸다.
+
+## 📝 정리
+
+HTTPS는 HTTP에 TLS를 씌운 것이다. 내용을 가리는 일과 상대가 맞는지 확인하는 일을 같이 하며, 둘 중 하나만으로는 의미가 없다.
+
+## ❓ 이해했는지
+
+- 피싱 사이트에도 자물쇠가 붙는 이유는 → 흔한 오해
+- 암호화만 하고 상대를 확인하지 않으면 어떤 공격이 통하나 → 해결하는 문제
+- HTTPS 는 HTTP 를 대체하는 새 프로토콜인가 → 구성
+
+## 🔗 관련 용어
+
+- [[HTTP]] — HTTPS가 감싸고 있는 원래 프로토콜
+- [[SSL_TLS]] — 실제로 암호화를 담당하는 계층
+- [[인증서]] — 이 서버가 그 도메인의 주인임을 증명하는 문서
+- [[CA]] — 인증서를 발급하고 보증하는 기관
+  </script>
+
+  <script type="text/markdown" id="note-dns" data-cat="네트워크 기초">
 # DNS (Domain Name System)
 
 ## 📝 정의
@@ -54,6 +333,9 @@ DNS는 **도메인 이름을 IP 주소로 바꿔주는 시스템**이다.
 
 ### 비유
 전화번호부. 친구 이름을 대면 번호를 알려주고, 친구가 번호를 바꿔도 이름은 그대로다.
+
+### 예
+주소창에 `google.com` 을 치는 순간마다 이 조회가 먼저 일어난다. 하루에도 수백 번.
 
 ## 🖼️ 그림으로 보기
 
@@ -142,8 +424,7 @@ DNS 는 이름과 주소를 분리하는 장치다. 이 분리 하나로 기억�
 - [[Load Balancer]] — 하나의 이름 뒤에 여러 서버를 두는 다른 방법
   </script>
 
-  <script type="text/markdown" id="note-cb" data-cat="아키텍처"
-    data-why="도해 둘이 바뀌었다. 첫 그림의 &lt; 가 @ 로 — 아무것도 돌아오지 않고 상태가 되돌아갈 뿐이다. 작동 원리의 층은 흐름이 됐다 — 제목이 '오가나' 인데 그림은 정지해 있었다.">
+  <script type="text/markdown" id="note-cb" data-cat="아키텍처">
 # Circuit Breaker (서킷 브레이커)
 
 ## 📝 정의
@@ -154,6 +435,9 @@ Circuit Breaker는 **고장 난 서비스 호출을 잠시 끊어버리는 장�
 
 ### 비유
 집의 두꺼비집. 전선에 문제가 생기면 알아서 내려가서 집 전체가 타는 걸 막는다. 고쳤다고 확신하기 전에 한 번 올려보고, 또 튀면 다시 내린다.
+
+### 예
+결제가 점검 중이어도 장바구니와 검색은 계속 되는 쇼핑몰. 그 사이의 벽이 이 장치다.
 
 ## 🖼️ 그림으로 보기
 
@@ -233,97 +517,728 @@ Circuit Breaker는 실패가 반복되는 호출을 잠시 끊어 장애가 번�
 - [[Fallback]] — 차단기가 열렸을 때 대신 돌려줄 것
   </script>
 
-  <script type="text/markdown" id="note-jwt" data-cat="보안"
-    data-why="해결하는 문제의 대조가 |=| 로 바뀌었다. 세션과 JWT 는 둘 다 정당한 선택인데 왼쪽이 무조건 ✕ 를 받고 있었다 — 마지막 줄은 왼쪽이 이기는 줄이다.">
-# JWT (JSON Web Token)
-
-## 📝 정의
-
-JWT는 **내용과 서명을 함께 담아 위조를 막은 토큰**이다.
-
-서버가 사용자 정보를 적고 자기만 아는 열쇠로 서명해서 준다. 다음 요청에 그 토큰이 오면, 서버는 저장소를 뒤지지 않고 서명만 확인해서 진짜인지 안다.
-
-### 비유
-공연 티켓의 홀로그램. 티켓에 좌석 정보가 적혀 있고 위조 방지 무늬가 찍혀 있다. 직원은 명단을 찾아볼 필요 없이 무늬만 보고 통과시킨다.
-
-## 🖼️ 그림으로 보기
-
-```도해
-흐름: 로그인한 뒤 요청마다 무슨 확인이 일어나나
-사용자 :: 아이디와 비밀번호로 로그인한다
-서버 :: 사용자 정보를 적고 서명해서 토큰을 준다
-브라우저 :: 토큰을 저장해둔다
-브라우저 :: 다음 요청 헤더에 토큰을 붙인다
-서버 :: 서명이 맞는지만 계산한다. DB 조회 없음
-< 사용자 :: 통과. 서버는 아무것도 기억하지 않았다
-= 서버가 기억하는 대신 토큰이 스스로를 증명한다
-```
-
-## ⚠️ 해결하는 문제
-
-```도해
-대조: 서버를 여러 대로 늘리면 무엇이 달라지나
-세션 방식 |=| JWT 방식
-로그인 확인 :: 저장소를 뒤진다 || 서명만 계산
-서버 추가 :: 저장소 공유 필요 || 열쇠만 있으면 됨
-즉시 로그아웃 :: 지우면 끝 || 만료까지 유효
-= 저장소를 없애는 대신 강제 로그아웃을 잃는 거래다
-```
-
-전통적인 [[Session]] 방식은 서버가 로그인 상태를 기억한다. 서버가 한 대일 때는 문제가 없지만 여러 대로 늘리면 그 기억을 공유해야 한다. 요청이 어느 서버로 갈지 모르기 때문이다.
-
-JWT는 기억을 토큰 쪽으로 옮긴다. 서버는 서명 열쇠만 갖고 있으면 되고, 저장소를 공유할 필요가 없다. 대신 발급한 토큰을 중간에 취소할 수 없다는 문제가 생긴다.
-
-## ⚙️ 작동 원리
-
-토큰은 점으로 구분된 세 부분이다.
-
-```도해
-층: 토큰 세 조각은 각각 무엇인가
-헤더 :: 어떤 방식으로 서명했는지
-페이로드 :: 사용자 ID, 권한, 만료 시각
-서명 :: 앞의 둘을 열쇠로 계산한 값
-= 앞의 둘은 누구나 읽을 수 있다. 서명만 못 만든다
-```
-
-여기가 가장 많이 오해받는 지점이다. 페이로드는 암호화된 게 아니라 그냥 인코딩된 것이라 누구나 열어볼 수 있다. 서명이 막는 것은 **읽기가 아니라 고치기**다.
-
-## 💡 실제 사례
-
-- **API 인증** — 로그인 후 받은 토큰을 헤더에 붙여 보낸다.
-- **서비스 간 신뢰** — 게이트웨이가 검증한 사용자 정보를 토큰에 담아 뒤쪽 서비스로 넘긴다.
-- **짧은 만료 + 갱신 토큰** — 접근 토큰은 몇 분짜리로 짧게 두고, 갱신 토큰으로 새로 받는다.
-
-## 🚫 흔한 오해
-
-- **JWT의 내용은 암호화되어 있다** — 인코딩일 뿐이라 누구나 열어 읽는다. 비밀번호나 주민번호를 페이로드에 넣으면 그대로 노출된다.
-- **로그아웃하면 토큰이 무효가 된다** — 서버가 기억하지 않으므로 만료 전까지 계속 유효하다. 즉시 차단하려면 별도의 차단 목록이 필요하다.
-- **JWT가 세션보다 항상 낫다** — 서버가 한두 대면 [[Session]]이 더 단순하고 강제 로그아웃도 된다.
-
-## 🚨 주의사항
-
-- **`alg: none` 을 거부한다.** 서명 방식을 토큰이 스스로 정하게 두면 공격자가 서명을 없앤 토큰을 보낼 수 있다. 서버가 허용할 방식을 못 박는다.
-- **만료를 짧게 잡는다.** 취소할 수 없으니 유효 기간이 곧 피해 시간이다.
-
-## 📝 정리
-
-JWT는 내용과 서명을 함께 담아 서버가 기억하지 않아도 되게 만든 토큰이다. 서버를 늘리기 쉬워지는 대신 발급한 토큰을 취소할 수 없다.
-
-## ❓ 이해했는지
-
-- 토큰에 비밀번호를 담으면 왜 위험한가? → 작동 원리
-- 로그아웃 버튼을 눌러도 토큰이 살아 있는 이유는? → 흔한 오해
-- 서버가 한 대뿐인 서비스에서 세션 대신 JWT를 쓸 이유가 있나? → 해결하는 문제
-
-## 🔗 관련 용어
-
-- [[Session]] — 서버가 기억하는 방식. JWT와 반대편
-- [[OAuth]] — 발급되는 토큰의 형식으로 JWT를 쓰는 경우가 많다
-- [[SSO]] — 여러 서비스가 같은 토큰을 신뢰하는 구조
-- [[Cookie]] — 토큰을 어디에 저장할지의 선택지 중 하나
-  </script>
-
   <script src="../js/ui.js"></script>
-  <script src="mockup.js"></script>
+  <script>
+  /* ============================================================
+     개선 목업 조립기.
+
+     도해와 마크다운은 앱 것(js/ui.js)을 그대로 부르고, 스타일도
+     앱 것(css/app.css)을 그대로 쓴다. 이 파일이 새로 아는 것은
+     셋뿐이다 — 섹션 순서, 용어 점, 한 단계씩 보기.
+     ============================================================ */
+  (function () {
+    "use strict";
+
+    var esc = UI.esc;
+
+    /* 목업 전용 키. 앱의 진짜 진도(it-vocab-mockup:v1)는 건드리지 않는다. */
+    var KEY = "it-vocab-mockup:term-next";
+
+    function load() {
+      try {
+        return JSON.parse(localStorage.getItem(KEY)) || {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function save(patch) {
+      var s = load();
+      Object.keys(patch).forEach(function (k) { s[k] = patch[k]; });
+      try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {}
+      return s;
+    }
+
+    /* ---------------------------------------------------------- 용어 사전
+
+       실제 앱에서는 단어장 색인(327편 + 별칭)이 이 자리를 맡는다.
+       풀이는 스스로 완결되게 쓴다 — 풀이 안에서 또 다른 점을 열게
+       만들면 이해가 무한히 미뤄진다. */
+
+    var GLOSS = {
+      "IP 주소": "네트워크에서 컴퓨터를 찾아가는 숫자 주소. 142.250.196.78 같은 값.",
+      "HTTP": "웹에서 페이지와 데이터를 주고받는 기본 약속. 내용이 그대로(평문) 오간다.",
+      "TLS": "오가는 내용을 남이 못 읽게 잠그고, 상대가 진짜인지 확인해 주는 보안 계층. 예전 이름이 SSL.",
+      "TCP": "두 컴퓨터 사이에 연결을 맺고, 보낸 것이 순서대로 빠짐없이 닿게 하는 운반 규칙.",
+      "IP": "네트워크에서 컴퓨터를 찾아가는 숫자 주소 체계. 142.250.196.78 같은 값.",
+      "인증서": "이 서버가 그 도메인의 주인이 맞다고, 믿을 만한 발급 기관(CA)이 서명해 준 문서.",
+      "암호화": "내용을 열쇠 없이는 읽을 수 없는 형태로 바꾸는 일.",
+      "도메인": "google.com 처럼 사람이 기억하도록 지은 이름 주소.",
+      "캐시": "한 번 받아 온 답을 가까이 두었다가, 같은 질문에 다시 쓰는 것.",
+      "TTL": "받아 둔 답을 언제까지 믿어도 되는지 정한 유효 시간.",
+      "ISP": "KT·SK브로드밴드처럼 집과 회사에 인터넷 회선을 넣어 주는 통신사.",
+      "레코드": "DNS 가 이름마다 저장해 둔 항목. “이 이름은 이 주소” 라는 한 줄.",
+      "호출": "한 프로그램이 다른 프로그램에게 일을 시키고 답을 기다리는 것.",
+      "스레드": "서버 안에서 요청 하나를 붙잡고 처리하는 일손. 수가 정해져 있다.",
+    };
+
+    // 긴 열쇠가 먼저 잡히게 한다 — "IP 주소" 가 "IP" 를 앞선다.
+    var GLOSS_KEYS = Object.keys(GLOSS).sort(function (a, b) { return b.length - a.length; });
+
+    var GLOSS_RE = {};
+    GLOSS_KEYS.forEach(function (k) {
+      var body = k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      /* 앞: 글자 한가운데가 아니어야 한다("재호출" 의 호출은 안 잡는다).
+         뒤: 라틴·숫자가 이어지면 다른 낱말이다("HTTPS" 의 HTTP 는 안 잡는다).
+         한글이 이어지는 것은 조사다("HTTP를", "인증서를"). */
+      GLOSS_RE[k] = new RegExp("(^|[^A-Za-z0-9가-힣])(" + body + ")(?![A-Za-z0-9])");
+    });
+
+    /* ---------------------------------------------------------- 파싱 (mockup.js 와 같다) */
+
+    var LABELS = {
+      "⚙️ 작동 원리": "어떻게 작동하나",
+      "📊 비교": "무엇과 비교되나",
+      "💡 실제 사례": "실제 사례",
+      "✅ 장단점": "장단점",
+      "🚫 흔한 오해": "흔히 잘못 아는 것",
+      "🚨 주의사항": "주의할 점",
+    };
+
+    /* 접지 않는 두 칸. 정의·흐름과 함께 이해의 네 기둥이라 처음부터 보인다. */
+    var PINNED = {
+      "⚠️ 해결하는 문제": "왜 필요한가",
+      "🧱 구성": "무엇으로 되어 있나",
+    };
+
+    var FIXED = ["📝 정의", "🖼️ 그림으로 보기", "❓ 이해했는지", "🔗 관련 용어", "📝 정리"];
+
+    function splitSections(src) {
+      var lines = src.split("\n");
+      var title = "";
+      var out = [];
+      var cur = null;
+      var fenced = false;
+
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+        if (/^\s*```/.test(line)) fenced = !fenced;
+
+        if (!fenced && /^#\s+/.test(line)) { title = line.replace(/^#\s+/, "").trim(); continue; }
+        if (!fenced && /^##\s+/.test(line)) {
+          cur = { head: line.replace(/^##\s+/, "").trim(), body: [] };
+          out.push(cur);
+          continue;
+        }
+        if (cur) cur.body.push(line);
+      }
+
+      return {
+        title: title,
+        sections: out.map(function (s) {
+          return { head: s.head, body: s.body.join("\n").trim() };
+        }),
+      };
+    }
+
+    function parseTitle(title) {
+      var m = title.match(/^(.+?)\s*\((.+)\)\s*$/);
+      return m ? { term: m[1].trim(), reading: m[2].trim() } : { term: title, reading: "" };
+    }
+
+    function bySection(sections, head) {
+      for (var i = 0; i < sections.length; i++) {
+        if (sections[i].head === head) return sections[i];
+      }
+      return null;
+    }
+
+    /* 정의에서 ### 비유 와 ### 예 를 떼어낸다. 예는 새 제안이다 —
+       비유가 "무엇과 닮았나" 를 주면, 예는 "어디서 봤나" 를 준다. */
+    function splitDefinition(md) {
+      var analogy = "", example = "";
+      var rest = md
+        .replace(/^###\s+비유\s*\n([\s\S]*?)(?=\n##|\n###|$)/m, function (_, body) {
+          analogy = body.trim();
+          return "";
+        })
+        .replace(/^###\s+예\s*\n([\s\S]*?)(?=\n##|\n###|$)/m, function (_, body) {
+          example = body.trim();
+          return "";
+        });
+
+      var paras = rest.trim().split(/\n{2,}/);
+      return { gist: paras.shift() || "", body: paras.join("\n\n"), analogy: analogy, example: example };
+    }
+
+    /* ---------------------------------------------------------- 접기 칸 (mockup.js 와 같다) */
+
+    var DIA = /```도해\r?\n([\s\S]*?)\r?\n```/g;
+
+    function dohaeTitle(source) {
+      var first = String(source).split("\n").find(function (l) { return l.trim(); }) || "";
+      var m = first.match(/^\s*(?:흐름|대조|층)\s*:\s*(.+)$/);
+      return m ? m[1].trim() : "";
+    }
+
+    function peek(md, limit) {
+      DIA.lastIndex = 0;
+      var dia = DIA.exec(md);
+      if (dia) {
+        var title = dohaeTitle(dia[1]);
+        if (title) return title;
+      }
+      var text = md
+        .replace(/```[\s\S]*?```/g, " ")
+        .replace(/^\s*\|.*$/gm, " ")
+        .replace(/[#>*`\[\]|-]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      if (text.length < 6) return "";
+      return text.length > limit ? text.slice(0, limit).trim() + "…" : text;
+    }
+
+    function parseMyths(md) {
+      var items = [];
+      md.split("\n").forEach(function (line) {
+        var m = line.match(/^\s*-\s*\*\*(.+?)\*\*\s*[—–-]\s*(.+)$/);
+        if (m) items.push({ wrong: m[1].trim(), right: m[2].trim() });
+      });
+      return items;
+    }
+
+    function mythPeek(md) {
+      var wrongs = parseMyths(md).map(function (it) {
+        return '<span class="x" aria-hidden="true">✕</span> ' + esc(UI.plain(it.wrong));
+      });
+      if (!wrongs.length) return "";
+      return '<span class="disclose__peek disclose__peek--myth">' + wrongs.join(" · ") + "</span>";
+    }
+
+    function myths(md) {
+      var items = parseMyths(md);
+      if (!items.length) return UI.markdown(md);
+
+      return '<ul class="myth">' + items.map(function (it) {
+        return (
+          '<li class="myth__item">' +
+          '<b class="myth__wrong"><span class="myth__x" aria-hidden="true">✕</span>' +
+          UI.markdown(it.wrong).replace(/^<p>|<\/p>$/g, "") + "</b>" +
+          '<span class="myth__right">' +
+          UI.markdown(it.right).replace(/^<p>|<\/p>$/g, "") + "</span></li>"
+        );
+      }).join("") + "</ul>";
+    }
+
+    var DRAW = { "🚫 흔한 오해": myths };
+
+    var TARGETS = {};
+
+    function aim(name, id) {
+      if (name) TARGETS[name.replace(/\s+/g, "")] = id;
+    }
+
+    function findTarget(name) {
+      return TARGETS[String(name).replace(/\s+/g, "")] || "";
+    }
+
+    function slugOf(label) {
+      return "p-" + label.replace(/\s+/g, "-");
+    }
+
+    function disclose(head, label, md, open) {
+      var draw = DRAW[head] || UI.markdown;
+      var id = slugOf(label);
+      var hint = head === "🚫 흔한 오해"
+        ? mythPeek(md)
+        : (function () {
+            var t = peek(md, 46);
+            return t ? '<span class="disclose__peek">' + esc(t) + "</span>" : "";
+          })();
+
+      aim(label, id);
+      aim(head.replace(/^\S+\s*/, ""), id);
+      aim(head, id);
+
+      return (
+        '<details class="disclose" id="' + esc(id) + '"' + (open ? " open" : "") + ">" +
+        '<summary class="disclose__btn"><span class="disclose__text">' +
+        '<span class="disclose__label">' + esc(label) + "</span>" + hint +
+        '</span><span class="disclose__icon">' + UI.icon("chevron", 18) + "</span></summary>" +
+        '<div class="disclose__panel prose">' + draw(md) + "</div></details>"
+      );
+    }
+
+    function selfcheck(md) {
+      var asks = md.split("\n")
+        .filter(function (l) { return /^\s*-\s+/.test(l); })
+        .map(function (l) {
+          var text = l.replace(/^\s*-\s+/, "").trim();
+          var cut = text.lastIndexOf("→");
+          if (cut === -1) return { q: text, at: "" };
+          return { q: text.slice(0, cut).trim(), at: text.slice(cut + 1).trim() };
+        });
+      if (!asks.length) return "";
+
+      return (
+        '<section class="selfcheck">' +
+        '<h2 class="selfcheck__head">이 셋에 답할 수 있으면 이해한 것이다</h2>' +
+        '<ol class="selfcheck__list">' +
+        asks.map(function (a, i) {
+          return '<li><span class="selfcheck__n" aria-hidden="true">' + (i + 1) + "</span>" +
+            '<span class="selfcheck__body">' +
+            '<span class="selfcheck__q">' + esc(a.q) + "</span>" +
+            (a.at
+              ? '<button class="selfcheck__jump" type="button" data-jump="' + esc(findTarget(a.at)) + '">' +
+                '답이 있는 자리 <span aria-hidden="true">→</span> ' + esc(a.at) + "</button>"
+              : "") +
+            "</span></li>";
+        }).join("") +
+        "</ol></section>"
+      );
+    }
+
+    function parseRelated(md) {
+      var items = [];
+      md.split("\n").forEach(function (line) {
+        var m = line.match(/^\s*-\s*\[\[([^\]]+)\]\]\s*[—–-]?\s*(.*)$/);
+        if (m) items.push({ term: m[1].trim(), note: m[2].trim() });
+      });
+      return items;
+    }
+
+    function related(items) {
+      if (!items.length) return "";
+
+      var rows = items.map(function (r) {
+        return (
+          '<button class="related__item" type="button">' +
+          '<span class="related__term">' + esc(r.term) + "</span>" +
+          '<span class="related__note">' + esc(r.note) + "</span></button>"
+        );
+      }).join("");
+
+      var names = items.map(function (r) { return r.term; }).join(" · ");
+      return (
+        '<details class="disclose"><summary class="disclose__btn"><span class="disclose__text">' +
+        '<span class="disclose__label">관련 개념 ' + items.length + "개</span>" +
+        '<span class="disclose__peek">' + esc(names) + "</span></span>" +
+        '<span class="disclose__icon">' + UI.icon("chevron", 18) + "</span></summary>" +
+        '<div class="disclose__panel"><div class="related">' + rows + "</div></div></details>"
+      );
+    }
+
+    /* ---------------------------------------------------------- 조립 */
+
+    function head(cat, name, parts) {
+      return (
+        '<header class="detail__head">' +
+        '<p class="detail__cat">' + esc(cat) + "</p>" +
+        '<h1 class="detail__term">' + esc(name.term) + "</h1>" +
+        (name.reading ? '<p class="detail__reading">' + esc(name.reading) + "</p>" : "") +
+        '<p class="detail__status"><span class="badge badge--reading">읽는 중</span></p>' +
+        "</header>" +
+        '<div class="gist">' + UI.markdown(parts.gist).replace(/^<p>|<\/p>$/g, "") + "</div>" +
+        (parts.analogy
+          ? '<aside class="analogy"><b class="analogy__k">비유</b>' +
+            UI.markdown(parts.analogy).replace(/^<p>|<\/p>$/g, "") + "</aside>"
+          : "") +
+        (parts.example
+          ? '<aside class="analogy"><b class="analogy__k">예</b>' +
+            UI.markdown(parts.example).replace(/^<p>|<\/p>$/g, "") + "</aside>"
+          : "") +
+        (parts.body ? '<div class="prose prose--def">' + UI.markdown(parts.body) + "</div>" : "")
+      );
+    }
+
+    /* 접지 않는 칸. "왜 필요한가" 와 "무엇으로 되어 있나" 가 여기로 온다. */
+    function pinsec(head_, label, md) {
+      var id = slugOf(label);
+      aim(label, id);
+      aim(head_.replace(/^\S+\s*/, ""), id);
+      aim(head_, id);
+      return (
+        '<section class="pinsec" id="' + esc(id) + '">' +
+        '<h2 class="pinsec__head">' + esc(label) + "</h2>" +
+        '<div class="pinsec__body prose">' + UI.markdown(md) + "</div></section>"
+      );
+    }
+
+    /* 전부 닫힌 채 시작한다. 원판은 첫 칸을 열어뒀지만, 그때는 "해결하는
+       문제"가 접혀 있었기 때문이다. 핵심이 위에 다 보이는 지금은 접힌 칸이
+       전부 심화다 — 하나만 열어두면 그 칸이 특별해 보인다. */
+    function panels(sections) {
+      return sections
+        .filter(function (s) { return FIXED.indexOf(s.head) === -1 && !PINNED[s.head]; })
+        .map(function (s) {
+          return disclose(s.head, LABELS[s.head] || s.head.replace(/^\S+\s*/, ""), s.body, false);
+        })
+        .join("");
+    }
+
+    function recap(md) {
+      return '<section class="recap"><h2 class="recap__head">한 번 더 정리</h2>' +
+        '<div class="prose">' + UI.markdown(md) + "</div></section>";
+    }
+
+    function wireJumps(root) {
+      Array.prototype.forEach.call(root.querySelectorAll(".selfcheck__jump"), function (btn) {
+        btn.addEventListener("click", function () {
+          var target = document.getElementById(btn.dataset.jump);
+          if (!target) {
+            UI.toast("그런 섹션이 없다 — 원문의 → 뒤를 확인하라");
+            return;
+          }
+          if ("open" in target) target.open = true;
+          clearTimeout(target.__land);
+          target.classList.add("is-landed");
+          target.__land = setTimeout(function () {
+            target.classList.remove("is-landed");
+          }, 1600);
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      });
+    }
+
+    function fitLoopRails(root) {
+      Array.prototype.forEach.call(root.querySelectorAll(".dia__steps--loop"), function (list) {
+        var last = list.querySelector(".dia__loop");
+        if (!last) return;
+        var gap = list.clientHeight - last.offsetTop - 21;
+        list.style.setProperty("--loop-gap", Math.max(gap, 0) + "px");
+      });
+    }
+
+    /* ---------------------------------------------------------- ① 용어 점 */
+
+    var pageMarked = {};   // 이 페이지에서 이미 점을 받은 용어
+    var openGloss = null;  // 열린 풀이는 한 번에 하나
+
+    /* 텍스트 노드 하나에서 가장 앞에 오는 용어를 찾는다.
+       열쇠 목록이 길이순이라 같은 자리면 긴 것이 이긴다. */
+    function firstHit(text, skipTerm, scopeSeen, budget) {
+      var best = null;
+      for (var i = 0; i < GLOSS_KEYS.length; i++) {
+        var k = GLOSS_KEYS[i];
+        if (k === skipTerm) continue;
+        if (scopeSeen[k]) continue;
+        if (!pageMarked[k] && budget.left <= 0) continue; // 새 용어는 예산이 있어야
+        var m = GLOSS_RE[k].exec(text);
+        if (!m) continue;
+        var at = m.index + m[1].length;
+        if (!best || at < best.at) best = { key: k, at: at };
+      }
+      return best;
+    }
+
+    function markNode(node, skipTerm, scopeSeen, budget) {
+      var hit = firstHit(node.nodeValue, skipTerm, scopeSeen, budget);
+      if (!hit) return;
+
+      var rest = node.splitText(hit.at);
+      var tail = rest.splitText(hit.key.length);
+
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "tmark";
+      btn.dataset.term = hit.key;
+      btn.setAttribute("aria-expanded", "false");
+      btn.textContent = rest.nodeValue;
+      rest.parentNode.replaceChild(btn, rest);
+
+      scopeSeen[hit.key] = true;
+      if (!pageMarked[hit.key]) {
+        pageMarked[hit.key] = true;
+        budget.left--;
+      }
+      markNode(tail, skipTerm, scopeSeen, budget); // 같은 노드의 나머지도 훑는다
+    }
+
+    /* 칸 이름(.dia__col)은 뺀다 — 대조의 뼈대라 풀이 대상이 아니고,
+       2열 머리 안에 카드가 끼면 판이 깨진다. */
+    var NO_GLOSS = "code, .tmark, .xref, .dia__sum, .dia__cap, .dia__col, .gloss, button";
+
+    function markScope(el, skipTerm, budget) {
+      var scopeSeen = {}; // 한 그림 안에서 같은 용어는 점 하나
+      var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
+        acceptNode: function (n) {
+          if (!n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+          for (var p = n.parentNode; p && p !== el; p = p.parentNode) {
+            if (p.matches && p.matches(NO_GLOSS)) return NodeFilter.FILTER_REJECT;
+          }
+          return NodeFilter.FILTER_ACCEPT;
+        },
+      });
+      var nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+      nodes.forEach(function (n) { markNode(n, skipTerm, scopeSeen, budget); });
+    }
+
+    /* 점을 찍는 범위: 정의 한 줄과, 접히지 않은 그림들.
+       그림 하나당 "이 페이지에 처음 나오는 용어" 3개까지만 —
+       점이 넷을 넘으면 그림이 사전이 되어버린다. = 요약 줄은 뺀다. */
+    function applyGloss(root, term) {
+      pageMarked = {};
+      var gist = root.querySelector(".gist");
+      if (gist) markScope(gist, term, { left: 3 });
+      Array.prototype.forEach.call(
+        root.querySelectorAll(".figure-slot .dia, .pinsec .dia"),
+        function (fig) { markScope(fig, term, { left: 3 }); }
+      );
+      // 이미 열어 본 단어는 조용히 시작한다
+      var known = load().known || [];
+      known.forEach(function (k) { hushMarks(root, k); });
+
+      /* 밑줄의 뜻은 처음 한 번만 글로 가르친다. 장식을 키우는 대신
+         규칙을 배우게 하고, 한 번 배웠으면 다시 말하지 않는다. */
+      if (!load().hintSeen && root.querySelector(".tmark")) {
+        var gist = root.querySelector(".gist");
+        if (gist) {
+          var hint = document.createElement("p");
+          hint.className = "glosshint";
+          hint.textContent = "점선 밑줄 단어를 탭하면 바로 아래에 풀이가 열린다";
+          gist.parentNode.insertBefore(hint, gist.nextSibling);
+        }
+      }
+    }
+
+    function hushMarks(root, key) {
+      Array.prototype.forEach.call(
+        root.querySelectorAll('.tmark[data-term="' + CSS.escape(key) + '"]'),
+        function (m) { m.dataset.known = "1"; }
+      );
+    }
+
+    function closeGloss() {
+      if (!openGloss) return;
+      openGloss.card.remove();
+      openGloss.mark.setAttribute("aria-expanded", "false");
+      openGloss = null;
+    }
+
+    /* 풀이는 탭한 자리 바로 아래에 선다. 멀리 띄우지 않는다. */
+    function glossSlot(mark, card) {
+      var spot = mark.closest(".dia__body") || mark.closest(".dia__layer");
+      if (spot) { spot.appendChild(card); return; }
+      var row = mark.closest(".dia__vsrow");
+      if (row) { row.parentNode.insertBefore(card, row.nextSibling); return; }
+      var block = mark.closest(".gist, p, li, dd");
+      if (block) { block.parentNode.insertBefore(card, block.nextSibling); return; }
+      mark.parentNode.appendChild(card);
+    }
+
+    function toggleGloss(mark, root) {
+      if (openGloss && openGloss.mark === mark) { closeGloss(); return; }
+      closeGloss();
+
+      var key = mark.dataset.term;
+      var card = document.createElement("span");
+      card.className = "gloss";
+      card.setAttribute("role", "note");
+      var name = document.createElement("b");
+      name.className = "gloss__term";
+      name.textContent = key;
+      card.appendChild(name);
+      card.appendChild(document.createTextNode(GLOSS[key] || ""));
+
+      glossSlot(mark, card);
+      mark.setAttribute("aria-expanded", "true");
+      openGloss = { mark: mark, card: card };
+
+      // 규칙을 한 번 썼으면 안내는 더 필요 없다
+      if (!load().hintSeen) {
+        save({ hintSeen: true });
+        var hint = document.querySelector(".glosshint");
+        if (hint) hint.remove();
+      }
+
+      // 이 단어의 점은 이제 어디서든 사라진다
+      hushMarks(root, key);
+      var known = load().known || [];
+      if (known.indexOf(key) === -1) {
+        known.push(key);
+        save({ known: known });
+      }
+    }
+
+    /* ---------------------------------------------------------- ② 한 단계씩 보기 */
+
+    function setupWalk(root, noteId) {
+      var slot = root.querySelector(".figure-slot");
+      var fig = slot && slot.querySelector(".dia--flow");
+      if (!fig) return;
+      var ol = fig.querySelector(".dia__steps");
+      if (!ol) return;
+
+      /* 마디 목록. "돌아오는 길" 표지는 다음 마디와 한 몸으로 움직인다. */
+      var units = [];
+      var pendingTurn = null;
+      Array.prototype.forEach.call(ol.children, function (li) {
+        if (li.classList.contains("dia__turn")) { pendingTurn = li; return; }
+        units.push({ li: li, turn: pendingTurn });
+        pendingTurn = null;
+      });
+      if (units.length < 2) return;
+
+      var sum = fig.querySelector(".dia__sum");
+      fig.classList.add("dia--walk");
+
+      // 지난번에 끝까지 봤으면 전체가 보인 채 시작한다
+      var i = (load().walked || {})[noteId] ? units.length - 1 : 0;
+
+      var hint = document.createElement("span");
+      hint.className = "walkhint";
+      hint.textContent = "그림을 탭하면 다음 단계가 밝아진다";
+      fig.appendChild(hint);
+
+      function render() {
+        var done = i >= units.length - 1;
+        units.forEach(function (u, n) {
+          var later = n > i;
+          u.li.classList.toggle("is-later", later);
+          u.li.classList.toggle("is-now", n === i && !done);
+          if (u.turn) u.turn.classList.toggle("is-later", later);
+        });
+        if (sum) sum.classList.toggle("is-later", !done);
+        hint.hidden = done;
+        fig.classList.toggle("is-walking", !done);
+        if (done) {
+          var w = load().walked || {};
+          if (!w[noteId]) { w[noteId] = true; save({ walked: w }); }
+        }
+      }
+
+      /* 그림 어디를 탭해도 다음 단계. 흐린 줄을 탭하면 거기까지 한 번에.
+         다 밝힌 그림은 그냥 그림이다 — 더 반응하지 않는다. */
+      fig.addEventListener("click", function (e) {
+        if (e.target.closest(".tmark, .gloss")) return; // 용어 점은 제 일을 한다
+        if (i >= units.length - 1) return;
+        var li = e.target.closest("li.is-later");
+        if (li) {
+          for (var n = 0; n < units.length; n++) {
+            if (units[n].li === li || units[n].turn === li) { i = n; break; }
+          }
+        } else {
+          i++;
+        }
+        render();
+      });
+
+      render();
+    }
+
+    /* ---------------------------------------------------------- 화면 만들기 */
+
+    function build(id) {
+      var node = document.getElementById(id);
+      var src = node.textContent.replace(/^\n+/, "");
+      document.getElementById("raw").textContent = src;
+
+      var note = splitSections(src);
+      var name = parseTitle(note.title);
+      var def = bySection(note.sections, "📝 정의");
+      var figure = bySection(note.sections, "🖼️ 그림으로 보기");
+      var sum = bySection(note.sections, "📝 정리");
+      var check = bySection(note.sections, "❓ 이해했는지");
+      var rel = bySection(note.sections, "🔗 관련 용어");
+      var relItems = rel ? parseRelated(rel.body) : [];
+
+      TARGETS = {};
+
+      var html = head(node.dataset.cat || "", name, splitDefinition(def ? def.body : ""));
+
+      if (figure) {
+        ["그림", "그림으로 보기", "🖼️ 그림으로 보기", "도해"].forEach(function (n) { aim(n, "p-그림"); });
+        html += '<section class="figure-slot" id="p-그림">' + UI.markdown(figure.body) + "</section>";
+      }
+
+      /* 순서가 질문을 따라간다 — 어떻게 되나(위 그림) → 왜 필요한가 → 무엇으로 되어 있나 */
+      Object.keys(PINNED).forEach(function (h) {
+        var s = bySection(note.sections, h);
+        if (s) html += pinsec(h, PINNED[h], s.body);
+      });
+
+      html += '<div class="panels">' + panels(note.sections) + related(relItems) + "</div>";
+      if (sum) html += recap(sum.body);
+      if (check) html += selfcheck(check.body);
+
+      var detail = document.getElementById("detail");
+      openGloss = null;
+      detail.innerHTML = html; // security-ok: OWASP-A03-4 — 입력은 이 파일 안의 <script type="text/markdown"> 뿐이고, 모든 문자열이 UI.esc / UI.markdown / UI.dohae 의 esc 를 통과한다.
+
+      wireJumps(detail);
+      applyGloss(detail, name.term);
+      setupWalk(detail, id);
+      fitLoopRails(detail);
+    }
+
+    /* ---------------------------------------------------------- 목업 장치 */
+
+    function show(id, smooth) {
+      var btns = document.querySelectorAll(".switch__btn");
+      var found = false;
+      Array.prototype.forEach.call(btns, function (b) {
+        var on = b.dataset.note === id;
+        b.setAttribute("aria-pressed", String(on));
+        if (on) found = true;
+      });
+      if (!found) return false;
+      build(id);
+      save({ note: id });
+      if (smooth) window.scrollTo({ top: 0, behavior: "smooth" });
+      return true;
+    }
+
+    function switcher() {
+      Array.prototype.forEach.call(document.querySelectorAll(".switch__btn"), function (btn) {
+        btn.addEventListener("click", function () {
+          location.hash = btn.dataset.note;
+          show(btn.dataset.note, true);
+        });
+      });
+      window.addEventListener("hashchange", function () {
+        show(location.hash.slice(1), true);
+      });
+    }
+
+    /* 용어 점은 화면을 다시 만들 때마다 새로 찍히므로 위임으로 받는다 */
+    document.getElementById("detail").addEventListener("click", function (e) {
+      var mark = e.target.closest(".tmark");
+      if (mark) toggleGloss(mark, document.getElementById("detail"));
+    });
+
+    function paintTheme(btn) {
+      var dark = document.documentElement.getAttribute("data-theme") === "dark";
+      btn.innerHTML = UI.icon(dark ? "sun" : "moon", 18); // security-ok: OWASP-A03-4 — UI.icon() 은 하드코딩된 아이콘 표로만 만들어진다. 외부 입력이 닿지 않는다.
+    }
+
+    function theme() {
+      var btn = document.getElementById("theme");
+      var root = document.documentElement;
+      /* ?theme=light|dark — 검수용 강제. 없으면 기기 설정을 따른다. */
+      var forced = new URLSearchParams(location.search).get("theme");
+      root.setAttribute("data-theme",
+        forced === "light" || forced === "dark"
+          ? forced
+          : matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      paintTheme(btn);
+      btn.addEventListener("click", function () {
+        root.setAttribute("data-theme", root.getAttribute("data-theme") === "dark" ? "light" : "dark");
+        paintTheme(btn);
+      });
+    }
+
+    switcher();
+    theme();
+
+    /* 이어보기 — 주소가 정하면 주소가 이기고, 아니면 지난번 노트로 */
+    var first = location.hash.slice(1) || load().note || "note-https";
+    if (!show(first, false)) show("note-https", false);
+
+    window.addEventListener("resize", function () { fitLoopRails(document); });
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(function () { fitLoopRails(document); });
+    }
+
+    /* ?poke=1 — 검수용. 스크린샷만으로 상호작용 상태를 확인할 수 있게
+       첫 용어의 풀이를 열고 그림을 두 단계 진행시킨 화면을 만든다. */
+    if (new URLSearchParams(location.search).get("poke")) {
+      var fig = document.querySelector(".figure-slot .dia--walk");
+      if (fig) { fig.click(); fig.click(); }
+      var mark = document.querySelector(".tmark");
+      if (mark) mark.click();
+    }
+  })();
+  </script>
 </body>
 </html>

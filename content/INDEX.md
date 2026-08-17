@@ -1,16 +1,16 @@
 # 📚 IT단어장 전체 인덱스
 
-> 총 **238개** 용어 | 카테고리 **15개**
-> 마지막 업데이트: 2026-02-20
+> 총 **327개** 용어 | 카테고리 **14개**
+> 마지막 업데이트: 2026-08-18
 
 ---
 
-## 🤖 AI / ML (28개)
+## 🤖 AI / ML (27개)
 
-- [[AI Agent]]
 - [[Agent]]
-- [[CNN]]
+- [[AI Agent]]
 - [[Chunking]]
+- [[CNN]]
 - [[Context Window]]
 - [[Cosine Similarity]]
 - [[Embedding]]
@@ -22,10 +22,9 @@
 - [[Hallucination]]
 - [[Intent 분류]]
 - [[LLM]]
-- [[MCP]]
 - [[Orchestrator]]
-- [[Prompt Engineering]]
 - [[Prompt]]
+- [[Prompt Engineering]]
 - [[RAG]]
 - [[ReAct]]
 - [[Reranking]]
@@ -38,69 +37,125 @@
 
 ---
 
-## 🛠️ 개발도구 (9개)
+## 🛠️ 개발도구 (31개)
 
+- [[Breakpoint]]
+- [[Cherry-pick]]
 - [[CLI]]
 - [[Container]]
+- [[Debugger]]
+- [[Dependency]]
 - [[Docker]]
+- [[Docker Compose]]
+- [[Docker Image]]
+- [[Docker Volume]]
+- [[Dockerfile]]
 - [[Environment Variable]]
+- [[Feature Flag]]
 - [[Git]]
+- [[Git Branch]]
+- [[Git Commit]]
+- [[Git Stash]]
+- [[Git Tag]]
 - [[IDE]]
+- [[Linter & Formatter]]
+- [[Lock File]]
+- [[Merge Conflict]]
+- [[Merge vs Rebase]]
+- [[Monorepo]]
+- [[Package Manager]]
+- [[Pull Request]]
 - [[SDK]]
+- [[Semantic Versioning]]
+- [[Shell]]
 - [[Terminal]]
-- [[VM]]
+- [[Trunk Based Development]]
 
 ---
 
-## 🌐 네트워크 (30개)
+## 🌐 네트워크 (43개)
 
+- [[ARP]]
+- [[Bandwidth]]
 - [[CDN]]
+- [[CIDR]]
+- [[curl]]
+- [[DHCP]]
 - [[DNS]]
 - [[Domain]]
 - [[Firewall]]
 - [[Gateway]]
 - [[HTTP]]
+- [[HTTP 2]]
+- [[HTTP 3]]
 - [[HTTPS]]
-- [[IP Address]]
+- [[ICMP]]
 - [[Intranet]]
+- [[IP Address]]
 - [[Load Balancer]]
 - [[Localhost]]
+- [[Long Polling]]
+- [[MAC Address]]
 - [[MCP]]
+- [[mTLS]]
 - [[Multi-tenancy]]
 - [[NAT]]
 - [[Nginx]]
 - [[OSI 7계층]]
+- [[Packet]]
 - [[Port]]
 - [[Port Forwarding]]
 - [[Proxy]]
 - [[Public IP vs Private IP]]
+- [[QUIC]]
 - [[Reverse Proxy]]
-- [[SSE]]
+- [[Router vs Switch]]
 - [[Socket]]
+- [[SSE]]
 - [[TCP]]
 - [[Tunnel]]
 - [[UDP]]
 - [[URL]]
 - [[VPN]]
 - [[WebSocket]]
-- [[curl]]
 
 ---
 
-## 🗄️ 데이터베이스 (13개)
+## 🗄️ 데이터베이스 (34개)
 
-- [[Cookie]]
+- [[ACID]]
+- [[B-Tree]]
+- [[CAP Theorem]]
+- [[Connection Pool]]
+- [[Data Lake]]
+- [[Data Warehouse]]
 - [[DB]]
+- [[Denormalization]]
+- [[ETL]]
+- [[Eventual Consistency]]
 - [[Index]]
+- [[Isolation Level]]
+- [[JOIN]]
+- [[Key-Value Store]]
+- [[Migration]]
+- [[N+1 Problem]]
+- [[Normalization]]
 - [[NoSQL]]
-- [[ORM]]
+- [[OLTP vs OLAP]]
 - [[Oracle Exadata]]
+- [[ORM]]
+- [[Partitioning]]
+- [[Primary Key & Foreign Key]]
+- [[Query]]
+- [[Query Plan]]
 - [[Redis]]
-- [[SQL]]
-- [[Session]]
+- [[Replication]]
 - [[Snowflake]]
+- [[SQL]]
+- [[Stored Procedure]]
 - [[Transaction]]
-- [[Vector DB]]
+- [[View & Materialized View]]
+- [[WAL]]
 - [[구조화 데이터]]
 
 ---
@@ -121,9 +176,9 @@
 - [[Audit Log]]
 - [[Bastion Host]]
 - [[CA]]
-- [[CSRF]]
 - [[Certificate]]
 - [[Cookie]]
+- [[CSRF]]
 - [[DAC]]
 - [[DMZ]]
 - [[Encryption]]
@@ -137,11 +192,11 @@
 - [[RBAC]]
 - [[Refresh Token]]
 - [[SAML]]
+- [[Session]]
 - [[SQL Injection]]
 - [[SSH]]
 - [[SSL_TLS]]
 - [[SSO]]
-- [[Session]]
 - [[Step-up Auth]]
 - [[Token 인증]]
 - [[XSS]]
@@ -153,14 +208,13 @@
 
 ---
 
-## 🏗️ 아키텍처 (23개)
+## 🏗️ 아키텍처 (20개)
 
-- [[API Gateway]]
 - [[API]]
+- [[API Gateway]]
 - [[API 외부 공개]]
 - [[Auto Scaling]]
 - [[Bedrock]]
-- [[CDN]]
 - [[Caching]]
 - [[Circuit Breaker]]
 - [[Consistent Hashing]]
@@ -168,7 +222,6 @@
 - [[LangGraph]]
 - [[Latency]]
 - [[Load Balancing]]
-- [[MCP]]
 - [[Message Queue]]
 - [[Monolith vs Microservices]]
 - [[Pipeline]]
@@ -176,44 +229,59 @@
 - [[Rate Limiting]]
 - [[Service Discovery]]
 - [[Sharding]]
-- [[Tenant]]
 - [[tRPC]]
 
 ---
 
-## 🖥️ 웹개발 (13개)
+## 🖥️ 웹개발 (34개)
 
+- [[Accessibility]]
+- [[API Versioning]]
 - [[Backend]]
+- [[Browser Rendering]]
+- [[Code Splitting]]
+- [[Core Web Vitals]]
 - [[CORS]]
 - [[CSR]]
+- [[CSS]]
+- [[DOM]]
 - [[Frontend]]
 - [[Full Stack]]
 - [[GraphQL]]
+- [[gRPC]]
+- [[HTML]]
+- [[HTTP Caching]]
 - [[HTTP Status Code]]
+- [[Hydration]]
+- [[Idempotency Key]]
+- [[JavaScript]]
+- [[Local Storage & Session Storage]]
 - [[Middleware]]
+- [[OpenAPI]]
+- [[Pagination]]
+- [[PWA]]
+- [[Responsive Design]]
 - [[REST]]
+- [[Same-Origin Policy]]
+- [[Service Worker]]
+- [[SOAP]]
 - [[SPA]]
+- [[SSG]]
 - [[SSR]]
 - [[Webhook]]
-- [[gRPC]]
 
 ---
 
-## ⚙️ 인프라 (18개)
+## ⚙️ 인프라 (13개)
 
 - [[Apache]]
 - [[Bare Metal]]
-- [[CDN]]
 - [[CI_CD]]
-- [[Cache]]
-- [[Circuit Breaker]]
-- [[Container]]
 - [[Cron Job]]
 - [[DevOps]]
 - [[Elastic Search]]
 - [[Hypervisor]]
 - [[Kubernetes]]
-- [[Load Balancer]]
 - [[Logging]]
 - [[On-Premises]]
 - [[TTL]]
@@ -224,8 +292,8 @@
 
 ## ☁️ 클라우드 (13개)
 
-- [[AWS]]
 - [[Availability Zone]]
+- [[AWS]]
 - [[Azure]]
 - [[Cloud]]
 - [[EC2]]
@@ -240,25 +308,44 @@
 
 ---
 
-## 💻 컴퓨터과학 (18개)
+## 💻 컴퓨터과학 (37개)
 
 - [[Algorithm]]
 - [[Async-Await]]
 - [[Big O 표기법]]
 - [[Binary]]
-- [[CPU]]
+- [[Binary Search]]
+- [[Blocking vs Non-blocking]]
 - [[Cache]]
+- [[Character Encoding]]
 - [[Concurrency]]
+- [[Context Switch]]
+- [[CPU]]
+- [[Deadlock]]
+- [[File System]]
+- [[Floating Point]]
+- [[Garbage Collection]]
+- [[Graph]]
 - [[Hash]]
+- [[Hash Table]]
 - [[Heap]]
+- [[Interrupt]]
+- [[Kernel]]
+- [[Linked List]]
 - [[Memory]]
 - [[Multi-thread]]
+- [[Mutex vs Semaphore]]
 - [[Parallelism]]
 - [[Process]]
 - [[Queue]]
+- [[Race Condition]]
 - [[RAM]]
+- [[Sorting]]
 - [[Stack]]
+- [[System Call]]
 - [[Thread]]
+- [[Tree]]
+- [[Virtual Memory]]
 - [[자료구조]]
 
 ---
@@ -268,8 +355,8 @@
 - [[Array]]
 - [[Build]]
 - [[Class]]
-- [[Compile vs Interpret]]
 - [[Compile]]
+- [[Compile vs Interpret]]
 - [[Component]]
 - [[Dictionary]]
 - [[Framework vs Library]]
@@ -283,20 +370,21 @@
 
 ---
 
-## 📊 제품관리 (18개)
+## 📊 제품관리 (19개)
 
 - [[A B Testing]]
 - [[Agile]]
 - [[Backlog]]
 - [[CAC LTV]]
+- [[CRM]]
 - [[Funnel]]
 - [[GTM]]
 - [[KPI]]
 - [[MVP]]
 - [[North Star Metric]]
 - [[OKR]]
-- [[PMF]]
 - [[Persona]]
+- [[PMF]]
 - [[Product Roadmap]]
 - [[Retention]]
 - [[Scrum]]

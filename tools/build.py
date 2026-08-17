@@ -61,6 +61,7 @@ SECTION_MAP = [
     ("figure", ["🖼️ 그림으로 보기"]),
     ("concept", ["🎯 핵심 개념", "🎯 특징", "🎯 핵심"]),
     ("why", ["⚠️ 해결하는 문제", "🤔 왜 필요한가? (문제와 해결)", "🤔 왜 필요한가?", "🤔 왜 필요한가"]),
+    ("compose", ["🧱 구성"]),
     ("how", ["⚙️ 작동 원리", "🔄 작동 원리 (상세 단계)", "🏗️ 구조"]),
     ("compare", ["📊 비교"]),
     ("example", ["💡 실제 사례", "💡 실제 사용 사례", "💡 예시", "🎯 실제 사례 (P3 시스템)", "💼 P3 시스템 실제 사례"]),
@@ -79,7 +80,13 @@ SLOT_NAMES = {slot: names for slot, names in SECTION_MAP}
 
 # 표제어 아래 접어서 보여줄 순서. UI 의 progressive disclosure 순서와 같다.
 # figure 와 check 는 여기 없다 — 펼쳐진 채로 두는 자리라서 접이식에 들어가면 안 된다.
-DISCLOSURE_ORDER = ["why", "how", "concept", "compare", "example", "tradeoff", "myth", "caution"]
+#
+# why(해결하는 문제)와 compose(구성)도 2026-08-18 에 빠졌다. 이해의 네 기둥은
+# "무엇인가(정의) · 어떻게 되나(그림) · 왜 필요한가 · 무엇으로 되어 있나" 인데
+# 뒤의 둘이 접혀 있으면 첫 화면에 기둥이 절반만 선다. 접힌 칸에 남는 것은
+# 전부 심화(작동 원리 · 사례 · 오해 · 주의)라, 이제 접이식과 고정 자리의 경계가
+# "핵심이냐 심화냐" 하나로 정리된다.
+DISCLOSURE_ORDER = ["how", "concept", "compare", "example", "tradeoff", "myth", "caution"]
 
 # 앞에 세우는 자리. 접이식에서 빼고 따로 내보낸다.
 #
@@ -88,13 +95,14 @@ DISCLOSURE_ORDER = ["why", "how", "concept", "compare", "example", "tradeoff", "
 # 닿지 못한 것이다. 정리는 카드가 아니라 마무리 문단 하나이고, 바로 뒤의
 # 확인 질문과 짝을 이룬다(되짚고 나서 스스로 물어본다). 접이식에 두고
 # 순서로 다투게 하는 대신 고정 자리로 뺀다.
-PINNED = ("definition", "figure", "check", "related", "summary")
+PINNED = ("definition", "figure", "why", "compose", "check", "related", "summary")
 
 # 접기 버튼에 쓰는 이름. NN/g 의 원칙대로 "더보기" 같은 모호한 말 대신
 # 열면 뭐가 나오는지 알 수 있는 이름을 쓴다.
 SLOT_LABELS = {
     "concept": "핵심 개념",
     "why": "왜 필요한가",
+    "compose": "무엇으로 되어 있나",
     "how": "어떻게 작동하나",
     "compare": "무엇과 비교되나",
     "example": "실제 사례",
@@ -397,9 +405,9 @@ def split_subsections(body: str) -> tuple[str, list[dict]]:
         heading = nfc(parts[i]).strip()
         label = strip_leading_emoji(heading)
         chunk = parts[i + 1].strip()
-        if label == "비유":
-            # 비유는 parse_analogy 가 이미 전용 자리로 가져갔다. 여기서 안 빼면
-            # 같은 문장이 정의 밑의 비유 상자와 접이식 패널로 두 번 나온다.
+        if label in ("비유", "예"):
+            # 비유·예는 parse_analogy / parse_example 이 이미 전용 자리로 가져갔다.
+            # 여기서 안 빼면 같은 문장이 정의 밑의 상자와 접이식 패널로 두 번 나온다.
             # 게다가 접이식 여섯 칸 중 하나를 잡아먹어서 뒤쪽의 주의사항이 밀려난다.
             continue
         if len(chunk) >= 40:
@@ -408,16 +416,33 @@ def split_subsections(body: str) -> tuple[str, list[dict]]:
     return lead, subs
 
 
-def parse_analogy(definition: str) -> str:
-    """정의 안의 '### 비유' 한 줄. 처음 보는 개념에서 사람을 건너가게 하는 건
-    대개 이것이라 본문에 섞지 않고 따로 뽑는다."""
-    m = re.search(r"^###\s+비유\s*$\n(.+?)(?=\n\s*\n|\n###|\Z)", definition, flags=re.M | re.S)
+def pick_subsection(definition: str, name: str) -> str:
+    """정의 안의 '### <이름>' 한 줄을 꺼낸다."""
+    m = re.search(r"^###\s+" + re.escape(name) + r"\s*$\n(.+?)(?=\n\s*\n|\n###|\Z)",
+                  definition, flags=re.M | re.S)
     if not m:
         return ""
     body = m.group(1).strip()
     # 목록으로 쓴 노트가 있다. 첫 항목만 쓴다 — 비유가 셋이면 하나도 안 남는다.
     first = next((l for l in body.split("\n") if l.strip()), "")
     return re.sub(r"^\s*[-*]\s*", "", first).strip()
+
+
+def parse_analogy(definition: str) -> str:
+    """정의 안의 '### 비유' 한 줄. 처음 보는 개념에서 사람을 건너가게 하는 건
+    대개 이것이라 본문에 섞지 않고 따로 뽑는다."""
+    return pick_subsection(definition, "비유")
+
+
+def parse_example(definition: str) -> str:
+    """정의 안의 '### 예' 한 줄.
+
+    비유가 "무엇과 닮았나" 를 주면 예는 "어디서 봤나" 를 준다. 둘은 다른 일을
+    한다 — 비유는 가상의 사물로 형태를 옮겨주고, 예는 이미 겪은 장면에 개념을
+    걸어준다. 그래서 접이식 💡 실제 사례(사례 셋, 접혀 있다)와 별개로 정의
+    바로 밑에 한 줄을 둔다. 처음 30초 안에 "아, 그거" 가 나와야 한다.
+    """
+    return pick_subsection(definition, "예")
 
 
 # 도해 원문은 통째로 옮긴다 — 그리는 쪽은 js/ui.js 이고 figure 필드가 그 입력이다.
@@ -444,7 +469,10 @@ def lift_figure(sections: dict[str, str]) -> str:
     펼쳐야만 보이는데, 그러면 그림을 맨 앞에 세운 이유가 없어진다.
     끌어올린 자리에서는 지운다 — 같은 그림이 두 번 나오면 안 된다.
     """
-    order = [h for h in LIFT_FROM if h in sections] + [h for h in sections if h not in LIFT_FROM]
+    # 🧱 구성은 후보에서 뺀다. 그 절의 도해는 "무엇으로 되어 있나" 기둥 자체라,
+    # 대표 그림으로 끌어올리면 기둥 하나가 통째로 빈 채 그려진다.
+    pool = [h for h in sections if strip_leading_emoji(h) != "구성"]
+    order = [h for h in LIFT_FROM if h in pool] + [h for h in pool if h not in LIFT_FROM]
     for heading in order:
         found = DIA_BLOCK.search(sections[heading])
         if not found:
@@ -651,12 +679,24 @@ def pinned_parts(sections: dict[str, str]) -> dict:
     recap_raw = pick(sections, ["📝 정리"])
     check_raw = pick(sections, ["❓ 이해했는지"])
     related_raw = pick(sections, ["🔗 관련 용어"])
-    return {
+    # 접지 않는 두 기둥. 화면 이름표(SLOT_LABELS)와 원문 제목을 함께 싣는다 —
+    # 확인 질문의 "→ 해결하는 문제" 와 "→ 왜 필요한가" 가 둘 다 이 자리로 와야 한다.
+    why_entry = pick_entry(sections, SLOT_NAMES["why"])
+    compose_entry = pick_entry(sections, SLOT_NAMES["compose"])
+    pinned = {
         "figure": clean_body(figure_raw) if figure_raw else lift_figure(sections),
         "recap": clean_body(recap_raw) if recap_raw else "",
         "check": parse_check(check_raw) if check_raw else [],
         "related": parse_related(related_raw) if related_raw else [],
     }
+    for slot, entry in (("why", why_entry), ("compose", compose_entry)):
+        if not entry:
+            continue
+        cleaned = clean_body(entry[1])
+        if len(cleaned) < 12:
+            continue
+        pinned[slot] = {"label": SLOT_LABELS[slot], "head": entry[0], "body": trim(cleaned)}
+    return pinned
 
 
 def parse_note(path: str, category: str) -> dict | None:
@@ -684,6 +724,7 @@ def parse_note(path: str, category: str) -> dict | None:
         "summary": summary,
         "definition": lead,
         "analogy": parse_analogy(definition),
+        "example": parse_example(definition),
         "sections": ordered_sections(subs, sections, path)[:MAX_SECTIONS],
         **pinned,
     }
@@ -936,8 +977,12 @@ INDEX_FIELDS = ["id", "term", "reading", "category", "summary", "aliases", "rela
 # 유형(한 줄 뜻·관련 용어)과 달리, 이 셋으로 내는 문제는 **고른 범위의 권**을
 # 이미 읽어놓은 상태에서만 만들면 된다. 인덱스로 올리면 시작할 때 항상 읽는
 # 파일에 오해 687항목과 도해 229개가 얹혀 첫 화면이 그만큼 늦어진다.
-BODY_FIELDS = ["definition", "analogy", "sections", "figure", "recap", "check",
-               "myths", "cases", "dia"]
+#
+# example·why·compose 는 2026-08-18 에 들어왔다. 셋 다 접이식 밖에 자기 자리가
+# 있는 것들이라 본문과 함께 온다 — 인덱스는 목록·검색·퀴즈가 읽는 것이고,
+# 이 셋은 단어를 펼친 화면에서만 쓰인다.
+BODY_FIELDS = ["definition", "analogy", "example", "sections", "figure",
+               "why", "compose", "recap", "check", "myths", "cases", "dia"]
 
 BANNER = (
     "// 이 파일은 tools/build.py 가 content/*.md 에서 생성한다. 직접 고치지 말 것.\n"

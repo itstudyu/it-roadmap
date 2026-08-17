@@ -530,16 +530,18 @@
   }
 
   function disclosureSections(term) {
-    return term.sections.map(function (s, i) {
+    return term.sections.map(function (s) {
       var id = slugOf(s.label);
       var hint = s.slot === "myth" ? mythPeek(s.body) : plainPeek(s.body);
       var draw = PANEL[s.slot] || UI.markdown;
 
       aimAll([s.label, s.head], id);
 
-      /* 첫 섹션은 열어둔다. 전부 접혀 있으면 들어왔을 때 읽을 게 요약 한 장뿐이라
-         "자주 필요한 건 처음부터 보여라"는 원칙을 어기게 된다. */
-      return '<details class="disclose" id="' + esc(id) + '"' + (i === 0 ? " open" : "") +
+      /* 전부 닫힌 채 시작한다. 예전에는 첫 칸을 열어뒀는데, 그때는 "해결하는
+         문제"가 접혀 있어서 안 열면 읽을 게 요약 한 장뿐이었기 때문이다.
+         이제 네 기둥이 전부 위에 펼쳐져 있고 접힌 칸에 남는 것은 심화뿐이다 —
+         그중 하나만 열어두면 그 칸이 특별해 보인다. */
+      return '<details class="disclose" id="' + esc(id) + '"' +
         '><summary class="disclose__btn">' +
         '<span class="disclose__text">' +
         '<span class="disclose__label">' + esc(s.label) + "</span>" + hint +
@@ -566,6 +568,40 @@
     if (!term.analogy) return "";
     return '<aside class="analogy"><b class="analogy__k">비유</b>' +
       UI.markdown(term.analogy).replace(/^<p>|<\/p>$/g, "") + "</aside>";
+  }
+
+  /* 비유 다음의 한 줄. 비유가 "무엇과 닮았나"(가상의 사물)를 주면
+     예는 "어디서 봤나"(이미 겪은 장면)를 준다. 접힌 💡 실제 사례와
+     다른 일을 한다 — 저건 사례 셋이고 이건 첫 30초의 "아, 그거" 다. */
+  function exampleBlock(term) {
+    if (!term.example) return "";
+    return '<aside class="analogy analogy--case"><b class="analogy__k">예</b>' +
+      UI.markdown(term.example).replace(/^<p>|<\/p>$/g, "") + "</aside>";
+  }
+
+  /* ---- 접지 않는 두 기둥 ----
+
+     이해의 네 기둥은 무엇인가(정의) · 어떻게 되나(그림) · 왜 필요한가 ·
+     무엇으로 되어 있나 다. 앞의 둘은 원래 펼쳐져 있었고, 뒤의 둘이
+     접힌 칸 안에 있었다. 접힌 것은 대체로 안 열린다 — 열어야 보이는
+     기둥은 없는 기둥이다. 그래서 접이식 밖으로 꺼냈다.
+
+     "무엇으로 되어 있나"(🧱 구성)는 부품이 있는 단어에만 있다.
+     없으면 그 자리도 없다 — 빈 제목만 세워두지 않는다. */
+  var PINNED_SLOTS = ["why", "compose"];
+
+  function pinnedSection(part) {
+    var id = slugOf(part.label);
+    aimAll([part.label, part.head], id);
+    return '<section class="pinsec" id="' + esc(id) + '">' +
+      '<h2 class="pinsec__head">' + esc(part.label) + "</h2>" +
+      '<div class="pinsec__body prose">' + UI.markdown(part.body) + "</div></section>";
+  }
+
+  function pinnedSections(term) {
+    return PINNED_SLOTS.map(function (slot) {
+      return term[slot] ? pinnedSection(term[slot]) : "";
+    }).join("");
   }
 
   /* 이해했는지. 맨 아래, 펼쳐진 채로, 다음 버튼 바로 위에 둔다.
@@ -760,6 +796,7 @@
     TARGETS = {};
     aimAll(DEFINITION_NAMES, "p-정의");
     var figureHtml = figureSection(term);
+    var pinnedHtml = pinnedSections(term);
     var panelsHtml = disclosureSections(term) + relatedSection(term);
     var recapHtml = recapBlock(term);
     var checkHtml = checkSection(term);
@@ -792,10 +829,14 @@
          앵커인 비유가 유래 설명 뒤로 밀린다. 비유는 한 문장·일상 사물 규칙이라
          배경에 기대지 않는다. 원문은 그대로 두고 그리는 순서만 바꾼다. */
       analogyBlock(term) +
+      exampleBlock(term) +
       (term.definition
         ? '<div class="prose prose--def">' + UI.markdown(term.definition) + "</div>"
         : "") +
       figureHtml +
+      /* 순서가 질문을 따라간다 — 무엇인가 → 어떻게 되나(그림) →
+         왜 필요한가 → 무엇으로 되어 있나. 그다음이 심화(접이식)다. */
+      pinnedHtml +
       '<div class="panels">' + panelsHtml + "</div>" +
       recapHtml +
       checkHtml +
@@ -877,7 +918,25 @@
     });
   }
 
+  /* ---- 읽기 장치 붙이기 ----
+
+     화면은 문자열로 만들어지므로 점선 밑줄과 단계 보기는 DOM 이 선 다음에
+     붙는다. js/reading.js 가 없어도 앱은 그대로 읽힌다 — 그래서 있는지
+     확인하고 부른다. 순서: 장치를 먼저 붙이고 난간을 잰다.
+     풀이 카드가 그림 높이를 바꾸므로 잰 값이 먼저면 어긋난다. */
+  document.addEventListener("screen:rendered", function (event) {
+    if (!window.Reading) return;
+    var path = event.detail && event.detail.path;
+    if (!path || path.indexOf("/term/") !== 0) return;
+    var root = document.querySelector(".detail");
+    var term = Store.termById(path.slice("/term/".length));
+    if (root && term) window.Reading.enhance(root, term);
+  });
+
   document.addEventListener("screen:rendered", fitLoopRails);
+  /* 풀이 카드가 열리고 닫힐 때마다 그림 높이가 바뀐다. @ 난간은 실측값이라
+     그때 다시 재야 한다. */
+  document.addEventListener("dia:changed", fitLoopRails);
   window.addEventListener("resize", fitLoopRails);
   /* 접이식이 열리는 순간이 처음으로 잴 수 있게 되는 순간이다.
      details 의 toggle 은 버블하지 않으므로 캡처 단계에서 받는다. */
@@ -1121,14 +1180,14 @@
     if (event.key === "Escape") closeReset();
   });
 
-  // 화면을 옮기면 열어둔 것을 닫는다. body 에 붙어 있어서 저절로 사라지지 않는다.
-  document.addEventListener("screen:rendered", closeReset);
+  /* 화면을 옮기면 열어둔 것을 닫는다. body 에 붙어 있어서 저절로 사라지지 않는다.
 
-  // 화면을 옮기면 물어보던 것을 없던 일로 한다. 다음에 들어왔을 때
-  // 단추가 "한 번 더 누르면 지워집니다" 인 채로 기다리고 있으면 안 된다.
-  document.addEventListener("screen:rendered", function (event) {
-    if (!event.detail || event.detail.path !== "/progress") disarmReset();
-  });
+     여기 한 줄이 더 있었다 — 단추를 두 번 눌러 지우던 시절의 disarmReset() 을
+     부르는 줄이다. 초기화가 모달로 바뀌면서 그 함수는 사라졌는데 부르는 쪽이
+     남아, **화면을 옮길 때마다** ReferenceError 가 났다. 화면은 이미 그려진
+     뒤라 눈에 띄는 고장이 없어서 아무도 못 봤다. 무장 해제할 상태가 이제 없고,
+     닫을 것은 위 한 줄이 닫는다. */
+  document.addEventListener("screen:rendered", closeReset);
 
   // 다른 화면에서 쓰는 조각들을 공개한다
   window.Parts = {

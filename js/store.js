@@ -46,8 +46,19 @@ window.Store = (function () {
 
   var state = load();
 
+  /* read 는 읽기 화면이 기억하는 것들이다. 진도(terms)와 섞지 않는다 —
+     "이 용어 풀이를 열어봤다" 는 학습 상태가 아니라 화면이 조용해지는 조건이고,
+     퀴즈·복습 어디에도 영향을 주지 않는다. 다만 같은 열쇠 안에 두어야
+     초기화가 이것까지 함께 지운다. 따로 두면 지웠다고 말해놓고 남는다.
+
+       hintSeen  점선 밑줄의 뜻을 한 번 배웠나 (배웠으면 안내 줄을 다시 안 낸다)
+       gloss     풀이를 열어 본 용어들. 이 단어들은 점선이 옅어진다
+       walked    그림을 끝까지 밟아 본 단어들. 다시 오면 전체가 보인 채로 연다 */
   function blank() {
-    return { terms: {}, history: [], studyDays: [], lastSeenAt: null };
+    return {
+      terms: {}, history: [], studyDays: [], lastSeenAt: null,
+      read: { hintSeen: false, gloss: [], walked: {} },
+    };
   }
 
   function load() {
@@ -357,6 +368,43 @@ window.Store = (function () {
     save();
   }
 
+  /* ---------------------------------------------------------- 읽기 화면 기억
+
+     저장된 것이 옛 판이면 read 가 아예 없거나 반만 있다. 쓰는 쪽마다
+     그걸 확인하게 두면 언젠가 한 곳이 빠지고 그 자리에서만 터진다.
+     읽을 때 한 번 세워 두고, 이후로는 있다고 믿는다. */
+  function readState() {
+    var r = state.read;
+    if (!r || typeof r !== "object") r = state.read = {};
+    if (typeof r.hintSeen !== "boolean") r.hintSeen = false;
+    if (!Array.isArray(r.gloss)) r.gloss = [];
+    if (!r.walked || typeof r.walked !== "object") r.walked = {};
+    return r;
+  }
+
+  /* 풀이를 연 용어를 적어 둔다. 이미 있으면 저장하지 않는다 —
+     같은 단어를 두 번 눌렀다고 디스크에 두 번 쓸 이유가 없다. */
+  function markGlossSeen(key) {
+    var r = readState();
+    if (r.gloss.indexOf(key) !== -1) return;
+    r.gloss.push(key);
+    save();
+  }
+
+  function markHintSeen() {
+    var r = readState();
+    if (r.hintSeen) return;
+    r.hintSeen = true;
+    save();
+  }
+
+  function markWalked(termId) {
+    var r = readState();
+    if (r.walked[termId]) return;
+    r.walked[termId] = true;
+    save();
+  }
+
   return {
     STATUS: STATUS,
     STATUS_META: STATUS_META,
@@ -381,6 +429,10 @@ window.Store = (function () {
     markLearned: markLearned,
     markPassed: markPassed,
     markWrong: markWrong,
+    readState: readState,
+    markGlossSeen: markGlossSeen,
+    markHintSeen: markHintSeen,
+    markWalked: markWalked,
     reset: reset,
   };
 })();
