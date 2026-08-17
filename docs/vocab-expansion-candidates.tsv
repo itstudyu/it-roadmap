@@ -1,0 +1,235 @@
+# 대량 추가 후보 233편. docs/VOCAB-EXPANSION-PLAN.md 의 기계 판독본.
+# 열: 권	제목(H1 영문)	읽기(한글)
+cs	Deadlock	교착 상태
+cs	Mutex vs Semaphore	뮤텍스와 세마포어
+cs	Race Condition	경쟁 상태
+cs	Context Switch	문맥 교환
+cs	Garbage Collection	가비지 컬렉션
+cs	Virtual Memory	가상 메모리
+cs	System Call	시스템 콜
+cs	Kernel	커널
+cs	File System	파일 시스템
+cs	Interrupt	인터럽트
+cs	Character Encoding	문자 인코딩
+cs	Floating Point	부동소수점
+cs	Linked List	연결 리스트
+cs	Hash Table	해시 테이블
+cs	Tree	트리
+cs	Graph	그래프
+cs	Binary Search	이진 탐색
+cs	Sorting	정렬
+cs	Blocking vs Non-blocking	블로킹 논블로킹
+lang	Exception	예외 처리
+lang	Type System	타입 시스템
+lang	Null Safety	널 안전성
+lang	Scope	스코프
+lang	Closure	클로저
+lang	Interface	인터페이스
+lang	Generic	제네릭
+lang	OOP	객체지향 프로그래밍
+lang	Functional Programming	함수형 프로그래밍
+lang	Design Pattern	디자인 패턴
+lang	SOLID	SOLID 원칙
+lang	Dependency Injection	의존성 주입
+lang	Immutability	불변성
+lang	Unit Test	단위 테스트
+lang	Integration Test	통합 테스트
+lang	TDD	테스트 주도 개발
+lang	Refactoring	리팩터링
+lang	Serialization	직렬화
+lang	Base64	Base64
+lang	Protocol Buffers	프로토콜 버퍼
+lang	Memory Leak	메모리 누수
+net	HTTP 2	HTTP 2
+net	HTTP 3	HTTP 3
+net	QUIC	QUIC
+net	Packet	패킷
+net	CIDR	CIDR
+net	DHCP	DHCP
+net	ARP	ARP
+net	MAC Address	MAC 주소
+net	Router vs Switch	라우터와 스위치
+net	ICMP	ICMP
+net	Bandwidth	대역폭
+net	mTLS	상호 TLS
+net	Long Polling	롱 폴링
+web	HTML	HTML
+web	CSS	CSS
+web	JavaScript	자바스크립트
+web	DOM	문서 객체 모델
+web	Browser Rendering	브라우저 렌더링
+web	Service Worker	서비스 워커
+web	PWA	프로그레시브 웹 앱
+web	Core Web Vitals	코어 웹 바이탈
+web	HTTP Caching	HTTP 캐싱
+web	Local Storage & Session Storage	브라우저 저장소
+web	SSG	정적 사이트 생성
+web	Hydration	하이드레이션
+web	Code Splitting	코드 분할
+web	Responsive Design	반응형 디자인
+web	Accessibility	웹 접근성
+web	Same-Origin Policy	동일 출처 정책
+web	OpenAPI	오픈API
+web	Pagination	페이지네이션
+web	API Versioning	API 버저닝
+web	Idempotency Key	멱등 키
+web	SOAP	SOAP
+db	ACID	ACID
+db	CAP Theorem	CAP 정리
+db	Isolation Level	격리 수준
+db	Normalization	정규화
+db	Denormalization	역정규화
+db	Primary Key & Foreign Key	기본키와 외래키
+db	JOIN	조인
+db	View & Materialized View	뷰와 구체화 뷰
+db	Stored Procedure	저장 프로시저
+db	Replication	복제
+db	Partitioning	파티셔닝
+db	WAL	선행 기록 로그
+db	B-Tree	B 트리
+db	OLTP vs OLAP	OLTP OLAP
+db	Data Warehouse	데이터 웨어하우스
+db	Data Lake	데이터 레이크
+db	ETL	ETL
+db	Migration	스키마 마이그레이션
+db	N+1 Problem	N 더하기 1 문제
+db	Query Plan	쿼리 실행 계획
+db	Eventual Consistency	최종 일관성
+db	Key-Value Store	키 값 저장소
+arch	High Availability	고가용성
+arch	Scalability	확장성
+arch	Fault Tolerance	장애 허용성
+arch	CQRS	CQRS
+arch	Event Sourcing	이벤트 소싱
+arch	Saga	사가 패턴
+arch	Idempotency	멱등성
+arch	Back Pressure	배압
+arch	Bulkhead	격벽 패턴
+arch	Retry & Exponential Backoff	재시도와 지수 백오프
+arch	Strangler Fig	교살자 무화과
+arch	Sidecar	사이드카
+arch	Service Mesh	서비스 메시
+arch	BFF	백엔드 포 프론트엔드
+arch	DDD	도메인 주도 설계
+arch	Clean Architecture	클린 아키텍처
+arch	MVC	MVC
+arch	Twelve-Factor App	12요소 앱
+arch	SLA SLO SLI	서비스 수준 목표
+arch	Error Budget	에러 예산
+arch	Leader Election	리더 선출
+arch	Distributed Lock	분산 락
+arch	Two-Phase Commit	2단계 커밋
+arch	Cache Aside vs Write Through	캐시 쓰기 전략
+sec	OWASP Top 10	OWASP 톱 10
+sec	Supply Chain Attack	공급망 공격
+sec	Least Privilege	최소 권한
+sec	Defense in Depth	심층 방어
+sec	Password Hashing	비밀번호 해싱
+sec	Secret Management	시크릿 관리
+sec	CVE	CVE
+sec	Zero-Day	제로데이
+sec	Phishing	피싱
+sec	CSP	콘텐츠 보안 정책
+sec	HSTS	HSTS
+cloud	Shared Responsibility Model	책임 공유 모델
+cloud	Cold Start	콜드 스타트
+cloud	Egress Cost	아웃바운드 요금
+cloud	Object Storage	오브젝트 스토리지
+cloud	Block Storage	블록 스토리지
+cloud	Managed Service	관리형 서비스
+cloud	Security Group	보안 그룹
+cloud	Spot Instance	스팟 인스턴스
+cloud	Reserved Instance	예약 인스턴스
+cloud	FinOps	핀옵스
+cloud	Well-Architected	잘 설계된 프레임워크
+cloud	Container Registry	컨테이너 레지스트리
+cloud	Managed Kubernetes	관리형 쿠버네티스
+cloud	VPC Peering	VPC 피어링
+cloud	Multi-Region	멀티 리전
+cloud	Elastic IP	탄력적 IP
+cloud	Cloud Migration	클라우드 마이그레이션
+infra	Infrastructure as Code	코드형 인프라
+infra	Terraform	테라폼
+infra	Ansible	앤서블
+infra	GitOps	깃옵스
+infra	Observability	관측 가능성
+infra	Metric	메트릭
+infra	Distributed Tracing	분산 추적
+infra	OpenTelemetry	오픈텔레메트리
+infra	Prometheus	프로메테우스
+infra	Grafana	그라파나
+infra	Alerting	알림
+infra	SRE	사이트 신뢰성 엔지니어링
+infra	Postmortem	장애 회고
+infra	On-call	온콜
+infra	Runbook	런북
+infra	Blue-Green Deployment	블루 그린 배포
+infra	Canary Release	카나리 배포
+infra	Rollback	롤백
+infra	Health Check	헬스 체크
+infra	Graceful Shutdown	우아한 종료
+infra	Load Test	부하 테스트
+infra	Chaos Engineering	카오스 엔지니어링
+infra	Disaster Recovery (RTO·RPO)	재해 복구
+infra	Helm	헬름
+infra	Ingress	인그레스
+infra	Pod	파드
+tool	Git Branch	브랜치
+tool	Merge vs Rebase	병합과 리베이스
+tool	Pull Request	풀 리퀘스트
+tool	Git Commit	커밋
+tool	Merge Conflict	병합 충돌
+tool	Monorepo	모노레포
+tool	Semantic Versioning	유의적 버전
+tool	Lock File	잠금 파일
+tool	Dependency	의존성
+tool	Linter & Formatter	린터와 포매터
+tool	Debugger	디버거
+tool	Breakpoint	중단점
+tool	Shell	셸
+tool	Dockerfile	도커파일
+tool	Docker Compose	도커 컴포즈
+tool	Docker Volume	도커 볼륨
+tool	Docker Image	도커 이미지
+tool	Git Flow	깃 플로
+tool	Trunk Based Development	트렁크 기반 개발
+tool	Cherry-pick	체리픽
+tool	Git Stash	깃 스태시
+tool	Git Tag	깃 태그
+tool	Feature Flag	기능 플래그
+ai	Temperature & Top-p	온도와 Top p
+ai	Structured Output	구조화 출력
+ai	Function Calling	함수 호출
+ai	Chain of Thought	사고 사슬
+ai	Prompt Injection	프롬프트 주입
+ai	Jailbreak	탈옥
+ai	Eval	평가
+ai	Distillation	지식 증류
+ai	Quantization	양자화
+ai	LoRA	LoRA
+ai	Inference vs Training	추론과 학습
+ai	Multimodal	멀티모달
+ai	Attention	어텐션
+ai	Parameter Count	파라미터 수
+ai	Open Weight	오픈 웨이트
+ai	Prompt Caching	프롬프트 캐싱
+ai	Agent Memory	에이전트 메모리
+ai	Human in the Loop	사람 개입
+pm	Churn Rate	이탈률
+pm	DAU MAU	일간 활성 사용자
+pm	Cohort Analysis	코호트 분석
+pm	Conversion Rate	전환율
+pm	NPS	순 추천 지수
+pm	RICE	RICE 우선순위
+pm	Jobs to be Done	할 일 이론
+pm	Value Proposition	가치 제안
+pm	PRD	제품 요구사항 문서
+pm	Design Thinking	디자인 씽킹
+pm	Usability Test	사용성 테스트
+pm	Kanban	칸반
+pm	Retrospective	회고
+pm	Definition of Done	완료 정의
+pm	Story Point	스토리 포인트
+pm	Stakeholder	이해관계자
+pm	Scope Creep	범위 확산
+pm	Competitive Analysis	경쟁 분석

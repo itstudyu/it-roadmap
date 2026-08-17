@@ -30,6 +30,11 @@
 
 막힌 도메인 목록은 실행마다 달라질 수 있다. 실제로 열어 보고 판단해라.
 
+**로컬 세션에서는 이 제약이 없다.** 2026-08-17 에 확인했다 — MDN, RFC, OWASP,
+kubernetes.io, opentelemetry.io, learn.microsoft.com, git-scm.com, semver.org 가
+전부 열린다. 그래서 단어를 한 번에 많이 넣는 일은 로컬에서 하고, 클라우드 루틴은
+빈칸을 꾸준히 메우는 데만 쓴다. 위 목록은 **클라우드 루틴에만** 해당한다.
+
 ## 허용
 
 ### 표준화 기구
@@ -47,6 +52,7 @@
 
 ### 웹 플랫폼 문서
 - `developer.mozilla.org` — MDN (브라우저·웹 표준 사실상의 참조 문서)
+- `web.dev` — Chrome 팀 공식. Core Web Vitals 는 표준이 아니라 이곳이 정의 원본이다
 
 ### 프로젝트 공식 문서 (해당 기술의 자기 서술)
 - `kubernetes.io`, `docker.com/docs`, `docs.docker.com`
@@ -74,6 +80,29 @@
 - `modelcontextprotocol.io` — MCP 스펙
 - `arxiv.org` — 원 논문 (개념의 출처가 논문일 때. 예: Transformer → Attention Is All You Need)
 - `huggingface.co/docs` (문서에 한함)
+
+### 방법론 · 실천법의 규범 문서
+
+2026-08-17 추가. 여기까지 없어서 제품 관리와 운영 용어를 쓸 근거가 없었다.
+
+기준은 위의 프로젝트 문서와 같다 — **그 개념을 만든 주체가 직접 쓴 규범 문서인가.**
+"어떻게 쓰는지" 를 설명하는 해설은 안 되고, "무엇인지" 를 정하는 문서만 된다.
+회사가 운영하는 도메인이라도 그 회사가 그 개념의 출처면 허용한다. 그 반대로,
+같은 회사의 블로그 글은 여전히 안 된다.
+
+- `scrumguides.org` — Scrum Guide (Schwaber·Sutherland). Sprint·Retrospective·Definition of Done
+- `kanbanguides.org` — Kanban Guide
+- `agilemanifesto.org` — Agile 선언문과 12원칙
+- `12factor.net` — Twelve-Factor App 원전
+- `sre.google/sre-book`, `sre.google/workbook` — Google SRE Book. SLI·SLO·SLA·Error Budget·Postmortem 의 정의 원본
+- `netpromotersystem.com` — Bain. NPS 를 만든 곳의 산식 문서
+
+**이 항목으로 통과시킬 수 없는 것들.** 아래는 원전이 기업 블로그·기고문·단행본이라
+1차 출처를 세울 수 없다. 후보에서 버렸고, 없는 근거를 만들어 넣지 않는다.
+
+- RICE 우선순위 (Intercom 블로그)
+- Jobs to be Done (Christensen, 단행본·HBR 기고)
+- Design Thinking (IDEO·d.school 교육 자료)
 
 ## 제외
 

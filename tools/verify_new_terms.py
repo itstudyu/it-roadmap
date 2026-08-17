@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """새로 추가한 단어가 실제로 앱에 들어갔는지 검사한다.
 
-    python3 tools/verify_new_terms.py --expect 2
+    python3 tools/verify_new_terms.py --expect 2     # 루틴: 회당 2편
+    python3 tools/verify_new_terms.py --expect 21    # 사람: 권 단위 배치
 
 자동 수집 루틴의 마지막 관문이다. 루틴은 사람이 안 보는 새벽에 돌고 결과를
 바로 main 에 올리므로, "빌드가 성공했다"는 것만으로는 부족하다.
+
+대량 추가에도 같은 관문을 쓴다. `--expect` 에 배치 편수를 준다.
 
 build.py 는 FOLDER_TO_BOOK 에 없는 폴더의 단어를 제외하고도 0 을 반환한다.
 제외 사유는 stderr 로만 흘러간다. 그래서 루틴이 실수로 content/새폴더/ 를
@@ -123,6 +126,12 @@ REQUIRE = "examples,aim,loop,even"
 
 
 def check_template(paths: list[str]) -> tuple[bool, str]:
+    """새 파일 전부를 검사하고, 걸린 것은 **전부** 사유까지 찍는다.
+
+    한 번에 2편을 넣던 시절에는 실패를 한 줄로 요약해도 됐다. 배치로 20~25편을
+    넣으면 그러면 못 쓴다 — 5편이 걸렸을 때 첫 파일의 두 줄만 보이면, 고치고
+    다시 돌리고 다음 실패를 만나는 짓을 다섯 번 해야 한다. 한 번에 다 보여준다.
+    """
     bad = []
     for p in paths:
         r = subprocess.run(
@@ -135,8 +144,13 @@ def check_template(paths: list[str]) -> tuple[bool, str]:
             cwd=ROOT, capture_output=True, text=True,
         )
         if r.returncode != 0:
-            bad.append(f"{p}: {r.stdout.strip().splitlines()[:2]}")
-    return (not bad), "; ".join(bad)
+            bad.append(p)
+            sys.stderr.write("\n  ✗ " + p + "\n")
+            for line in (r.stdout + r.stderr).strip().splitlines():
+                sys.stderr.write("      " + line + "\n")
+    if bad:
+        return False, f"{len(bad)}/{len(paths)}편이 걸렸다 (사유는 위에)"
+    return True, ""
 
 
 def check_count(expect: int) -> int:
