@@ -1,5 +1,8 @@
-# 대량 추가 후보 233편. docs/VOCAB-EXPANSION-PLAN.md 의 기계 판독본.
+# 대량 추가 후보 230편. docs/VOCAB-EXPANSION-PLAN.md 의 기계 판독본.
 # 열: 권	제목(H1 영문)	읽기(한글)
+# 버린 것 3편: RICE · Jobs to be Done · Design Thinking
+#   원전이 기업 블로그·단행본이라 1차 출처를 세울 수 없다.
+#   사유는 tools/sources.allowlist.md 의 「방법론 · 실천법의 규범 문서」 절에 있다.
 cs	Deadlock	교착 상태
 cs	Mutex vs Semaphore	뮤텍스와 세마포어
 cs	Race Condition	경쟁 상태
@@ -220,11 +223,8 @@ pm	DAU MAU	일간 활성 사용자
 pm	Cohort Analysis	코호트 분석
 pm	Conversion Rate	전환율
 pm	NPS	순 추천 지수
-pm	RICE	RICE 우선순위
-pm	Jobs to be Done	할 일 이론
 pm	Value Proposition	가치 제안
 pm	PRD	제품 요구사항 문서
-pm	Design Thinking	디자인 씽킹
 pm	Usability Test	사용성 테스트
 pm	Kanban	칸반
 pm	Retrospective	회고
