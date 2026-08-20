@@ -24,6 +24,43 @@ window.App = (function () {
   var lastPath = null;
   var goingBack = false;
 
+  /* 화면이 어느 쪽에서 미끄러져 들어올지, 스크롤을 복원할지 새로 시작할지를
+     가르는 값이다. 그런데 "지금 뒤로 가는 중인가" 는 브라우저가 안 알려준다.
+
+     popstate 로 판정하면 안 된다 — 앞으로 가는 해시 이동에도 똑같이 뜨고,
+     hashchange 보다 먼저 뜬다. 실측으로 앞으로 네 번 이동한 화면이 전부
+     뒤로 방향으로 그려졌고, 앞으로 갔는데 옛 스크롤 자리로 돌아갔다.
+
+     그래서 두 갈래로 정한다.
+       ① 우리가 일으킨 이동(navigate·back) — 방향을 우리가 안다. pendingDir.
+       ② 밖에서 온 이동(OS·브라우저 뒤로/앞으로) — 이력 항목마다 번호를
+          찍어 두고, 도착한 항목의 번호가 떠난 항목보다 작으면 뒤로다.
+          방금 민 새 항목은 번호가 없으므로(0) 앞으로다. */
+  var pendingDir = null;
+  var navSeq = 0;
+  var lastSeq = 0;
+
+  function seqOf(state) {
+    return state && typeof state.seq === "number" ? state.seq : 0;
+  }
+
+  /* 지금 이력 항목에 번호를 찍는다. 이미 번호가 있으면(뒤로 와서 다시 보는
+     항목이면) 그대로 두고 기준만 옮긴다 — 다시 찍으면 순서가 뒤집힌다. */
+  function stampSeq() {
+    var seq = seqOf(history.state);
+    if (!seq) {
+      navSeq += 1;
+      seq = navSeq;
+      try {
+        history.replaceState({ seq: seq }, "");
+      } catch (err) {
+        /* file:// 이나 사생활 보호 모드에서 막힐 수 있다. 막히면 방향 판정만
+           둔해지고 화면은 그대로 그려진다. */
+      }
+    }
+    lastSeq = seq;
+  }
+
   function register(pattern, render) {
     routes[pattern] = render;
   }
@@ -68,7 +105,8 @@ window.App = (function () {
     return best;
   }
 
-  function navigate(path, replace) {
+  function navigate(path, replace, dir) {
+    pendingDir = dir || "forward";
     if (replace) {
       location.replace("#" + path);
     } else {
@@ -76,13 +114,32 @@ window.App = (function () {
     }
   }
 
-  function back() {
-    goingBack = true;
-    if (history.length > 1) {
-      history.back();
-    } else {
-      navigate("/home");
+  /* 이 화면의 한 단계 위. 상단바의 ← 가 가는 곳이다.
+
+     history.back() 을 쓰면 안 된다. ← 는 계층을 올라가는 모양인데 이력을
+     되감으면 다른 일을 한다 — 단어를 다섯 개 넘겨 본 사람은 목록으로
+     나가려고 다섯 번 눌러야 한다(실측: 여섯 번 이동에 이력 항목 여덟 개).
+     게다가 history.length 는 이 앱의 이력이 아니라 그 탭 전체를 세므로,
+     다른 페이지를 거쳐 들어온 사람은 ← 한 번에 앱 밖으로 나간다.
+
+     OS·브라우저 뒤로가기는 지금처럼 이력을 되감는다. 둘이 서로 다른
+     일을 맡는 것이 맞다 — 하나는 "위로", 하나는 "아까 그 화면으로". */
+  function parentOf(path) {
+    var term = path.match(/^\/term\/(.+)$/);
+    if (term) {
+      var found = window.Store.termById(decodeParam(term[1]));
+      return found ? "/books/" + found.bookId : "/books";
     }
+    if (/^\/books\/.+/.test(path)) return "/books";
+    return "/home";
+  }
+
+  function back() {
+    var here = currentPath();
+    var up = parentOf(here);
+    // ← 는 이력을 쌓지 않는다. 위로 올라간 자리에서 OS 뒤로가기를 누르면
+    // 방금 올라온 화면으로 되돌아가는 고리가 생기기 때문이다.
+    if (up !== here) navigate(up, true, "back");
   }
 
   /* 탭바는 최상위 화면에서만 보인다.
@@ -129,6 +186,16 @@ window.App = (function () {
   function render() {
     var path = currentPath();
 
+    // 방향은 여기 한 곳에서만 정한다. 우리가 일으킨 이동이면 그 방향을 쓰고,
+    // 밖에서 온 이동이면 이력 번호로 가른다.
+    if (pendingDir) {
+      goingBack = pendingDir === "back";
+      pendingDir = null;
+    } else {
+      var seq = seqOf(history.state);
+      goingBack = seq !== 0 && seq < lastSeq;
+    }
+
     // 떠나는 화면의 스크롤 위치를 기억해 둔다. 뒤로 왔을 때 그 자리에 있어야 한다.
     if (lastPath) scrollMemory[lastPath] = window.scrollY;
 
@@ -160,7 +227,7 @@ window.App = (function () {
     }
 
     lastPath = path;
-    goingBack = false;
+    stampSeq();
 
     if (typeof found.mounted === "function") found.mounted();
     document.dispatchEvent(new CustomEvent("screen:rendered", { detail: { path: path } }));
@@ -219,7 +286,6 @@ window.App = (function () {
     initTheme();
     document.addEventListener("click", handleClick);
     window.addEventListener("hashchange", render);
-    window.addEventListener("popstate", function () { goingBack = true; });
 
     on("back", back);
     on("theme", toggleTheme);
