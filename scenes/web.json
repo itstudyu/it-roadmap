@@ -1,0 +1,1049 @@
+{
+  "web--accessibility": {
+    "alt": "세 컷 — 마우스를 전제한 화면 앞에서 막히던 사람이, 잴 수 있는 기준대로 길이 나자 키보드로도 닿게 되는 이야기",
+    "cuts": [
+      {
+        "caption": "탭 키가 안 닿는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad", "tag": {"text": "키보드만 쓴다", "tone": "blue"}},
+          {"part": "벽", "slot": "mid", "face": "none", "tag": {"text": "마우스 전용", "tone": "plain"}},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "mid", "head": false},
+        "mark": "x"
+      },
+      {
+        "caption": "기준대로 길을 낸다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "문", "slot": "mid", "face": "none", "tag": {"text": "잴 수 있는 기준", "tone": "blue"}},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ]
+      },
+      {
+        "caption": "누구든 닿는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy", "tag": {"text": "키보드만 쓴다", "tone": "plain"}},
+          {"part": "문", "slot": "mid", "face": "none", "tag": {"text": "잴 수 있는 기준", "tone": "plain"}},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "mid", "payload": {"text": "키보드로", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "web--api-versioning": {
+    "alt": "세 컷 — 규격을 고치자 깨지던 옛 앱이, 번호를 나눠 옛 길을 남겨 두니 그 길로 그대로 다니게 되는 이야기",
+    "cuts": [
+      {
+        "caption": "고치니 깨진다",
+        "actors": [
+          {"part": "폰", "slot": "left", "face": "sad"},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "head": false,
+                 "payload": {"text": "옛 규격", "tone": "blue"}},
+        "mark": "x"
+      },
+      {
+        "caption": "번호를 나눈다",
+        "actors": [
+          {"part": "폰", "slot": "left", "face": "flat"},
+          {"part": "표지판", "slot": "mid", "face": "none", "tag": {"text": "v1 · v2", "tone": "blue"}},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ]
+      },
+      {
+        "caption": "옛 앱은 v1 로",
+        "actors": [
+          {"part": "폰", "slot": "left", "face": "happy"},
+          {"part": "표지판", "slot": "mid", "face": "none", "tag": {"text": "v1 · v2", "tone": "plain"}},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "mid", "payload": {"text": "옛 규격", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "web--backend": {
+    "alt": "세 컷 — 화면에서 고친 값이 그대로 통하던 것이, 서버가 다시 재고 제값만 남기면서 막히는 이야기",
+    "cuts": [
+      {
+        "caption": "고쳐 보내도 된다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "서버", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "1원 결제", "tone": "blue"}}
+      },
+      {
+        "caption": "서버가 다시 잰다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "돋보기", "slot": "mid", "face": "none"},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "mid", "payload": {"text": "1원", "tone": "blue"}}
+      },
+      {
+        "caption": "고친 값은 버린다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "돋보기", "slot": "mid", "face": "none"},
+          {"part": "서버", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "mid", "to": "right", "payload": {"text": "제값", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "web--browser-rendering": {
+    "alt": "세 컷 — 글자로 온 문서를 브라우저가 먼저 자리부터 재고, 그다음에 칠해 화면 픽셀로 바꾸는 이야기",
+    "cuts": [
+      {
+        "caption": "글자만 왔다",
+        "actors": [
+          {"part": "문서", "slot": "left", "face": "none", "tag": {"text": "글자", "tone": "blue", "at": "above"}},
+          {"part": "컴퓨터", "slot": "right", "face": "sad"}
+        ]
+      },
+      {
+        "caption": "자리부터 잰다",
+        "actors": [
+          {"part": "문서", "slot": "left", "face": "none"},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "어디에 얼마나", "tone": "blue"}}
+      },
+      {
+        "caption": "그다음에 칠한다",
+        "actors": [
+          {"part": "문서", "slot": "left", "face": "none"},
+          {"part": "컴퓨터", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "픽셀", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "web--code-splitting": {
+    "alt": "세 컷 — 첫 화면에 안 쓸 코드까지 통째로 받던 것이, 조각으로 나뉘어 첫 화면 몫만 먼저 오고 나머지는 그 화면을 열 때 오는 이야기",
+    "cuts": [
+      {
+        "caption": "다 받아야 뜬다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "전부 한 덩어리", "tone": "blue"}}
+      },
+      {
+        "caption": "나눠서 먼저 준다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "첫 화면 몫", "tone": "blue"}}
+      },
+      {
+        "caption": "그 화면을 열 때",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "그 화면 몫", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "web--core-web-vitals": {
+    "alt": "세 컷 — 빠르다는 말이 사람마다 달랐던 것이, 잴 것 셋을 못 박고 실제 방문에서 재면서 판정이 갈리는 이야기",
+    "cuts": [
+      {
+        "caption": "빠르다가 제각각",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat", "tag": {"text": "?", "tone": "blue-dash"}},
+          {"part": "사람", "slot": "right", "face": "sad"}
+        ],
+        "bubble": {"slot": "right", "text": "빠른 건가?"}
+      },
+      {
+        "caption": "잴 것 셋을 정한다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "장부", "slot": "mid", "face": "none", "tag": {"text": "로딩·반응·흔들림", "tone": "blue"}},
+          {"part": "사람", "slot": "right", "face": "flat"}
+        ]
+      },
+      {
+        "caption": "실제 방문에서 잰다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "장부", "slot": "mid", "face": "none", "tag": {"text": "로딩·반응·흔들림", "tone": "plain"}},
+          {"part": "사람", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "left", "to": "mid", "payload": {"text": "2.4초", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "web--cors": {
+    "alt": "세 컷 — 다른 출처라 응답을 못 읽던 브라우저가, 서버가 허용 출처를 적어 보내자 그 응답을 읽게 되는 이야기",
+    "cuts": [
+      {
+        "caption": "다른 출처는 막는다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right", "head": false,
+                 "payload": {"text": "응답", "tone": "blue"}},
+        "mark": "x"
+      },
+      {
+        "caption": "서버가 열어 준다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "happy"},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "이 출처 괜찮다", "tone": "blue"}}
+      },
+      {
+        "caption": "그 출처만 읽힌다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "응답", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "web--csr": {
+    "alt": "세 컷 — 서버가 매번 완성 화면을 통째로 보내던 것이, 부품만 보내면 브라우저가 그것으로 화면을 조립하게 되는 이야기",
+    "cuts": [
+      {
+        "caption": "매번 통째로 온다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "완성 화면", "tone": "blue"}}
+      },
+      {
+        "caption": "부품만 보낸다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "부품과 설명서", "tone": "blue"}}
+      },
+      {
+        "caption": "브라우저가 그린다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "happy", "tag": {"text": "조립한 화면", "tone": "blue"}}
+        ]
+      }
+    ]
+  },
+
+  "web--css": {
+    "alt": "세 컷 — 생김새가 문서마다 박혀 하나씩 다 고쳐야 하던 것이, 규칙을 한 장으로 떼어내자 한 줄로 전부 바뀌는 이야기",
+    "cuts": [
+      {
+        "caption": "문서마다 고친다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "문서", "slot": "mid", "face": "none", "who": "내용",
+           "tag": {"text": "색이 안에 박힘", "tone": "blue"}}
+        ]
+      },
+      {
+        "caption": "생김새를 떼어낸다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "문서", "slot": "mid", "face": "none", "who": "내용"},
+          {"part": "문서", "slot": "right", "face": "none", "who": "규칙"}
+        ],
+        "move": {"from": "mid", "to": "right", "payload": {"text": "생김새", "tone": "blue"}}
+      },
+      {
+        "caption": "한 줄이 다 바꾼다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "문서", "slot": "mid", "face": "none", "who": "내용"},
+          {"part": "문서", "slot": "right", "face": "none", "who": "규칙"}
+        ],
+        "move": {"from": "right", "to": "mid", "payload": {"text": "새 색", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "web--dom": {
+    "alt": "세 컷 — 글자 뭉치에서는 고칠 자리를 못 짚던 프로그램이, 문서가 마디로 갈리자 그 마디 하나만 고치게 되는 이야기",
+    "cuts": [
+      {
+        "caption": "자리를 못 짚는다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "sad"},
+          {"part": "문서", "slot": "right", "face": "none", "tag": {"text": "글자 뭉치", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "right", "head": false,
+                 "payload": {"text": "셋째 문단만", "tone": "blue"}},
+        "mark": "x"
+      },
+      {
+        "caption": "마디로 갈라 둔다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "문서", "slot": "right", "face": "none", "tag": {"text": "마디로 갈림", "tone": "blue"}}
+        ]
+      },
+      {
+        "caption": "그 마디만 고친다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "happy"},
+          {"part": "문서", "slot": "right", "face": "none", "tag": {"text": "마디로 갈림", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "셋째 문단만", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "web--frontend": {
+    "alt": "세 컷 — 화면과 서버가 한 덩어리라 색 하나를 고쳐도 함께 올리던 것이, 화면을 기기 쪽으로 떼어내자 서버는 데이터만 주게 되는 이야기",
+    "cuts": [
+      {
+        "caption": "함께 다시 올린다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "sad", "tag": {"text": "화면까지 한 몸", "tone": "blue"}},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ]
+      },
+      {
+        "caption": "화면을 떼어낸다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "화면 쪽 코드", "tone": "blue"}}
+      },
+      {
+        "caption": "서버는 데이터만",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "happy", "tag": {"text": "화면", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "데이터", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "web--full-stack": {
+    "alt": "세 컷 — 서버 쪽은 남의 일이라 필드 하나 더하는 데 막히던 것이, 한 사람이 양쪽을 다 맡자 화면까지 혼자 끝내는 이야기",
+    "cuts": [
+      {
+        "caption": "서버 쪽은 남의 일",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "사람", "slot": "mid", "face": "sad"},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "mid", "to": "right", "head": false,
+                 "payload": {"text": "필드", "tone": "blue"}},
+        "mark": "x"
+      },
+      {
+        "caption": "양쪽을 다 맡는다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "사람", "slot": "mid", "face": "flat"},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "mid", "to": "right", "payload": {"text": "필드", "tone": "blue"}}
+      },
+      {
+        "caption": "혼자 끝낸다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "사람", "slot": "mid", "face": "happy"},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "mid", "to": "left", "payload": {"text": "화면", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "web--graphql": {
+    "alt": "세 컷 — 정해진 응답이 안 쓸 필드까지 통째로 오던 것이, 필요한 필드를 적어 보내자 적은 것만 한 번에 오는 이야기",
+    "cuts": [
+      {
+        "caption": "안 쓸 것까지 온다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "sad"},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "right", "to": "left", "payload": {"text": "정보 전부", "tone": "blue"}}
+      },
+      {
+        "caption": "쓸 것만 적어 낸다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "이름 · 이메일", "tone": "blue"}}
+      },
+      {
+        "caption": "한 번에 그것만",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "happy"},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "right", "to": "left", "payload": {"text": "이름 · 이메일", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "web--grpc": {
+    "alt": "세 컷 — 글자로 다 담아 크고 앞 요청이 끝나야 뒤가 가던 것이, 칸이 정해진 서식을 미리 나눠 갖자 칸 값만 짧게 오가는 이야기",
+    "cuts": [
+      {
+        "caption": "글자라 크고 밀린다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "sad"},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "글자로 다 담음", "tone": "blue"}}
+      },
+      {
+        "caption": "서식을 나눠 갖는다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "문서", "slot": "mid", "face": "none", "tag": {"text": "칸이 정해짐", "tone": "blue"}},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ]
+      },
+      {
+        "caption": "짧아지고 안 밀린다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "happy"},
+          {"part": "문서", "slot": "mid", "face": "none", "tag": {"text": "칸이 정해짐", "tone": "plain"}},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "mid", "to": "right", "payload": {"text": "칸 값", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "web--html": {
+    "alt": "세 컷 — 글자 뭉치여서 무엇이 제목인지 알 수 없던 문서에, 표시를 달아 두자 기계가 제목만 골라내는 이야기",
+    "cuts": [
+      {
+        "caption": "무엇인지 모른다",
+        "actors": [
+          {"part": "문서", "slot": "left", "face": "none", "tag": {"text": "글자 뭉치", "tone": "blue", "at": "above"}},
+          {"part": "컴퓨터", "slot": "right", "face": "sad"}
+        ]
+      },
+      {
+        "caption": "표시를 달아 둔다",
+        "actors": [
+          {"part": "문서", "slot": "left", "face": "none", "tag": {"text": "제목 · 목록", "tone": "blue", "at": "above"}},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ]
+      },
+      {
+        "caption": "골라낼 수 있다",
+        "actors": [
+          {"part": "문서", "slot": "left", "face": "none", "tag": {"text": "제목 · 목록", "tone": "plain", "at": "above"}},
+          {"part": "컴퓨터", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "제목만", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "web--http-caching": {
+    "alt": "세 컷 — 서버가 말이 없어 캐시가 보관 기간을 짐작하던 것이, 응답에 기한을 적어 보내자 그 기한대로 들고 있게 되는 이야기",
+    "cuts": [
+      {
+        "caption": "안 적으면 짐작한다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "sad"},
+          {"part": "저장통", "slot": "right", "face": "flat", "tag": {"text": "멋대로 짐작", "tone": "blue"}}
+        ]
+      },
+      {
+        "caption": "기한을 적어 준다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "저장통", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "10분까지", "tone": "blue"}}
+      },
+      {
+        "caption": "그때까지 들고 있다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "저장통", "slot": "right", "face": "happy", "tag": {"text": "10분까지", "tone": "blue"}}
+        ]
+      }
+    ]
+  },
+
+  "web--http-status-code": {
+    "alt": "세 컷 — 결과가 문장으로만 와 프로그램이 판단하지 못하던 것이, 세 자리 숫자를 함께 받고 그 숫자대로 다음 일을 하는 이야기",
+    "cuts": [
+      {
+        "caption": "기계는 못 가린다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "처리되었습니다", "tone": "blue"}}
+      },
+      {
+        "caption": "숫자를 함께 준다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "401", "tone": "blue"}}
+      },
+      {
+        "caption": "4면 보낸 쪽 잘못",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "happy", "tag": {"text": "로그인 화면", "tone": "blue"}}
+        ]
+      }
+    ]
+  },
+
+  "web--hydration": {
+    "alt": "세 컷 — 서버가 보낸 화면이 보이기만 하고 눌리지 않던 것이, 그것을 지우지 않고 동작만 얹자 그대로 살아나는 이야기",
+    "cuts": [
+      {
+        "caption": "화면은 벌써 떴다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "sad", "tag": {"text": "눌러도 안 됨", "tone": "blue"}}
+        ]
+      },
+      {
+        "caption": "지우지 않고 얹는다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "동작", "tone": "blue"}}
+      },
+      {
+        "caption": "그대로 살아난다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "happy", "tag": {"text": "눌린다", "tone": "blue"}}
+        ]
+      }
+    ]
+  },
+
+  "web--idempotency-key": {
+    "alt": "세 컷 — 답이 끊겨 다시 보낸 결제가 두 번 처리되던 것이, 요청에 번호표를 붙이자 같은 표는 한 번만 처리되는 이야기",
+    "cuts": [
+      {
+        "caption": "답 끊겨 또 보냈다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "sad"},
+          {"part": "서버", "slot": "right", "face": "flat", "tag": {"text": "결제 둘", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "결제", "tone": "blue"}}
+      },
+      {
+        "caption": "표를 붙여 보낸다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "서버", "slot": "right", "face": "flat", "tag": {"text": "결제 하나", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "7번표 · 결제", "tone": "blue"}}
+      },
+      {
+        "caption": "또 와도 하나뿐",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "서버", "slot": "right", "face": "happy", "tag": {"text": "결제 하나", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "7번표 · 또", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "web--javascript": {
+    "alt": "세 컷 — 화면을 바꾸려면 문서를 서버에서 다시 받아야 하던 것이, 그 왕복 없이 받아 둔 문서를 그 자리에서 고치게 되는 이야기",
+    "cuts": [
+      {
+        "caption": "고치려면 또 받는다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "right", "to": "left", "payload": {"text": "문서 다시 줘", "tone": "blue"}}
+      },
+      {
+        "caption": "안 다녀와도 된다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "right", "to": "left", "head": false,
+                 "payload": {"text": "문서 다시 줘", "tone": "blue"}},
+        "mark": "x"
+      },
+      {
+        "caption": "받은 것을 고친다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "happy", "tag": {"text": "그 자리서 바뀜", "tone": "blue"}}
+        ]
+      }
+    ]
+  },
+
+  "web--local-storage-session-storage": {
+    "alt": "세 컷 — 담아 둔 값이 요청마다 서버로 딸려 가던 것이, 브라우저 안 두 통에 담기면서 서버로 가지 않게 되는 이야기",
+    "cuts": [
+      {
+        "caption": "요청마다 딸려 간다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "sad"},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "담아 둔 값", "tone": "blue"}}
+      },
+      {
+        "caption": "브라우저 안에 둔다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "저장통", "slot": "mid", "face": "flat", "tag": {"text": "남는 통 · 탭 통", "tone": "plain"}},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "mid", "payload": {"text": "그 값", "tone": "blue"}}
+      },
+      {
+        "caption": "서버로는 안 간다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "happy"},
+          {"part": "저장통", "slot": "mid", "face": "flat", "tag": {"text": "남는 통 · 탭 통", "tone": "blue"}},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "mid", "to": "right", "head": false},
+        "mark": "x"
+      }
+    ]
+  },
+
+  "web--middleware": {
+    "alt": "세 컷 — 처리기마다 따로 검사하다 한 곳이 빠져 뚫리던 것이, 앞에 검사 한 줄을 세우자 모든 요청이 그곳을 지나는 이야기",
+    "cuts": [
+      {
+        "caption": "한 곳이 빠졌다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "서버", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "검사 안 한 요청", "tone": "blue"}}
+      },
+      {
+        "caption": "앞에 한 줄 세운다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "문", "slot": "mid", "face": "none", "tag": {"text": "검사 한 곳에", "tone": "blue"}},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ]
+      },
+      {
+        "caption": "전부 여기를 지난다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "문", "slot": "mid", "face": "none", "tag": {"text": "검사 한 곳에", "tone": "plain"}},
+          {"part": "서버", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "left", "to": "mid", "payload": {"text": "요청", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "web--openapi": {
+    "alt": "세 컷 — 사람 말로 적힌 사용법을 읽는 쪽마다 다르게 짐작하던 것이, 기계도 읽는 정해진 꼴로 적히자 도구가 그대로 읽어 쓰는 이야기",
+    "cuts": [
+      {
+        "caption": "읽는 쪽이 짐작한다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "sad", "tag": {"text": "짐작뿐", "tone": "blue-dash"}},
+          {"part": "문서", "slot": "mid", "face": "none", "tag": {"text": "사람 말 설명", "tone": "plain"}},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ]
+      },
+      {
+        "caption": "정해진 꼴로 적는다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "문서", "slot": "mid", "face": "none", "tag": {"text": "기계도 읽는 꼴", "tone": "blue"}},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ]
+      },
+      {
+        "caption": "도구가 그대로 쓴다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "happy"},
+          {"part": "문서", "slot": "mid", "face": "none", "tag": {"text": "기계도 읽는 꼴", "tone": "plain"}},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "mid", "to": "left", "payload": {"text": "사용법", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "web--pagination": {
+    "alt": "세 컷 — 만 건짜리 목록이 통째로 와 화면이 늦게 뜨던 것이, 스무 건씩 쪽으로 잘려 필요한 쪽만 그때그때 오는 이야기",
+    "cuts": [
+      {
+        "caption": "첫 화면이 늦다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "1만 건 전부", "tone": "blue"}}
+      },
+      {
+        "caption": "스무 건씩 자른다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "1쪽", "tone": "blue"}}
+      },
+      {
+        "caption": "달라면 그때 준다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "2쪽", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "web--pwa": {
+    "alt": "세 컷 — 연결이 끊기면 아무것도 못 열던 웹앱이, 기기에 설치되고 나서는 끊긴 채로도 열리는 이야기",
+    "cuts": [
+      {
+        "caption": "받아야만 열린다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "폰", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right", "head": false,
+                 "payload": {"text": "화면", "tone": "blue"}},
+        "mark": "x"
+      },
+      {
+        "caption": "기기에 설치한다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "폰", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "웹으로 만든 앱", "tone": "blue"}}
+      },
+      {
+        "caption": "끊겨도 열린다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "폰", "slot": "right", "face": "happy", "tag": {"text": "설치돼 있다", "tone": "blue"}}
+        ],
+        "move": {"from": "left", "to": "right", "head": false},
+        "mark": "x"
+      }
+    ]
+  },
+
+  "web--responsive-design": {
+    "alt": "세 컷 — 폭을 숫자로 못 박아 좁은 화면에서 넘치던 배치가, 늘고 줄게 짜이자 어느 폭에도 맞춰 서는 이야기",
+    "cuts": [
+      {
+        "caption": "좁은 화면에 넘친다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat", "tag": {"text": "960px 고정", "tone": "plain"}},
+          {"part": "폰", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right", "head": false,
+                 "payload": {"text": "960px 배치", "tone": "blue"}},
+        "mark": "x"
+      },
+      {
+        "caption": "숫자를 비율로 짠다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "폰", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "늘고 주는 배치", "tone": "blue"}}
+      },
+      {
+        "caption": "그 폭에 맞게 선다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "폰", "slot": "right", "face": "happy", "tag": {"text": "폭에 맞춰짐", "tone": "blue"}}
+        ]
+      }
+    ]
+  },
+
+  "web--rest": {
+    "alt": "세 컷 — 주소 짓는 법이 제각각이라 문서를 다 읽어야 하던 것이, 주소는 대상만 가리키고 동작은 메서드가 맡게 되자 처음 보는 것도 짐작되는 이야기",
+    "cuts": [
+      {
+        "caption": "문서를 다 읽어야",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "sad"},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "/user/fetch", "tone": "blue"}}
+      },
+      {
+        "caption": "동작은 메서드로",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "표지판", "slot": "mid", "face": "none", "tag": {"text": "주소 · 메서드", "tone": "blue"}},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ]
+      },
+      {
+        "caption": "처음 봐도 짐작한다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "happy"},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "GET /users", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "web--same-origin-policy": {
+    "alt": "세 컷 — 한 브라우저 안 남남인 페이지가 서로의 본문을 읽던 것이, 출처로 담이 그어지자 응답만 못 읽게 되는 이야기",
+    "cuts": [
+      {
+        "caption": "본문이 새어 나간다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat", "who": "남의 쪽"},
+          {"part": "컴퓨터", "slot": "right", "face": "sad", "who": "내 쪽"}
+        ],
+        "move": {"from": "right", "to": "left", "payload": {"text": "메일 본문", "tone": "blue"}}
+      },
+      {
+        "caption": "출처로 담을 긋는다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat", "who": "남의 쪽"},
+          {"part": "벽", "slot": "mid", "face": "none", "tag": {"text": "출처가 다르다", "tone": "blue"}},
+          {"part": "컴퓨터", "slot": "right", "face": "flat", "who": "내 쪽"}
+        ]
+      },
+      {
+        "caption": "읽기만 막는다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat", "who": "남의 쪽"},
+          {"part": "컴퓨터", "slot": "right", "face": "happy", "who": "내 쪽"}
+        ],
+        "move": {"from": "right", "to": "left", "head": false,
+                 "payload": {"text": "메일 본문", "tone": "blue"}},
+        "mark": "x"
+      }
+    ]
+  },
+
+  "web--service-worker": {
+    "alt": "세 컷 — 연결이 끊기면 아무것도 못 열던 웹앱이, 사이에 요청을 가로채는 자리를 두자 받아 둔 것을 밖에 나가지 않고 받는 이야기",
+    "cuts": [
+      {
+        "caption": "끊기면 못 연다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "sad"},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "head": false,
+                 "payload": {"text": "화면 주세요", "tone": "blue"}},
+        "mark": "x"
+      },
+      {
+        "caption": "사이에 자리를 둔다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "저장통", "slot": "mid", "face": "flat", "tag": {"text": "받아 둔 것", "tone": "blue"}},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ]
+      },
+      {
+        "caption": "나가지 않고 준다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "happy"},
+          {"part": "저장통", "slot": "mid", "face": "flat", "tag": {"text": "받아 둔 것", "tone": "plain"}},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "mid", "to": "left", "payload": {"text": "화면", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "web--soap": {
+    "alt": "세 컷 — 메시지 틀이 제품마다 달라 읽지 못하던 것이, 같은 봉투에 담고 겉장에 다룰 규칙을 적자 서로 다른 시스템이 읽어 내는 이야기",
+    "cuts": [
+      {
+        "caption": "틀이 달라 막힌다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "서버", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right", "head": false,
+                 "payload": {"text": "제 틀대로", "tone": "blue"}},
+        "mark": "x"
+      },
+      {
+        "caption": "같은 봉투에 담는다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "소포", "slot": "mid", "face": "none", "tag": {"text": "겉장 · 본문", "tone": "blue"}},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ]
+      },
+      {
+        "caption": "겉장부터 읽는다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "소포", "slot": "mid", "face": "none", "tag": {"text": "겉장 · 본문", "tone": "plain"}},
+          {"part": "서버", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "mid", "to": "right", "payload": {"text": "봉투", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "web--spa": {
+    "alt": "세 컷 — 링크를 누를 때마다 페이지를 통째로 다시 받아 깜빡이던 것이, 한 장만 받아 두고 데이터만 받아 바뀔 데만 바꾸는 이야기",
+    "cuts": [
+      {
+        "caption": "누를 때마다 깜빡",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "페이지 통째로", "tone": "blue"}}
+      },
+      {
+        "caption": "한 장만 받아 둔다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "첫 한 장", "tone": "blue"}}
+      },
+      {
+        "caption": "바뀔 데만 바꾼다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "데이터만", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "web--ssg": {
+    "alt": "세 컷 — 같은 화면을 요청마다 다시 만들던 것이, 미리 만들어 쌓아 두자 요청에는 집어서 내주기만 하면 되는 이야기",
+    "cuts": [
+      {
+        "caption": "같은 걸 또 만든다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "sad"},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "그때 조립", "tone": "blue"}}
+      },
+      {
+        "caption": "미리 만들어 둔다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "문서", "slot": "mid", "face": "none", "tag": {"text": "만들어 둔 화면", "tone": "blue"}},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ]
+      },
+      {
+        "caption": "집어서 내준다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "문서", "slot": "mid", "face": "none", "tag": {"text": "만들어 둔 화면", "tone": "plain"}},
+          {"part": "컴퓨터", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "mid", "to": "right", "payload": {"text": "화면", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "web--ssr": {
+    "alt": "세 컷 — 빈 화면이 먼저 와 글자가 늦게 뜨던 것이, 서버가 데이터를 채워 보내자 받자마자 보이는 이야기",
+    "cuts": [
+      {
+        "caption": "받아도 비어 있다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "빈 화면", "tone": "blue"}}
+      },
+      {
+        "caption": "서버가 채워 보낸다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "happy"},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "채운 화면", "tone": "blue"}}
+      },
+      {
+        "caption": "받자마자 보인다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "happy", "tag": {"text": "글자까지 보임", "tone": "blue"}}
+        ]
+      }
+    ]
+  },
+
+  "web--webhook": {
+    "alt": "세 컷 — 언제 끝날지 몰라 계속 물어봐야 알던 것이, 알릴 주소를 미리 적어 두자 일이 생긴 순간 한 번 알려 오는 이야기",
+    "cuts": [
+      {
+        "caption": "계속 물어야 안다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "sad"},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "아직인가요?", "tone": "blue"}}
+      },
+      {
+        "caption": "주소를 적어 둔다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "여기로 알려 줘", "tone": "blue"}}
+      },
+      {
+        "caption": "생긴 순간 한 번",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "happy"},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "right", "to": "left", "payload": {"text": "끝났다", "tone": "blue"}}
+      }
+    ]
+  }
+}

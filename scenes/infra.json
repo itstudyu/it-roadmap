@@ -1,0 +1,468 @@
+{
+  "infra--apache": {
+    "alt": "세 컷 — 파일은 있는데 건네줄 이가 없던 것이, 웹 서버가 요청받은 주소로 파일을 골라 페이지로 돌려주는 이야기",
+    "cuts": [
+      {
+        "caption": "건네줄 이가 없다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "sad"},
+          {"part": "문서", "slot": "right", "face": "none"}
+        ],
+        "move": {"from": "left", "to": "right", "head": false,
+                 "payload": {"text": "/about", "tone": "blue"}},
+        "mark": "x"
+      },
+      {
+        "caption": "주소로 고른다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "서버", "slot": "mid", "face": "happy"},
+          {"part": "문서", "slot": "right", "face": "none"}
+        ],
+        "move": {"from": "left", "to": "mid",
+                 "payload": {"text": "/about", "tone": "blue"}},
+        "bubble": {"slot": "mid", "text": "이 파일!"}
+      },
+      {
+        "caption": "화면이 뜬다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "happy"},
+          {"part": "서버", "slot": "mid", "face": "flat"},
+          {"part": "문서", "slot": "right", "face": "none"}
+        ],
+        "move": {"from": "mid", "to": "left",
+                 "payload": {"text": "about.html", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "infra--bare-metal": {
+    "alt": "세 컷 — 명령이 가운데 낀 가상화 층을 거치며 깎이던 것이, 그 층을 걷어내자 하드웨어를 통째로 쓰게 되는 이야기",
+    "cuts": [
+      {
+        "caption": "거칠수록 깎인다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "sad"},
+          {"part": "문", "slot": "mid", "face": "none",
+           "tag": {"text": "가상화 층", "tone": "blue"}},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ]
+      },
+      {
+        "caption": "층을 걷어낸다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "명령", "tone": "blue"}}
+      },
+      {
+        "caption": "깎임 없이 다 쓴다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "서버", "slot": "right", "face": "happy",
+           "tag": {"text": "통째로", "tone": "plain"}}
+        ]
+      }
+    ]
+  },
+
+  "infra--ci-cd": {
+    "alt": "세 컷 — 검사를 건너뛴 코드가 그대로 나가던 것이, 올리기만 하면 도는 검사대를 거쳐 통과한 것만 배포되는 이야기",
+    "cuts": [
+      {
+        "caption": "검사를 건너뛴다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "서버", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "코드", "tone": "blue"}}
+      },
+      {
+        "caption": "올리면 검사가 돈다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "돋보기", "slot": "mid", "face": "none"},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "mid",
+                 "payload": {"text": "코드", "tone": "blue"}}
+      },
+      {
+        "caption": "통과한 것만 나간다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "돋보기", "slot": "mid", "face": "none"},
+          {"part": "서버", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "mid", "to": "right",
+                 "payload": {"text": "코드", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "infra--cron-job": {
+    "alt": "세 컷 — 사람이 매번 손으로 하다 빠뜨리던 백업이, 시각을 한 줄 적어 두자 사람 없이 그 시각마다 도는 이야기",
+    "cuts": [
+      {
+        "caption": "잊으면 그날은 빈다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "head": false,
+                 "payload": {"text": "백업", "tone": "blue"}},
+        "mark": "x"
+      },
+      {
+        "caption": "한 줄 적어 둔다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "시계", "slot": "mid", "face": "none"},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "mid",
+                 "payload": {"text": "새벽 2시", "tone": "blue"}}
+      },
+      {
+        "caption": "매일 그 시각에",
+        "actors": [
+          {"part": "시계", "slot": "mid", "face": "none"},
+          {"part": "서버", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "mid", "to": "right",
+                 "payload": {"text": "백업", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "infra--devops": {
+    "alt": "세 컷 — 개발과 운영 사이의 벽에서 멈추던 코드가, 벽을 지우고 한 팀이 맡자 배포까지 한 줄기로 이어지는 이야기",
+    "cuts": [
+      {
+        "caption": "책임이 갈린다",
+        "actors": [
+          {"part": "사람", "slot": "left", "who": "개발", "face": "sad",
+           "tag": {"text": "개발", "tone": "plain"}},
+          {"part": "벽", "slot": "mid", "face": "none"},
+          {"part": "사람", "slot": "right", "who": "운영", "face": "flat",
+           "tag": {"text": "운영", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "mid", "head": false,
+                 "payload": {"text": "코드", "tone": "blue"}},
+        "mark": "x"
+      },
+      {
+        "caption": "함께 맡는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "who": "개발", "face": "happy",
+           "tag": {"text": "개발", "tone": "plain"}},
+          {"part": "사람", "slot": "right", "who": "운영", "face": "happy",
+           "tag": {"text": "운영", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "코드", "tone": "blue"}}
+      },
+      {
+        "caption": "배포까지 한 줄기",
+        "actors": [
+          {"part": "사람", "slot": "left", "who": "개발", "face": "flat",
+           "tag": {"text": "개발", "tone": "plain"}},
+          {"part": "서버", "slot": "mid", "face": "happy"},
+          {"part": "사람", "slot": "right", "who": "운영", "face": "flat",
+           "tag": {"text": "운영", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "mid",
+                 "payload": {"text": "배포", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "infra--elastic-search": {
+    "alt": "세 컷 — 글을 처음부터 다 훑어야 하던 검색이, 넣을 때 단어를 미리 적어 둔 목록 덕에 목록만 보고 끝나는 이야기",
+    "cuts": [
+      {
+        "caption": "글을 다 훑는다",
+        "actors": [
+          {"part": "문서", "slot": "left", "face": "none"},
+          {"part": "사람", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "right", "to": "left",
+                 "payload": {"text": "검색어", "tone": "blue"}}
+      },
+      {
+        "caption": "미리 단어로 쪼갠다",
+        "actors": [
+          {"part": "문서", "slot": "left", "face": "none"},
+          {"part": "장부", "slot": "mid", "face": "none"}
+        ],
+        "move": {"from": "left", "to": "mid",
+                 "payload": {"text": "단어", "tone": "blue"}}
+      },
+      {
+        "caption": "목록만 보면 된다",
+        "actors": [
+          {"part": "문서", "slot": "left", "face": "none"},
+          {"part": "장부", "slot": "mid", "face": "none"},
+          {"part": "사람", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "right", "to": "mid",
+                 "payload": {"text": "검색어", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "infra--hypervisor": {
+    "alt": "세 컷 — 한 서버에 같이 있어 한쪽 먹통이 옆까지 번지던 것이, 칸막이로 몫을 나눠 받아 그 칸만 막히게 되는 이야기",
+    "cuts": [
+      {
+        "caption": "한 서버에 둘이다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "who": "가", "face": "flat",
+           "tag": {"text": "가", "tone": "plain"}},
+          {"part": "컴퓨터", "slot": "right", "who": "나", "face": "sad",
+           "tag": {"text": "나", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "먹통", "tone": "blue"}}
+      },
+      {
+        "caption": "칸을 나눠 준다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "who": "가", "face": "flat",
+           "tag": {"text": "가", "tone": "plain"}},
+          {"part": "벽", "slot": "mid", "face": "none",
+           "tag": {"text": "각자 몫", "tone": "blue"}},
+          {"part": "컴퓨터", "slot": "right", "who": "나", "face": "flat",
+           "tag": {"text": "나", "tone": "plain"}}
+        ]
+      },
+      {
+        "caption": "옆 칸은 멀쩡하다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "who": "가", "face": "flat",
+           "tag": {"text": "가", "tone": "plain"}},
+          {"part": "벽", "slot": "mid", "face": "none"},
+          {"part": "컴퓨터", "slot": "right", "who": "나", "face": "happy",
+           "tag": {"text": "나", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "mid", "head": false,
+                 "payload": {"text": "먹통", "tone": "blue"}},
+        "mark": "x"
+      }
+    ]
+  },
+
+  "infra--kubernetes": {
+    "alt": "세 컷 — 컨테이너가 죽을 때마다 사람이 깨어나던 것이, 원하는 개수만 적어 두자 시스템이 빈 자리를 알아서 채우는 이야기",
+    "cuts": [
+      {
+        "caption": "사람이 깨야 한다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "소포", "slot": "right", "face": "none",
+           "tag": {"text": "죽었다", "tone": "blue-dash"}}
+        ]
+      },
+      {
+        "caption": "절차가 아니라 결과",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "서버", "slot": "mid", "face": "flat"},
+          {"part": "소포", "slot": "right", "face": "none"}
+        ],
+        "move": {"from": "left", "to": "mid",
+                 "payload": {"text": "열 개 유지", "tone": "blue"}}
+      },
+      {
+        "caption": "빈 자리를 채운다",
+        "actors": [
+          {"part": "서버", "slot": "mid", "face": "happy"},
+          {"part": "소포", "slot": "right", "face": "none"}
+        ],
+        "move": {"from": "mid", "to": "right",
+                 "payload": {"text": "다시 띄움", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "infra--logging": {
+    "alt": "세 컷 — 지나간 일을 되짚을 재료가 없던 것이, 프로그램이 한 일을 그때그때 적어 두자 나중에 그 기록으로 되짚는 이야기",
+    "cuts": [
+      {
+        "caption": "되짚을 수 없다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "사람", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right", "head": false,
+                 "payload": {"text": "그때 일", "tone": "blue-dash"}},
+        "mark": "x"
+      },
+      {
+        "caption": "그때그때 적어 둔다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "장부", "slot": "mid", "face": "none"},
+          {"part": "사람", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "mid",
+                 "payload": {"text": "한 일", "tone": "blue"}}
+      },
+      {
+        "caption": "나중에 되짚는다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "장부", "slot": "mid", "face": "none"},
+          {"part": "사람", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "mid", "to": "right",
+                 "payload": {"text": "그때 일", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "infra--on-premises": {
+    "alt": "세 컷 — 밖으로 내보낼 수 없던 데이터를, 직접 산 서버를 자기 공간에 두고 담아 어디 있는지 직접 보여 주는 이야기",
+    "cuts": [
+      {
+        "caption": "밖에 둘 수 없다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "구름", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "head": false,
+                 "payload": {"text": "데이터", "tone": "blue"}},
+        "mark": "x"
+      },
+      {
+        "caption": "직접 사서 둔다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "서버", "slot": "mid", "face": "flat"},
+          {"part": "구름", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "mid",
+                 "payload": {"text": "데이터", "tone": "blue"}}
+      },
+      {
+        "caption": "어디 있는지 보인다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "서버", "slot": "mid", "face": "happy",
+           "tag": {"text": "우리 시설", "tone": "blue"}},
+          {"part": "구름", "slot": "right", "face": "flat"}
+        ]
+      }
+    ]
+  },
+
+  "infra--ttl": {
+    "alt": "세 컷 — 사람이 지워야만 없어지던 옛 값이, 넣을 때 유효 시간을 함께 적어 두자 때가 되면 저절로 빠지는 이야기",
+    "cuts": [
+      {
+        "caption": "사람이 지워야 한다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "저장통", "slot": "mid", "face": "flat",
+           "tag": {"text": "옛 값", "tone": "blue"}}
+        ]
+      },
+      {
+        "caption": "넣을 때 정해 둔다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "저장통", "slot": "mid", "face": "flat"},
+          {"part": "시계", "slot": "right", "face": "none"}
+        ],
+        "move": {"from": "left", "to": "mid",
+                 "payload": {"text": "10분", "tone": "blue"}}
+      },
+      {
+        "caption": "때가 되면 빠진다",
+        "actors": [
+          {"part": "저장통", "slot": "mid", "face": "happy",
+           "tag": {"text": "빠졌다", "tone": "blue-dash"}},
+          {"part": "시계", "slot": "right", "face": "none"}
+        ]
+      }
+    ]
+  },
+
+  "infra--vm": {
+    "alt": "세 컷 — 컴퓨터가 한 대 더 필요할 때 장비를 사야 하던 것이, 서버가 소프트웨어로 한 대를 만들어 내 따로 켜지는 이야기",
+    "cuts": [
+      {
+        "caption": "장비를 사야 생긴다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad",
+           "tag": {"text": "새 환경", "tone": "blue-dash"}},
+          {"part": "서버", "slot": "mid", "face": "flat"}
+        ]
+      },
+      {
+        "caption": "몇 분이면 뜬다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "서버", "slot": "mid", "face": "happy"},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "mid", "to": "right",
+                 "payload": {"text": "새 한 대", "tone": "blue"}}
+      },
+      {
+        "caption": "장비 없이 한 대",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "서버", "slot": "mid", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "flat",
+           "tag": {"text": "따로 켜진다", "tone": "blue"}}
+        ]
+      }
+    ]
+  },
+
+  "infra--vps": {
+    "alt": "세 컷 — 옆 손님이 몰리면 같이 느려지던 것이, 기계를 쪼개 각자 몫을 받은 뒤로는 옆이 몰려도 내 몫이 그대로인 이야기",
+    "cuts": [
+      {
+        "caption": "옆집 탓에 느려진다",
+        "actors": [
+          {"part": "사람", "slot": "left", "who": "나", "face": "sad",
+           "tag": {"text": "나", "tone": "plain"}},
+          {"part": "서버", "slot": "mid", "face": "flat"},
+          {"part": "사람", "slot": "right", "who": "옆집", "face": "flat",
+           "tag": {"text": "옆집", "tone": "plain"}}
+        ],
+        "move": {"from": "right", "to": "mid",
+                 "payload": {"text": "몰린다", "tone": "blue"}}
+      },
+      {
+        "caption": "몫을 잘라 준다",
+        "actors": [
+          {"part": "사람", "slot": "left", "who": "나", "face": "happy",
+           "tag": {"text": "나", "tone": "plain"}},
+          {"part": "서버", "slot": "mid", "face": "flat"},
+          {"part": "사람", "slot": "right", "who": "옆집", "face": "flat",
+           "tag": {"text": "옆집", "tone": "plain"}}
+        ],
+        "move": {"from": "mid", "to": "left",
+                 "payload": {"text": "내 몫", "tone": "blue"}}
+      },
+      {
+        "caption": "내 몫은 그대로다",
+        "actors": [
+          {"part": "사람", "slot": "left", "who": "나", "face": "happy",
+           "tag": {"text": "나", "tone": "plain"}},
+          {"part": "서버", "slot": "mid", "face": "flat"},
+          {"part": "사람", "slot": "right", "who": "옆집", "face": "flat",
+           "tag": {"text": "옆집", "tone": "plain"}}
+        ],
+        "move": {"from": "right", "to": "mid",
+                 "payload": {"text": "몰린다", "tone": "blue"}}
+      }
+    ]
+  }
+}

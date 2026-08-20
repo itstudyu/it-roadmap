@@ -36,6 +36,7 @@ REQUIRED = [
     "💡 실제 사례",
     "🚫 흔한 오해",
     "📝 정리",
+    "🧒 열 살에게",
     "❓ 이해했는지",
     "🔗 관련 용어",
 ]
@@ -58,6 +59,26 @@ LAYER_RANGE = (3, 5)
 COMPARE_RANGE = (3, 4)
 RELATED_RANGE = (3, 5)
 SUMMARY_MAX = 3    # 정리 문장 수
+KID_MAX = 3        # 열 살에게 문장 수
+KID_MIN_LEN = 30   # 한 문장짜리 얼버무림을 막는 최소 길이
+
+# 🧒 열 살에게 는 IT 낱말 0개로 쓴다. 이 제약이 지켜지는지가 곧 그 편의 품질
+# 검사다 — 설명을 옮겨 적기만 하면 반드시 이 목록에 걸린다. 걸리면 그 편은
+# 아직 "열 살에게 설명할 수 있는" 상태가 아니라는 뜻이다.
+#
+# 아래는 금지어다. 열 살이 이미 아는 일상어(인터넷·와이파이·컴퓨터·폰·앱·
+# 유튜브·게임·문자·사진)는 여기 없다 — 그건 써도 된다.
+KID_BANNED = [
+    "서버", "클라이언트", "프로토콜", "네트워크", "데이터베이스", "데이터", "시스템",
+    "브라우저", "데이터베이스", "쿼리", "암호화", "복호화", "토큰", "캐시", "클라우드",
+    "배포", "요청", "응답", "트래픽", "라우터", "패킷", "알고리즘", "인덱스",
+    "프로그램", "코드", "함수", "변수", "메모리", "프로세스", "스레드", "인증",
+    "서비스", "인터페이스", "모듈", "컴파일", "가상화", "컨테이너",
+]
+
+# 영문 약어도 금지다. 열 살에게 "HTTP 가" 라고 말하는 순간 설명이 아니라
+# 받아쓰기가 된다. 두 글자 이상 이어진 라틴 문자를 찾는다.
+LATIN_RUN = re.compile(r"[A-Za-z]{2,}")
 
 # 물음표 없이도 묻는 한국어가 많다. "왜/어떻게/무엇" 으로 시작하거나
 # "-나 / -가 / -까" 로 끝나면 묻고 있다고 본다.
@@ -102,7 +123,7 @@ STEP_NAME = re.compile(r"^\d+\s*단계")
 # 접이식 밖으로 나갔다 — 여기 안 적으면 접이식 칸 수가 실제보다 둘 많게 세어져,
 # 멀쩡한 노트가 상한 초과로 걸린다.
 PINNED_HEADS = {"📝 정의", "🖼️ 그림으로 보기", "⚠️ 해결하는 문제", "🧱 구성",
-                "❓ 이해했는지", "🔗 관련 용어", "📝 정리"}
+                "❓ 이해했는지", "🔗 관련 용어", "📝 정리", "🧒 열 살에게"}
 
 # 한 편이 접어서 보여줄 수 있는 칸 수(build.py 의 MAX_SECTIONS).
 MAX_PANELS = 6
@@ -305,6 +326,14 @@ def check_structure(title: str, sections: list[tuple[str, str]], bad: list[str])
     for dup in sorted({h for h in heads if heads.count(h) > 1}):
         bad.append(f"같은 제목이 {heads.count(dup)}번 나온다 — ## {dup}")
 
+    # 열 살에게 는 되짚은 다음(정리) 스스로 물어보기 전(확인 질문)에 온다.
+    # 순서가 어긋나면 화면에서는 조용히 맨 아래로 가고, 읽는 흐름만 끊긴다.
+    order = [canonical(h) for h, _ in sections]
+    order = [h for h in order if h in ("📝 정리", "🧒 열 살에게", "❓ 이해했는지")]
+    wanted = [h for h in ("📝 정리", "🧒 열 살에게", "❓ 이해했는지") if h in order]
+    if order != wanted:
+        bad.append("정리 → 열 살에게 → 이해했는지 순서가 아니다 — " + " / ".join(order))
+
 
 def check_panels(sections: list[tuple[str, str]], bad: list[str]) -> None:
     """접이식으로 갈 섹션이 몇 칸인지 센다.
@@ -466,10 +495,97 @@ def check_selfcheck(body: str, targets: set[str], bad: list[str], warn: list[str
         warn.append(("aim", f"확인 질문 {aimless}개에 '→ 답이 있는 자리' 가 없다"))
 
 
+# 📝 정리의 첫 문장. わわわIT用語辞典의 마지막 칸처럼, 요약이 아니라 "다음에
+# 이 말을 만나면 할 생각" 을 준다. 화면에서도 제목이 "이 말을 만나면" 이다.
+SUMMARY_LEAD = re.compile(r'^\*\*"[^"]+"\*\*\s*(?:이)?라고 읽으면 된다')
+
+
 def check_summary(body: str, bad: list[str]) -> None:
     sentences = [s for s in re.split(r"(?<=다)\.\s*", body) if s.strip()]
     if len(sentences) > SUMMARY_MAX:
         bad.append(f"정리가 {len(sentences)}문장이다 ({SUMMARY_MAX}문장 이내)")
+    if body.strip() and not SUMMARY_LEAD.match(body.strip()):
+        bad.append('정리 첫 문장이 \'**"…"** 이라고 읽으면 된다\' 가 아니다')
+
+
+def check_kid(body: str, bad: list[str]) -> None:
+    """🧒 열 살에게 — 이 앱의 목표 문장 그 자체를 재는 자리.
+
+    읽고 나면 IT 를 모르는 사람에게 제 입으로 설명할 수 있어야 한다. 그래서
+    모범 답은 IT 낱말 0개로 쓴다. 사람이 눈으로 "쉽게 썼나" 를 재면 매번
+    기준이 달라지지만, 금지어 목록은 327편에 똑같이 걸린다.
+    """
+    body = body.strip()
+    if not body:
+        return
+    if len(body) < KID_MIN_LEN:
+        bad.append(f"열 살에게 가 {len(body)}자다 (최소 {KID_MIN_LEN}자)")
+    sentences = [x for x in re.split(r"[.!?]\s+|[.!?]$", body) if x.strip()]
+    if len(sentences) > KID_MAX:
+        bad.append(f"열 살에게 가 {len(sentences)}문장이다 ({KID_MAX}문장 이내)")
+    hit = sorted({w for w in KID_BANNED if w in body})
+    if hit:
+        bad.append("열 살에게 에 IT 낱말이 있다 — " + ", ".join(hit))
+    latin = sorted(set(LATIN_RUN.findall(body)))
+    if latin:
+        bad.append("열 살에게 에 영문이 있다 — " + ", ".join(latin))
+    if re.search(r"^\s*[-*]\s+", body, re.M):
+        bad.append("열 살에게 를 목록으로 썼다 (아이에게 말하듯 문장으로)")
+
+
+# 이름 풀기의 문법. 도해와 같다 — '낱말 :: 뜻' 여러 줄과 '= 이어 읽으면 …' 한 줄.
+NAME_PAIR = re.compile(r"^\s*(.+?)\s*::\s*(.+)$", re.M)
+NAME_SUM = re.compile(r"^\s*=\s*(.+)$", re.M)
+
+# H1 의 괄호 안에 라틴 문자가 있으면 그 편은 풀 이름이 있다는 뜻이다.
+TITLE_READING = re.compile(r"\(([^)]+)\)\s*$")
+
+
+def check_name(title: str, definition: str, bad: list[str], warn: list[str]) -> None:
+    """### 이름 — 영어 이름을 낱말로 쪼개 뜻을 달고 도로 이어 붙이는 자리.
+
+    이어 붙인 문장이 그대로 정의가 되는 단어가 많다(Transmission Control
+    Protocol = 전송을 통제하는 약속). 이름을 풀면 외울 것이 하나 줄어든다.
+    """
+    reading = TITLE_READING.search(title.strip())
+    wants = bool(reading and LATIN_RUN.search(reading.group(1)))
+    block = pick_block(definition, "이름")
+    if not block:
+        if wants:
+            bad.append(f"H1 에 영어 이름이 있는데 '### 이름' 이 없다 — ({reading.group(1)})")
+        return
+    pairs = NAME_PAIR.findall(block)
+    sums = NAME_SUM.findall(block)
+    if len(sums) != 1:
+        bad.append(f"'### 이름' 의 '= 이어 읽으면 …' 줄이 {len(sums)}개다 (1개)")
+    for en, ko in pairs:
+        if len(ko) > CELL_MAX:
+            warn.append(("name", f"이름 풀이가 {len(ko)}자다 ({CELL_MAX}자 이내) — {en} :: {ko}"))
+    leftover = [
+        l for l in block.split("\n")
+        if l.strip() and "::" not in l and not l.strip().startswith("=")
+    ]
+    if leftover:
+        bad.append("'### 이름' 에 '낱말 :: 뜻' 도 '=' 도 아닌 줄이 있다 — " + leftover[0][:30])
+
+
+def check_tryit(definition: str, warn: list[str]) -> None:
+    """### 직접 — 지금 이 폰으로 확인해 보는 법. 있는 편에만 있다."""
+    line = pick_line(definition, "직접")
+    if line and len(line) > 120:
+        warn.append(("tryit", f"'### 직접' 이 {len(line)}자다 (한두 문장)"))
+
+
+def pick_block(definition: str, name: str) -> str:
+    """정의 안의 '### <이름>' 절을 통째로. build.py 의 같은 이름 함수와 짝이다."""
+    m = re.search(r"^###\s+" + re.escape(name) + r"\s*$\n(.+?)(?=\n###|\n##|\Z)",
+                  definition, flags=re.M | re.S)
+    return m.group(1).strip() if m else ""
+
+
+def pick_line(definition: str, name: str) -> str:
+    block = pick_block(definition, name)
+    return next((l.strip() for l in block.split("\n") if l.strip()), "")
 
 
 def check(path: str) -> tuple[list[str], list[tuple[str, str]]]:
@@ -496,6 +612,9 @@ def check(path: str) -> tuple[list[str], list[tuple[str, str]]]:
     check_example(body_of.get("💡 실제 사례", ""), warn)
     check_myths(body_of.get("🚫 흔한 오해", ""), bad)
     check_summary(body_of.get("📝 정리", ""), bad)
+    check_kid(body_of.get("🧒 열 살에게", ""), bad)
+    check_name(title, body_of.get("📝 정의", ""), bad, warn)
+    check_tryit(body_of.get("📝 정의", ""), warn)
     check_selfcheck(body_of.get("❓ 이해했는지", ""), jump_targets(sections), bad, warn)
     check_related(body_of.get("🔗 관련 용어", ""), bad)
 

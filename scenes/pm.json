@@ -1,0 +1,573 @@
+{
+  "pm--a-b-testing": {
+    "alt": "세 컷 — 어느 쪽이 나은지 모르던 두 화면을 사용자를 반씩 나눠 보여주고, 높게 나온 쪽을 고르는 이야기",
+    "cuts": [
+      {
+        "caption": "말로는 안 끝난다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat", "who": "A안", "tag": {"text": "A", "tone": "plain"}},
+          {"part": "사람", "slot": "mid", "face": "sad", "tag": {"text": "?", "tone": "blue-dash"}},
+          {"part": "컴퓨터", "slot": "right", "face": "flat", "who": "B안", "tag": {"text": "B", "tone": "plain"}}
+        ]
+      },
+      {
+        "caption": "반씩 나눠 본다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat", "who": "A안", "tag": {"text": "A 50%", "tone": "plain"}},
+          {"part": "사람", "slot": "mid", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "flat", "who": "B안", "tag": {"text": "B 50%", "tone": "plain"}}
+        ]
+      },
+      {
+        "caption": "숫자가 고른다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat", "who": "A안", "tag": {"text": "A 3%", "tone": "plain"}},
+          {"part": "사람", "slot": "mid", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "happy", "who": "B안", "tag": {"text": "B 5%", "tone": "blue"}}
+        ]
+      }
+    ]
+  },
+  "pm--agile": {
+    "alt": "네 컷 — 반년 만에 한 번 내놓아 틀렸던 것을, 2주치씩 내놓고 들은 말을 다음 바퀴에 넣어 고쳐 가는 이야기",
+    "cuts": [
+      {
+        "caption": "반년 만에 냈다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "사람", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "6개월치 전부", "tone": "blue"}},
+        "bubble": {"slot": "right", "text": "이게 아냐"}
+      },
+      {
+        "caption": "2주치만 낸다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "사람", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "2주치", "tone": "blue"}}
+      },
+      {
+        "caption": "쓴 사람이 말한다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "사람", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "right", "to": "left", "payload": {"text": "고칠 점", "tone": "blue"}}
+      },
+      {
+        "caption": "다음 바퀴에 넣는다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "사람", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "고친 것", "tone": "blue"}}
+      }
+    ]
+  },
+  "pm--backlog": {
+    "alt": "세 컷 — 여기저기서 오던 요청을 한 목록에 순서대로 세우고, 위에서부터 꺼내 하는 이야기",
+    "cuts": [
+      {
+        "caption": "무엇부터 할까",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "sad", "tag": {"text": "?", "tone": "blue-dash"}}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "요청", "tone": "plain"}}
+      },
+      {
+        "caption": "목록에 줄 세운다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "장부", "slot": "mid", "face": "none"},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "mid", "payload": {"text": "요청", "tone": "blue"}}
+      },
+      {
+        "caption": "위에서 꺼내 한다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "장부", "slot": "mid", "face": "none", "tag": {"text": "1 2 3", "tone": "plain"}},
+          {"part": "컴퓨터", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "mid", "to": "right", "payload": {"text": "1번", "tone": "blue"}}
+      }
+    ]
+  },
+  "pm--cac-ltv": {
+    "alt": "세 컷 — 고객 한 명에 먼저 나가는 돈과 그 사람이 내는 돈을 나란히 놓아, 더 써도 되는지 정하는 이야기",
+    "cuts": [
+      {
+        "caption": "먼저 3만 원 쓴다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "사람", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "광고비 3만", "tone": "blue"}}
+      },
+      {
+        "caption": "그 사람이 낸다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "사람", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "right", "to": "left", "payload": {"text": "9만 원", "tone": "blue"}}
+      },
+      {
+        "caption": "3배면 더 쓴다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "happy", "tag": {"text": "3배", "tone": "blue"}},
+          {"part": "사람", "slot": "right", "face": "flat"}
+        ]
+      }
+    ]
+  },
+  "pm--crm": {
+    "alt": "세 컷 — 지난 이야기가 어디에도 없어 다시 묻던 담당자가, 주고받은 일을 한곳에 모아 두고 다음부터는 묻지 않게 되는 이야기",
+    "cuts": [
+      {
+        "caption": "지난 일이 없다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad", "who": "고객"},
+          {"part": "사람", "slot": "right", "face": "flat", "who": "담당", "tag": {"text": "?", "tone": "blue-dash"}}
+        ],
+        "bubble": {"slot": "left", "text": "또 물어봐?"}
+      },
+      {
+        "caption": "한곳에 적어 둔다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat", "who": "고객"},
+          {"part": "저장통", "slot": "mid", "face": "flat"},
+          {"part": "사람", "slot": "right", "face": "flat", "who": "담당"}
+        ],
+        "move": {"from": "right", "to": "mid", "payload": {"text": "대화", "tone": "blue"}}
+      },
+      {
+        "caption": "다시 묻지 않는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy", "who": "고객"},
+          {"part": "저장통", "slot": "mid", "face": "flat"},
+          {"part": "사람", "slot": "right", "face": "flat", "who": "담당"}
+        ],
+        "move": {"from": "mid", "to": "right", "payload": {"text": "기록", "tone": "blue"}}
+      }
+    ]
+  },
+  "pm--funnel": {
+    "alt": "세 컷 — 끝까지 오는 사람이 적은데 어디서 새는지 몰랐다가, 칸마다 세어 새는 칸을 찾아 고치는 이야기",
+    "cuts": [
+      {
+        "caption": "어디선지 모른다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "소포", "slot": "right", "face": "none"}
+        ],
+        "move": {"from": "left", "to": "right", "head": false, "payload": {"text": "대부분 이탈", "tone": "blue"}},
+        "mark": "x"
+      },
+      {
+        "caption": "칸마다 세어 본다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "문", "slot": "mid", "face": "none", "tag": {"text": "결제 칸", "tone": "plain"}},
+          {"part": "소포", "slot": "right", "face": "none"}
+        ],
+        "move": {"from": "left", "to": "mid", "payload": {"text": "30%", "tone": "blue"}}
+      },
+      {
+        "caption": "그 칸을 고친다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "문", "slot": "mid", "face": "none", "tag": {"text": "결제 칸", "tone": "plain"}},
+          {"part": "소포", "slot": "right", "face": "none"}
+        ],
+        "move": {"from": "mid", "to": "right", "payload": {"text": "70%", "tone": "blue"}}
+      }
+    ]
+  },
+  "pm--gtm": {
+    "alt": "세 컷 — 모두에게 뿌려 아무에게도 닿지 않던 말을, 대상을 한 무리로 좁혀 그 자리에 걸어 닿게 하는 이야기",
+    "cuts": [
+      {
+        "caption": "아무도 모른다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "사람", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "head": false, "payload": {"text": "모두에게", "tone": "blue"}},
+        "mark": "x"
+      },
+      {
+        "caption": "누구인지 좁힌다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "사람", "slot": "right", "face": "flat", "tag": {"text": "20대 직장인", "tone": "blue"}}
+        ]
+      },
+      {
+        "caption": "그 자리에 건다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "사람", "slot": "right", "face": "happy", "tag": {"text": "20대 직장인", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "맞는 말", "tone": "blue"}}
+      }
+    ]
+  },
+  "pm--kpi": {
+    "alt": "세 컷 — 숫자가 수백 개라 무엇을 볼지 몰랐다가, 목표와 이어진 하나를 앞에 두고 나아졌는지 재는 이야기",
+    "cuts": [
+      {
+        "caption": "무엇을 볼지 모른다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad", "tag": {"text": "?", "tone": "blue-dash"}},
+          {"part": "장부", "slot": "mid", "face": "none", "tag": {"text": "숫자 수백 개", "tone": "plain", "at": "above"}}
+        ]
+      },
+      {
+        "caption": "하나만 골라 둔다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "장부", "slot": "mid", "face": "none"}
+        ],
+        "move": {"from": "mid", "to": "left", "payload": {"text": "이탈률", "tone": "blue"}}
+      },
+      {
+        "caption": "나아졌는지 잰다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy", "tag": {"text": "10% → 7%", "tone": "blue"}},
+          {"part": "장부", "slot": "mid", "face": "none"}
+        ]
+      }
+    ]
+  },
+  "pm--mvp": {
+    "alt": "세 컷 — 반년치를 다 만들고서야 안 쓴다는 답을 듣던 것을, 한 달치만 내놓아 그 답을 먼저 듣는 이야기",
+    "cuts": [
+      {
+        "caption": "6개월 뒤에 안다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "사람", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "6개월치 전부", "tone": "blue"}},
+        "bubble": {"slot": "right", "text": "안 써요"}
+      },
+      {
+        "caption": "한 달치만 낸다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "사람", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "한 달치", "tone": "blue"}}
+      },
+      {
+        "caption": "한 달 만에 안다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "happy"},
+          {"part": "사람", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "right", "to": "left", "payload": {"text": "쓴다는 답", "tone": "blue"}}
+      }
+    ]
+  },
+  "pm--north-star-metric": {
+    "alt": "세 컷 — 팀마다 다른 숫자를 보던 자리에 대표 지표 하나를 세우고, 그 하나로 무엇을 먼저 할지 견주는 이야기",
+    "cuts": [
+      {
+        "caption": "회의가 안 끝난다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat", "who": "한 팀", "tag": {"text": "가입자", "tone": "plain"}},
+          {"part": "표지판", "slot": "mid", "face": "none", "tag": {"text": "?", "tone": "blue-dash", "at": "above"}},
+          {"part": "사람", "slot": "right", "face": "flat", "who": "다른 팀", "tag": {"text": "매출", "tone": "plain"}}
+        ]
+      },
+      {
+        "caption": "하나로 모은다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat", "who": "한 팀"},
+          {"part": "표지판", "slot": "mid", "face": "none", "tag": {"text": "주간 사용 시간", "tone": "blue", "at": "above"}},
+          {"part": "사람", "slot": "right", "face": "flat", "who": "다른 팀"}
+        ]
+      },
+      {
+        "caption": "같은 자로 견준다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy", "who": "한 팀"},
+          {"part": "표지판", "slot": "mid", "face": "none", "tag": {"text": "주간 사용 시간", "tone": "plain", "at": "above"}},
+          {"part": "사람", "slot": "right", "face": "happy", "who": "다른 팀"}
+        ],
+        "move": {"from": "left", "to": "mid", "payload": {"text": "이 기능", "tone": "blue"}}
+      }
+    ]
+  },
+  "pm--okr": {
+    "alt": "세 컷 — 말로만 적혀 됐는지 다투던 목표에 분기 말에 잴 숫자를 붙여, 판정이 숫자 하나로 끝나는 이야기",
+    "cuts": [
+      {
+        "caption": "말로만 적었다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad", "tag": {"text": "?", "tone": "blue-dash"}},
+          {"part": "문서", "slot": "mid", "face": "none", "tag": {"text": "최고의 경험", "tone": "plain", "at": "above"}}
+        ],
+        "bubble": {"slot": "left", "text": "다 했나?"}
+      },
+      {
+        "caption": "잴 숫자를 붙인다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "문서", "slot": "mid", "face": "none", "tag": {"text": "최고의 경험", "tone": "plain", "at": "above"}}
+        ],
+        "move": {"from": "left", "to": "mid", "payload": {"text": "크래시 1%", "tone": "blue"}}
+      },
+      {
+        "caption": "다툼이 끝난다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "문서", "slot": "mid", "face": "none", "tag": {"text": "0.8% 됐다", "tone": "blue", "at": "above"}}
+        ]
+      }
+    ]
+  },
+  "pm--persona": {
+    "alt": "세 컷 — 회의에서 저마다 다른 사람을 떠올리던 것을, 조사에서 반복된 특징을 모아 한 사람으로 적어 같이 보는 이야기",
+    "cuts": [
+      {
+        "caption": "각자 다른 사람",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat", "who": "기획"},
+          {"part": "문서", "slot": "mid", "face": "none", "tag": {"text": "?", "tone": "blue-dash", "at": "above"}},
+          {"part": "사람", "slot": "right", "face": "flat", "who": "개발"}
+        ],
+        "bubble": {"slot": "left", "text": "사용자가?"}
+      },
+      {
+        "caption": "한 사람으로 적는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat", "who": "기획"},
+          {"part": "문서", "slot": "mid", "face": "none"},
+          {"part": "사람", "slot": "right", "face": "flat", "who": "개발"}
+        ],
+        "move": {"from": "left", "to": "mid", "payload": {"text": "반복된 특징", "tone": "blue"}}
+      },
+      {
+        "caption": "같은 사람을 본다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy", "who": "기획"},
+          {"part": "문서", "slot": "mid", "face": "none", "tag": {"text": "이름 있는 한 명", "tone": "blue", "at": "above"}},
+          {"part": "사람", "slot": "right", "face": "happy", "who": "개발"}
+        ]
+      }
+    ]
+  },
+  "pm--pmf": {
+    "alt": "세 컷 — 시장의 필요에 닿지 않던 제품이 그 필요를 다시 보고 맞춰, 쓰는 사람이 남게 되는 이야기",
+    "cuts": [
+      {
+        "caption": "필요와 안 맞는다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "사람", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right", "head": false, "payload": {"text": "만든 제품", "tone": "blue"}},
+        "mark": "x"
+      },
+      {
+        "caption": "필요를 다시 본다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "사람", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "right", "to": "left", "payload": {"text": "진짜 필요", "tone": "blue"}}
+      },
+      {
+        "caption": "맞으니 남는다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "사람", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "맞춘 제품", "tone": "blue"}}
+      }
+    ]
+  },
+  "pm--product-roadmap": {
+    "alt": "세 컷 — 언제 무엇을 하는지 물어야 알던 것을, 왜 먼저인지까지 한 장에 적어 함께 보고 새 요청에 답하는 이야기",
+    "cuts": [
+      {
+        "caption": "물어야 안다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "sad", "tag": {"text": "?", "tone": "blue-dash"}}
+        ],
+        "bubble": {"slot": "left", "text": "언제 나와?"}
+      },
+      {
+        "caption": "모두가 같이 본다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "문서", "slot": "mid", "face": "none", "tag": {"text": "왜 먼저인지", "tone": "blue", "at": "above"}},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ]
+      },
+      {
+        "caption": "미룰 것을 댄다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "문서", "slot": "mid", "face": "none", "tag": {"text": "왜 먼저인지", "tone": "plain", "at": "above"}},
+          {"part": "컴퓨터", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "left", "to": "mid", "payload": {"text": "새 요청", "tone": "blue"}},
+        "bubble": {"slot": "left", "text": "이거 대신?"}
+      }
+    ]
+  },
+  "pm--retention": {
+    "alt": "세 컷 — 가입자 수만 보면 늘어 보이던 것을, 다시 온 사람을 세어 빠지는 자리를 찾아 고치는 이야기",
+    "cuts": [
+      {
+        "caption": "늘어 보인다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "happy", "tag": {"text": "가입 1만", "tone": "blue"}}
+        ]
+      },
+      {
+        "caption": "다시 온 수를 센다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "다시 온 5%", "tone": "blue"}}
+      },
+      {
+        "caption": "빠지는 데를 고친다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "다시 온 40%", "tone": "blue"}}
+      }
+    ]
+  },
+  "pm--scrum": {
+    "alt": "세 컷 — 반년 뒤 한 번에 내놓던 것을 몇 주짜리 바퀴로 끊어, 바퀴마다 쓸 수 있는 것을 내고 확인하는 이야기",
+    "cuts": [
+      {
+        "caption": "확인이 한 번뿐",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "사람", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "6개월 만에", "tone": "blue"}}
+      },
+      {
+        "caption": "몇 주로 끊는다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "사람", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "1번 바퀴", "tone": "blue"}}
+      },
+      {
+        "caption": "바퀴마다 확인한다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "사람", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "2번 바퀴", "tone": "blue"}}
+      }
+    ]
+  },
+  "pm--sprint": {
+    "alt": "세 컷 — 끝을 안 정해 범위가 늘던 일에 2주라는 끝을 먼저 박고, 못 담은 것은 다음 바퀴로 넘기는 이야기",
+    "cuts": [
+      {
+        "caption": "끝이 안 보인다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "또 끼어든다", "tone": "blue"}}
+      },
+      {
+        "caption": "끝날 날을 박는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "시계", "slot": "mid", "face": "none", "tag": {"text": "2주", "tone": "blue"}},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ]
+      },
+      {
+        "caption": "못 담은 건 다음에",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "right", "to": "left", "payload": {"text": "2주치 결과", "tone": "blue"}}
+      }
+    ]
+  },
+  "pm--user-story": {
+    "alt": "세 컷 — 기술 용어로만 적혀 왜 필요한지 몰랐던 요구를, 누가 무엇을 왜 원하는지로 다시 적어 방법은 팀이 고르게 하는 이야기",
+    "cuts": [
+      {
+        "caption": "왜인지 모른다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "문서", "slot": "mid", "face": "none", "tag": {"text": "OAuth 붙여", "tone": "plain", "at": "above"}},
+          {"part": "컴퓨터", "slot": "right", "face": "sad", "tag": {"text": "?", "tone": "blue-dash"}}
+        ]
+      },
+      {
+        "caption": "세 줄로 적는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "문서", "slot": "mid", "face": "none"},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "mid", "payload": {"text": "왜 원하나", "tone": "blue"}}
+      },
+      {
+        "caption": "방법은 팀이 고른다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "문서", "slot": "mid", "face": "none", "tag": {"text": "쓰던 계정으로", "tone": "blue", "at": "above"}},
+          {"part": "컴퓨터", "slot": "right", "face": "happy"}
+        ]
+      }
+    ]
+  },
+  "pm--wireframe": {
+    "alt": "세 컷 — 다 꾸민 뒤에 고치면 몇 주가 날아가던 것을, 색을 뺀 네모만 먼저 그려 그 자리에서 고치는 이야기",
+    "cuts": [
+      {
+        "caption": "다시 3주 든다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "사람", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "3주짜리 화면", "tone": "blue"}},
+        "bubble": {"slot": "right", "text": "여기 아냐"}
+      },
+      {
+        "caption": "색을 빼고 그린다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "사람", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "payload": {"text": "네모와 글자", "tone": "blue"}}
+      },
+      {
+        "caption": "몇 분이면 고친다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "사람", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "right", "to": "left", "payload": {"text": "여기로 옮겨", "tone": "blue"}}
+      }
+    ]
+  }
+}

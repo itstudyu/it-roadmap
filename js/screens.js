@@ -564,6 +564,45 @@
     return '<section class="figure-slot" id="p-그림">' + UI.markdown(term.figure) + "</section>";
   }
 
+  /* ---- 이름 풀기 ----
+
+     영어 이름을 낱말 단위로 쪼개 그 밑에 뜻을 달고, 도로 이어 붙인
+     문장을 밑에 둔다. Transmission · Control · Protocol → "전송을
+     통제하는 약속" — 이어 붙인 문장이 그대로 정의인 단어가 많다.
+     이름을 풀면 외울 것이 하나 줄어든다.
+
+     문법은 도해와 같다. '낱말 :: 뜻' 여러 줄과 '= 이어 읽으면 …' 한 줄.
+     한 낱말짜리 이름(Docker 같은)은 쪼갤 게 없어서 '=' 줄만 있다 —
+     그때도 유래 한 줄은 남기므로 칸은 선다. */
+  function parseName(md) {
+    var words = [], sum = "";
+    String(md).split("\n").forEach(function (line) {
+      var pair = line.match(/^\s*(.+?)\s*::\s*(.+)$/);
+      if (pair) { words.push({ en: pair[1].trim(), ko: pair[2].trim() }); return; }
+      var tail = line.match(/^\s*=\s*(.+)$/);
+      if (tail) sum = tail[1].trim();
+    });
+    return { words: words, sum: sum };
+  }
+
+  function nameBlock(term) {
+    if (!term.name) return "";
+    var parsed = parseName(term.name);
+    if (!parsed.words.length && !parsed.sum) return "";
+    return '<aside class="analogy analogy--name"><b class="analogy__k">이름</b>' +
+      (parsed.words.length
+        ? '<span class="namebox">' + parsed.words.map(function (w) {
+            return '<span class="namebox__word"><b class="namebox__en">' + esc(w.en) + "</b>" +
+              '<span class="namebox__ko">' + esc(w.ko) + "</span></span>";
+          }).join('<span class="namebox__plus" aria-hidden="true">+</span>') + "</span>"
+        : "") +
+      (parsed.sum
+        ? '<span class="namebox__sum">' +
+          UI.markdown(parsed.sum).replace(/^<p>|<\/p>$/g, "") + "</span>"
+        : "") +
+      "</aside>";
+  }
+
   function analogyBlock(term) {
     if (!term.analogy) return "";
     return '<aside class="analogy"><b class="analogy__k">비유</b>' +
@@ -577,6 +616,15 @@
     if (!term.example) return "";
     return '<aside class="analogy analogy--case"><b class="analogy__k">예</b>' +
       UI.markdown(term.example).replace(/^<p>|<\/p>$/g, "") + "</aside>";
+  }
+
+  /* 예 다음의 한 줄. 비유가 "무엇과 닮았나", 예가 "어디서 봤나" 를 주면
+     직접은 "지금 어떻게 보나" 를 준다. 직접 눈으로 본 것은 장면이 되어
+     남는다. 실제로 해 볼 수 있는 단어에만 있고, 없어도 판은 선다. */
+  function tryitBlock(term) {
+    if (!term.tryit) return "";
+    return '<aside class="analogy analogy--case"><b class="analogy__k">직접</b>' +
+      UI.markdown(term.tryit).replace(/^<p>|<\/p>$/g, "") + "</aside>";
   }
 
   /* ---- 접지 않는 두 기둥 ----
@@ -608,13 +656,16 @@
      읽기가 끝나는 지점이자 "학습 완료" 를 누르기 직전의 마지막 관문이다. */
   /* 마무리 문단. 접이식에 두면 6칸 상한에 밀려 대부분의 단어에서 잘려 나간다.
      되짚고 나서 스스로 물어보는 순서라 확인 질문 바로 앞에 붙인다. */
-  var RECAP_NAMES = ["한 번 더 정리", "정리", "📝 정리"];
+  /* わわわIT用語辞典의 마지막 칸은 요약이 아니라 "이 단어가 나오면 '~구나'
+     하고 생각하세요" 다. 이 앱의 목적도 글 읽기라, 마지막 칸이 지식을
+     다시 늘어놓는 대신 다음에 이 말을 만났을 때 할 생각을 준다. */
+  var RECAP_NAMES = ["이 말을 만나면", "한 번 더 정리", "정리", "📝 정리"];
 
   function recapBlock(term) {
     if (!term.recap) return "";
     aimAll(RECAP_NAMES, "p-정리");
     return '<section class="recap" id="p-정리">' +
-      '<h2 class="recap__head">한 번 더 정리</h2>' +
+      '<h2 class="recap__head">이 말을 만나면</h2>' +
       '<div class="prose">' + UI.markdown(term.recap) + "</div></section>";
   }
 
@@ -649,6 +700,26 @@
           '<span class="selfcheck__q">' + esc(ask.q) + "</span>" +
           jumpButton(ask.at) + "</span></li>";
       }).join("") + "</ol></section>";
+  }
+
+  /* ---- 열 살에게 ----
+
+     이 앱의 목표 문장 그 자체 — 읽고 나면 IT 를 모르는 사람에게 제
+     입으로 설명할 수 있어야 한다. 남을 가르칠 준비가 배움을 가장 깊게
+     만들고(프로테제 효과), 답을 보기 전에 스스로 만들어 보는 인출이
+     기억을 굳힌다(테스트 효과). 그래서 모범 답을 바로 보여주지 않고
+     "해 봤다" 를 누른 다음에 연다.
+
+     모범 답은 IT 낱말 0개로 쓴다. tools/check_template.py 가 금지어
+     목록으로 그걸 잰다 — 지켜지는지가 곧 그 편의 품질 검사다. */
+  function kidCard(term) {
+    if (!term.kid) return "";
+    return '<section class="kidcard">' +
+      '<h2 class="kidcard__head">열 살에게 설명할 수 있으면 진짜 아는 것이다</h2>' +
+      '<p class="kidcard__ask">IT 를 모르는 사람에게 이 단어를 두어 문장으로 ' +
+      '설명해 보라 — 소리 내어. 막히면 비유와 그림에 다녀온다.</p>' +
+      '<details class="kidcard__box"><summary class="kidcard__btn">해 봤다 — 모범 답 열기</summary>' +
+      '<div class="kidcard__ans prose">' + UI.markdown(term.kid) + "</div></details></section>";
   }
 
   /* 노트끼리 거는 링크는 파일 이름을 가리키는데 화면에 걸리는 건 제목이다.
@@ -800,6 +871,7 @@
     var panelsHtml = disclosureSections(term) + relatedSection(term);
     var recapHtml = recapBlock(term);
     var checkHtml = checkSection(term);
+    var kidHtml = kidCard(term);
 
     var stepBtn = function (t, dir) {
       var label = dir === "prev" ? "이전 단어" : "다음 단어";
@@ -825,11 +897,17 @@
       '<p class="detail__status">' + badge(status) + "</p>" +
       "</header>" +
       '<div class="gist" id="p-정의">' + UI.markdown(term.summary).replace(/^<p>|<\/p>$/g, "") + "</div>" +
-      /* 비유가 배경 문단을 앞지른다. 한 줄 뜻 다음에 배경 산문을 두면, 구체적인
-         앵커인 비유가 유래 설명 뒤로 밀린다. 비유는 한 문장·일상 사물 규칙이라
-         배경에 기대지 않는다. 원문은 그대로 두고 그리는 순서만 바꾼다. */
+      /* 한 줄 뜻 바로 밑이 장면 자리다. 글을 한 줄 읽고 그림을 한 번 보면
+         그 뒤의 글이 걸릴 자리가 생긴다. 장면이 없는 편은 이 줄이 빈다. */
+      Art.scene(term) +
+      /* 이름 → 비유 → 예 → 직접. 이름은 외울 것을 줄이고, 비유는 "무엇과
+         닮았나", 예는 "어디서 봤나", 직접은 "지금 어떻게 보나" 를 준다.
+         비유가 배경 문단을 앞지른다 — 한 줄 뜻 다음에 배경 산문을 두면
+         구체적인 앵커가 유래 설명 뒤로 밀린다. */
+      nameBlock(term) +
       analogyBlock(term) +
       exampleBlock(term) +
+      tryitBlock(term) +
       (term.definition
         ? '<div class="prose prose--def">' + UI.markdown(term.definition) + "</div>"
         : "") +
@@ -837,9 +915,15 @@
       /* 순서가 질문을 따라간다 — 무엇인가 → 어떻게 되나(그림) →
          왜 필요한가 → 무엇으로 되어 있나. 그다음이 심화(접이식)다. */
       pinnedHtml +
-      '<div class="panels">' + panelsHtml + "</div>" +
+      '<div class="panels">' +
+      /* 접힌 칸 무더기 위에 한 줄. 접힘이 숙제가 아니라 선택임을 말해 준다. */
+      (panelsHtml
+        ? '<p class="panelhint">여기부터는 접혀 있다 — 몰라도 판은 읽히고, 궁금해지면 연다</p>'
+        : "") +
+      panelsHtml + "</div>" +
       recapHtml +
       checkHtml +
+      kidHtml +
       "</article></main>" +
       '<div class="action-bar">' + stepBtn(near.prev, "prev") +
       primaryAction(term, status) + stepBtn(near.next, "next") + "</div>";

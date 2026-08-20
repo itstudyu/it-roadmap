@@ -118,6 +118,7 @@ window.Store = (function () {
 
          data/index.js         이름과 한 줄 뜻. 항상 읽는다.        66KB
          data/terms/<권>.js    본문. 단어를 펼칠 때만 읽는다.       권당 39~176KB
+         data/scenes/<권>.js   장면 컷 만화(SVG). 본문과 같이 온다.
 
      목록·검색·퀴즈·회상은 전부 인덱스만으로 그려진다. 본문을 지고 시작하면
      단어가 늘어날수록 첫 화면이 늦어지는데, 이 앱은 단어가 계속 늘어난다. */
@@ -182,7 +183,21 @@ window.Store = (function () {
 
   /* fetch 가 아니라 script 태그로 받는다. file:// 로 열었을 때 fetch 는
      CORS 에 막히지만 script 는 통과한다. 이 앱은 index.html 을 더블클릭해서
-     여는 것도 지원한다.
+     여는 것도 지원한다. */
+  function inject(src, done) {
+    var el = document.createElement("script");
+    el.src = src;
+    el.onload = function () { el.remove(); done(true); };
+    el.onerror = function () { el.remove(); done(false); };
+    document.head.appendChild(el);
+  }
+
+  /* 본문과 장면을 같이 받는다.
+
+     장면(그림)이 본문보다 늦게 오면 글을 읽기 시작한 자리에서 그림이
+     끼어들며 판이 밀린다. 그래서 둘 다 온 다음에 그린다. 대신 성패는
+     본문만 가른다 — 장면은 없어도 판이 서는 자리라, 그림 파일 하나
+     때문에 단어 전체를 못 읽게 만들 이유가 없다.
 
      retry 를 true 로 주면 실패 기록을 지우고 다시 시도한다. 사용자가 "다시
      시도" 를 눌렀을 때만 쓴다 — 저절로 다시 시도하지 않는다. */
@@ -193,11 +208,15 @@ window.Store = (function () {
     if (loading[bookId]) { loading[bookId].push(done); return; }
     loading[bookId] = [done];
 
-    var el = document.createElement("script");
-    el.src = "data/terms/" + encodeURIComponent(bookId) + ".js";
-    el.onload = function () { el.remove(); finish(bookId, true); };
-    el.onerror = function () { el.remove(); finish(bookId, false); };
-    document.head.appendChild(el);
+    var left = 2, ok = false;
+    function settle(isBody, got) {
+      if (isBody) ok = got;
+      if (--left === 0) finish(bookId, ok);
+    }
+    inject("data/terms/" + encodeURIComponent(bookId) + ".js",
+      function (got) { settle(true, got); });
+    inject("data/scenes/" + encodeURIComponent(bookId) + ".js",
+      function (got) { settle(false, got); });
   }
 
   function finish(bookId, ok) {

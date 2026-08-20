@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="description" content="단어 노트 템플릿 목업 — 그림과 설명만으로 단어를 이해시키는 판">
+  <meta name="description" content="단어 노트 템플릿 목업 — 장면 컷 만화·이름 풀기·배우 아이콘·열 살에게">
   <meta name="color-scheme" content="light dark">
   <title>단어 노트 템플릿 목업</title>
 
@@ -13,23 +13,28 @@
 
   <style>
     /* ==========================================================
-       이 셋은 2026-08-18 에 앱으로 들어갔다. 여기 남아 있는 것은
-       "이 글자들이 저 화면이 된다" 를 나란히 보기 위해서다.
-       진짜 구현은 css/app.css 와 js/reading.js 에 있고,
-       한 가지가 다르다 — 용어 사전이 앱에서는 단어장 색인
-       327편(제목·별칭·한 줄 뜻)이고 여기서는 아래 GLOSS 표다.
+       결정판 목업 (2026-08-20).
 
-       이 목업이 더한 것 셋. 전부 앱 토큰만 쓴다.
+       잘 가르치는 웹 여덟(Inpa · わわわIT用語辞典 · Norton · AWS ·
+       Hostpoint · 제이씨현 · TechTerms · MDN)을 뜯어 배운 것과
+       그림 견본판에서 고른 것을 한 판에 합쳤다. 기준은 하나 —
+       읽고 나면 IT 를 모르는 사람(열 살 아이)에게 제 입으로
+       설명할 수 있어야 한다.
 
-       ① 용어 점(°) — 정의와 그림 속 공식 용어를 탭하면 그 자리
-          바로 아래 한 줄 풀이가 뜬다. 풀이를 멀리 두지 않는 이유:
-          글은 그림의 해당 부분 옆에 있을 때 배워진다(공간 근접).
-       ② 한 단계씩 보기 — 흐름 그림을 탭으로 밝혀 간다. 속도는
-          유저가 정하고, 지나온 단계는 사라지지 않는다(분절).
-          자동 재생은 없다 — 움직이는 정보는 기억에서 먼저 사라진다.
-       ③ 항상 보이는 두 칸 — "왜 필요한가"(대조)와 "무엇으로
-          되어 있나"(층)를 접지 않는다. 이 둘이 정의·흐름과 함께
-          이해의 네 기둥이다.
+       1차(지금 앱)에 더한 것 일곱. 전부 앱 토큰만 쓴다.
+
+       ① 장면 컷 만화 — 정의 밑에 문제→동작→결과 세 컷(왕복
+          개념은 번호 달린 네 컷). 그림만 보고 개념이 잡히는 게 목표.
+       ② 이름 풀기 — 영어 이름을 낱말로 쪼개 뜻을 달고 이어 읽는다.
+       ③ 직접 보기 — 비유·예 다음 "지금 확인하는 법" 한 줄(선택).
+       ④ 배우 아이콘 — 도해의 배우 이름에 자동으로 붙는 그림 어휘.
+       ⑤ 접힘 안내 — 접힌 칸 무더기 위에 "몰라도 읽힌다" 한 줄.
+       ⑥ 이 말을 만나면 — 정리를 "만났을 때 할 생각" 으로.
+       ⑦ 열 살에게 — 소리 내어 설명해 본 뒤 모범 답을 여는 관문.
+
+       1차의 세 장치(용어 점 · 한 단계씩 보기 · 항상 보이는 두 칸)는
+       그대로 있다. 아래 스타일 사본도 1차 것 그대로다 — 진짜 구현은
+       css/app.css 와 js/reading.js 에 있다.
        ========================================================== */
 
     /* ---------- ① 용어 표시: 점선 밑줄 ---------- */
@@ -176,6 +181,209 @@
     .pinsec__body.prose {
       font-size: var(--fs-15);
     }
+
+    /* ---------- ④ 이름 풀기 ---------- */
+
+    /* 영어 이름을 낱말 단위로 쪼개 그 밑에 뜻을 단다. 낱말 순서가
+       곧 읽는 순서라 가로로 흐르고, 좁은 화면에서는 줄을 바꾼다.
+       わわわIT用語辞典의 「訳してみるよ」 에서 왔다 — 번역해 이어
+       붙인 문장이 그대로 정의가 되는 것을 낱말 배치로 보여준다. */
+    .namebox {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: stretch;
+      gap: var(--sp-1);
+      margin-top: var(--sp-1);
+    }
+
+    .namebox__word {
+      display: inline-flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1px;
+      padding: 5px 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--r-chip);
+      background: var(--surface-sunken);
+    }
+
+    .namebox__en {
+      font-size: var(--fs-13);
+      font-weight: 650;
+      color: var(--ink);
+      letter-spacing: 0.01em;
+    }
+
+    .namebox__ko {
+      font-size: var(--fs-12);
+      color: var(--ink-2);
+    }
+
+    .namebox__plus {
+      align-self: center;
+      font-size: var(--fs-12);
+      color: var(--ink-3);
+    }
+
+    .namebox__sum {
+      display: block;
+      margin-top: var(--sp-2);
+      font-size: var(--fs-14);
+      line-height: var(--lh-snug);
+      color: var(--ink-2);
+    }
+
+    .namebox__sum::before {
+      content: "= ";
+      color: var(--ink-3);
+    }
+
+    /* ---------- ⑤ 접힘 안내 ---------- */
+
+    /* 접힌 칸 무더기 위에 한 번만 서는 한 줄. 접힘이 숙제가 아니라
+       선택임을 말해 준다. わわわ 사전이 심화 앞에서 "무리할 필요
+       없다" 고 말해 주는 그 자리다. */
+    .panelhint {
+      margin: 0 0 var(--sp-2);
+      font-size: var(--fs-12);
+      color: var(--ink-3);
+    }
+
+    /* ---------- ⑥ 열 살에게 ---------- */
+
+    /* 이 앱의 목표 문장 그 자체 — 읽고 나면 IT 를 모르는 사람에게
+       제 입으로 설명할 수 있어야 한다. 남을 가르칠 준비가 배움을
+       가장 깊게 만들고, 답을 보기 전에 스스로 만들어 보는 인출이
+       기억을 굳힌다. 그래서 모범 답은 해 본 다음에 연다. */
+    .kidcard {
+      margin-top: var(--sp-8);
+      padding: var(--sp-5);
+      border: 1px solid var(--line);
+      border-radius: var(--r-container);
+      background: var(--surface);
+    }
+
+    .kidcard__head {
+      margin: 0 0 var(--sp-2);
+      font-size: var(--fs-14);
+      font-weight: 650;
+      line-height: var(--lh-snug);
+      color: var(--ink);
+    }
+
+    .kidcard__ask {
+      margin: 0;
+      font-size: var(--fs-14);
+      line-height: var(--lh-snug);
+      color: var(--ink-2);
+    }
+
+    .kidcard__box {
+      margin-top: var(--sp-3);
+    }
+
+    .kidcard__btn {
+      cursor: pointer;
+      list-style: none;
+      display: inline-block;
+      padding: var(--sp-2) var(--sp-4);
+      border: 1px solid var(--line);
+      border-radius: var(--r-full);
+      font-size: var(--fs-13);
+      color: var(--st-reading);
+    }
+
+    .kidcard__btn::-webkit-details-marker {
+      display: none;
+    }
+
+    .kidcard__box[open] .kidcard__btn {
+      color: var(--ink-3);
+    }
+
+    .kidcard__ans {
+      margin-top: var(--sp-3);
+      padding: var(--sp-3) var(--sp-4);
+      border-inline-start: 2px solid var(--st-reading);
+      background: var(--surface-sunken);
+      border-radius: var(--r-chip);
+    }
+
+    .kidcard__ans.prose {
+      font-size: var(--fs-15);
+    }
+
+    .kidcard__ans p:first-child {
+      margin-top: 0;
+    }
+
+    .kidcard__ans p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* ---------- ⑦ 장면 한 컷 ---------- */
+
+    /* 정의 바로 밑, 그 단어를 그림 하나로. 얼굴 붙은 기계들이
+       도해의 "누가 :: 무엇을" 화법을 그림으로 잇는다. 코드로 그린
+       벡터라 다크 모드에서 저절로 제 색을 입는다. */
+    .scene {
+      margin: var(--sp-4) 0 0;
+      padding: var(--sp-4) var(--sp-3);
+      border: 1px solid var(--line);
+      border-radius: var(--r-container);
+      background: var(--surface);
+    }
+
+    .scene svg {
+      display: block;
+      width: 100%;
+      max-width: 400px;
+      height: auto;
+      margin: 0 auto;
+    }
+
+    /* ---------- ⑧ 배우 아이콘 ---------- */
+
+    .whoicon {
+      display: inline-flex;
+      width: 15px;
+      height: 15px;
+      margin-inline-end: 5px;
+      vertical-align: -2.5px;
+    }
+
+    .whoicon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* 근거 칸 속 아이콘 어휘 견본 */
+    .iconsheet {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
+      gap: var(--sp-1);
+      margin-top: var(--sp-3);
+    }
+
+    .iconsheet__cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--sp-1);
+      padding: var(--sp-2) 0;
+      color: var(--ink-2);
+    }
+
+    .iconsheet__cell svg {
+      width: 22px;
+      height: 22px;
+      color: var(--ink);
+    }
+
+    .iconsheet__name {
+      font-size: var(--fs-11);
+      color: var(--ink-3);
+    }
   </style>
 </head>
 <body>
@@ -188,21 +396,26 @@
 
     <main class="screen screen--reading">
       <nav class="switch">
-        <button class="switch__btn" type="button" data-note="note-https" aria-pressed="true">HTTPS</button>
-        <button class="switch__btn" type="button" data-note="note-dns" aria-pressed="false">DNS</button>
-        <button class="switch__btn" type="button" data-note="note-cb" aria-pressed="false">Circuit Breaker</button>
+        <button class="switch__btn" type="button" data-note="note-dhcp" aria-pressed="true">DHCP</button>
+        <button class="switch__btn" type="button" data-note="note-tcp" aria-pressed="false">TCP</button>
+        <button class="switch__btn" type="button" data-note="note-ip" aria-pressed="false">IP 주소</button>
       </nav>
 
       <article class="detail" id="detail"></article>
 
       <details class="source">
-        <summary class="source__btn">이 템플릿이 무엇을 왜 하는가 — 근거와 함께</summary>
+        <summary class="source__btn">이 판이 무엇을 왜 하는가 — 근거와 함께</summary>
         <div class="source__body" style="white-space: normal; font-family: inherit; font-size: var(--fs-13); line-height: 1.8;">
-          <p><b>1 · 그림을 한 단계씩 본다.</b> 탭할 때마다 다음 단계가 밝아지고, 지나온 단계는 사라지지 않는다. 자동 재생은 없다. — Mayer 분절 원리(학습자가 속도를 정할 때 깊이 배운다), Tversky·Morrison(자동 애니메이션은 기억에서 먼저 사라져 정지 그림보다 못하다. 상호작용일 때만 이긴다)</p>
-          <p><b>2 · 공식 용어는 점선 밑줄로만 표시된다.</b> 기호도 글자색도 배경도 없어 본문 읽기를 방해하지 않는다. 규칙은 정의 카드 밑 안내 한 줄이 가르치고, 풀이를 처음 열면 안내는 영영 사라진다. 탭하면 그 줄 바로 아래 한 줄 풀이가 펼쳐지고, 열어 본 단어는 어디서든 점선이 옅어진다 — 진한 점선이 줄어드는 게 진도다. 그림 하나당 새 용어 3개까지, = 요약 줄은 제외. — MDN 용어집(용어를 피하지 않고 첫 문장에서 링크로 푼다), Mayer 공간 근접·사전 훈련</p>
-          <p><b>3 · 순서가 질문을 따라간다.</b> 무엇인가(정의) → 어떻게 되나(흐름) → 왜 필요한가(대조) → 무엇으로 되어 있나(층). 앞의 넷은 접지 않고, 상세는 접는다. — NN/g 점진적 공개</p>
-          <p><b>4 · 정의 카드에 "예" 한 줄.</b> 비유 다음에 실제 세계의 예 하나. — Google ML 용어집의 "For example," 자리</p>
-          <p><b>5 · 이어보기.</b> 어디까지 봤고 어떤 용어를 열었는지 기억한다(localStorage, 목업 전용 키).</p>
+          <p><b>어디서 왔나.</b> 잘 가르친다고 알려진 페이지 여덟을 뜯었다 — Inpa 블로그(DHCP·OSI 7계층), わわわIT用語辞典(https:// · TCP), Norton(IP 주소), AWS(HTTP와 HTTPS 비교), Hostpoint(도메인), 제이씨현 공식 블로그(이더넷), 그리고 사전형의 기준으로 TechTerms 와 MDN 용어집. 아래 넷이 거기서 배워 더한 것이고, 1차의 세 장치(용어 점 · 한 단계씩 보기 · 항상 보이는 두 칸)는 그대로다.</p>
+          <p><b>1 · 이름 풀기.</b> わわわ 사전은 모든 항목에서 약어를 낱말로 쪼개 뜻을 달고 도로 이어 붙인다(訳してみるよ). Transmission·Control·Protocol → "전송을 통제하는 약속" — 이어 붙인 문장이 그대로 정의다. 우리 단어 대부분이 영어 이름이라, 이름을 풀면 외울 것이 하나 줄어든다. 정의 카드 안 "### 이름" 으로 쓰고, 없으면 안 나온다.</p>
+          <p><b>2 · 직접 보기.</b> Norton 은 "내 IP 주소 찾는 법" 을 기기별 화면으로 보여준다. 직접 눈으로 본 것은 장면이 되어 남는다. 비유(닮은 것) → 예(본 곳) 다음에 "지금 확인하는 법" 한 줄을 더한다. 실제 행동이 있는 단어에만 쓴다 — 세 편 중 TCP 에는 없고, 없어도 판이 선다.</p>
+          <p><b>3 · 이 말을 만나면.</b> わわわ 사전의 마지막 칸은 요약이 아니라 "이 단어가 나오면 '~구나' 하고 생각하세요" 다(一言でまとめるよ). 이 앱의 목적이 글 읽기이므로, 마지막 칸이 지식을 요약하는 대신 다음에 이 말을 만났을 때 할 생각을 준다. "📝 정리" 의 화면 제목과 첫 문장이 바뀐다.</p>
+          <p><b>4 · 접힘 안내.</b> わわわ 사전은 심화 앞에서 "머리에서 연기 나면 무리하지 말고 쉬라" 고 말한다. 접힌 칸 무더기 위에 "몰라도 판은 읽힌다" 한 줄 — 접힘이 숙제가 아니라 선택임을 말해 준다.</p>
+          <p><b>5 · 열 살에게.</b> 이 앱의 목표 문장 그 자체 — 읽고 나면 IT 를 모르는 사람에게 제 입으로 설명할 수 있어야 한다. 남을 가르칠 준비가 배움을 가장 깊게 만들고(프로테제 효과), 답을 보기 전에 스스로 만들어 보는 인출이 기억을 굳힌다(테스트 효과). 그래서 모범 답을 바로 보여주지 않고 "해 봤다" 를 누른 다음에 연다. 모범 답은 IT 낱말 0개로 쓴다 — 이 제약이 지켜지는지가 곧 그 편의 품질 검사다.</p>
+          <p><b>6 · 장면 컷 만화.</b> "그림만 보고 한번에" 를 위해 딥리서치(시각 서사 문법 Cohn·McCloud, 글 없는 조립 설명서 연구, Mayer 신호 원리, わわわ·학습만화·IKEA 사례)를 돌려 명세로 압축했다 — 한 순간 프레임은 인과를 전달하지 못한다. 그래서 <b>문제→핵심 동작→결과 세 컷</b>(왕복이 본질인 TCP 는 번호 달린 네 컷)으로 그린다. 규칙: 파랑은 "이번 컷에서 변한 것" 한 곳에만(파랑만 따라가도 이야기가 된다), 화살표엔 옮겨가는 사물을 얹고, 같은 배우는 매 컷 같은 자리, 컷당 등장 사물 3개 이하, 글자는 전체 40자 안팎, 얼굴은 그 컷에서 행동하는 쪽에만 붙이고 표정이 상태를 말한다. 그림은 원문 Markdown 밖 그림 서랍에서 제목으로 연결되므로 원문은 한 글자도 바뀌지 않는다.</p>
+          <p><b>7 · 배우 아이콘.</b> 폰·공유기·서버… 그림 어휘를 한 규격(24칸 · 1.7선)으로 그려 두고, 도해의 배우 이름에 자동으로 붙인다. 같은 얼굴이 계속 나와 "아, 그 공유기" 하고 알아보게 되는 게 목적이고, 이름표 하나면 327편 전부에 공짜다. 지금 어휘 열다섯:</p>
+          <div class="iconsheet" id="iconsheet"></div>
+          <p><b>더하지 않은 것.</b> 머리의 요점 서너 줄(わわわ 「ポイント」)은 굵은 정의 한 줄과 겹쳐서, 예비지식 먼저 풀기(같은 사전의 予備知識)는 용어 점이 그 자리에서 하고 있어서 뺐다. AWS 의 비교표와 Inpa 의 단계 그림은 이미 대조·흐름 도해가 맡고 있다. 따로 목업까지 갔던 빠른 보기(사전판)도 접었다 — 요점만 뽑는 판은 "남에게 설명할 수 있게 한다" 는 목표에 닿기 전의 화면이라서다.</p>
         </div>
       </details>
 
@@ -214,307 +427,257 @@
   </div>
 
   <!-- ============================================================
-       노트 세 편. 이 글자들이 위 화면의 전부다.
-       HTTPS 가 개선 템플릿의 전부를 보여준다 — 정의의 "### 예" 와
-       "## 🧱 구성" 이 새 제안이다. DNS 는 구성 없이도 판이 서는 것을,
-       Circuit Breaker 는 @(순환) 흐름이 단계 보기와 함께 도는 것을 본다.
+       노트 세 편. 글은 이 안이 전부고, 장면 한 컷만 그림 서랍
+       (위 SCENES 표)에서 제목으로 연결된다 — 원문 Markdown 은
+       그림 때문에 한 글자도 바뀌지 않는다.
+       DHCP 가 장치 전부를 보여준다. TCP 는 직접 보기 없이도 판이
+       서는 것을, IP 주소는 문패 장면이 구성 칸과 만나는 것을 본다.
        ============================================================ -->
 
-  <script type="text/markdown" id="note-https" data-cat="네트워크 기초">
-# HTTPS (HTTP Secure)
+  <script type="text/markdown" id="note-dhcp" data-cat="네트워크 기초">
+# DHCP (Dynamic Host Configuration Protocol)
 
 ## 📝 정의
 
-HTTPS는 **HTTP를 TLS로 감싸서 내용을 가린 웹 통신**이다.
+DHCP는 **네트워크에 새로 붙은 기기에게 IP 주소 등 통신에 필요한 설정을 자동으로 나눠 주는 약속**이다.
 
-주고받는 양식은 HTTP 그대로다. 달라지는 건 그 내용이 중간에서 읽히지 않는다는 점, 그리고 상대가 진짜 그 사이트인지 인증서로 확인한다는 점이다.
+와이파이에 막 붙은 폰은 아직 자기 주소가 없다. DHCP 서버 — 집에서는 공유기 — 가 비어 있는 주소를 골라 빌려주고, 게이트웨이와 DNS 주소까지 한 번에 알려 준다. 빌려주는 것이라 기한이 있고, 기한이 다가오면 갱신하거나 반납한다.
+
+### 이름
+Dynamic :: 그때그때
+Host :: 네트워크에 붙은 기기
+Configuration :: 설정
+Protocol :: 약속
+= 붙여 읽으면 "기기의 네트워크 설정을 그때그때 잡아 주는 약속". 이름이 곧 하는 일이다
 
 ### 비유
-엽서와 봉투. 엽서는 배달하는 사람이 다 읽을 수 있지만 봉투에 넣어 밀봉하면 받는 사람만 연다. 봉투에 찍힌 도장이 보낸 곳을 증명한다.
+카페의 자리 안내. 들어온 손님에게 빈자리를 골라 앉히고, 손님이 나가면 그 자리를 다음 사람에게 준다.
 
 ### 예
-주소창의 자물쇠가 곧 HTTPS다. 오늘 여는 사이트 열에 아홉이 이걸로 연결된다.
+카페 와이파이에 비밀번호만 넣으면 바로 인터넷이 되는 것. 주소를 손으로 적은 적이 없는데도 되는 이유가 이것이다.
+
+### 직접
+폰의 와이파이 설정에서 지금 붙은 네트워크를 눌러 보라. "IP 자동 할당" 또는 "DHCP" 라는 글자가 있다.
 
 ## 🖼️ 그림으로 보기
 
 ```도해
-흐름: 자물쇠가 걸리기까지 무슨 일이 있나
-브라우저 :: "암호화해서 얘기하자" 하고 인사한다
-서버 :: 인증서를 보낸다. 여기 내 신분증이다
-브라우저 :: 이 인증서를 믿을 만한 곳이 발급했나 확인
-브라우저 :: 확인되면 이번 대화에만 쓸 열쇠를 만든다
-서버 :: 같은 열쇠를 나눠 갖는다
-= 이 인사가 끝나야 첫 요청이 나간다. 그 뒤로는 평범한 HTTP다
+흐름: 폰이 와이파이에 붙는 순간 무슨 일이 있나
+폰 :: "여기 주소 나눠 주는 분?" 하고 방송한다
+공유기 :: "나다. 192.168.0.7 어떠냐" 하고 제안한다
+폰 :: 그 주소를 쓰겠다고 청한다
+공유기 :: 쓰라고 확정하고 기한을 적어 둔다
+= 네 마디면 끝난다. 그 뒤로 폰은 이 주소로 통신한다
 ```
 
 ## ⚠️ 해결하는 문제
 
 ```도해
-대조: 카페 와이파이에서 로그인하면 무슨 차이가 나나
-HTTP 만 || HTTPS 로
-비밀번호 :: 그대로 보인다 || 암호문만 보인다
-페이지 내용 :: 중간에서 바꿀 수 있다 || 바꾸면 들킨다
-상대 확인 :: 가짜 사이트인지 모른다 || 인증서로 확인
-= 가리는 것과 상대를 확인하는 것, 둘 다 해야 안전해진다
+대조: 주소를 손으로 적던 시절과 무엇이 다른가
+손으로 설정 || DHCP 로
+새 기기 :: 관리자가 빈 주소를 찾아 적어 준다 || 붙는 순간 자동으로 받는다
+주소 겹침 :: 같은 주소를 적으면 둘 다 끊긴다 || 서버가 빈 주소만 골라 준다
+떠난 기기 :: 그 주소가 버려진 채 남는다 || 기한이 지나면 거둬 다시 쓴다
+= 사람이 하던 주소 장부 관리를 서버가 대신한다
 ```
 
-같은 와이파이에 붙은 사람은 오가는 내용을 그대로 볼 수 있다. HTTP로 로그인하면 아이디와 비밀번호가 평문으로 지나간다. 내용을 바꿔 넣는 것도 가능해서, 받는 페이지에 광고나 악성 코드가 끼워지기도 했다.
+한 네트워크 안에서 IP 주소는 겹치면 안 된다. 기기가 몇 대뿐이면 손으로도 관리가 되지만, 카페처럼 하루에 수백 대가 들고 나는 곳에서는 장부가 감당이 안 된다. DHCP는 빈 주소 목록을 서버가 들고 있다가 새 기기에게 빌려주고, 떠난 기기의 주소는 거둬서 다시 쓴다.
 
-HTTPS는 내용을 가리고, 인증서로 "이 서버가 진짜 그 도메인의 주인"임을 확인한다. 가리기만 해서는 부족하다. 가짜 사이트와 암호화된 대화를 나눠봐야 소용이 없기 때문이다.
+## ⚙️ 작동 원리
+
+네 마디에는 이름이 있다. Discover(찾기) → Offer(제안) → Request(요청) → Ack(확정). 앞 글자를 따서 DORA 라고 부른다. 처음 두 마디는 방송으로 오간다 — 폰이 아직 주소가 없어서, 받는 사람을 정해 보낼 수가 없기 때문이다.
+
+빌린 주소에는 임대 기간(lease)이 있다. 기간의 절반이 지나면 기기가 조용히 갱신을 청하고, 갱신이 계속 실패하면 기한이 끝나는 순간 주소를 내려놓는다.
+
+## 🚫 흔한 오해
+
+- **집에서 내 컴퓨터의 주소는 고정이다** — 공유기 아래의 주소는 빌린 주소다. 공유기를 재부팅하거나 오래 꺼 두면 다른 주소를 받을 수 있다.
+- **DHCP 서버가 죽으면 인터넷이 바로 끊긴다** — 이미 빌린 주소는 기한까지 그대로 쓴다. 새로 붙는 기기부터 주소를 못 받아 문제가 된다.
+
+## 📝 정리
+
+**"주소를 자동으로 나눠 주는 그 약속"** 이라고 읽으면 된다. 기억할 것은 둘 — 붙는 순간 자동으로 준다, 빌려주는 것이라 기한이 있다.
+
+## 🧒 열 살에게
+
+카페에 가면 직원이 빈자리를 골라서 앉혀 주지? 와이파이도 똑같아. 새 폰이 들어오면 빈 번호표를 하나 빌려줘서 그걸로 말을 주고받고, 폰이 나가면 번호표를 걷어서 다음 폰한테 줘.
+
+## ❓ 이해했는지
+
+- 카페 와이파이에서 주소를 적지 않아도 되는 이유는 → 해결하는 문제
+- 폰이 첫마디를 방송으로 외치는 이유는 → 작동 원리
+- 공유기를 재부팅하면 내 주소가 바뀔 수 있는 이유는 → 흔한 오해
+
+## 🔗 관련 용어
+
+- [[IP 주소]] — DHCP 가 나눠 주는 바로 그 주소
+- [[공유기]] — 집과 카페에서 DHCP 서버 노릇을 하는 상자
+- [[게이트웨이]] — 주소와 함께 알려 주는, 바깥으로 나가는 문
+- [[DNS]] — 주소와 함께 알려 주는 이름 번역 시스템
+  </script>
+
+  <script type="text/markdown" id="note-tcp" data-cat="네트워크 기초">
+# TCP (Transmission Control Protocol)
+
+## 📝 정의
+
+TCP는 **보낸 데이터가 순서대로 빠짐없이 닿았는지 확인하며 나르는 운반 약속**이다.
+
+인터넷은 데이터를 잘게 쪼개 조각으로 보낸다. 조각은 길이 막히면 사라지기도 하고 순서가 뒤집혀 닿기도 한다. TCP는 조각마다 번호를 붙이고 받은 쪽이 "여기까지 받았다" 고 답하게 해서, 빠진 것은 다시 보내고 뒤집힌 것은 제자리에 맞춘다.
+
+### 이름
+Transmission :: 전송
+Control :: 통제하는
+Protocol :: 약속
+= 붙여 읽으면 "전송을 통제하는 약속". 그냥 보내는 게 아니라 확인하고 다스리며 보낸다
+
+### 비유
+전화 통화. 한마디마다 "응, 응" 맞장구를 들으며 말하고, 대답이 없으면 "여보세요, 들려?" 하고 같은 말을 다시 한다.
+
+### 예
+웹 페이지, 메일, 파일 내려받기. 한 글자도 깨지면 안 되는 통신은 거의 다 이 위에서 오간다.
+
+## 🖼️ 그림으로 보기
+
+```도해
+흐름: 확인하며 보낸다는 게 무슨 뜻인가
+보내는 쪽 :: 조각 1번을 보낸다
+받는 쪽 :: "1번 받았다" 하고 답한다
+보내는 쪽 :: 2번을 보냈는데 답이 없다
+보내는 쪽 :: 기다리다 2번을 다시 보낸다
+받는 쪽 :: "2번 받았다" — 이제야 다음 차례다
+= 답이 올 때까지 다음으로 넘어가지 않는다. 느려도 빠짐이 없다
+```
+
+## ⚠️ 해결하는 문제
+
+```도해
+대조: 짝으로 나오는 UDP 와 무엇이 다른가
+UDP 로 || TCP 로
+보내는 법 :: 확인 없이 계속 던진다 || 받았다는 답을 듣고 다음
+빠진 조각 :: 그대로 빠진다 || 다시 보내 채운다
+순서 :: 뒤집힌 채 닿을 수 있다 || 번호로 제자리에 맞춘다
+빠르기 :: 빠르다 || 확인하는 만큼 느리다
+= 정확함이 먼저면 TCP, 빠르기가 먼저면 UDP
+```
+
+영상 통화나 게임은 조각 하나쯤 빠져도 다음 화면이 곧 온다. 그래서 확인 없이 던지는 UDP 를 쓴다. 반대로 웹 페이지나 계좌 내역은 한 조각만 빠져도 내용이 깨진다. 이런 통신이 TCP 를 쓴다.
+
+## ⚙️ 작동 원리
+
+통신을 시작할 때 세 마디로 연결부터 맺는다. "얘기하자" — "그래, 하자" — "좋아, 시작". 이 인사(3-way handshake)가 끝나야 번호를 붙일 기준선이 생긴다.
+
+보내는 속도도 다스린다. 받는 쪽이 감당할 만큼만 보내고(흐름 제어), 길이 막히는 낌새면 스스로 늦춘다(혼잡 제어).
+
+## 🚫 흔한 오해
+
+- **TCP 는 느려서 나쁜 방식이다** — 느림은 확인의 값이다. 깨지면 안 되는 통신에서는 이게 가장 빠른 "제대로 된" 길이다.
+- **인터넷 통신은 전부 TCP 다** — 영상 통화, 게임, DNS 조회처럼 빠르기가 먼저인 통신은 UDP 로 오간다.
+
+## 📝 정리
+
+**"확인하며 보내는 쪽"** 이라고 읽으면 된다. 짝으로 나오는 UDP 는 "확인 없이 던지는 쪽" 이다. 정확함이 먼저면 TCP, 빠르기가 먼저면 UDP — 글이 늘 이 대비 위에 서 있다.
+
+## 🧒 열 살에게
+
+전화로 준비물을 하나씩 불러 주는 거야. 한 개 말할 때마다 상대가 "응" 하는 걸 듣고 다음 걸 말하고, 대답이 없으면 방금 그걸 다시 말해. 그래서 조금 느리긴 한데, 하나도 안 빠지고 전해져.
+
+## ❓ 이해했는지
+
+- 영상 통화가 TCP 를 쓰지 않는 이유는 → 해결하는 문제
+- 보낸 조각의 답이 안 오면 TCP 는 어떻게 하나 → 그림
+- 본격적으로 보내기 전에 세 마디 인사를 하는 이유는 → 작동 원리
+
+## 🔗 관련 용어
+
+- [[UDP]] — 확인 없이 빠르게 던지는 반대쪽 약속
+- [[IP]] — 조각을 목적지까지 나르는 아래층 주소 체계
+- [[포트]] — 한 컴퓨터 안에서 어느 프로그램에게 줄지 정하는 번호
+  </script>
+
+  <script type="text/markdown" id="note-ip" data-cat="네트워크 기초">
+# IP 주소 (Internet Protocol Address)
+
+## 📝 정의
+
+IP 주소는 **네트워크에서 기기 한 대를 찾아가기 위한 숫자 주소**다.
+
+편지에 주소가 있어야 배달이 되듯, 데이터 조각에도 보낼 곳 주소가 있어야 한다. `192.168.0.7` 처럼 점으로 나뉜 네 숫자가 널리 쓰이는 IPv4 이고, 주소가 모자라 자릿수를 크게 늘린 IPv6 가 그 뒤를 잇고 있다.
+
+### 이름
+Internet :: 인터넷
+Protocol :: 약속
+Address :: 주소
+= 붙여 읽으면 "인터넷 약속의 주소". IP 라는 운반 규칙이 쓰는 주소 체계다
+
+### 비유
+집 주소. 이름은 사람이 부르기 좋고, 주소는 배달부가 찾아가기 좋다.
+
+### 예
+"IP 추적해서 신고하겠습니다" 할 때의 그 IP. 게시판이 글쓴이 옆에 남기는 숫자도, 해외에서 접속하면 넷플릭스가 알아채는 것도 이 주소다.
+
+### 직접
+검색창에 "내 IP" 라고 쳐 보라. 지금 바깥에 보이는 주소를 알려 준다. 폰 와이파이 설정 속 주소와는 다른 값인데, 왜 다른지가 아래 "무엇으로 되어 있나" 다.
+
+## 🖼️ 그림으로 보기
+
+```도해
+흐름: 유튜브 영상 조각은 어떻게 내 폰까지 오나
+유튜브 :: 우리 집 공인 IP 앞으로 조각을 보낸다
+인터넷 :: 라우터마다 주소를 보고 다음 길을 골라 준다
+공유기 :: 받아서 집 안의 폰, 사설 IP 로 넘겨 준다
+폰 :: 조각을 받아 화면에 그린다
+= 바깥에서는 공인 주소로, 집 안에서는 사설 주소로 찾아온다
+```
+
+## ⚠️ 해결하는 문제
+
+```도해
+대조: 주소가 없다면 무엇이 안 되나
+주소가 없으면 || IP 주소가 있으면
+길 찾기 :: 라우터가 방향을 못 정한다 || 주소를 보고 다음 길을 고른다
+답장 :: 어디로 돌려보낼지 모른다 || 온 주소로 돌려보낸다
+구분 :: 수십억 대가 뒤섞인다 || 한 대씩 특정된다
+= 서로 모르는 수십억 대가 통신하려면 전 세계 공통의 주소 체계가 필요하다
+```
+
+인터넷은 주인이 없는 망이다. 어느 회사의 장비를 지나든 통해야 하니, 전 세계가 같은 주소 체계를 쓰기로 한 것이 IP 다. 라우터는 목적지 주소만 보고 다음 방향을 고르고, 그 선택이 이어지고 이어져 지구 반대편까지 닿는다.
 
 ## 🧱 구성
 
 ```도해
-층: HTTPS 는 무엇을 무엇으로 감싼 것인가
-HTTP :: 주고받는 내용. 요청과 응답의 양식
-TLS :: 그 내용을 암호화하는 보안 계층
-TCP :: 암호문을 실어 나르는 연결
-IP :: 목적지 컴퓨터까지 찾아가는 주소 체계
-= HTTPS 라는 새 프로토콜이 따로 있는 게 아니다. HTTP 와 TCP 사이에 TLS 가 한 겹 낀 것이다
+층: 내 주소는 사실 두 겹이다
+공인 IP :: 인터넷 전체에서 보이는 바깥 주소. 통신사가 준다
+공유기 :: 바깥 주소 하나를 집 전체가 나눠 쓰게 바꿔 준다
+사설 IP :: 집 안에서만 통하는 안쪽 주소. 공유기가 준다
+= 검색창의 "내 IP" 는 바깥 주소, 와이파이 설정의 주소는 안쪽 주소다
 ```
-
-## ⚙️ 작동 원리
-
-인증서는 도메인 소유자가 인증 기관(CA)에서 받는다. 브라우저는 신뢰하는 CA 목록을 미리 갖고 있어서, 그 목록에 있는 곳이 서명한 인증서만 통과시킨다.
-
-```도해
-층: 인증서는 누가 누구를 보증하나
-루트 CA :: 브라우저에 미리 박혀 있는 최상위. 여기가 기준점
-중간 CA :: 루트가 서명해준 발급 기관
-서버 인증서 :: 중간 CA 가 이 도메인 것이라고 서명
-= 사슬이 루트까지 이어지지 않으면 브라우저가 경고를 띄운다
-```
-
-암호화 자체는 두 단계다. 인사할 때는 느리지만 안전한 방식으로 열쇠를 나누고, 그다음부터는 빠른 방식으로 실제 내용을 주고받는다.
-
-## 💡 실제 사례
-
-- **자물쇠 아이콘** — 주소창의 자물쇠는 "이 연결은 암호화됐고 인증서가 유효하다"는 뜻이다. 사이트가 착하다는 뜻은 아니다.
-- **무료 인증서** — Let's Encrypt가 나오면서 인증서 비용이 사라졌고, HTTPS가 기본이 됐다.
-- **HSTS** — 서버가 "앞으로 이 도메인은 무조건 HTTPS로 오라"고 브라우저에 기억시켜두는 헤더다.
 
 ## 🚫 흔한 오해
 
-- **자물쇠가 있으면 안전한 사이트다** — 자물쇠는 연결이 암호화됐다는 뜻이지 사이트를 믿어도 된다는 뜻이 아니다. 피싱 사이트도 인증서를 받는다.
-- **HTTPS면 서버에 저장된 데이터도 안전하다** — 오가는 길만 가린다. 서버에 평문으로 저장돼 있으면 털릴 때 그대로 털린다.
-- **어디에 접속하는지도 가려진다** — 도메인 이름은 대체로 보인다. 어느 페이지를 봤는지는 가려지지만 어느 사이트에 갔는지는 남는다.
-
-## 🚨 주의사항
-
-- **인증서에는 만료일이 있다.** 갱신을 놓치면 사이트 전체가 경고 화면으로 바뀐다. 자동 갱신을 걸어두고 만료 알림도 따로 받는다.
-- **혼합 콘텐츠를 조심한다.** HTTPS 페이지가 HTTP로 이미지나 스크립트를 부르면 브라우저가 막거나 자물쇠를 떼어낸다.
+- **IP 주소로 집 문 앞까지 찾아온다** — 겉으로 드러나는 건 대개 통신사와 도시 수준까지다. 그 너머는 통신사 기록을 법적 절차로 열어야 나온다.
+- **내 IP 는 평생 하나다** — 옮겨 다니면 바뀐다. 집에서, 카페에서, LTE 에서 각각 다른 주소를 받는다.
 
 ## 📝 정리
 
-HTTPS는 HTTP에 TLS를 씌운 것이다. 내용을 가리는 일과 상대가 맞는지 확인하는 일을 같이 하며, 둘 중 하나만으로는 의미가 없다.
+**"그 기기를 찾아가는 숫자 주소"** 라고 읽으면 된다. 하나만 더 — 인터넷에서 보이는 주소는 공인, 집 안에서 도는 주소는 사설이다.
+
+## 🧒 열 살에게
+
+택배가 집 주소를 보고 찾아오듯이, 인터넷에 붙은 기계는 저마다 숫자로 된 주소가 있어. 유튜브 영상도 그 주소를 보고 우리 폰까지 배달되는 거야.
 
 ## ❓ 이해했는지
 
-- 피싱 사이트에도 자물쇠가 붙는 이유는 → 흔한 오해
-- 암호화만 하고 상대를 확인하지 않으면 어떤 공격이 통하나 → 해결하는 문제
-- HTTPS 는 HTTP 를 대체하는 새 프로토콜인가 → 구성
+- 검색창의 "내 IP" 와 와이파이 설정의 주소가 다른 이유는 → 구성
+- 게시판에 남은 IP 로 집 주소까지 알 수 있나 → 흔한 오해
+- 라우터는 조각을 어느 쪽으로 보낼지 어떻게 정하나 → 해결하는 문제
 
 ## 🔗 관련 용어
 
-- [[HTTP]] — HTTPS가 감싸고 있는 원래 프로토콜
-- [[SSL_TLS]] — 실제로 암호화를 담당하는 계층
-- [[인증서]] — 이 서버가 그 도메인의 주인임을 증명하는 문서
-- [[CA]] — 인증서를 발급하고 보증하는 기관
-  </script>
-
-  <script type="text/markdown" id="note-dns" data-cat="네트워크 기초">
-# DNS (Domain Name System)
-
-## 📝 정의
-
-DNS는 **도메인 이름을 IP 주소로 바꿔주는 시스템**이다.
-
-사람은 `google.com` 을 기억하고, 컴퓨터는 `142.250.196.78` 로 접속한다. DNS 는 그 사이를 번역한다. 1983년에 만들어졌는데, 그전에는 모든 컴퓨터가 `hosts` 라는 주소록 파일 하나를 각자 들고 있었다.
-
-### 비유
-전화번호부. 친구 이름을 대면 번호를 알려주고, 친구가 번호를 바꿔도 이름은 그대로다.
-
-### 예
-주소창에 `google.com` 을 치는 순간마다 이 조회가 먼저 일어난다. 하루에도 수백 번.
-
-## 🖼️ 그림으로 보기
-
-```도해
-흐름: 주소창에 google.com 을 치면 무슨 일이 일어나나
-브라우저 :: 캐시에 있나? 있으면 여기서 끝난다
-로컬 DNS :: 없으면 ISP 나 `8.8.8.8` 에 묻는다
-루트 서버 :: ".com 담당은 저쪽이야"
-.com 서버 :: "google.com 담당은 저쪽이야"
-권한 서버 :: "142.250.196.78 이야"
-< 브라우저 :: 받은 IP 로 접속. TTL 동안 캐시에 둔다
-= 다섯 번을 물어 찾아가는 길이지만, 열에 아홉은 첫 줄에서 끝난다
-```
-
-## ⚠️ 해결하는 문제
-
-```도해
-대조: DNS 가 없으면 인터넷은 어떻게 되나
-DNS 없이 || DNS 로
-주소 :: 숫자 12자리를 왼다 || 이름만 기억한다
-서버 이전 :: 접속 경로가 끊긴다 || 레코드만 고치면 된다
-장애 :: 그 서버가 죽으면 끝 || 다른 IP 로 즉시 돌린다
-= 사람은 이름을, 기계는 숫자를 쓴다. DNS 는 그 사이의 번역기다
-```
-
-숫자 주소를 외우게 하면 인터넷은 대중화되지 않았을 것이다. 서버를 옮길 때마다 사용자에게 새 주소를 공지해야 하고, 북마크는 전부 죽는다.
-
-DNS 는 **이름과 주소를 분리**해서 이 셋을 한꺼번에 해결한다. 이름은 그대로 두고 주소만 갈아끼우면 되기 때문이다.
-
-## ⚙️ 작동 원리
-
-```도해
-층: 같은 주소를 두 번째로 열면 왜 빠른가
-브라우저 :: 탭을 닫기 전까지. 수십 초
-운영체제 :: hosts 파일과 OS 캐시. 수 분
-로컬 DNS :: TTL 이 정한 만큼. 보통 5분에서 1시간
-권한 서버 :: 원본. 여기까지 오는 요청은 드물다
-= 위에서 끝날수록 빠르다. TTL 은 "얼마나 위에 머물까"를 정하는 값이다
-```
-
-조회는 **재귀**와 **반복** 두 가지로 나뉜다. 브라우저는 로컬 DNS 에게 "답을 가져와" 라고 한 번만 시키고(재귀), 로컬 DNS 가 루트 → TLD → 권한 서버를 차례로 찾아다닌다(반복). 복잡한 일은 로컬 DNS 가 대신 한다.
-
-## 📊 비교
-
-| 레코드 | 무엇을 가리키나 | 언제 쓰나 |
-|---|---|---|
-| **A** | IPv4 주소 | 가장 기본 |
-| **AAAA** | IPv6 주소 | IPv6 환경 |
-| **CNAME** | 다른 도메인 | `www` 를 본체로 넘길 때 |
-| **MX** | 메일 서버 | 이메일 수신 |
-| **TXT** | 아무 문자열 | 도메인 소유 증명, 메일 인증 |
-
-## 💡 실제 사례
-
-- **무중단 배포** — 새 서버를 띄우고 A 레코드만 바꾸면 사용자는 아무것도 모르는 채 옮겨진다.
-- **지역별 응답** — 같은 도메인을 물어도 한국에서는 서울 IP, 미국에서는 버지니아 IP 를 돌려준다. CDN 이 이 방식으로 동작한다.
-- **장애 대응** — 헬스체크가 실패하면 그 IP 를 레코드에서 빼버린다.
-
-## 🚫 흔한 오해
-
-- **DNS 가 사이트에 연결해준다** — 아니다. IP 주소를 알려주고 거기서 끝난다. 연결은 그다음에 브라우저가 [[TCP]] 로 직접 맺는다.
-- **DNS 를 `8.8.8.8` 로 바꾸면 인터넷이 빨라진다** — 조회 몇십 ms 가 줄어들 뿐이다. 다운로드 속도는 그대로다.
-- **도메인을 사면 바로 열린다** — 레코드를 등록하고, 전 세계 캐시가 각자의 TTL 을 소진하기를 기다려야 한다.
-
-## 🚨 주의사항
-
-- **TTL 을 미리 낮춰라.** 이전 당일에 낮추면 이미 퍼진 캐시는 옛 주소를 그대로 물고 있다. 최소 하루 전에 60초로 내려둔다.
-- **전파는 즉시가 아니다.** "DNS 전파 중" 은 전 세계 캐시가 각자의 TTL 을 소진하기를 기다린다는 뜻이다.
-- **DNS 는 기본적으로 평문이다.** 무엇을 조회했는지 중간에서 다 보인다. DoH / DoT 가 이걸 가린다.
-
-## 📝 정리
-
-DNS 는 이름과 주소를 분리하는 장치다. 이 분리 하나로 기억하기 쉬워지고, 서버를 옮길 수 있고, 장애를 우회할 수 있게 된다. 캐시가 그 값을 싸게 만든다.
-
-## ❓ 이해했는지
-
-- google.com 을 두 번째로 열면 왜 더 빠른가? → 작동 원리
-- 서버 IP 를 바꿨는데 어떤 사람은 30분 동안 옛 서버로 간다. 왜인가? → 주의사항
-- DNS 가 IP 를 돌려준 다음에는 무슨 일이 일어나나? → 흔한 오해
-
-## 🔗 관련 용어
-
-- [[TCP]] — DNS 조회가 끝난 뒤 실제 연결을 맺는 계층
-- [[HTTP]] — 받은 IP 로 주고받는 내용
-- [[CDN]] — DNS 응답을 지역별로 다르게 주는 대표적 활용
-- [[Load Balancer]] — 하나의 이름 뒤에 여러 서버를 두는 다른 방법
-  </script>
-
-  <script type="text/markdown" id="note-cb" data-cat="아키텍처">
-# Circuit Breaker (서킷 브레이커)
-
-## 📝 정의
-
-Circuit Breaker는 **고장 난 서비스 호출을 잠시 끊어버리는 장치**다.
-
-응답이 없는 서비스를 계속 부르면 기다리는 요청이 쌓이고, 결국 부르는 쪽까지 같이 죽는다. 그래서 실패가 일정 횟수를 넘으면 아예 부르지 않고 즉시 실패로 처리한다.
-
-### 비유
-집의 두꺼비집. 전선에 문제가 생기면 알아서 내려가서 집 전체가 타는 걸 막는다. 고쳤다고 확신하기 전에 한 번 올려보고, 또 튀면 다시 내린다.
-
-### 예
-결제가 점검 중이어도 장바구니와 검색은 계속 되는 쇼핑몰. 그 사이의 벽이 이 장치다.
-
-## 🖼️ 그림으로 보기
-
-```도해
-흐름: 결제 서비스가 죽으면 주문 서비스는 무엇을 하나
-주문 서비스 :: 결제 서비스를 부른다. 응답이 없다
-차단기 :: 실패를 센다. 다섯 번째다
-차단기 :: 열린다. 이제부터 부르지 않는다
-주문 서비스 :: 즉시 "결제 잠시 불가" 로 답한다
-차단기 :: 30초 뒤 한 번만 시험 삼아 통과시킨다
-@ 다시 닫힘으로 :: 그 한 건이 성공하면. 실패하면 열린 채 30초 더
-= 죽은 곳을 계속 두드리지 않는 것이 무너짐을 막는다
-```
-
-## ⚠️ 해결하는 문제
-
-```도해
-대조: 아래 서비스 하나가 느려지면 어떻게 되나
-차단기 없이 || 차단기로
-대기 요청 :: 계속 쌓인다 || 즉시 실패 처리
-스레드 :: 전부 붙잡힌다 || 풀려 있다
-결과 :: 부르는 쪽도 죽음 || 그 기능만 막힘
-= 한 곳의 고장이 옆으로 번지지 않게 벽을 세우는 것이다
-```
-
-서비스 하나가 죽는 것보다 무서운 건 그 죽음이 번지는 것이다. 결제 서비스가 응답하지 않으면 주문 서비스의 스레드가 하나씩 거기 붙잡히고, 몇 분 안에 주문 서비스도 새 요청을 못 받는다. 주문이 멈추면 그 위의 화면 서비스도 멈춘다.
-
-차단기는 그 사슬을 끊는다. 결제가 안 되는 것과 사이트 전체가 안 되는 것은 전혀 다른 사고다.
-
-## ⚙️ 작동 원리
-
-상태가 셋이고, 그 사이를 돈다.
-
-```도해
-흐름: 차단기는 어떤 상태를 오가나
-닫힘 :: 평소. 그냥 통과시키고 실패만 센다
-열림 :: 실패가 한도를 넘음. 부르지 않고 즉시 실패
-반열림 :: 일정 시간 뒤. 한 건만 시험 삼아 통과
-@ 닫힘 또는 열림으로 :: 그 한 건의 성패가 정한다
-= 반열림이 있어서, 회복됐는지 확인하려고 폭주시키지 않아도 된다
-```
-
-열림 상태에서 무엇을 돌려줄지 정해두는 것이 중요하다. 캐시에 있던 옛 값을 주거나, 기본값을 주거나, 사용자에게 솔직하게 알리거나. 이 대비책을 [[Fallback]]이라고 한다.
-
-## 💡 실제 사례
-
-- **추천 목록** — 추천 서비스가 죽으면 인기 상품 목록으로 대체한다. 화면은 계속 뜬다.
-- **외부 API** — 환율 API가 응답하지 않으면 마지막으로 받은 환율을 그대로 쓰고 표시만 바꾼다.
-- **부분 장애 표시** — 결제만 막히면 "결제 점검 중"으로 안내하고 장바구니는 계속 쓰게 둔다.
-
-## 🚫 흔한 오해
-
-- **차단기가 장애를 고쳐준다** — 고치지 않는다. 번지는 것을 막을 뿐이고, 고장 난 서비스는 여전히 고장 나 있다.
-- **재시도를 하면 차단기는 필요 없다** — 반대다. 재시도만 하면 죽어가는 서비스에 부하를 더 얹어 더 빨리 죽인다. 재시도와 차단기는 같이 써야 한다.
-- **열림 상태는 오류다** — 설계대로 동작하는 정상 상태다. 오류로 취급해 알람을 끄면 정작 볼 신호를 잃는다.
-
-## 🚨 주의사항
-
-- **폴백을 정해두지 않으면 절반만 쓴 것이다.** 열렸을 때 무엇을 돌려줄지가 사용자 경험을 정한다.
-- **한도를 너무 낮게 잡지 않는다.** 일시적인 지연에도 열려버리면 멀쩡한 기능이 자주 막힌다.
-
-## 📝 정리
-
-Circuit Breaker는 실패가 반복되는 호출을 잠시 끊어 장애가 번지는 것을 막는 장치다. 닫힘, 열림, 반열림 세 상태를 오가며, 열렸을 때 무엇을 돌려줄지 정해두어야 제 값을 한다.
-
-## ❓ 이해했는지
-
-- 결제 서비스 하나가 느려졌는데 사이트 전체가 멈추는 이유는? → 해결하는 문제
-- 재시도만 넣으면 왜 상황이 더 나빠지나? → 흔한 오해
-- 반열림 상태가 없으면 회복 확인을 어떻게 해야 하고, 그게 왜 위험한가? → 작동 원리
-
-## 🔗 관련 용어
-
-- [[Rate Limiting]] — 들어오는 쪽을 막는다. 차단기는 나가는 쪽을 막는다
-- [[Latency]] — 응답이 늦어지는 정도. 차단기가 실패로 셀지 정하는 기준
-- [[Monolith vs Microservices]] — 서비스를 나누면서 이 장치가 필요해졌다
-- [[Fallback]] — 차단기가 열렸을 때 대신 돌려줄 것
+- [[DHCP]] — 이 주소를 자동으로 나눠 주는 약속
+- [[도메인]] — 숫자 주소에 붙인 사람용 이름
+- [[DNS]] — 이름을 이 주소로 바꿔 주는 번역 시스템
+- [[NAT]] — 공인 하나를 집 전체가 나눠 쓰게 하는 변환
   </script>
 
   <script src="../js/ui.js"></script>
@@ -532,7 +695,7 @@ Circuit Breaker는 실패가 반복되는 호출을 잠시 끊어 장애가 번�
     var esc = UI.esc;
 
     /* 목업 전용 키. 앱의 진짜 진도(it-vocab-mockup:v1)는 건드리지 않는다. */
-    var KEY = "it-vocab-mockup:term-next";
+    var KEY = "it-vocab-mockup:term-final";
 
     function load() {
       try {
@@ -556,20 +719,21 @@ Circuit Breaker는 실패가 반복되는 호출을 잠시 끊어 장애가 번�
        만들면 이해가 무한히 미뤄진다. */
 
     var GLOSS = {
-      "IP 주소": "네트워크에서 컴퓨터를 찾아가는 숫자 주소. 142.250.196.78 같은 값.",
-      "HTTP": "웹에서 페이지와 데이터를 주고받는 기본 약속. 내용이 그대로(평문) 오간다.",
-      "TLS": "오가는 내용을 남이 못 읽게 잠그고, 상대가 진짜인지 확인해 주는 보안 계층. 예전 이름이 SSL.",
-      "TCP": "두 컴퓨터 사이에 연결을 맺고, 보낸 것이 순서대로 빠짐없이 닿게 하는 운반 규칙.",
-      "IP": "네트워크에서 컴퓨터를 찾아가는 숫자 주소 체계. 142.250.196.78 같은 값.",
-      "인증서": "이 서버가 그 도메인의 주인이 맞다고, 믿을 만한 발급 기관(CA)이 서명해 준 문서.",
-      "암호화": "내용을 열쇠 없이는 읽을 수 없는 형태로 바꾸는 일.",
+      "IP 주소": "네트워크에서 기기 한 대를 찾아가는 숫자 주소. 192.168.0.7 같은 값.",
+      "IP": "네트워크에서 기기를 찾아가는 숫자 주소 체계. 그 규칙의 이름이기도 하다.",
+      "TCP": "보낸 것이 순서대로 빠짐없이 닿게 확인하며 나르는 운반 약속.",
+      "UDP": "확인 없이 빠르게 던지는 운반 약속. TCP 의 반대쪽.",
+      "DNS": "google.com 같은 이름을 IP 주소로 바꿔 주는 시스템.",
       "도메인": "google.com 처럼 사람이 기억하도록 지은 이름 주소.",
-      "캐시": "한 번 받아 온 답을 가까이 두었다가, 같은 질문에 다시 쓰는 것.",
-      "TTL": "받아 둔 답을 언제까지 믿어도 되는지 정한 유효 시간.",
-      "ISP": "KT·SK브로드밴드처럼 집과 회사에 인터넷 회선을 넣어 주는 통신사.",
-      "레코드": "DNS 가 이름마다 저장해 둔 항목. “이 이름은 이 주소” 라는 한 줄.",
-      "호출": "한 프로그램이 다른 프로그램에게 일을 시키고 답을 기다리는 것.",
-      "스레드": "서버 안에서 요청 하나를 붙잡고 처리하는 일손. 수가 정해져 있다.",
+      "공유기": "집의 인터넷 회선 하나를 여러 기기가 나눠 쓰게 해 주는 상자. 주소를 나눠 주는 서버가 안에 들어 있다.",
+      "라우터": "목적지 주소를 보고 데이터가 갈 다음 길을 골라 주는 장비.",
+      "게이트웨이": "안쪽 네트워크에서 바깥으로 나가는 문. 집에서는 대개 공유기 자신이다.",
+      "ISP": "KT·SK브로드밴드처럼 인터넷 회선을 넣어 주는 통신사.",
+      "포트": "한 컴퓨터 안에서 어느 프로그램에게 전할지 정하는 번호.",
+      "IPv4": "점으로 나뉜 네 숫자 주소 체계. 192.168.0.7 같은 값.",
+      "IPv6": "주소가 모자라 자릿수를 크게 늘린 다음 세대 주소 체계.",
+      "공인 IP": "인터넷 전체에서 보이는 바깥 주소. 통신사가 준다.",
+      "사설 IP": "집이나 회사 안에서만 통하는 안쪽 주소.",
     };
 
     // 긴 열쇠가 먼저 잡히게 한다 — "IP 주소" 가 "IP" 를 앞선다.
@@ -583,6 +747,65 @@ Circuit Breaker는 실패가 반복되는 호출을 잠시 끊어 장애가 번�
          한글이 이어지는 것은 조사다("HTTP를", "인증서를"). */
       GLOSS_RE[k] = new RegExp("(^|[^A-Za-z0-9가-힣])(" + body + ")(?![A-Za-z0-9])");
     });
+
+    /* ---------------------------------------------------------- 그림 서랍
+
+       ① 장면 한 컷 — 단어 하나에 그림 하나. 원문 Markdown 에는
+          없고, 제목을 열쇠로 이 서랍에서 나온다. 원문은 그림 때문에
+          한 글자도 바뀌지 않는다.
+       ② 배우 아이콘 — 24칸 · 1.7선 한 규격. 색은 currentColor 라
+          도해의 "지금" 배우가 파래지면 아이콘도 같이 파래진다. */
+
+    var SCENES = {
+      "DHCP":
+        '<svg viewBox="0 0 400 382" role="img" aria-label="세 컷 — 주소가 없던 폰이 공유기에게 주소를 빌려 그 주소로 통신하게 되는 이야기"><rect x="0" y="0" width="400" height="122" rx="12" fill="var(--surface)" stroke="var(--line-strong)" stroke-width="1.3"/><circle cx="17" cy="17" r="9" fill="none" stroke="var(--ink-3)" stroke-width="1.2"/><text x="17" y="21" text-anchor="middle" font-size="11" fill="var(--ink-3)">1</text><rect x="49" y="24" width="30" height="48" rx="6" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.8"/><circle cx="59" cy="41.3" r="2" fill="var(--ink)"/><circle cx="69" cy="41.3" r="2" fill="var(--ink)"/><path d="M57.5 53.3q6.5 -6 13 0" fill="none" stroke="var(--ink)" stroke-width="1.7" stroke-linecap="round"/><rect x="49.7" y="76" width="28.7" height="19" rx="5" fill="var(--st-reading-bg)" stroke="var(--st-reading)" stroke-width="1.5" stroke-dasharray="4 3"/><text x="64" y="89.6" text-anchor="middle" font-size="11.5" font-family="var(--font-mono)" fill="var(--st-reading)">?</text><line x1="298" y1="50" x2="298" y2="35" stroke="var(--ink)" stroke-width="1.8" stroke-linecap="round"/><line x1="334" y1="50" x2="334" y2="40" stroke="var(--ink)" stroke-width="1.8" stroke-linecap="round"/><rect x="286" y="50" width="60" height="22" rx="6" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.8"/><circle cx="303" cy="59" r="2" fill="var(--ink)"/><circle cx="313" cy="59" r="2" fill="var(--ink)"/><line x1="301.5" y1="70" x2="314.5" y2="70" stroke="var(--ink)" stroke-width="1.7" stroke-linecap="round"/><text x="200" y="113" text-anchor="middle" font-size="12" fill="var(--ink-2)">주소가 없다</text><rect x="0" y="130" width="400" height="122" rx="12" fill="var(--surface)" stroke="var(--line-strong)" stroke-width="1.3"/><circle cx="17" cy="147" r="9" fill="none" stroke="var(--ink-3)" stroke-width="1.2"/><text x="17" y="151" text-anchor="middle" font-size="11" fill="var(--ink-3)">2</text><rect x="49" y="154" width="30" height="48" rx="6" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.8"/><circle cx="59" cy="171.3" r="2" fill="var(--ink)"/><circle cx="69" cy="171.3" r="2" fill="var(--ink)"/><line x1="57.5" y1="182.3" x2="70.5" y2="182.3" stroke="var(--ink)" stroke-width="1.7" stroke-linecap="round"/><line x1="298" y1="180" x2="298" y2="165" stroke="var(--ink)" stroke-width="1.8" stroke-linecap="round"/><line x1="334" y1="180" x2="334" y2="170" stroke="var(--ink)" stroke-width="1.8" stroke-linecap="round"/><rect x="286" y="180" width="60" height="22" rx="6" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.8"/><circle cx="303" cy="189" r="2" fill="var(--ink)"/><circle cx="313" cy="189" r="2" fill="var(--ink)"/><path d="M301.5 198q6.5 6 13 0" fill="none" stroke="var(--ink)" stroke-width="1.7" stroke-linecap="round"/><line x1="278" y1="182" x2="87" y2="182" stroke="var(--ink-3)" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="5 5"/><path d="M95 178.1L87 182L95 185.9" fill="none" stroke="var(--ink-3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><rect x="134.8" y="172.5" width="95.4" height="19" rx="5" fill="var(--st-reading-bg)" stroke="var(--st-reading)" stroke-width="1.5"/><text x="182.5" y="186.1" text-anchor="middle" font-size="11.5" font-family="var(--font-mono)" fill="var(--st-reading)">192.168.0.7</text><rect x="280" y="134" width="72" height="22" rx="11" fill="var(--surface-sunken)" stroke="var(--line-strong)" stroke-width="1.2"/><path d="M320 156l-3 7 10-7" fill="var(--surface-sunken)" stroke="var(--line-strong)" stroke-width="1.2" stroke-linejoin="round"/><text x="316" y="149.1" text-anchor="middle" font-size="11.5" fill="var(--ink-2)">이거 써!</text><text x="200" y="243" text-anchor="middle" font-size="12" fill="var(--ink-2)">공유기가 빌려준다</text><rect x="0" y="260" width="400" height="122" rx="12" fill="var(--surface)" stroke="var(--line-strong)" stroke-width="1.3"/><circle cx="17" cy="277" r="9" fill="none" stroke="var(--ink-3)" stroke-width="1.2"/><text x="17" y="281" text-anchor="middle" font-size="11" fill="var(--ink-3)">3</text><rect x="49" y="284" width="30" height="48" rx="6" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.8"/><circle cx="59" cy="301.3" r="2" fill="var(--ink)"/><circle cx="69" cy="301.3" r="2" fill="var(--ink)"/><path d="M57.5 310.3q6.5 6 13 0" fill="none" stroke="var(--ink)" stroke-width="1.7" stroke-linecap="round"/><rect x="37.2" y="336" width="53.5" height="19" rx="5" fill="var(--surface-sunken)" stroke="var(--ink)" stroke-width="1.4"/><text x="64" y="349.6" text-anchor="middle" font-size="11.5" fill="var(--ink-2)">…0.7</text><line x1="298" y1="310" x2="298" y2="295" stroke="var(--ink)" stroke-width="1.8" stroke-linecap="round"/><line x1="334" y1="310" x2="334" y2="300" stroke="var(--ink)" stroke-width="1.8" stroke-linecap="round"/><rect x="286" y="310" width="60" height="22" rx="6" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.8"/><circle cx="303" cy="319" r="2" fill="var(--ink)"/><circle cx="313" cy="319" r="2" fill="var(--ink)"/><line x1="301.5" y1="330" x2="314.5" y2="330" stroke="var(--ink)" stroke-width="1.7" stroke-linecap="round"/><path d="M360 284.5l5 5.5L375 277" fill="none" stroke="var(--st-reading)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><text x="200" y="373" text-anchor="middle" font-size="12" fill="var(--ink-2)">그 주소로 통신한다</text></svg>',
+      "TCP":
+        '<svg viewBox="0 0 400 512" role="img" aria-label="네 컷 — 하나 보내고 답을 듣고, 답이 없으면 다시 보내 끝내 닿게 하는 이야기"><rect x="0" y="0" width="400" height="122" rx="12" fill="var(--surface)" stroke="var(--line-strong)" stroke-width="1.3"/><circle cx="17" cy="17" r="9" fill="none" stroke="var(--ink-3)" stroke-width="1.2"/><text x="17" y="21" text-anchor="middle" font-size="11" fill="var(--ink-3)">1</text><rect x="49" y="24" width="30" height="48" rx="6" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.8"/><circle cx="59" cy="41.3" r="2" fill="var(--ink)"/><circle cx="69" cy="41.3" r="2" fill="var(--ink)"/><line x1="57.5" y1="52.3" x2="70.5" y2="52.3" stroke="var(--ink)" stroke-width="1.7" stroke-linecap="round"/><rect x="301" y="24" width="30" height="48" rx="6" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.8"/><circle cx="311" cy="41.3" r="2" fill="var(--ink)"/><circle cx="321" cy="41.3" r="2" fill="var(--ink)"/><line x1="309.5" y1="52.3" x2="322.5" y2="52.3" stroke="var(--ink)" stroke-width="1.7" stroke-linecap="round"/><line x1="87" y1="52" x2="293" y2="52" stroke="var(--ink-3)" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="5 5"/><path d="M285 48.1L293 52L285 55.9" fill="none" stroke="var(--ink-3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><rect x="175.7" y="42.5" width="28.7" height="19" rx="5" fill="var(--st-reading-bg)" stroke="var(--st-reading)" stroke-width="1.5"/><text x="190" y="56.1" text-anchor="middle" font-size="11.5" font-family="var(--font-mono)" fill="var(--st-reading)">1</text><text x="200" y="113" text-anchor="middle" font-size="12" fill="var(--ink-2)">1번을 보낸다</text><rect x="0" y="130" width="400" height="122" rx="12" fill="var(--surface)" stroke="var(--line-strong)" stroke-width="1.3"/><circle cx="17" cy="147" r="9" fill="none" stroke="var(--ink-3)" stroke-width="1.2"/><text x="17" y="151" text-anchor="middle" font-size="11" fill="var(--ink-3)">2</text><rect x="49" y="154" width="30" height="48" rx="6" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.8"/><circle cx="59" cy="171.3" r="2" fill="var(--ink)"/><circle cx="69" cy="171.3" r="2" fill="var(--ink)"/><line x1="57.5" y1="182.3" x2="70.5" y2="182.3" stroke="var(--ink)" stroke-width="1.7" stroke-linecap="round"/><rect x="301" y="154" width="30" height="48" rx="6" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.8"/><circle cx="311" cy="171.3" r="2" fill="var(--ink)"/><circle cx="321" cy="171.3" r="2" fill="var(--ink)"/><path d="M309.5 180.3q6.5 6 13 0" fill="none" stroke="var(--ink)" stroke-width="1.7" stroke-linecap="round"/><line x1="293" y1="182" x2="87" y2="182" stroke="var(--ink-3)" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="5 5"/><path d="M95 178.1L87 182L95 185.9" fill="none" stroke="var(--ink-3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><rect x="160.8" y="172.5" width="58.3" height="19" rx="5" fill="var(--st-reading-bg)" stroke="var(--st-reading)" stroke-width="1.5"/><text x="190" y="186.1" text-anchor="middle" font-size="11.5" fill="var(--st-reading)">1 받음</text><text x="200" y="243" text-anchor="middle" font-size="12" fill="var(--ink-2)">받았다고 답한다</text><rect x="0" y="260" width="400" height="122" rx="12" fill="var(--surface)" stroke="var(--line-strong)" stroke-width="1.3"/><circle cx="17" cy="277" r="9" fill="none" stroke="var(--ink-3)" stroke-width="1.2"/><text x="17" y="281" text-anchor="middle" font-size="11" fill="var(--ink-3)">3</text><rect x="49" y="284" width="30" height="48" rx="6" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.8"/><circle cx="59" cy="301.3" r="2" fill="var(--ink)"/><circle cx="69" cy="301.3" r="2" fill="var(--ink)"/><path d="M57.5 313.3q6.5 -6 13 0" fill="none" stroke="var(--ink)" stroke-width="1.7" stroke-linecap="round"/><rect x="301" y="284" width="30" height="48" rx="6" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.8"/><circle cx="311" cy="301.3" r="2" fill="var(--ink)"/><circle cx="321" cy="301.3" r="2" fill="var(--ink)"/><line x1="309.5" y1="312.3" x2="322.5" y2="312.3" stroke="var(--ink)" stroke-width="1.7" stroke-linecap="round"/><line x1="87" y1="312" x2="223" y2="312" stroke="var(--ink-3)" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="5 5"/><rect x="124.3" y="302.5" width="28.7" height="19" rx="5" fill="var(--st-reading-bg)" stroke="var(--st-reading)" stroke-width="1.5"/><text x="138.7" y="316.1" text-anchor="middle" font-size="11.5" font-family="var(--font-mono)" fill="var(--st-reading)">2</text><line x1="216.5" y1="305.5" x2="229.5" y2="318.5" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round"/><line x1="229.5" y1="305.5" x2="216.5" y2="318.5" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round"/><text x="200" y="373" text-anchor="middle" font-size="12" fill="var(--ink-2)">2번은 답이 없다</text><rect x="0" y="390" width="400" height="122" rx="12" fill="var(--surface)" stroke="var(--line-strong)" stroke-width="1.3"/><circle cx="17" cy="407" r="9" fill="none" stroke="var(--ink-3)" stroke-width="1.2"/><text x="17" y="411" text-anchor="middle" font-size="11" fill="var(--ink-3)">4</text><rect x="49" y="414" width="30" height="48" rx="6" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.8"/><circle cx="59" cy="431.3" r="2" fill="var(--ink)"/><circle cx="69" cy="431.3" r="2" fill="var(--ink)"/><line x1="57.5" y1="442.3" x2="70.5" y2="442.3" stroke="var(--ink)" stroke-width="1.7" stroke-linecap="round"/><rect x="301" y="414" width="30" height="48" rx="6" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.8"/><circle cx="311" cy="431.3" r="2" fill="var(--ink)"/><circle cx="321" cy="431.3" r="2" fill="var(--ink)"/><path d="M309.5 440.3q6.5 6 13 0" fill="none" stroke="var(--ink)" stroke-width="1.7" stroke-linecap="round"/><line x1="87" y1="442" x2="293" y2="442" stroke="var(--ink-3)" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="5 5"/><path d="M285 438.1L293 442L285 445.9" fill="none" stroke="var(--ink-3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><rect x="175.7" y="432.5" width="28.7" height="19" rx="5" fill="var(--st-reading-bg)" stroke="var(--st-reading)" stroke-width="1.5"/><text x="190" y="446.1" text-anchor="middle" font-size="11.5" font-family="var(--font-mono)" fill="var(--st-reading)">2</text><path d="M360 414.5l5 5.5L375 407" fill="none" stroke="var(--st-reading)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><text x="200" y="503" text-anchor="middle" font-size="12" fill="var(--ink-2)">다시 보내니 닿는다</text></svg>',
+      "IP 주소":
+        '<svg viewBox="0 0 400 382" role="img" aria-label="세 컷 — 소포에 적은 번호와 같은 문패를 가진 집을 찾아 배달되는 이야기"><rect x="0" y="0" width="400" height="122" rx="12" fill="var(--surface)" stroke="var(--line-strong)" stroke-width="1.3"/><circle cx="17" cy="17" r="9" fill="none" stroke="var(--ink-3)" stroke-width="1.2"/><text x="17" y="21" text-anchor="middle" font-size="11" fill="var(--ink-3)">1</text><rect x="35" y="24" width="58" height="38" rx="6" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.8"/><line x1="64" y1="62" x2="64" y2="69" stroke="var(--ink)" stroke-width="1.8" stroke-linecap="round"/><line x1="50" y1="72" x2="78" y2="72" stroke="var(--ink)" stroke-width="1.8" stroke-linecap="round"/><circle cx="56.5" cy="40" r="2" fill="var(--ink)"/><circle cx="71.5" cy="40" r="2" fill="var(--ink)"/><line x1="55" y1="51" x2="73" y2="51" stroke="var(--ink)" stroke-width="1.7" stroke-linecap="round"/><rect x="179" y="40" width="42" height="32" rx="4" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.8"/><line x1="200" y1="40" x2="200" y2="72" stroke="var(--ink)" stroke-width="1.4" stroke-linecap="round"/><rect x="152.3" y="17" width="95.4" height="19" rx="5" fill="var(--st-reading-bg)" stroke="var(--st-reading)" stroke-width="1.5"/><text x="200" y="30.6" text-anchor="middle" font-size="11.5" font-family="var(--font-mono)" fill="var(--st-reading)">192.168.0.7</text><text x="200" y="113" text-anchor="middle" font-size="12" fill="var(--ink-2)">번호를 적는다</text><rect x="0" y="130" width="400" height="122" rx="12" fill="var(--surface)" stroke="var(--line-strong)" stroke-width="1.3"/><circle cx="17" cy="147" r="9" fill="none" stroke="var(--ink-3)" stroke-width="1.2"/><text x="17" y="151" text-anchor="middle" font-size="11" fill="var(--ink-3)">2</text><rect x="35" y="154" width="58" height="38" rx="6" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.8"/><line x1="64" y1="192" x2="64" y2="199" stroke="var(--ink)" stroke-width="1.8" stroke-linecap="round"/><line x1="50" y1="202" x2="78" y2="202" stroke="var(--ink)" stroke-width="1.8" stroke-linecap="round"/><circle cx="56.5" cy="170" r="2" fill="var(--ink)"/><circle cx="71.5" cy="170" r="2" fill="var(--ink)"/><line x1="55" y1="181" x2="73" y2="181" stroke="var(--ink)" stroke-width="1.7" stroke-linecap="round"/><rect x="301" y="154" width="30" height="48" rx="6" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.8"/><circle cx="311" cy="171.3" r="2" fill="var(--ink)"/><circle cx="321" cy="171.3" r="2" fill="var(--ink)"/><line x1="309.5" y1="182.3" x2="322.5" y2="182.3" stroke="var(--ink)" stroke-width="1.7" stroke-linecap="round"/><rect x="289.2" y="206" width="53.5" height="19" rx="5" fill="var(--surface-sunken)" stroke="var(--ink)" stroke-width="1.4"/><text x="316" y="219.6" text-anchor="middle" font-size="11.5" fill="var(--ink-2)">…0.7</text><line x1="101" y1="182" x2="293" y2="182" stroke="var(--ink-3)" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="5 5"/><path d="M285 178.1L293 182L285 185.9" fill="none" stroke="var(--ink-3)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><rect x="170.2" y="172.5" width="53.5" height="19" rx="5" fill="var(--st-reading-bg)" stroke="var(--st-reading)" stroke-width="1.5"/><text x="197" y="186.1" text-anchor="middle" font-size="11.5" fill="var(--st-reading)">…0.7</text><text x="200" y="243" text-anchor="middle" font-size="12" fill="var(--ink-2)">번호를 따라간다</text><rect x="0" y="260" width="400" height="122" rx="12" fill="var(--surface)" stroke="var(--line-strong)" stroke-width="1.3"/><circle cx="17" cy="277" r="9" fill="none" stroke="var(--ink-3)" stroke-width="1.2"/><text x="17" y="281" text-anchor="middle" font-size="11" fill="var(--ink-3)">3</text><rect x="35" y="284" width="58" height="38" rx="6" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.8"/><line x1="64" y1="322" x2="64" y2="329" stroke="var(--ink)" stroke-width="1.8" stroke-linecap="round"/><line x1="50" y1="332" x2="78" y2="332" stroke="var(--ink)" stroke-width="1.8" stroke-linecap="round"/><circle cx="56.5" cy="300" r="2" fill="var(--ink)"/><circle cx="71.5" cy="300" r="2" fill="var(--ink)"/><line x1="55" y1="311" x2="73" y2="311" stroke="var(--ink)" stroke-width="1.7" stroke-linecap="round"/><rect x="301" y="284" width="30" height="48" rx="6" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.8"/><circle cx="311" cy="301.3" r="2" fill="var(--ink)"/><circle cx="321" cy="301.3" r="2" fill="var(--ink)"/><path d="M309.5 310.3q6.5 6 13 0" fill="none" stroke="var(--ink)" stroke-width="1.7" stroke-linecap="round"/><rect x="289.2" y="336" width="53.5" height="19" rx="5" fill="var(--st-reading-bg)" stroke="var(--st-reading)" stroke-width="1.5"/><text x="316" y="349.6" text-anchor="middle" font-size="11.5" fill="var(--st-reading)">…0.7</text><path d="M360 284.5l5 5.5L375 277" fill="none" stroke="var(--st-reading)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><text x="200" y="373" text-anchor="middle" font-size="12" fill="var(--ink-2)">문패가 맞아 닿는다</text></svg>',
+    };
+
+    function scenefig(term) {
+      if (!SCENES[term]) return "";
+      return '<figure class="scene">' + SCENES[term] + "</figure>";
+    }
+
+    var ICONS = {
+      "폰": '<rect x="7.5" y="3" width="9" height="18" rx="2.2"/><line x1="10.8" y1="17.8" x2="13.2" y2="17.8"/>',
+      "공유기": '<line x1="7.5" y1="13" x2="7.5" y2="6.5"/><line x1="16.5" y1="13" x2="16.5" y2="9"/><rect x="3.5" y="13" width="17" height="7.5" rx="2"/><circle cx="7.6" cy="16.8" r="0.95" fill="currentColor" stroke="none"/><circle cx="11.2" cy="16.8" r="0.95" fill="currentColor" stroke="none"/>',
+      "서버": '<rect x="5.5" y="3.5" width="13" height="17" rx="2"/><line x1="5.5" y1="9.2" x2="18.5" y2="9.2"/><line x1="5.5" y1="14.8" x2="18.5" y2="14.8"/><circle cx="8.7" cy="6.4" r="0.95" fill="currentColor" stroke="none"/><circle cx="8.7" cy="12" r="0.95" fill="currentColor" stroke="none"/><circle cx="8.7" cy="17.6" r="0.95" fill="currentColor" stroke="none"/>',
+      "브라우저": '<rect x="3.5" y="4.5" width="17" height="15" rx="2"/><line x1="3.5" y1="8.8" x2="20.5" y2="8.8"/><circle cx="6.5" cy="6.7" r="0.85" fill="currentColor" stroke="none"/><circle cx="9.2" cy="6.7" r="0.85" fill="currentColor" stroke="none"/>',
+      "컴퓨터": '<rect x="4" y="4.5" width="16" height="11.5" rx="1.8"/><line x1="12" y1="16" x2="12" y2="19.5"/><line x1="8.5" y1="19.5" x2="15.5" y2="19.5"/>',
+      "인터넷": '<circle cx="12" cy="12" r="8.5"/><ellipse cx="12" cy="12" rx="3.8" ry="8.5"/><line x1="3.5" y1="12" x2="20.5" y2="12"/>',
+      "클라우드": '<path d="M7 18.5h9.5a4 4 0 1 0-.8-7.9 5.5 5.5 0 0 0-10.7 1.6A3.2 3.2 0 0 0 7 18.5Z"/>',
+      "DB": '<ellipse cx="12" cy="5.5" rx="7" ry="2.8"/><path d="M5 5.5v13c0 1.5 3.1 2.8 7 2.8s7-1.3 7-2.8v-13"/><path d="M5 12c0 1.5 3.1 2.8 7 2.8s7-1.3 7-2.8"/>',
+      "자물쇠": '<path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/><rect x="5.5" y="10.5" width="13" height="10" rx="2"/><circle cx="12" cy="15.5" r="1.05" fill="currentColor" stroke="none"/>',
+      "열쇠": '<circle cx="8" cy="8" r="4.2"/><line x1="11.2" y1="11.2" x2="20" y2="20"/><line x1="16.6" y1="16.6" x2="18.7" y2="14.5"/>',
+      "문서": '<path d="M6.5 3.5h7l4 4v13h-11z"/><path d="M13.5 3.5V8h4"/><line x1="9" y1="12.5" x2="15" y2="12.5"/><line x1="9" y1="16" x2="15" y2="16"/>',
+      "메시지": '<rect x="3.5" y="6" width="17" height="12.5" rx="2"/><path d="M4.5 7.5L12 13l7.5-5.5"/>',
+      "사람": '<circle cx="12" cy="8" r="3.8"/><path d="M5 20a7 7 0 0 1 14 0"/>',
+      "시계": '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2.5"/>',
+      "유튜브": '<rect x="3.5" y="5" width="17" height="14" rx="3"/><path d="M10.2 9.2l4.6 2.8-4.6 2.8z" fill="currentColor" stroke="none"/>',
+    };
+
+    function icon(name) {
+      if (!ICONS[name]) return "";
+      return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICONS[name] + "</svg>";
+    }
+
+    /* 배우 이름 → 아이콘. 이 표 하나면 전 편의 흐름 도해가 그림을 얻는다. */
+    var WHO = {
+      "폰": "폰", "공유기": "공유기", "유튜브": "유튜브", "인터넷": "인터넷",
+      "서버": "서버", "브라우저": "브라우저", "보내는 쪽": "폰", "받는 쪽": "폰",
+    };
+
+    function attachIcons(root) {
+      Array.prototype.forEach.call(root.querySelectorAll(".dia__who"), function (who) {
+        var name = who.textContent.trim();
+        if (!WHO[name]) return;
+        who.insertAdjacentHTML("afterbegin", '<span class="whoicon">' + icon(WHO[name]) + "</span>"); // security-ok: OWASP-A03-4 — ICONS 표에서만 만들어진다.
+      });
+    }
 
     /* ---------------------------------------------------------- 파싱 (mockup.js 와 같다) */
 
@@ -601,7 +824,7 @@ Circuit Breaker는 실패가 반복되는 호출을 잠시 끊어 장애가 번�
       "🧱 구성": "무엇으로 되어 있나",
     };
 
-    var FIXED = ["📝 정의", "🖼️ 그림으로 보기", "❓ 이해했는지", "🔗 관련 용어", "📝 정리"];
+    var FIXED = ["📝 정의", "🖼️ 그림으로 보기", "❓ 이해했는지", "🔗 관련 용어", "📝 정리", "🧒 열 살에게"];
 
     function splitSections(src) {
       var lines = src.split("\n");
@@ -643,11 +866,17 @@ Circuit Breaker는 실패가 반복되는 호출을 잠시 끊어 장애가 번�
       return null;
     }
 
-    /* 정의에서 ### 비유 와 ### 예 를 떼어낸다. 예는 새 제안이다 —
-       비유가 "무엇과 닮았나" 를 주면, 예는 "어디서 봤나" 를 준다. */
+    /* 정의에서 ### 이름 / ### 비유 / ### 예 / ### 직접 을 떼어낸다.
+       이름과 직접이 새 제안이다 — 이름은 영어 이름을 낱말로 쪼개
+       뜻을 붙이고(わわわ 사전의 訳してみるよ), 직접은 비유(닮은 것)
+       ·예(본 곳)에 이어 "지금 확인하는 법"(Norton) 을 준다. */
     function splitDefinition(md) {
-      var analogy = "", example = "";
+      var name = "", analogy = "", example = "", tryit = "";
       var rest = md
+        .replace(/^###\s+이름\s*\n([\s\S]*?)(?=\n###\s|\n##\s|$(?![\s\S]))/m, function (_, body) {
+          name = body.trim();
+          return "";
+        })
         .replace(/^###\s+비유\s*\n([\s\S]*?)(?=\n##|\n###|$)/m, function (_, body) {
           analogy = body.trim();
           return "";
@@ -655,10 +884,51 @@ Circuit Breaker는 실패가 반복되는 호출을 잠시 끊어 장애가 번�
         .replace(/^###\s+예\s*\n([\s\S]*?)(?=\n##|\n###|$)/m, function (_, body) {
           example = body.trim();
           return "";
+        })
+        .replace(/^###\s+직접\s*\n([\s\S]*?)(?=\n##|\n###|$)/m, function (_, body) {
+          tryit = body.trim();
+          return "";
         });
 
       var paras = rest.trim().split(/\n{2,}/);
-      return { gist: paras.shift() || "", body: paras.join("\n\n"), analogy: analogy, example: example };
+      return {
+        gist: paras.shift() || "",
+        body: paras.join("\n\n"),
+        name: name,
+        analogy: analogy,
+        example: example,
+        tryit: tryit,
+      };
+    }
+
+    /* ### 이름 의 문법은 도해와 같은 "낱말 :: 뜻" 과 "= 요약" 이다 */
+    function parseName(md) {
+      var words = [], sum = "";
+      md.split("\n").forEach(function (line) {
+        var m = line.match(/^\s*(.+?)\s*::\s*(.+)$/);
+        if (m) { words.push({ en: m[1].trim(), ko: m[2].trim() }); return; }
+        var s = line.match(/^\s*=\s*(.+)$/);
+        if (s) sum = s[1].trim();
+      });
+      return { words: words, sum: sum };
+    }
+
+    function namebox(md) {
+      var name = parseName(md);
+      if (!name.words.length) return "";
+      return (
+        '<aside class="analogy analogy--name"><b class="analogy__k">이름</b>' +
+        '<span class="namebox">' +
+        name.words.map(function (w) {
+          return '<span class="namebox__word"><b class="namebox__en">' + esc(w.en) + "</b>" +
+            '<span class="namebox__ko">' + esc(w.ko) + "</span></span>";
+        }).join('<span class="namebox__plus" aria-hidden="true">+</span>') +
+        "</span>" +
+        (name.sum
+          ? '<span class="namebox__sum">' + UI.markdown(name.sum).replace(/^<p>|<\/p>$/g, "") + "</span>"
+          : "") +
+        "</aside>"
+      );
     }
 
     /* ---------------------------------------------------------- 접기 칸 (mockup.js 와 같다) */
@@ -829,13 +1099,19 @@ Circuit Breaker는 실패가 반복되는 호출을 잠시 끊어 장애가 번�
         '<p class="detail__status"><span class="badge badge--reading">읽는 중</span></p>' +
         "</header>" +
         '<div class="gist">' + UI.markdown(parts.gist).replace(/^<p>|<\/p>$/g, "") + "</div>" +
+        scenefig(name.term) +
+        (parts.name ? namebox(parts.name) : "") +
         (parts.analogy
           ? '<aside class="analogy"><b class="analogy__k">비유</b>' +
             UI.markdown(parts.analogy).replace(/^<p>|<\/p>$/g, "") + "</aside>"
           : "") +
         (parts.example
-          ? '<aside class="analogy"><b class="analogy__k">예</b>' +
+          ? '<aside class="analogy analogy--case"><b class="analogy__k">예</b>' +
             UI.markdown(parts.example).replace(/^<p>|<\/p>$/g, "") + "</aside>"
+          : "") +
+        (parts.tryit
+          ? '<aside class="analogy analogy--case"><b class="analogy__k">직접</b>' +
+            UI.markdown(parts.tryit).replace(/^<p>|<\/p>$/g, "") + "</aside>"
           : "") +
         (parts.body ? '<div class="prose prose--def">' + UI.markdown(parts.body) + "</div>" : "")
       );
@@ -867,8 +1143,19 @@ Circuit Breaker는 실패가 반복되는 호출을 잠시 끊어 장애가 번�
     }
 
     function recap(md) {
-      return '<section class="recap"><h2 class="recap__head">한 번 더 정리</h2>' +
+      return '<section class="recap"><h2 class="recap__head">이 말을 만나면</h2>' +
         '<div class="prose">' + UI.markdown(md) + "</div></section>";
+    }
+
+    /* 마지막 관문 — 열 살에게. 모범 답은 IT 낱말 0개로 쓴다. */
+    function kidcard(md) {
+      return (
+        '<section class="kidcard">' +
+        '<h2 class="kidcard__head">열 살에게 설명할 수 있으면 진짜 아는 것이다</h2>' +
+        '<p class="kidcard__ask">IT 를 모르는 사람에게 이 단어를 두어 문장으로 설명해 보라 — 소리 내어. 막히면 비유와 그림에 다녀온다.</p>' +
+        '<details class="kidcard__box"><summary class="kidcard__btn">해 봤다 — 모범 답 열기</summary>' +
+        '<div class="kidcard__ans prose">' + UI.markdown(md) + "</div></details></section>"
+      );
     }
 
     function wireJumps(root) {
@@ -910,7 +1197,8 @@ Circuit Breaker는 실패가 반복되는 호출을 잠시 끊어 장애가 번�
       var best = null;
       for (var i = 0; i < GLOSS_KEYS.length; i++) {
         var k = GLOSS_KEYS[i];
-        if (k === skipTerm) continue;
+        // 제 이름과 그 조각("IP 주소" 안의 "IP")은 풀지 않는다
+        if (k === skipTerm || skipTerm.indexOf(k) !== -1 || k.indexOf(skipTerm) !== -1) continue;
         if (scopeSeen[k]) continue;
         if (!pageMarked[k] && budget.left <= 0) continue; // 새 용어는 예산이 있어야
         var m = GLOSS_RE[k].exec(text);
@@ -1148,15 +1436,21 @@ Circuit Breaker는 실패가 반복되는 호출을 잠시 끊어 장애가 번�
         if (s) html += pinsec(h, PINNED[h], s.body);
       });
 
-      html += '<div class="panels">' + panels(note.sections) + related(relItems) + "</div>";
+      var pan = panels(note.sections);
+      html += '<div class="panels">' +
+        (pan ? '<p class="panelhint">여기부터는 접혀 있다 — 몰라도 판은 읽히고, 궁금해지면 연다</p>' : "") +
+        pan + related(relItems) + "</div>";
       if (sum) html += recap(sum.body);
       if (check) html += selfcheck(check.body);
+      var kid = bySection(note.sections, "🧒 열 살에게");
+      if (kid) html += kidcard(kid.body);
 
       var detail = document.getElementById("detail");
       openGloss = null;
       detail.innerHTML = html; // security-ok: OWASP-A03-4 — 입력은 이 파일 안의 <script type="text/markdown"> 뿐이고, 모든 문자열이 UI.esc / UI.markdown / UI.dohae 의 esc 를 통과한다.
 
       wireJumps(detail);
+      attachIcons(detail);
       applyGloss(detail, name.term);
       setupWalk(detail, id);
       fitLoopRails(detail);
@@ -1221,9 +1515,18 @@ Circuit Breaker는 실패가 반복되는 호출을 잠시 끊어 장애가 번�
     switcher();
     theme();
 
+    /* 근거 칸의 아이콘 어휘 견본 */
+    var sheet = document.getElementById("iconsheet");
+    if (sheet) {
+      sheet.innerHTML = Object.keys(ICONS).map(function (name) { // security-ok: OWASP-A03-4 — 이 파일 안의 ICONS 표에서만 만들어진다.
+        return '<span class="iconsheet__cell">' + icon(name) +
+          '<span class="iconsheet__name">' + esc(name) + "</span></span>";
+      }).join("");
+    }
+
     /* 이어보기 — 주소가 정하면 주소가 이기고, 아니면 지난번 노트로 */
-    var first = location.hash.slice(1) || load().note || "note-https";
-    if (!show(first, false)) show("note-https", false);
+    var first = location.hash.slice(1) || load().note || "note-dhcp";
+    if (!show(first, false)) show("note-dhcp", false);
 
     window.addEventListener("resize", function () { fitLoopRails(document); });
     if (document.fonts && document.fonts.ready) {

@@ -1,0 +1,662 @@
+{
+  "lang--variable": {
+    "alt": "세 컷 — 무엇인지 알 수 없던 값에 '단가'라는 이름을 붙여 두고, 그 이름만 부르면 값이 나오게 되는 이야기",
+    "cuts": [
+      {
+        "caption": "이 값이 뭐지",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "저장통", "slot": "right", "face": "flat",
+           "tag": {"text": "1000", "tone": "blue"}}
+        ]
+      },
+      {
+        "caption": "이름을 붙인다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "저장통", "slot": "right", "face": "flat",
+           "tag": {"text": "1000", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "단가", "tone": "blue"}}
+      },
+      {
+        "caption": "이름으로 꺼낸다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "저장통", "slot": "right", "face": "flat",
+           "tag": {"text": "단가", "tone": "plain"}}
+        ],
+        "move": {"from": "right", "to": "left",
+                 "payload": {"text": "1000", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "lang--array-list": {
+    "alt": "세 컷 — 값마다 이름을 따로 짓던 사람이 값들을 번호 순서로 담고, 번호만 불러 그 값을 바로 꺼내는 이야기",
+    "cuts": [
+      {
+        "caption": "값마다 이름 짓기",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad",
+           "tag": {"text": "a b c d e", "tone": "blue"}},
+          {"part": "장부", "slot": "right", "face": "none"}
+        ]
+      },
+      {
+        "caption": "번호를 붙여 담는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "장부", "slot": "right", "face": "none",
+           "tag": {"text": "0 1 2 3 4", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "값 다섯", "tone": "blue"}}
+      },
+      {
+        "caption": "번호로 바로 꺼낸다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "장부", "slot": "right", "face": "none",
+           "tag": {"text": "0 1 2 3 4", "tone": "plain"}}
+        ],
+        "move": {"from": "right", "to": "left",
+                 "payload": {"text": "40", "tone": "blue"}},
+        "bubble": {"slot": "left", "text": "3번!"}
+      }
+    ]
+  },
+
+  "lang--dictionary-map": {
+    "alt": "세 컷 — 번호로는 무엇인지 알 수 없던 값에 이름표를 붙여 두고, 그 이름만 부르면 값이 나오게 되는 이야기",
+    "cuts": [
+      {
+        "caption": "번호로는 모른다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "장부", "slot": "right", "face": "none",
+           "tag": {"text": "2번 = ?", "tone": "blue-dash"}}
+        ],
+        "bubble": {"slot": "left", "text": "2번이 뭐지"}
+      },
+      {
+        "caption": "이름표를 붙인다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "장부", "slot": "right", "face": "none"}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "email", "tone": "blue"}}
+      },
+      {
+        "caption": "이름만 부르면 된다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "장부", "slot": "right", "face": "none",
+           "tag": {"text": "email", "tone": "plain"}}
+        ],
+        "move": {"from": "right", "to": "left",
+                 "payload": {"text": "a@b.com", "tone": "blue"}},
+        "bubble": {"slot": "left", "text": "email!"}
+      }
+    ]
+  },
+
+  "lang--function": {
+    "alt": "세 컷 — 부를 이름이 없어 매번 다시 적던 코드에 이름을 붙이고, 값을 넣어 부르면 결과가 돌아오는 이야기",
+    "cuts": [
+      {
+        "caption": "부를 이름이 없다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "문서", "slot": "right", "face": "none",
+           "tag": {"text": "이름 없음", "tone": "blue-dash"}}
+        ],
+        "bubble": {"slot": "left", "text": "또 적어야 해"}
+      },
+      {
+        "caption": "값을 넣어 부른다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "문서", "slot": "right", "face": "none",
+           "tag": {"text": "넓이 구하기", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "5", "tone": "blue"}}
+      },
+      {
+        "caption": "결과가 돌아온다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "문서", "slot": "right", "face": "none",
+           "tag": {"text": "넓이 구하기", "tone": "plain"}}
+        ],
+        "move": {"from": "right", "to": "left",
+                 "payload": {"text": "78.5", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "lang--loop": {
+    "alt": "세 컷 — 몇 개일지 몰라 붙여넣기로는 쓸 수 없던 일을, 하나씩 다시 돌다가 남은 것이 없으면 빠져나오는 이야기",
+    "cuts": [
+      {
+        "caption": "몇 번 쓸지 모른다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "장부", "slot": "right", "face": "none",
+           "tag": {"text": "몇 개일지 모름", "tone": "blue-dash"}}
+        ]
+      },
+      {
+        "caption": "남았으면 또 돈다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "장부", "slot": "right", "face": "none"}
+        ],
+        "move": {"from": "right", "to": "left",
+                 "payload": {"text": "다음 하나", "tone": "blue"}},
+        "bubble": {"slot": "left", "text": "또!"}
+      },
+      {
+        "caption": "다 돌면 나온다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "장부", "slot": "right", "face": "none",
+           "tag": {"text": "남은 것 0", "tone": "plain"}}
+        ]
+      }
+    ]
+  },
+
+  "lang--recursion": {
+    "alt": "네 컷 — 혼자서는 못 푸는 문제를 같은 함수에게 한 단계 작게 넘기고, 더 줄일 수 없는 자리에서 멈춘 뒤 답이 거슬러 올라오는 이야기",
+    "cuts": [
+      {
+        "caption": "혼자서는 못 푼다",
+        "actors": [
+          {"part": "문서", "slot": "left", "face": "none", "who": "함수",
+           "tag": {"text": "3! = ?", "tone": "blue-dash"}},
+          {"part": "문서", "slot": "right", "face": "none", "who": "같은 함수"}
+        ],
+        "check": false
+      },
+      {
+        "caption": "자기를 다시 부른다",
+        "actors": [
+          {"part": "문서", "slot": "left", "face": "none", "who": "함수"},
+          {"part": "문서", "slot": "right", "face": "none", "who": "같은 함수"}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "2!", "tone": "blue"}},
+        "check": false
+      },
+      {
+        "caption": "더 못 줄여 멈춘다",
+        "actors": [
+          {"part": "문서", "slot": "left", "face": "none", "who": "함수"},
+          {"part": "문서", "slot": "right", "face": "none", "who": "같은 함수",
+           "tag": {"text": "1! = 1", "tone": "blue"}}
+        ],
+        "check": false
+      },
+      {
+        "caption": "답이 거슬러 온다",
+        "actors": [
+          {"part": "문서", "slot": "left", "face": "none", "who": "함수"},
+          {"part": "문서", "slot": "right", "face": "none", "who": "같은 함수"}
+        ],
+        "move": {"from": "right", "to": "left",
+                 "payload": {"text": "6", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "lang--class": {
+    "alt": "세 컷 — 따로 놀던 값과 기능을 설계도 하나에 묶어 두고, 그 설계도에서 값이 채워진 것이 나오는 이야기",
+    "cuts": [
+      {
+        "caption": "값이 따로 논다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad",
+           "tag": {"text": "이름 나이 메일", "tone": "blue"}}
+        ]
+      },
+      {
+        "caption": "한 설계도에 묶는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "문서", "slot": "right", "face": "none",
+           "tag": {"text": "User 설계도", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "값과 기능", "tone": "blue"}}
+      },
+      {
+        "caption": "값이 채워져 나온다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "문서", "slot": "right", "face": "none",
+           "tag": {"text": "User 설계도", "tone": "plain"}}
+        ],
+        "move": {"from": "right", "to": "left",
+                 "payload": {"text": "Alice 25", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "lang--object": {
+    "alt": "세 컷 — 기능을 부를 때마다 값을 전부 넘기던 것을, 값과 기능을 한 덩어리로 묶어 더는 넘기지 않게 되는 이야기",
+    "cuts": [
+      {
+        "caption": "값을 매번 넘긴다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "문서", "slot": "right", "face": "none",
+           "tag": {"text": "drive 기능", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "브랜드 속도", "tone": "blue"}}
+      },
+      {
+        "caption": "값과 기능을 묶는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "소포", "slot": "mid", "face": "none",
+           "tag": {"text": "Tesla", "tone": "plain", "at": "above"}},
+          {"part": "문서", "slot": "right", "face": "none",
+           "tag": {"text": "drive 기능", "tone": "plain"}}
+        ],
+        "move": {"from": "right", "to": "mid",
+                 "payload": {"text": "기능", "tone": "blue"}}
+      },
+      {
+        "caption": "값을 안 넘긴다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "소포", "slot": "mid", "face": "none",
+           "tag": {"text": "Tesla 달린다", "tone": "blue", "at": "above"}}
+        ],
+        "bubble": {"slot": "left", "text": "drive()"}
+      }
+    ]
+  },
+
+  "lang--compile": {
+    "alt": "세 컷 — 글자로 된 코드가 닿지 않던 컴퓨터를 위해 실행 전에 기계어 파일로 미리 바꿔 두고, 그 파일이 바로 실행되는 이야기",
+    "cuts": [
+      {
+        "caption": "글자는 못 읽는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right", "head": false,
+                 "payload": {"text": "코드 글자", "tone": "blue"}},
+        "mark": "x"
+      },
+      {
+        "caption": "미리 번역해 둔다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "문서", "slot": "mid", "face": "none",
+           "tag": {"text": "실행 파일", "tone": "plain"}},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "mid",
+                 "payload": {"text": "기계어", "tone": "blue"}}
+      },
+      {
+        "caption": "바로 실행된다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "문서", "slot": "mid", "face": "none",
+           "tag": {"text": "실행 파일", "tone": "plain"}},
+          {"part": "컴퓨터", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "mid", "to": "right",
+                 "payload": {"text": "0101", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "lang--compile-vs-interpret": {
+    "alt": "세 컷 — 글자 그대로는 닿지 않는 코드를 두고 번역을 미리 할지 그때그때 할지 고르지만, 어느 쪽이든 기계어가 되어 닿는다는 이야기",
+    "cuts": [
+      {
+        "caption": "그대로는 못 읽는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right", "head": false,
+                 "payload": {"text": "코드 글자", "tone": "blue"}},
+        "mark": "x"
+      },
+      {
+        "caption": "언제 옮길지 고른다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "표지판", "slot": "mid", "face": "none",
+           "tag": {"text": "미리 / 그때그때", "tone": "blue"}},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ]
+      },
+      {
+        "caption": "어느 쪽이든 닿는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "표지판", "slot": "mid", "face": "none",
+           "tag": {"text": "미리 / 그때그때", "tone": "plain"}},
+          {"part": "컴퓨터", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "mid", "to": "right",
+                 "payload": {"text": "기계어", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "lang--build": {
+    "alt": "세 컷 — 손으로 하면 제각각이던 결과를, 정해진 차례를 거치게 해서 언제나 같은 산출물 하나가 나오게 하는 이야기",
+    "cuts": [
+      {
+        "caption": "결과가 제각각이다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "소포", "slot": "right", "face": "none",
+           "tag": {"text": "?", "tone": "blue-dash", "at": "above"}}
+        ]
+      },
+      {
+        "caption": "정해진 차례로 돈다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "문서", "slot": "mid", "face": "none",
+           "tag": {"text": "빌드 차례", "tone": "plain"}},
+          {"part": "소포", "slot": "right", "face": "none"}
+        ],
+        "move": {"from": "left", "to": "mid",
+                 "payload": {"text": "소스 코드", "tone": "blue"}}
+      },
+      {
+        "caption": "같은 것이 나온다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "문서", "slot": "mid", "face": "none",
+           "tag": {"text": "빌드 차례", "tone": "plain"}},
+          {"part": "소포", "slot": "right", "face": "none"}
+        ],
+        "move": {"from": "mid", "to": "right",
+                 "payload": {"text": "산출물", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "lang--component": {
+    "alt": "세 컷 — 화면마다 따로 그려 하나만 옛 것으로 남던 버튼을, 한 벌만 두고 불러 쓰게 만드는 이야기",
+    "cuts": [
+      {
+        "caption": "하나가 안 바뀐다",
+        "actors": [
+          {"part": "폰", "slot": "mid", "face": "flat", "who": "화면1",
+           "tag": {"text": "새 버튼", "tone": "plain"}},
+          {"part": "폰", "slot": "right", "face": "sad", "who": "화면2",
+           "tag": {"text": "옛 버튼", "tone": "blue-dash"}}
+        ]
+      },
+      {
+        "caption": "한 벌만 두고 쓴다",
+        "actors": [
+          {"part": "문서", "slot": "left", "face": "none",
+           "tag": {"text": "버튼 한 벌", "tone": "plain"}},
+          {"part": "폰", "slot": "mid", "face": "flat", "who": "화면1"},
+          {"part": "폰", "slot": "right", "face": "flat", "who": "화면2"}
+        ],
+        "move": {"from": "left", "to": "mid",
+                 "payload": {"text": "버튼", "tone": "blue"}}
+      },
+      {
+        "caption": "고칠 곳이 하나다",
+        "actors": [
+          {"part": "문서", "slot": "left", "face": "none",
+           "tag": {"text": "새 색", "tone": "blue"}},
+          {"part": "폰", "slot": "mid", "face": "happy", "who": "화면1"},
+          {"part": "폰", "slot": "right", "face": "happy", "who": "화면2"}
+        ]
+      }
+    ]
+  },
+
+  "lang--package-module": {
+    "alt": "세 컷 — 한 파일 안에서 이름이 겹치던 것을 파일로 나눠 폴더 하나로 묶고, 이름 하나로 통째로 가져다 쓰는 이야기",
+    "cuts": [
+      {
+        "caption": "같은 이름이 겹친다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "문서", "slot": "mid", "face": "none",
+           "tag": {"text": "hello 둘", "tone": "blue"}}
+        ]
+      },
+      {
+        "caption": "파일들을 묶는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "문서", "slot": "mid", "face": "none"},
+          {"part": "소포", "slot": "right", "face": "none"}
+        ],
+        "move": {"from": "mid", "to": "right",
+                 "payload": {"text": "utils", "tone": "blue"}}
+      },
+      {
+        "caption": "이름 하나로 부른다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "소포", "slot": "right", "face": "none"}
+        ],
+        "move": {"from": "right", "to": "left",
+                 "payload": {"text": "mypackage", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "lang--json": {
+    "alt": "세 컷 — 언어가 달라 서로 못 읽던 값을 정해진 글자 형식으로 적어 보내고, 받는 쪽이 그대로 풀어 쓰는 이야기",
+    "cuts": [
+      {
+        "caption": "서로 못 읽는다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right", "head": false,
+                 "payload": {"text": "제각각 값", "tone": "blue"}},
+        "mark": "x"
+      },
+      {
+        "caption": "형식을 맞춰 적는다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "happy"},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "{\"name\":…}", "tone": "blue"}}
+      },
+      {
+        "caption": "그대로 풀어 쓴다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "happy",
+           "tag": {"text": "name → Alice", "tone": "blue"}}
+        ]
+      }
+    ]
+  },
+
+  "lang--xml": {
+    "alt": "세 컷 — 값만 와서 무엇인지 알 수 없던 것을 여는 태그와 닫는 태그로 감싸 겹쳐 두고, 이름으로 그 자리를 찾아가는 이야기",
+    "cuts": [
+      {
+        "caption": "값만 와서 모른다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "Alice,25", "tone": "blue"}}
+      },
+      {
+        "caption": "태그로 감싼다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "문서", "slot": "mid", "face": "none",
+           "tag": {"text": "<name>…", "tone": "plain"}},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "mid",
+                 "payload": {"text": "Alice", "tone": "blue"}}
+      },
+      {
+        "caption": "이름으로 찾아간다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "문서", "slot": "mid", "face": "none",
+           "tag": {"text": "<user><name>", "tone": "plain"}},
+          {"part": "컴퓨터", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "mid", "to": "right",
+                 "payload": {"text": "name", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "lang--csv": {
+    "alt": "세 컷 — 전용 형식이라 열리지 않던 표를, 쉼표로 값만 나눈 글자로 적어 무엇으로든 열리게 만드는 이야기",
+    "cuts": [
+      {
+        "caption": "전용 앱이 있어야",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "사람", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right", "head": false,
+                 "payload": {"text": "전용 형식", "tone": "blue"}},
+        "mark": "x"
+      },
+      {
+        "caption": "쉼표로 값만 적는다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "사람", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "이름,나이", "tone": "blue"}}
+      },
+      {
+        "caption": "무엇으로든 열린다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "사람", "slot": "right", "face": "happy",
+           "tag": {"text": "이름 | 나이", "tone": "blue"}}
+        ]
+      }
+    ]
+  },
+
+  "lang--yaml": {
+    "alt": "세 컷 — 기호 하나에 깨지던 설정 파일을 여백으로 구조를 적는 형식으로 바꿔, 줄 단위로 고치고 주석까지 남기는 이야기",
+    "cuts": [
+      {
+        "caption": "기호에 깨진다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "문서", "slot": "right", "face": "none",
+           "tag": {"text": "쉼표 하나 빠짐", "tone": "blue"}}
+        ]
+      },
+      {
+        "caption": "여백으로 적는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "문서", "slot": "right", "face": "none"}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "두 칸 들여쓰기", "tone": "blue"}}
+      },
+      {
+        "caption": "줄 단위로 고친다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "문서", "slot": "right", "face": "none",
+           "tag": {"text": "# 주석까지", "tone": "blue"}}
+        ]
+      }
+    ]
+  },
+
+  "lang--framework-vs-library": {
+    "alt": "세 컷 — 누가 누구를 부르는지 몰라 헤매다가, 내가 부르면 라이브러리이고 그쪽이 나를 부르면 프레임워크임을 화살표 방향으로 가르는 이야기",
+    "cuts": [
+      {
+        "caption": "방향을 모른다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "문서", "slot": "right", "face": "none",
+           "tag": {"text": "?", "tone": "blue-dash"}}
+        ]
+      },
+      {
+        "caption": "내가 부른다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "문서", "slot": "right", "face": "none",
+           "tag": {"text": "라이브러리", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "부른다", "tone": "blue"}}
+      },
+      {
+        "caption": "내가 불린다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "문서", "slot": "right", "face": "none",
+           "tag": {"text": "프레임워크", "tone": "plain"}}
+        ],
+        "move": {"from": "right", "to": "left",
+                 "payload": {"text": "부른다", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "lang--term-ac6828de": {
+    "alt": "세 컷 — 조건문이 줄줄이 늘어나던 검사를 글자의 모양 한 줄로 적어 두고, 그 모양에 맞는 것만 지나가게 하는 이야기",
+    "cuts": [
+      {
+        "caption": "조건문이 줄줄이",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad",
+           "tag": {"text": "조건문 수십 줄", "tone": "blue"}}
+        ]
+      },
+      {
+        "caption": "모양으로 적는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "문", "slot": "right", "face": "none",
+           "tag": {"text": "^…@…\\.[a-z]$", "tone": "blue"}}
+        ]
+      },
+      {
+        "caption": "맞는 것만 지난다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "문", "slot": "right", "face": "none",
+           "tag": {"text": "^…@…\\.[a-z]$", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "a@b.com", "tone": "blue"}}
+      }
+    ]
+  }
+}

@@ -1,0 +1,1417 @@
+{
+  "cs--async-await": {
+    "alt": "세 컷 — 기다릴 일이 겹칠수록 오른쪽으로 밀려 안쪽에 파묻히던 코드가, 기다리는 자리를 한 줄로 적는 문법 덕에 위에서 아래로 읽히게 되는 이야기",
+    "cuts": [
+      {
+        "caption": "안쪽에 파묻힌다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "문서", "slot": "right", "face": "none",
+           "tag": {"text": "오른쪽으로 밀림", "tone": "blue"}}
+        ]
+      },
+      {
+        "caption": "한 줄로 적는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "문서", "slot": "right", "face": "none"}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "기다림 한 줄", "tone": "blue"}}
+      },
+      {
+        "caption": "위에서 아래로",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "문서", "slot": "right", "face": "none",
+           "tag": {"text": "한 줄씩", "tone": "plain"}}
+        ]
+      }
+    ]
+  },
+
+  "cs--big-o": {
+    "alt": "세 컷 — 지금 재보는 것만으로는 데이터가 백만 건이 됐을 때를 알 수 없던 것이, 늘어나는 모양을 적어 두자 재보지 않고도 알게 되는 이야기",
+    "cuts": [
+      {
+        "caption": "재봐야만 안다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "right", "to": "left", "head": false,
+                 "payload": {"text": "100만 건은?", "tone": "blue-dash"}},
+        "mark": "x"
+      },
+      {
+        "caption": "늘어남을 적는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "장부", "slot": "mid", "face": "none"}
+        ],
+        "move": {"from": "left", "to": "mid",
+                 "payload": {"text": "늘어남", "tone": "blue"}}
+      },
+      {
+        "caption": "재보지 않고 안다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "장부", "slot": "mid", "face": "none"},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "mid", "to": "left",
+                 "payload": {"text": "백 배", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "cs--binary": {
+    "alt": "세 컷 — 전압을 열 단계로 나누면 잡음에 섞여 못 닿던 것이, 높다 낮다 두 값만 쓰기로 하자 한참 흔들려도 그대로 닿는 이야기",
+    "cuts": [
+      {
+        "caption": "흔들리면 섞인다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "who": "보낸 쪽", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "who": "받는 쪽", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right", "head": false,
+                 "payload": {"text": "0~9 열 단계", "tone": "blue"}},
+        "mark": "x"
+      },
+      {
+        "caption": "둘로만 적는다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "who": "보낸 쪽", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "who": "받는 쪽", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "높다 낮다", "tone": "blue"}},
+        "bubble": {"slot": "left", "text": "둘뿐이다"}
+      },
+      {
+        "caption": "흔들려도 닿는다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "who": "보낸 쪽", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "who": "받는 쪽", "face": "happy"}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "01001101", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "cs--binary-search": {
+    "alt": "세 컷 — 100만 개를 앞에서부터 다 견주던 찾기가, 가운데 하나만 보고 나머지 절반을 버리기를 되풀이해 스무 번에 좁혀지는 이야기",
+    "cuts": [
+      {
+        "caption": "끝까지 견준다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "장부", "slot": "right", "face": "none",
+           "tag": {"text": "100만 개", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "하나씩", "tone": "blue"}}
+      },
+      {
+        "caption": "가운데만 본다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "돋보기", "slot": "mid", "face": "none"},
+          {"part": "장부", "slot": "right", "face": "none"}
+        ],
+        "move": {"from": "right", "to": "mid",
+                 "payload": {"text": "가운데", "tone": "blue"}}
+      },
+      {
+        "caption": "스무 번이면 끝",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "돋보기", "slot": "mid", "face": "none"},
+          {"part": "장부", "slot": "right", "face": "none",
+           "tag": {"text": "반이 버려짐", "tone": "blue"}}
+        ]
+      }
+    ]
+  },
+
+  "cs--blocking-vs-non-blocking": {
+    "alt": "세 컷 — 부른 일이 끝날 때까지 그 앞에 멈춰 서 있던 것이, 곧바로 돌려보내는 방식으로 바꾸자 그 사이 다른 일을 하다 결과를 나중에 받는 이야기",
+    "cuts": [
+      {
+        "caption": "답까지 멈춘다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "저장통", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "읽어 줘", "tone": "blue"}}
+      },
+      {
+        "caption": "곧바로 돌려준다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "저장통", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "right", "to": "left",
+                 "payload": {"text": "나중에 줄게", "tone": "blue"}}
+      },
+      {
+        "caption": "그 사이 일을 한다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "저장통", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "right", "to": "left",
+                 "payload": {"text": "다 됐다", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "cs--cpu": {
+    "alt": "세 컷 — 절차를 적어 두기만 해서는 아무 일도 일어나지 않던 것이, 명령을 하나씩 꺼내 그대로 실행하는 부품을 거치자 차례대로 결과가 나오는 이야기",
+    "cuts": [
+      {
+        "caption": "적어도 안 돈다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "문서", "slot": "right", "face": "none",
+           "tag": {"text": "적힌 절차", "tone": "blue"}}
+        ]
+      },
+      {
+        "caption": "하나씩 꺼내 읽는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "컴퓨터", "slot": "mid", "face": "flat"},
+          {"part": "문서", "slot": "right", "face": "none"}
+        ],
+        "move": {"from": "right", "to": "mid",
+                 "payload": {"text": "명령", "tone": "blue"}}
+      },
+      {
+        "caption": "차례로 일이 된다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "컴퓨터", "slot": "mid", "face": "happy"},
+          {"part": "문서", "slot": "right", "face": "none"}
+        ],
+        "move": {"from": "mid", "to": "left",
+                 "payload": {"text": "결과", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "cs--cache": {
+    "alt": "세 컷 — 같은 것을 물을 때마다 먼 곳까지 다녀오던 것이, 한 번 구한 결과를 가까운 곳에 두자 다음부터는 거기서 꺼내 쓰는 이야기",
+    "cuts": [
+      {
+        "caption": "매번 멀리 간다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "저장통", "slot": "right", "who": "원본", "face": "flat",
+           "tag": {"text": "원본", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "같은 물음", "tone": "blue"}}
+      },
+      {
+        "caption": "가까이 둔다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "저장통", "slot": "mid", "who": "가까운 곳", "face": "flat",
+           "tag": {"text": "가까운 곳", "tone": "plain"}},
+          {"part": "저장통", "slot": "right", "who": "원본", "face": "flat"}
+        ],
+        "move": {"from": "right", "to": "mid",
+                 "payload": {"text": "결과", "tone": "blue"}}
+      },
+      {
+        "caption": "다시 안 간다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "저장통", "slot": "mid", "who": "가까운 곳", "face": "happy"},
+          {"part": "저장통", "slot": "right", "who": "원본", "face": "flat"}
+        ],
+        "move": {"from": "mid", "to": "left",
+                 "payload": {"text": "같은 결과", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "cs--character-encoding": {
+    "alt": "세 컷 — 적은 쪽과 읽는 쪽의 약속이 달라 같은 바이트가 다른 글자로 뒤틀리던 것이, 글자마다 번호를 하나로 매겨 둔 표를 함께 보면서 그대로 열리는 이야기",
+    "cuts": [
+      {
+        "caption": "다른 글자가 된다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "who": "적은 쪽", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "who": "읽은 쪽", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "바이트", "tone": "blue"}}
+      },
+      {
+        "caption": "같은 번호표를 본다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "who": "적은 쪽", "face": "flat"},
+          {"part": "장부", "slot": "mid", "face": "none",
+           "tag": {"text": "글자마다 번호", "tone": "blue"}},
+          {"part": "컴퓨터", "slot": "right", "who": "읽은 쪽", "face": "flat"}
+        ]
+      },
+      {
+        "caption": "그대로 열린다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "who": "적은 쪽", "face": "flat"},
+          {"part": "장부", "slot": "mid", "face": "none"},
+          {"part": "컴퓨터", "slot": "right", "who": "읽은 쪽", "face": "happy"}
+        ],
+        "move": {"from": "mid", "to": "right",
+                 "payload": {"text": "글자", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "cs--concurrency": {
+    "alt": "세 컷 — 일을 하나씩 끝내느라 기다림이 그대로 쌓이던 것이, 기다리는 동안 다음 일로 넘어가자 기다림이 서로 겹쳐 전체가 짧아지는 이야기",
+    "cuts": [
+      {
+        "caption": "하나씩 기다린다",
+        "actors": [
+          {"part": "서버", "slot": "left", "who": "가", "face": "flat"},
+          {"part": "사람", "slot": "mid", "face": "sad"},
+          {"part": "서버", "slot": "right", "who": "나", "face": "flat"}
+        ],
+        "move": {"from": "mid", "to": "left",
+                 "payload": {"text": "일 하나", "tone": "blue"}}
+      },
+      {
+        "caption": "기다리는 새 넘긴다",
+        "actors": [
+          {"part": "서버", "slot": "left", "who": "가", "face": "flat"},
+          {"part": "사람", "slot": "mid", "face": "flat"},
+          {"part": "서버", "slot": "right", "who": "나", "face": "flat"}
+        ],
+        "move": {"from": "mid", "to": "right",
+                 "payload": {"text": "다음 일", "tone": "blue"}}
+      },
+      {
+        "caption": "6초가 2초로",
+        "actors": [
+          {"part": "서버", "slot": "left", "who": "가", "face": "flat"},
+          {"part": "사람", "slot": "mid", "face": "happy"},
+          {"part": "서버", "slot": "right", "who": "나", "face": "happy"}
+        ],
+        "move": {"from": "right", "to": "mid",
+                 "payload": {"text": "끝났다", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "cs--context-switch": {
+    "alt": "세 컷 — 하던 자리를 적어 둘 데가 없어 한 번 잡은 일감을 끝까지 놓지 못하던 것이, 그 자리를 적어 두자 도중에 다음 일감에게 비켜 주는 이야기",
+    "cuts": [
+      {
+        "caption": "끝까지 독차지",
+        "actors": [
+          {"part": "서버", "slot": "mid", "face": "flat"},
+          {"part": "문서", "slot": "right", "face": "none",
+           "tag": {"text": "다음 일감", "tone": "plain"}}
+        ],
+        "move": {"from": "right", "to": "mid", "head": false,
+                 "payload": {"text": "차례", "tone": "blue"}},
+        "mark": "x"
+      },
+      {
+        "caption": "하던 자리를 적는다",
+        "actors": [
+          {"part": "장부", "slot": "left", "face": "none"},
+          {"part": "서버", "slot": "mid", "face": "flat"},
+          {"part": "문서", "slot": "right", "face": "none"}
+        ],
+        "move": {"from": "mid", "to": "left",
+                 "payload": {"text": "하던 자리", "tone": "blue"}}
+      },
+      {
+        "caption": "그제야 비켜 준다",
+        "actors": [
+          {"part": "장부", "slot": "left", "face": "none"},
+          {"part": "서버", "slot": "mid", "face": "happy"},
+          {"part": "문서", "slot": "right", "face": "none"}
+        ],
+        "move": {"from": "right", "to": "mid",
+                 "payload": {"text": "일감", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "cs--deadlock": {
+    "alt": "세 컷 — 좁은 문 앞에서 마주 선 둘이 서로 먼저 물러나기를 기다리기만 하다, 아무도 지나가지 못한 채 둘 다 멈춰 서는 이야기",
+    "cuts": [
+      {
+        "caption": "마주 섰다",
+        "actors": [
+          {"part": "사람", "slot": "left", "who": "가", "face": "flat",
+           "tag": {"text": "가", "tone": "plain"}},
+          {"part": "문", "slot": "mid", "face": "none"},
+          {"part": "사람", "slot": "right", "who": "나", "face": "flat",
+           "tag": {"text": "나", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "mid", "head": false,
+                 "payload": {"text": "먼저", "tone": "blue"}},
+        "mark": "x"
+      },
+      {
+        "caption": "서로 기다린다",
+        "actors": [
+          {"part": "사람", "slot": "left", "who": "가", "face": "flat",
+           "tag": {"text": "가", "tone": "plain"}},
+          {"part": "문", "slot": "mid", "face": "none"},
+          {"part": "사람", "slot": "right", "who": "나", "face": "flat",
+           "tag": {"text": "나", "tone": "plain"}}
+        ],
+        "move": {"from": "right", "to": "mid", "head": false,
+                 "payload": {"text": "먼저", "tone": "blue"}},
+        "mark": "x"
+      },
+      {
+        "caption": "고리가 닫혔다",
+        "actors": [
+          {"part": "사람", "slot": "left", "who": "가", "face": "sad",
+           "tag": {"text": "가", "tone": "plain"}},
+          {"part": "문", "slot": "mid", "face": "none",
+           "tag": {"text": "아무도 못 감", "tone": "blue"}},
+          {"part": "사람", "slot": "right", "who": "나", "face": "sad",
+           "tag": {"text": "나", "tone": "plain"}}
+        ],
+        "check": false
+      }
+    ]
+  },
+
+  "cs--file-system": {
+    "alt": "세 컷 — 자료가 몇 번 칸에 있는지 사람이 외워야 하던 것이, 어느 칸에 무엇을 넣었는지 장부가 대신 들면서 이름만 대면 찾아지는 이야기",
+    "cuts": [
+      {
+        "caption": "몇 번 칸인지 왼다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "저장통", "slot": "right", "face": "flat",
+           "tag": {"text": "4000번 칸", "tone": "blue"}}
+        ]
+      },
+      {
+        "caption": "장부가 대신 든다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "장부", "slot": "mid", "face": "none"},
+          {"part": "저장통", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "right", "to": "mid",
+                 "payload": {"text": "번호", "tone": "blue"}}
+      },
+      {
+        "caption": "이름만 대면 된다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "장부", "slot": "mid", "face": "none"},
+          {"part": "저장통", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "mid",
+                 "payload": {"text": "보고서", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "cs--floating-point": {
+    "alt": "세 컷 — 소수점 자리를 고정해 두면 넘쳐서 담기지 않던 큰 수가, 소수점 자리를 값 안에 함께 적자 지수만 올려 같은 크기에 담기는 이야기",
+    "cuts": [
+      {
+        "caption": "넘쳐서 못 담는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "저장통", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right", "head": false,
+                 "payload": {"text": "아주 큰 수", "tone": "blue"}},
+        "mark": "x"
+      },
+      {
+        "caption": "소수점을 띄운다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "저장통", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "소수점 자리", "tone": "blue"}}
+      },
+      {
+        "caption": "지수만 올린다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "저장통", "slot": "right", "face": "happy",
+           "tag": {"text": "근삿값", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "아주 큰 수", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "cs--garbage-collection": {
+    "alt": "세 컷 — 다 쓴 자리를 사람이 하나하나 되돌려 놓다 빼먹으면 그대로 잠기던 것이, 지금 닿을 수 있는지로 갈라 안 닿는 것을 거둬 가자 자리가 다시 비는 이야기",
+    "cuts": [
+      {
+        "caption": "손으로는 빼먹는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "저장통", "slot": "right", "face": "flat",
+           "tag": {"text": "쌓인 헌 값", "tone": "blue"}}
+        ]
+      },
+      {
+        "caption": "도달로 가른다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "돋보기", "slot": "mid", "face": "none"},
+          {"part": "저장통", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "mid", "to": "right",
+                 "payload": {"text": "닿나?", "tone": "blue"}}
+      },
+      {
+        "caption": "안 닿는 건 거둔다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "돋보기", "slot": "mid", "face": "none"},
+          {"part": "저장통", "slot": "right", "face": "happy",
+           "tag": {"text": "빈 자리", "tone": "blue-dash"}}
+        ]
+      }
+    ]
+  },
+
+  "cs--graph": {
+    "alt": "세 컷 — 두 다리 건너 닿는지를 바로 물을 수 없던 것이, 무엇이 무엇과 이어졌는지를 이음선으로 적어 두자 그 선을 따라가 닿게 되는 이야기",
+    "cuts": [
+      {
+        "caption": "바로는 못 묻는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "who": "가", "face": "sad",
+           "tag": {"text": "가", "tone": "plain"}},
+          {"part": "사람", "slot": "right", "who": "다", "face": "flat",
+           "tag": {"text": "다", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "right", "head": false,
+                 "payload": {"text": "닿나?", "tone": "blue-dash"}},
+        "mark": "x"
+      },
+      {
+        "caption": "이어짐을 적는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "who": "가", "face": "flat",
+           "tag": {"text": "가", "tone": "plain"}},
+          {"part": "사람", "slot": "mid", "who": "나", "face": "flat",
+           "tag": {"text": "나", "tone": "plain"}},
+          {"part": "사람", "slot": "right", "who": "다", "face": "flat",
+           "tag": {"text": "다", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "mid",
+                 "payload": {"text": "이음선", "tone": "blue"}}
+      },
+      {
+        "caption": "건너서 닿는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "who": "가", "face": "flat",
+           "tag": {"text": "가", "tone": "plain"}},
+          {"part": "사람", "slot": "mid", "who": "나", "face": "flat",
+           "tag": {"text": "나", "tone": "plain"}},
+          {"part": "사람", "slot": "right", "who": "다", "face": "happy",
+           "tag": {"text": "다", "tone": "plain"}}
+        ],
+        "move": {"from": "mid", "to": "right",
+                 "payload": {"text": "한 다리", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "cs--hash": {
+    "alt": "세 컷 — 두 값이 같은지 통째로 맞대 보아야 하던 것이, 각각을 정해진 길이의 숫자로 바꾸는 계산을 거치자 짧은 그 수만 견주면 되는 이야기",
+    "cuts": [
+      {
+        "caption": "통째로 맞대야 한다",
+        "actors": [
+          {"part": "문서", "slot": "left", "who": "가", "face": "none",
+           "tag": {"text": "1기가", "tone": "plain"}},
+          {"part": "사람", "slot": "mid", "face": "sad",
+           "tag": {"text": "같은가?", "tone": "blue-dash"}},
+          {"part": "문서", "slot": "right", "who": "나", "face": "none",
+           "tag": {"text": "1기가", "tone": "plain"}}
+        ]
+      },
+      {
+        "caption": "각각 지문을 낸다",
+        "actors": [
+          {"part": "문서", "slot": "left", "who": "가", "face": "none"},
+          {"part": "사람", "slot": "mid", "face": "flat"},
+          {"part": "문서", "slot": "right", "who": "나", "face": "none"}
+        ],
+        "move": {"from": "left", "to": "mid",
+                 "payload": {"text": "3f9a", "tone": "blue"}}
+      },
+      {
+        "caption": "짧은 것만 견준다",
+        "actors": [
+          {"part": "문서", "slot": "left", "who": "가", "face": "none",
+           "tag": {"text": "3f9a", "tone": "plain"}},
+          {"part": "사람", "slot": "mid", "face": "happy"},
+          {"part": "문서", "slot": "right", "who": "나", "face": "none",
+           "tag": {"text": "3f9a", "tone": "plain"}}
+        ],
+        "move": {"from": "right", "to": "mid",
+                 "payload": {"text": "3f9a", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "cs--hash-table": {
+    "alt": "세 컷 — 이름으로 값을 찾으려면 백만 칸을 앞에서부터 견줘야 하던 것이, 그 이름을 계산해 칸 번호로 삼자 한 번에 그 칸에서 꺼내는 이야기",
+    "cuts": [
+      {
+        "caption": "앞에서부터 견준다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "장부", "slot": "right", "face": "none",
+           "tag": {"text": "백만 칸", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "이름", "tone": "blue"}}
+      },
+      {
+        "caption": "이름이 칸을 정한다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "장부", "slot": "right", "face": "none"}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "7번 칸", "tone": "blue"}}
+      },
+      {
+        "caption": "한 번에 꺼낸다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "장부", "slot": "right", "face": "none",
+           "tag": {"text": "7번 칸", "tone": "plain"}}
+        ],
+        "move": {"from": "right", "to": "left",
+                 "payload": {"text": "값", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "cs--heap": {
+    "alt": "세 컷 — 가장 급한 것을 꺼내려고 매번 전체를 다시 줄 세우던 것이, 꼭대기 하나만 맞춰 두는 규칙으로 바뀌자 바로 꺼내지는 이야기",
+    "cuts": [
+      {
+        "caption": "매번 다시 세운다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "저장통", "slot": "right", "face": "flat",
+           "tag": {"text": "전체 정렬", "tone": "blue"}}
+        ]
+      },
+      {
+        "caption": "꼭대기만 맞춘다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "저장통", "slot": "right", "face": "flat",
+           "tag": {"text": "제일 작은 값", "tone": "blue", "at": "above"}}
+        ]
+      },
+      {
+        "caption": "바로 꺼낸다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "저장통", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "right", "to": "left",
+                 "payload": {"text": "제일 작은 값", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "cs--interrupt": {
+    "alt": "세 컷 — CPU 가 장치에게 쉬지 않고 일이 있는지 되묻느라 그 시간을 통째로 쓰던 것이, 일이 생긴 장치가 먼저 신호를 보내 부르자 그 시간이 다른 일에 남는 이야기",
+    "cuts": [
+      {
+        "caption": "쉬지 않고 되묻는다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "sad"},
+          {"part": "폰", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "일 있니?", "tone": "blue"}}
+      },
+      {
+        "caption": "생기면 부른다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "폰", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "right", "to": "left",
+                 "payload": {"text": "신호", "tone": "blue"}},
+        "bubble": {"slot": "right", "text": "저요!"}
+      },
+      {
+        "caption": "빈 시간이 남는다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "happy",
+           "tag": {"text": "다른 일", "tone": "blue"}},
+          {"part": "폰", "slot": "right", "face": "flat"}
+        ]
+      }
+    ]
+  },
+
+  "cs--kernel": {
+    "alt": "세 컷 — 프로그램이 하드웨어를 직접 잡아 하나의 실수가 전체를 멈추던 것이, 하드웨어에 닿는 가장 안쪽 층에 선을 긋자 잘못된 손이 그 선에서 막히는 이야기",
+    "cuts": [
+      {
+        "caption": "아무나 직접 잡는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "서버", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "직접 손댐", "tone": "blue"}}
+      },
+      {
+        "caption": "선을 긋는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "벽", "slot": "mid", "face": "none",
+           "tag": {"text": "안쪽 층", "tone": "blue"}},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ]
+      },
+      {
+        "caption": "하나만 죽는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "벽", "slot": "mid", "face": "none"},
+          {"part": "서버", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "left", "to": "mid", "head": false,
+                 "payload": {"text": "실수", "tone": "blue"}},
+        "mark": "x"
+      }
+    ]
+  },
+
+  "cs--linked-list": {
+    "alt": "세 컷 — 앞쪽에 하나 넣을 때마다 뒤에 있는 값이 전부 한 칸씩 밀리던 것이, 값마다 다음 값의 자리를 들고 있게 하자 그 자리 하나만 고쳐 끼우는 이야기",
+    "cuts": [
+      {
+        "caption": "뒤가 전부 밀린다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "소포", "slot": "mid", "who": "앞 칸", "face": "none"},
+          {"part": "소포", "slot": "right", "who": "뒷 칸", "face": "none"}
+        ],
+        "move": {"from": "mid", "to": "right",
+                 "payload": {"text": "밀림", "tone": "blue"}}
+      },
+      {
+        "caption": "다음 자리를 든다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "소포", "slot": "mid", "who": "앞 칸", "face": "none",
+           "tag": {"text": "다음은 저기", "tone": "blue"}},
+          {"part": "소포", "slot": "right", "who": "뒷 칸", "face": "none"}
+        ]
+      },
+      {
+        "caption": "미는 일이 없다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "소포", "slot": "mid", "who": "앞 칸", "face": "none"},
+          {"part": "소포", "slot": "right", "who": "뒷 칸", "face": "none"}
+        ],
+        "move": {"from": "mid", "to": "right",
+                 "payload": {"text": "바꿈", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "cs--linux": {
+    "alt": "세 컷 — 운영체제를 고치려면 만든 곳에 부탁하는 수밖에 없던 것이, 설계도가 열려 있는 덕에 손수 뜯어 고쳐 넣게 되는 이야기",
+    "cuts": [
+      {
+        "caption": "직접 못 고친다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right", "head": false,
+                 "payload": {"text": "고쳐 줘", "tone": "blue"}},
+        "mark": "x"
+      },
+      {
+        "caption": "속이 열려 있다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "문서", "slot": "mid", "face": "none",
+           "tag": {"text": "열린 설계도", "tone": "blue"}},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ]
+      },
+      {
+        "caption": "손수 고쳐 넣는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "문서", "slot": "mid", "face": "none"},
+          {"part": "서버", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "mid", "to": "right",
+                 "payload": {"text": "고침", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "cs--memory": {
+    "alt": "세 컷 — 값을 꺼낼 때마다 느린 저장 장치까지 다녀오느라 CPU 가 서 있던 것이, 지금 쓰는 것만 가까운 층에 올려 두자 바로 이어서 쓰게 되는 이야기",
+    "cuts": [
+      {
+        "caption": "기다리며 논다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "sad"},
+          {"part": "저장통", "slot": "right", "who": "느린 층", "face": "flat",
+           "tag": {"text": "느린 층", "tone": "plain"}}
+        ],
+        "move": {"from": "right", "to": "left",
+                 "payload": {"text": "밀리초", "tone": "blue"}}
+      },
+      {
+        "caption": "자주 쓸 것만 위로",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "flat"},
+          {"part": "저장통", "slot": "mid", "who": "가까운 층", "face": "flat",
+           "tag": {"text": "가까운 층", "tone": "plain"}},
+          {"part": "저장통", "slot": "right", "who": "느린 층", "face": "flat"}
+        ],
+        "move": {"from": "right", "to": "mid",
+                 "payload": {"text": "쓸 것", "tone": "blue"}}
+      },
+      {
+        "caption": "바로 이어서 쓴다",
+        "actors": [
+          {"part": "서버", "slot": "left", "face": "happy"},
+          {"part": "저장통", "slot": "mid", "who": "가까운 층", "face": "flat"},
+          {"part": "저장통", "slot": "right", "who": "느린 층", "face": "flat"}
+        ],
+        "move": {"from": "mid", "to": "left",
+                 "payload": {"text": "나노초", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "cs--multi-thread": {
+    "alt": "세 컷 — 한 갈래로만 돌아 앞선 요청이 끝날 때까지 뒤가 서 있던 것이, 한 프로그램 안에서 갈래를 나누자 두 기다림이 겹쳐 함께 진행되는 이야기",
+    "cuts": [
+      {
+        "caption": "뒤는 그대로 선다",
+        "actors": [
+          {"part": "사람", "slot": "left", "who": "가", "face": "flat"},
+          {"part": "서버", "slot": "mid", "face": "flat"},
+          {"part": "사람", "slot": "right", "who": "나", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "mid",
+                 "payload": {"text": "앞 요청", "tone": "blue"}}
+      },
+      {
+        "caption": "갈래를 나눈다",
+        "actors": [
+          {"part": "사람", "slot": "left", "who": "가", "face": "flat"},
+          {"part": "서버", "slot": "mid", "face": "flat",
+           "tag": {"text": "두 갈래", "tone": "blue"}},
+          {"part": "사람", "slot": "right", "who": "나", "face": "flat"}
+        ]
+      },
+      {
+        "caption": "기다림이 겹친다",
+        "actors": [
+          {"part": "사람", "slot": "left", "who": "가", "face": "flat"},
+          {"part": "서버", "slot": "mid", "face": "happy"},
+          {"part": "사람", "slot": "right", "who": "나", "face": "happy"}
+        ],
+        "move": {"from": "right", "to": "mid",
+                 "payload": {"text": "뒤 요청", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "cs--mutex-vs-semaphore": {
+    "alt": "세 컷 — 동시에 몇까지 들일지 정해 두지 않아 몰리는 대로 다 들어가던 자리에, 들일 수를 하나 또는 다섯으로 정해 두자 그 수를 넘는 쪽이 문 앞에서 기다리는 이야기",
+    "cuts": [
+      {
+        "caption": "다 들어간다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "저장통", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "몰리는 대로", "tone": "blue"}}
+      },
+      {
+        "caption": "하나로도 다섯으로도",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "문", "slot": "mid", "face": "none",
+           "tag": {"text": "정한 수까지", "tone": "blue"}},
+          {"part": "저장통", "slot": "right", "face": "flat"}
+        ]
+      },
+      {
+        "caption": "넘으면 기다린다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "문", "slot": "mid", "face": "none",
+           "tag": {"text": "정한 수까지", "tone": "plain"}},
+          {"part": "저장통", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "left", "to": "mid", "head": false,
+                 "payload": {"text": "여섯", "tone": "blue"}},
+        "mark": "x"
+      }
+    ]
+  },
+
+  "cs--os": {
+    "alt": "세 컷 — 프로그램들이 하드웨어를 직접 잡다 남의 자리를 덮어쓰던 것이, 가운데 선 소프트웨어가 저마다의 몫을 나눠 주자 서로 밟지 않게 되는 이야기",
+    "cuts": [
+      {
+        "caption": "남의 자리를 덮는다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "who": "가", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "who": "나", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "남의 자리", "tone": "blue"}}
+      },
+      {
+        "caption": "가운데서 나눠 준다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "who": "가", "face": "flat"},
+          {"part": "서버", "slot": "mid", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "who": "나", "face": "flat"}
+        ],
+        "move": {"from": "mid", "to": "left",
+                 "payload": {"text": "몫", "tone": "blue"}}
+      },
+      {
+        "caption": "서로 안 밟는다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "who": "가", "face": "happy"},
+          {"part": "서버", "slot": "mid", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "who": "나", "face": "happy"}
+        ],
+        "move": {"from": "mid", "to": "right",
+                 "payload": {"text": "몫", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "cs--parallelism": {
+    "alt": "세 컷 — 코어가 여럿인데 한쪽만 일하고 나머지는 놀던 것이, 일을 쪼개 각 코어에 나눠 얹자 같은 시간에 각자 일해 몇 배로 빨리 끝나는 이야기",
+    "cuts": [
+      {
+        "caption": "다 하면 1000초",
+        "actors": [
+          {"part": "서버", "slot": "left", "who": "가", "face": "flat"},
+          {"part": "사람", "slot": "mid", "face": "flat"},
+          {"part": "서버", "slot": "right", "who": "나", "face": "flat",
+           "tag": {"text": "논다", "tone": "blue-dash"}}
+        ]
+      },
+      {
+        "caption": "일을 쪼개 나눈다",
+        "actors": [
+          {"part": "서버", "slot": "left", "who": "가", "face": "flat"},
+          {"part": "사람", "slot": "mid", "face": "flat"},
+          {"part": "서버", "slot": "right", "who": "나", "face": "flat"}
+        ],
+        "move": {"from": "mid", "to": "right",
+                 "payload": {"text": "반쪽", "tone": "blue"}}
+      },
+      {
+        "caption": "같은 시간에 끝난다",
+        "actors": [
+          {"part": "서버", "slot": "left", "who": "가", "face": "flat"},
+          {"part": "사람", "slot": "mid", "face": "happy"},
+          {"part": "서버", "slot": "right", "who": "나", "face": "happy"}
+        ],
+        "move": {"from": "right", "to": "mid",
+                 "payload": {"text": "결과", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "cs--process": {
+    "alt": "세 컷 — 디스크에 적혀만 있어 아직 아무 일도 하지 않던 프로그램이, 메모리에 올려져 번호와 자기 자리를 받는 순간부터 도는 것이 되고 같은 파일로 둘을 함께 띄울 수도 있는 이야기",
+    "cuts": [
+      {
+        "caption": "아직 안 돈다",
+        "actors": [
+          {"part": "문서", "slot": "left", "face": "none",
+           "tag": {"text": "적혀만 있다", "tone": "blue-dash"}},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ]
+      },
+      {
+        "caption": "번호가 붙는다",
+        "actors": [
+          {"part": "문서", "slot": "left", "face": "none"},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "올려서 번호", "tone": "blue"}}
+      },
+      {
+        "caption": "각자 제 자리다",
+        "actors": [
+          {"part": "문서", "slot": "left", "face": "none"},
+          {"part": "컴퓨터", "slot": "right", "face": "happy",
+           "tag": {"text": "2번·3번", "tone": "blue"}}
+        ]
+      }
+    ]
+  },
+
+  "cs--queue": {
+    "alt": "세 컷 — 처리 속도보다 빨리 몰린 요청이 그냥 버려지던 것이, 들어온 순서대로 줄에 쌓아 두자 처리기가 제 속도로 먼저 온 것부터 꺼내는 이야기",
+    "cuts": [
+      {
+        "caption": "몰리면 버려진다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "서버", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right", "head": false,
+                 "payload": {"text": "넘친 요청", "tone": "blue"}},
+        "mark": "x"
+      },
+      {
+        "caption": "줄에 쌓아 둔다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "저장통", "slot": "mid", "face": "flat"},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "mid",
+                 "payload": {"text": "요청", "tone": "blue"}}
+      },
+      {
+        "caption": "온 순서대로 꺼낸다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "저장통", "slot": "mid", "face": "flat"},
+          {"part": "서버", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "mid", "to": "right",
+                 "payload": {"text": "먼저", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "cs--ram": {
+    "alt": "세 컷 — 저장 장치에 넣어 둔 것은 꺼내야만 볼 수 있던 것이, 지금 쓰는 것만 작업 공간에 펼쳐 두자 곧바로 꺼내 쓰게 되는 이야기",
+    "cuts": [
+      {
+        "caption": "꺼내야만 본다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "저장통", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "right", "to": "left", "head": false,
+                 "payload": {"text": "바로 못 봄", "tone": "blue"}},
+        "mark": "x"
+      },
+      {
+        "caption": "쓸 것만 펼친다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "문서", "slot": "mid", "face": "none"},
+          {"part": "저장통", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "right", "to": "mid",
+                 "payload": {"text": "볼 것", "tone": "blue"}}
+      },
+      {
+        "caption": "꺼지면 사라진다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "문서", "slot": "mid", "face": "none",
+           "tag": {"text": "펼쳐 둔 것", "tone": "plain"}},
+          {"part": "저장통", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "mid", "to": "left",
+                 "payload": {"text": "바로 본다", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "cs--race-condition": {
+    "alt": "세 컷 — 둘이 같은 값을 앞서거니 뒤서거니 읽어 가 각자 하나씩 더해 적었더니, 두 번 더했는데 하나만 오른 채로 끝나는 이야기",
+    "cuts": [
+      {
+        "caption": "먼저 읽어 간다",
+        "actors": [
+          {"part": "사람", "slot": "left", "who": "가", "face": "flat",
+           "tag": {"text": "가", "tone": "plain"}},
+          {"part": "저장통", "slot": "mid", "face": "flat",
+           "tag": {"text": "10", "tone": "plain"}},
+          {"part": "사람", "slot": "right", "who": "나", "face": "flat",
+           "tag": {"text": "나", "tone": "plain"}}
+        ],
+        "move": {"from": "mid", "to": "left",
+                 "payload": {"text": "10", "tone": "blue"}}
+      },
+      {
+        "caption": "아직 그대로다",
+        "actors": [
+          {"part": "사람", "slot": "left", "who": "가", "face": "flat",
+           "tag": {"text": "가", "tone": "plain"}},
+          {"part": "저장통", "slot": "mid", "face": "flat",
+           "tag": {"text": "10", "tone": "plain"}},
+          {"part": "사람", "slot": "right", "who": "나", "face": "flat",
+           "tag": {"text": "나", "tone": "plain"}}
+        ],
+        "move": {"from": "mid", "to": "right",
+                 "payload": {"text": "10", "tone": "blue"}}
+      },
+      {
+        "caption": "두 번인데 하나만",
+        "actors": [
+          {"part": "사람", "slot": "left", "who": "가", "face": "flat",
+           "tag": {"text": "가", "tone": "plain"}},
+          {"part": "저장통", "slot": "mid", "face": "sad",
+           "tag": {"text": "11", "tone": "blue"}},
+          {"part": "사람", "slot": "right", "who": "나", "face": "flat",
+           "tag": {"text": "나", "tone": "plain"}}
+        ],
+        "check": false
+      }
+    ]
+  },
+
+  "cs--sorting": {
+    "alt": "세 컷 — 물을 때마다 목록을 처음부터 끝까지 훑던 것이, 한 번 줄 세워 두자 뒤에 오는 물음이 전부 스무 번 안쪽으로 싸지는 이야기",
+    "cuts": [
+      {
+        "caption": "물을 때마다 훑는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "장부", "slot": "right", "face": "none",
+           "tag": {"text": "흐트러짐", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "100만 번", "tone": "blue"}}
+      },
+      {
+        "caption": "한 번 줄 세운다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "장부", "slot": "right", "face": "none",
+           "tag": {"text": "순서대로", "tone": "blue"}}
+        ]
+      },
+      {
+        "caption": "뒤 물음이 싸진다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "장부", "slot": "right", "face": "none",
+           "tag": {"text": "순서대로", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "스무 번", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "cs--stack": {
+    "alt": "세 컷 — 함수가 함수를 불러 들어갈수록 돌아갈 자리를 잊던 것이, 그 자리를 위에 차곡차곡 얹어 두자 마지막에 얹은 것부터 되꺼내지는 이야기",
+    "cuts": [
+      {
+        "caption": "돌아갈 데를 잊는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "저장통", "slot": "right", "face": "flat",
+           "tag": {"text": "어디로?", "tone": "blue-dash"}}
+        ]
+      },
+      {
+        "caption": "위에 얹어 둔다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "저장통", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "돌아갈 자리", "tone": "blue"}}
+      },
+      {
+        "caption": "마지막 것이 먼저",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "저장통", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "right", "to": "left",
+                 "payload": {"text": "방금 얹은 것", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "cs--system-call": {
+    "alt": "세 컷 — 프로그램이 저장 장치를 직접 만져 권한을 물어볼 자리조차 없던 것이, 하나뿐인 창구에 부탁하는 방식으로 바뀌자 그 자리에서 확인을 거쳐 넘어가는 이야기",
+    "cuts": [
+      {
+        "caption": "물어볼 자리가 없다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "저장통", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "직접 손댐", "tone": "blue"}}
+      },
+      {
+        "caption": "부탁으로 바꾼다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "문", "slot": "mid", "face": "none",
+           "tag": {"text": "하나뿐인 길", "tone": "plain"}},
+          {"part": "저장통", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "mid",
+                 "payload": {"text": "읽어 줘", "tone": "blue"}}
+      },
+      {
+        "caption": "확인하고 넘긴다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "happy"},
+          {"part": "문", "slot": "mid", "face": "none"},
+          {"part": "저장통", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "mid", "to": "right",
+                 "payload": {"text": "부탁", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "cs--thread": {
+    "alt": "세 컷 — 따로 도는 둘이 값을 주고받으려면 통로를 따로 내야 하던 것이, 한 프로그램 안에서 갈래를 나눠 같은 자리를 함께 쓰자 통로 없이 그대로 나눠 쓰는 이야기",
+    "cuts": [
+      {
+        "caption": "따로 통로가 든다",
+        "actors": [
+          {"part": "사람", "slot": "left", "who": "가", "face": "flat"},
+          {"part": "사람", "slot": "right", "who": "나", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right", "head": false,
+                 "payload": {"text": "값", "tone": "blue"}},
+        "mark": "x"
+      },
+      {
+        "caption": "한 집 안에 둔다",
+        "actors": [
+          {"part": "사람", "slot": "left", "who": "가", "face": "flat"},
+          {"part": "저장통", "slot": "mid", "face": "flat",
+           "tag": {"text": "같이 쓰는 자리", "tone": "blue"}},
+          {"part": "사람", "slot": "right", "who": "나", "face": "flat"}
+        ]
+      },
+      {
+        "caption": "통로 없이 나눈다",
+        "actors": [
+          {"part": "사람", "slot": "left", "who": "가", "face": "happy"},
+          {"part": "저장통", "slot": "mid", "face": "flat"},
+          {"part": "사람", "slot": "right", "who": "나", "face": "happy"}
+        ],
+        "move": {"from": "mid", "to": "right",
+                 "payload": {"text": "값", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "cs--tree": {
+    "alt": "세 컷 — 값을 한 줄로 늘어놓아 전부 뒤져야 하던 것이, 마디마다 갈래를 하나만 고르게 갈라 놓자 안 고른 쪽이 통째로 후보에서 빠지는 이야기",
+    "cuts": [
+      {
+        "caption": "전부 뒤져야 한다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "문서", "slot": "right", "face": "none",
+           "tag": {"text": "백만 개", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "하나씩", "tone": "blue"}}
+      },
+      {
+        "caption": "갈래를 하나 고른다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "표지판", "slot": "mid", "face": "none",
+           "tag": {"text": "이쪽 아니면", "tone": "blue"}},
+          {"part": "문서", "slot": "right", "face": "none"}
+        ]
+      },
+      {
+        "caption": "나머지가 빠진다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "표지판", "slot": "mid", "face": "none"},
+          {"part": "문서", "slot": "right", "face": "none"}
+        ],
+        "move": {"from": "mid", "to": "right",
+                 "payload": {"text": "절반", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "cs--virtual-memory": {
+    "alt": "세 컷 — 프로그램이 실제 칸 번호를 그대로 써서 남의 자리와 겹치던 것이, 사이에 장부를 한 겹 두어 번호를 실제 자리로 옮겨 짚자 저마다 혼자 통째로 쓰는 것처럼 보이는 이야기",
+    "cuts": [
+      {
+        "caption": "실제 자리가 겹친다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "저장통", "slot": "right", "face": "sad",
+           "tag": {"text": "남의 자리", "tone": "blue"}}
+        ]
+      },
+      {
+        "caption": "장부에 대고 짚는다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "flat"},
+          {"part": "장부", "slot": "mid", "face": "none"},
+          {"part": "저장통", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "mid",
+                 "payload": {"text": "101호", "tone": "blue"}}
+      },
+      {
+        "caption": "혼자 쓰는 것 같다",
+        "actors": [
+          {"part": "컴퓨터", "slot": "left", "face": "happy",
+           "tag": {"text": "101호", "tone": "plain"}},
+          {"part": "장부", "slot": "mid", "face": "none"},
+          {"part": "저장통", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "mid", "to": "right",
+                 "payload": {"text": "7번", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "cs--windows": {
+    "alt": "세 컷 — 장비가 바뀔 때마다 프로그램을 고쳐야 하던 것이, 장비 다루는 법을 가운데 선 운영체제가 맡자 프로그램은 창을 열어 달라 부탁만 하면 되는 이야기",
+    "cuts": [
+      {
+        "caption": "장비 바뀌면 고친다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "컴퓨터", "slot": "right", "face": "flat",
+           "tag": {"text": "새 장비", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "right", "head": false,
+                 "payload": {"text": "직접 다룸", "tone": "blue"}},
+        "mark": "x"
+      },
+      {
+        "caption": "가운데가 맡는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "서버", "slot": "mid", "face": "flat",
+           "tag": {"text": "다루는 법", "tone": "blue"}},
+          {"part": "컴퓨터", "slot": "right", "face": "flat"}
+        ]
+      },
+      {
+        "caption": "부탁만 하면 된다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "서버", "slot": "mid", "face": "flat"},
+          {"part": "컴퓨터", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "left", "to": "mid",
+                 "payload": {"text": "창 하나", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "cs--term-36813d92": {
+    "alt": "세 컷 — 데이터가 늘 때마다 그만큼 느려져 버티지 못하던 것이, 문제를 푸는 절차를 단계로 적어 그중 나은 것을 골라 넣자 늘어나도 몇 번 더 보는 것으로 끝나는 이야기",
+    "cuts": [
+      {
+        "caption": "늘면 못 버틴다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "서버", "slot": "right", "face": "sad"}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "1000배", "tone": "blue"}}
+      },
+      {
+        "caption": "절차를 적어 둔다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "문서", "slot": "mid", "face": "none",
+           "tag": {"text": "단계로 적음", "tone": "blue"}},
+          {"part": "서버", "slot": "right", "face": "flat"}
+        ]
+      },
+      {
+        "caption": "열 번만 더 본다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "문서", "slot": "mid", "face": "none"},
+          {"part": "서버", "slot": "right", "face": "happy"}
+        ],
+        "move": {"from": "mid", "to": "right",
+                 "payload": {"text": "반씩", "tone": "blue"}}
+      }
+    ]
+  },
+
+  "cs--term-ffa8fb5a": {
+    "alt": "세 컷 — 데이터를 담는 모양을 정하지 않아 하나를 찾을 때마다 전부 뒤지던 것이, 할 일에 맞는 모양을 골라 담자 같은 일이 몇 백 배 빨라지는 이야기",
+    "cuts": [
+      {
+        "caption": "찾으려면 다 뒤진다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "sad"},
+          {"part": "저장통", "slot": "right", "face": "flat",
+           "tag": {"text": "한 줄로 다", "tone": "blue"}}
+        ]
+      },
+      {
+        "caption": "모양을 골라 담는다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "flat"},
+          {"part": "저장통", "slot": "right", "face": "flat"}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "맞는 모양", "tone": "blue"}}
+      },
+      {
+        "caption": "같은 일이 빨라진다",
+        "actors": [
+          {"part": "사람", "slot": "left", "face": "happy"},
+          {"part": "저장통", "slot": "right", "face": "happy",
+           "tag": {"text": "스무 번쯤", "tone": "plain"}}
+        ],
+        "move": {"from": "left", "to": "right",
+                 "payload": {"text": "찾기", "tone": "blue"}}
+      }
+    ]
+  }
+}

@@ -12,12 +12,12 @@
       tools/build.py 를 돌린 커밋에는 반드시 이 줄이 같이 들어가야 한다.
    ============================================================ */
 
-var CACHE_VERSION = "e68278bfb541";
+var CACHE_VERSION = "7a51a78919e7";
 var CACHE = "it-vocab-" + CACHE_VERSION;
 
 /* 설치할 때 받아둘 것 전부.
-   data/terms/*.js 는 12권이 전부 들어간다 — 오프라인에서 어느 단어를 펼칠지
-   미리 알 수 없으므로 고를 수가 없다. */
+   data/terms/*.js 와 data/scenes/*.js 는 12권이 전부 들어간다 — 오프라인에서
+   어느 단어를 펼칠지 미리 알 수 없으므로 고를 수가 없다. */
 var PRECACHE = [
   "./",
   "index.html",
@@ -33,6 +33,7 @@ var PRECACHE = [
   "js/store.js",
   "js/quiz.js",
   "js/app.js",
+  "js/art.js",
   "js/screens.js",
   "js/reading.js",
   "js/recall.js",
@@ -51,6 +52,19 @@ var PRECACHE = [
   "data/terms/tool.js",
   "data/terms/ai.js",
   "data/terms/pm.js",
+
+  "data/scenes/cs.js",
+  "data/scenes/lang.js",
+  "data/scenes/net.js",
+  "data/scenes/web.js",
+  "data/scenes/db.js",
+  "data/scenes/arch.js",
+  "data/scenes/sec.js",
+  "data/scenes/cloud.js",
+  "data/scenes/infra.js",
+  "data/scenes/tool.js",
+  "data/scenes/ai.js",
+  "data/scenes/pm.js",
 
   "icons/icon-192.png",
   "icons/icon-512.png",

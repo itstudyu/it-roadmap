@@ -118,7 +118,7 @@ window.Reading = (function () {
       var key = normKey(raw);
       var at = m.index + m[1].length;
       var fresh = !ctx.page[key];
-      if (!ctx.scope[key] && !ctx.skip[key] && ctx.ok(key, dict[key]) &&
+      if (!ctx.scope[key] && !ctx.skip(key) && ctx.ok(key, dict[key]) &&
           (!fresh || ctx.left > 0)) {
         return { at: at, raw: raw, key: key, fresh: fresh };
       }
@@ -180,14 +180,30 @@ window.Reading = (function () {
 
   /* 자기 자신은 풀지 않는다. 제목·원어·별칭 전부를 뺀다 —
      "HTTPS" 노트에서 "HTTP Secure" 에 점선이 그어지면 우스워진다. */
+  /* 자기 자신에는 점을 찍지 않는다. 지금 읽고 있는 단어의 풀이를 그 단어
+     안에서 여는 것은 제자리걸음이다.
+
+     이름이 정확히 같을 때만 걸러내면 "IP 주소" 편에서 "IP" 가 점이 된다 —
+     제목의 절반을 눌러 제목의 절반짜리 풀이를 여는 꼴이다. 반대로 "IP" 편의
+     본문에 나온 "IP 주소" 도 같은 자리다. 그래서 한쪽이 다른 쪽을 품기만 해도
+     건너뛴다. 걸러내는 이름이 한 글자짜리면 아무 낱말에나 걸리므로,
+     품기 판정은 두 글자 이상일 때만 쓴다. */
   function ownKeys(term) {
-    var skip = {};
+    var exact = {}, wide = [];
     var names = (term.aliases || []).concat([term.term, term.reading || ""]);
     names.forEach(function (n) {
       var key = normKey(n);
-      if (key) skip[key] = true;
+      if (!key) return;
+      exact[key] = true;
+      if (key.length >= 2) wide.push(key);
     });
-    return skip;
+    return function (key) {
+      if (exact[key]) return true;
+      if (key.length < 2) return false;
+      return wide.some(function (own) {
+        return own.indexOf(key) !== -1 || key.indexOf(own) !== -1;
+      });
+    };
   }
 
   var HANGUL = /[가-힣]/;
@@ -374,6 +390,10 @@ window.Reading = (function () {
 
   function enhance(root, term) {
     open = null; // 화면이 새로 그려졌으니 앞 화면의 카드는 이미 사라졌다
+    // 아이콘을 먼저 붙인다. 점선이 먼저 그어지면 배우 이름이 통째로 단추가
+    // 되고, 그 앞에 끼워 넣은 그림이 단추 밖에 홀로 남아 눌리는 자리와
+    // 어긋난다. 그림이 안에 있어야 이름과 함께 파래진다.
+    if (window.Art) Art.attachIcons(root);
     applyGloss(root, term);
     setupWalk(root, term.id);
   }

@@ -23,6 +23,7 @@ content/ 폴더는 그대로 Obsidian vault 로 열 수 있다. 동기화 대신
 읽는 구조:
     # Term (원어)
     ## 📝 정의            -> 첫 문단 = 한 줄 뜻, 나머지 = 정의 본문
+    ###   이름 / 비유 / 예 / 직접 -> name / analogy / example / tryit (각각 제 자리로 간다)
     ## 🖼️ 그림으로 보기     -> figure   (접지 않는다)
     ## ⚠️ 해결하는 문제     -> why
     ## ⚙️ 작동 원리        -> how
@@ -32,6 +33,7 @@ content/ 폴더는 그대로 Obsidian vault 로 열 수 있다. 동기화 대신
     ## 🚫 흔한 오해         -> myth
     ## 🚨 주의사항          -> caution
     ## 📝 정리             -> summary
+    ## 🧒 열 살에게          -> kid      (접지 않는다. IT 낱말 0개의 모범 답)
     ## ❓ 이해했는지         -> check    (접지 않는다. "- 물음 → 답이 있는 절" 로 자리를 가리킬 수 있다)
     ## 🔗 관련 용어         -> related
 
@@ -69,6 +71,7 @@ SECTION_MAP = [
     ("myth", ["🚫 흔한 오해"]),
     ("caution", ["🚨 주의사항"]),
     ("summary", ["📝 정리"]),
+    ("kid", ["🧒 열 살에게"]),
     ("check", ["❓ 이해했는지"]),
     ("related", ["🔗 관련 용어"]),
 ]
@@ -95,7 +98,7 @@ DISCLOSURE_ORDER = ["how", "concept", "compare", "example", "tradeoff", "myth", 
 # 닿지 못한 것이다. 정리는 카드가 아니라 마무리 문단 하나이고, 바로 뒤의
 # 확인 질문과 짝을 이룬다(되짚고 나서 스스로 물어본다). 접이식에 두고
 # 순서로 다투게 하는 대신 고정 자리로 뺀다.
-PINNED = ("definition", "figure", "why", "compose", "check", "related", "summary")
+PINNED = ("definition", "figure", "why", "compose", "check", "related", "summary", "kid")
 
 # 접기 버튼에 쓰는 이름. NN/g 의 원칙대로 "더보기" 같은 모호한 말 대신
 # 열면 뭐가 나오는지 알 수 있는 이름을 쓴다.
@@ -405,10 +408,10 @@ def split_subsections(body: str) -> tuple[str, list[dict]]:
         heading = nfc(parts[i]).strip()
         label = strip_leading_emoji(heading)
         chunk = parts[i + 1].strip()
-        if label in ("비유", "예"):
-            # 비유·예는 parse_analogy / parse_example 이 이미 전용 자리로 가져갔다.
-            # 여기서 안 빼면 같은 문장이 정의 밑의 상자와 접이식 패널로 두 번 나온다.
-            # 게다가 접이식 여섯 칸 중 하나를 잡아먹어서 뒤쪽의 주의사항이 밀려난다.
+        if label in ("이름", "비유", "예", "직접"):
+            # 넷 다 parse_* 가 이미 전용 자리로 가져갔다. 여기서 안 빼면 같은 문장이
+            # 정의 밑의 상자와 접이식 패널로 두 번 나온다. 게다가 접이식 여섯 칸 중
+            # 하나를 잡아먹어서 뒤쪽의 주의사항이 밀려난다.
             continue
         if len(chunk) >= 40:
             subs.append({"slot": guess_slot(label), "label": label,
@@ -426,6 +429,38 @@ def pick_subsection(definition: str, name: str) -> str:
     # 목록으로 쓴 노트가 있다. 첫 항목만 쓴다 — 비유가 셋이면 하나도 안 남는다.
     first = next((l for l in body.split("\n") if l.strip()), "")
     return re.sub(r"^\s*[-*]\s*", "", first).strip()
+
+
+def pick_block(definition: str, name: str) -> str:
+    """정의 안의 '### <이름>' 절을 **통째로** 꺼낸다.
+
+    pick_subsection 은 첫 줄만 쓴다(비유·예는 한 줄이 규칙이라 그게 맞다).
+    이름 풀기는 낱말 수만큼 줄이 있고 마지막 '=' 줄이 이어 읽기라 통째로 든다.
+    """
+    m = re.search(r"^###\s+" + re.escape(name) + r"\s*$\n(.+?)(?=\n###|\n##|\Z)",
+                  definition, flags=re.M | re.S)
+    return m.group(1).strip() if m else ""
+
+
+def parse_name(definition: str) -> str:
+    """정의 안의 '### 이름' 절. 영어 이름을 낱말로 쪼개 뜻을 달고 이어 읽는 자리다.
+
+    문법은 도해와 같다 — '낱말 :: 뜻' 여러 줄과 '= 이어 읽으면 …' 한 줄.
+    쪼개는 일은 화면(js/screens.js 의 parseName)이 한다. 여기서 미리 구조로
+    굽지 않는 이유는 원문 그대로가 곧 형식이고, 형식을 두 군데서 알면
+    한쪽만 고쳐졌을 때 조용히 어긋나기 때문이다.
+    """
+    return pick_block(definition, "이름")
+
+
+def parse_tryit(definition: str) -> str:
+    """정의 안의 '### 직접' 한 줄. 지금 이 폰으로 확인해 보는 법이다.
+
+    비유가 '무엇과 닮았나', 예가 '어디서 봤나' 를 주면 직접은 '지금 어떻게
+    보나' 를 준다. 직접 눈으로 본 것은 장면이 되어 남는다. 실제 행동이
+    있는 단어에만 쓴다 — 없어도 판은 선다.
+    """
+    return pick_subsection(definition, "직접")
 
 
 def parse_analogy(definition: str) -> str:
@@ -677,6 +712,7 @@ def pinned_parts(sections: dict[str, str]) -> dict:
     """
     figure_raw = pick(sections, ["🖼️ 그림으로 보기"])
     recap_raw = pick(sections, ["📝 정리"])
+    kid_raw = pick(sections, ["🧒 열 살에게"])
     check_raw = pick(sections, ["❓ 이해했는지"])
     related_raw = pick(sections, ["🔗 관련 용어"])
     # 접지 않는 두 기둥. 화면 이름표(SLOT_LABELS)와 원문 제목을 함께 싣는다 —
@@ -686,6 +722,7 @@ def pinned_parts(sections: dict[str, str]) -> dict:
     pinned = {
         "figure": clean_body(figure_raw) if figure_raw else lift_figure(sections),
         "recap": clean_body(recap_raw) if recap_raw else "",
+        "kid": clean_body(kid_raw) if kid_raw else "",
         "check": parse_check(check_raw) if check_raw else [],
         "related": parse_related(related_raw) if related_raw else [],
     }
@@ -723,11 +760,19 @@ def parse_note(path: str, category: str) -> dict | None:
         "category": category,
         "summary": summary,
         "definition": lead,
+        "name": parse_name(definition),
         "analogy": parse_analogy(definition),
         "example": parse_example(definition),
+        "tryit": parse_tryit(definition),
         "sections": ordered_sections(subs, sections, path)[:MAX_SECTIONS],
         **pinned,
     }
+
+    # 빈 자리는 아예 싣지 않는다. 셋 다 없는 편이 있는 자리라, 빈 문자열을
+    # 327편에 실어봐야 화면이 하는 일은 같고 권별 본문만 무거워진다.
+    for key in ("name", "tryit", "kid"):
+        if not note.get(key):
+            note.pop(key, None)
 
     # 퀴즈가 쓰는 구조 사본. 셋 다 sections·figure 의 원문에서 뽑아낸 것이고
     # 원문은 그대로 남는다 — 화면은 지금도 원문으로 그린다.
@@ -981,8 +1026,8 @@ INDEX_FIELDS = ["id", "term", "reading", "category", "summary", "aliases", "rela
 # example·why·compose 는 2026-08-18 에 들어왔다. 셋 다 접이식 밖에 자기 자리가
 # 있는 것들이라 본문과 함께 온다 — 인덱스는 목록·검색·퀴즈가 읽는 것이고,
 # 이 셋은 단어를 펼친 화면에서만 쓰인다.
-BODY_FIELDS = ["definition", "analogy", "example", "sections", "figure",
-               "why", "compose", "recap", "check", "myths", "cases", "dia"]
+BODY_FIELDS = ["definition", "name", "analogy", "example", "tryit", "sections", "figure",
+               "why", "compose", "recap", "kid", "check", "myths", "cases", "dia"]
 
 BANNER = (
     "// 이 파일은 tools/build.py 가 content/*.md 에서 생성한다. 직접 고치지 말 것.\n"
