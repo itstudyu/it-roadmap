@@ -415,101 +415,6 @@
    }
   ]
  },
- "sec--csrf": {
-  "alt": "세 컷 — 남이 시킨 요청이 쿠키만 붙어 그대로 통과하던 것이, 우리 화면에서만 주는 확인표를 함께 요구하자 남의 페이지에서 온 요청은 막히는 이야기",
-  "cuts": [
-   {
-    "caption": "쿠키만 보고 통과",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "mid",
-      "face": "flat"
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "sad"
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "right",
-     "payload": {
-      "text": "송금 요청",
-      "tone": "blue"
-     }
-    },
-    "bubble": {
-     "slot": "left",
-     "text": "눌러 봐"
-    }
-   },
-   {
-    "caption": "우리 화면에만 준다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "mid",
-      "face": "flat"
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "right",
-     "to": "mid",
-     "payload": {
-      "text": "확인표",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "그 요청은 막힌다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "mid",
-      "face": "flat"
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "happy"
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "right",
-     "payload": {
-      "text": "표가 없다",
-      "tone": "blue-dash"
-     },
-     "head": false
-    },
-    "mark": "x"
-   }
-  ]
- },
  "sec--certificate": {
   "alt": "세 컷 — 가짜 서버가 진짜와 똑같아 보이던 것이, 제3자가 도메인 주인에게만 보증해 준 문서를 확인하게 되면서 그 문서를 못 내미는 쪽이 걸러지는 이야기",
   "cuts": [
@@ -679,6 +584,265 @@
    }
   ]
  },
+ "sec--csp": {
+  "alt": "세 컷 — 페이지에 끼어든 것까지 그대로 실행되던 것이, 서버가 실어도 되는 것을 미리 적어 보내면서 그 목록에 없는 것은 실리지 못하는 이야기",
+  "cuts": [
+   {
+    "caption": "끼어든 것도 돈다",
+    "actors": [
+     {
+      "part": "서버",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "끼어든 것",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "서버가 미리 적는다",
+    "actors": [
+     {
+      "part": "서버",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "적어 둔 것만",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "없는 건 안 돈다",
+    "actors": [
+     {
+      "part": "서버",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "끼어든 것",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   }
+  ]
+ },
+ "sec--csrf": {
+  "alt": "세 컷 — 남이 시킨 요청이 쿠키만 붙어 그대로 통과하던 것이, 우리 화면에서만 주는 확인표를 함께 요구하자 남의 페이지에서 온 요청은 막히는 이야기",
+  "cuts": [
+   {
+    "caption": "쿠키만 보고 통과",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "mid",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "송금 요청",
+      "tone": "blue"
+     }
+    },
+    "bubble": {
+     "slot": "left",
+     "text": "눌러 봐"
+    }
+   },
+   {
+    "caption": "우리 화면에만 준다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "mid",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "mid",
+     "payload": {
+      "text": "확인표",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "그 요청은 막힌다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "mid",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "표가 없다",
+      "tone": "blue-dash"
+     },
+     "head": false
+    },
+    "mark": "x"
+   }
+  ]
+ },
+ "sec--cve": {
+  "alt": "세 컷 — 같은 구멍을 곳마다 다르게 불러 내 것이 걸리는지 맞춰 볼 수 없던 것이, 구멍마다 세계 공통 번호가 붙으면서 번호로 바로 맞춰지는 이야기",
+  "cuts": [
+   {
+    "caption": "맞춰 볼 수 없다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "이름이 제각각",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "구멍에 번호를 준다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "CVE 번호",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "번호로 맞아떨어진다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "CVE 번호",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
  "sec--dac": {
   "alt": "세 컷 — 각자 데이터베이스에 바로 붙어 기록도 남지 않던 것이, 통로를 가운데 한 곳으로 모아 허용한 것만 지나가고 지난 자리가 남는 이야기",
   "cuts": [
@@ -764,6 +928,93 @@
       "tone": "blue"
      }
     }
+   }
+  ]
+ },
+ "sec--defense-in-depth": {
+  "alt": "세 컷 — 한 겹이 뚫리면 안쪽까지 그대로 열리던 것이, 성격이 다른 겹을 뒤에 하나 더 세우면서 앞이 뚫려도 뒤에서 걸리는 이야기",
+  "cuts": [
+   {
+    "caption": "한 겹은 뚫린다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "벽",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "공격",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "겹을 앞뒤로 둔다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "벽",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "flat",
+      "tag": {
+       "text": "뒤에 한 겹 더",
+       "tone": "blue"
+      }
+     }
+    ]
+   },
+   {
+    "caption": "뒤 겹이 남는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "벽",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "공격",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
    }
   ]
  },
@@ -921,6 +1172,101 @@
       "tone": "blue"
      }
     }
+   }
+  ]
+ },
+ "sec--hsts": {
+  "alt": "세 컷 — 첫 요청이 평문으로 나가 중간에 앉은 쪽에 가로채이던 것이, 자물쇠 건 길로만 열라고 한 줄 새겨 두면서 평문 요청이 아예 나가지 않는 이야기",
+  "cuts": [
+   {
+    "caption": "첫 길이 평문이다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "사람",
+      "slot": "mid",
+      "face": "happy"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "http 요청",
+      "tone": "blue"
+     }
+    },
+    "bubble": {
+     "slot": "mid",
+     "text": "가로챘다"
+    }
+   },
+   {
+    "caption": "한 줄을 새겨 준다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "사람",
+      "slot": "mid",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "left",
+     "payload": {
+      "text": "https 로만",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "평문으론 안 나간다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "사람",
+      "slot": "mid",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "http 요청",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
    }
   ]
  },
@@ -1183,6 +1529,86 @@
    }
   ]
  },
+ "sec--least-privilege": {
+  "alt": "세 컷 — 계정 하나가 새면 사물함 전부가 열리던 것이, 맡은 칸만 여는 열쇠를 주면서 같은 계정이 새도 한 칸까지만 열리는 이야기",
+  "cuts": [
+   {
+    "caption": "한 번 새면 전부다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "사물함",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "다 여는 열쇠",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "일을 보고 정한다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "열쇠",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "맡은 칸만",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "사물함",
+      "slot": "right",
+      "face": "none"
+     }
+    ]
+   },
+   {
+    "caption": "새도 한 칸뿐이다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "열쇠",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "사물함",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "맡은 칸만",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
  "sec--mfa": {
   "alt": "세 컷 — 비밀번호 하나가 새면 그대로 열리던 문이, 종류가 다른 증거를 하나 더 요구하게 되면서 새어 나간 비밀번호만으로는 열리지 않는 이야기",
   "cuts": [
@@ -1358,6 +1784,276 @@
    }
   ]
  },
+ "sec--owasp-top-10": {
+  "alt": "세 컷 — 점검하는 사람마다 아는 자리만 보고 나머지를 빠뜨리던 것이, 자주 걸리는 자리를 열 부류로 세워 두면서 모두가 같은 열 칸을 보고 빈칸이 드러나는 이야기",
+  "cuts": [
+   {
+    "caption": "보는 데가 제각각",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "아는 데만",
+      "tone": "blue"
+     }
+    },
+    "bubble": {
+     "slot": "left",
+     "text": "빠뜨렸다"
+    }
+   },
+   {
+    "caption": "열 부류로 세운다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "열 부류 목록",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "빠진 칸이 보인다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "열 칸 모두",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "sec--password-hashing": {
+  "alt": "세 컷 — 원래 비밀번호를 그대로 저장하면 새는 날 그대로 끝나던 것이, 되돌릴 수 없게 뭉갠 자국만 남기자 원래 값 없이도 같은지만 견주게 되는 이야기",
+  "cuts": [
+   {
+    "caption": "원래 값이 남는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "비밀번호",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "자국만 넣는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "깔때기",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "되돌릴 수 없게",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "뭉갠 자국",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "또 찍어 견준다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "깔때기",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "또 그 값",
+      "tone": "blue"
+     }
+    },
+    "bubble": {
+     "slot": "right",
+     "text": "같으면 통과"
+    }
+   }
+  ]
+ },
+ "sec--phishing": {
+  "alt": "세 컷 — 낯익은 화면 하나가 폰으로 찾아오고, 내가 그 화면에 손수 적어 준 비밀번호가 그대로 진짜 서비스의 문을 여는 이야기",
+  "cuts": [
+   {
+    "caption": "아는 곳인 척 온다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "폰",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "진짜와 똑같다",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "left",
+     "payload": {
+      "text": "낯익은 화면",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "내가 적어 준다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "폰",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "비밀번호",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "그 값으로 열린다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "폰",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "비밀번호",
+      "tone": "blue"
+     }
+    },
+    "check": false
+   }
+  ]
+ },
  "sec--pii": {
   "alt": "세 컷 — 개인을 알아낼 수 있는 값이 기록에 원문 그대로 남던 것이, 남길 때 가려서 적게 되면서 그 기록을 봐도 누구인지 알 수 없는 이야기",
   "cuts": [
@@ -1443,6 +2139,89 @@
       "tone": "blue"
      }
     }
+   }
+  ]
+ },
+ "sec--post-quantum-cryptography": {
+  "alt": "세 컷 — 곧 나올 만능 열쇠에 지금 자물쇠가 열릴 판이라, 열쇠가 나오기 전에 안 열리는 자물쇠로 미리 갈아 끼우는 이야기",
+  "cuts": [
+   {
+    "caption": "곧 다 열린다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "자물쇠",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "지금 것",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "열쇠",
+      "slot": "right",
+      "face": "none"
+     }
+    ]
+   },
+   {
+    "caption": "미리 갈아 끼운다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "자물쇠",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "새 자물쇠",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "열쇠",
+      "slot": "right",
+      "face": "none"
+     }
+    ]
+   },
+   {
+    "caption": "열쇠가 안 먹는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "자물쇠",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "열쇠",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "mid",
+     "head": false,
+     "payload": {
+      "text": "만능 열쇠",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
    }
   ]
  },
@@ -1772,6 +2551,100 @@
      "head": false
     },
     "mark": "x"
+   }
+  ]
+ },
+ "sec--secret-management": {
+  "alt": "세 컷 — 코드에 박아 둔 열쇠는 새것으로 바꿀 길이 없던 것이, 코드 밖 보관소에 맡기자 꺼내 쓴 자리가 남고 언제든 갈아 끼우게 되는 이야기",
+  "cuts": [
+   {
+    "caption": "바꿀 수가 없다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "sad",
+      "tag": {
+       "text": "열쇠가 박힘",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "새 열쇠",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "밖에 맡겨 둔다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "사물함",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "열쇠",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "꺼내 쓰고 바꾼다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "사물함",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "새 열쇠",
+      "tone": "blue"
+     }
+    },
+    "bubble": {
+     "slot": "mid",
+     "text": "옛것은 끊김"
+    }
    }
   ]
  },
@@ -2171,117 +3044,36 @@
    }
   ]
  },
- "sec--token": {
-  "alt": "세 컷 — 요청마다 비밀번호를 실어 보내 샐 자리가 늘던 것이, 로그인 때 받은 출입증 하나로 그다음 요청마다 신원을 대신 증명하는 이야기",
+ "sec--supply-chain-attack": {
+  "alt": "세 컷 — 정면으로 치면 튕겨 나가던 공격이, 내가 가져다 쓰는 부품에 먼저 섞여 들어 내 손으로 앱 안에 들어오는 이야기",
   "cuts": [
    {
-    "caption": "샐 자리가 늘어난다",
-    "actors": [
-     {
-      "part": "폰",
-      "slot": "left",
-      "face": "sad"
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "right",
-     "payload": {
-      "text": "매번 비밀번호",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "처음 한 번만 준다",
-    "actors": [
-     {
-      "part": "폰",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "happy"
-     }
-    ],
-    "move": {
-     "from": "right",
-     "to": "left",
-     "payload": {
-      "text": "출입증",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "그다음은 이것만",
-    "actors": [
-     {
-      "part": "폰",
-      "slot": "left",
-      "face": "happy"
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "right",
-     "payload": {
-      "text": "출입증",
-      "tone": "blue"
-     }
-    }
-   }
-  ]
- },
- "sec--xss": {
-  "alt": "세 컷 — 남이 남긴 글이 다른 사람 브라우저에서 그대로 실행되던 것이, 화면에 넣는 값을 전부 글자로만 취급하면서 같은 글이 글자로만 보이는 이야기",
-  "cuts": [
-   {
-    "caption": "남의 화면에서 돈다",
+    "caption": "정면은 안 통한다",
     "actors": [
      {
       "part": "사람",
       "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "서버",
-      "slot": "mid",
-      "face": "flat"
+      "face": "sad"
      },
      {
       "part": "컴퓨터",
       "slot": "right",
-      "face": "sad"
+      "face": "flat"
      }
     ],
     "move": {
-     "from": "mid",
+     "from": "left",
      "to": "right",
      "payload": {
-      "text": "<script>",
+      "text": "직접 공격",
       "tone": "blue"
-     }
+     },
+     "head": false
     },
-    "bubble": {
-     "slot": "left",
-     "text": "이걸 남겼다"
-    }
+    "mark": "x"
    },
    {
-    "caption": "골라내지 않는다",
+    "caption": "부품에 먼저 섞는다",
     "actors": [
      {
       "part": "사람",
@@ -2289,138 +3081,53 @@
       "face": "flat"
      },
      {
-      "part": "서버",
-      "slot": "mid",
-      "face": "happy"
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "right",
-     "payload": {
-      "text": "글자로만",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "실행되지 않는다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "sad"
-     },
-     {
-      "part": "서버",
-      "slot": "mid",
-      "face": "flat"
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "right",
-      "face": "happy",
-      "tag": {
-       "text": "그냥 글자",
-       "tone": "plain"
-      }
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "right",
-     "payload": {
-      "text": "<script>",
-      "tone": "blue"
-     }
-    }
-   }
-  ]
- },
- "sec--zero-trust": {
-  "alt": "세 컷 — 한 번 안에 들어온 것은 그대로 믿어 옆으로 마음껏 옮겨 다니던 것이, 자원 앞마다 매번 다시 확인하게 되면서 안에서 왔다는 말이 통하지 않는 이야기",
-  "cuts": [
-   {
-    "caption": "안에 들면 자유다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "sad"
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "right",
-     "payload": {
-      "text": "안이니 통과",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "안팎을 안 가린다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "문",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "매번 확인",
-       "tone": "blue"
-      }
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "flat"
-     }
-    ]
-   },
-   {
-    "caption": "그 말은 안 통한다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "sad"
-     },
-     {
-      "part": "문",
+      "part": "소포",
       "slot": "mid",
       "face": "none"
      },
      {
-      "part": "서버",
+      "part": "컴퓨터",
       "slot": "right",
-      "face": "happy"
+      "face": "flat"
      }
     ],
     "move": {
      "from": "left",
      "to": "mid",
      "payload": {
-      "text": "안이니 통과",
+      "text": "나쁜 코드",
       "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "그대로 들어온다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
      },
-     "head": false
+     {
+      "part": "소포",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "섞인 부품",
+      "tone": "blue"
+     }
     },
-    "mark": "x"
+    "check": false
    }
   ]
  },
@@ -2503,6 +3210,77 @@
      "head": false
     },
     "mark": "x"
+   }
+  ]
+ },
+ "sec--term-23d55d60": {
+  "alt": "세 컷 — 진짜와 비슷하게 생긴 주소를 눈으로는 가려낼 수 없던 것이, 제3자가 보증한 문서에 적힌 주인 이름을 브라우저가 대조하면서 맞을 때만 자물쇠를 보여 주는 이야기",
+  "cuts": [
+   {
+    "caption": "눈으론 못 가린다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat",
+      "tag": {
+       "text": "닮은 주소",
+       "tone": "blue-dash"
+      }
+     }
+    ]
+   },
+   {
+    "caption": "주소와 맞춰 본다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "left",
+     "payload": {
+      "text": "보증 문서",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "맞을 때만 통과",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "자물쇠",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "맞아야 뜬다",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
    }
   ]
  },
@@ -2779,53 +3557,182 @@
    }
   ]
  },
- "sec--term-23d55d60": {
-  "alt": "세 컷 — 진짜와 비슷하게 생긴 주소를 눈으로는 가려낼 수 없던 것이, 제3자가 보증한 문서에 적힌 주인 이름을 브라우저가 대조하면서 맞을 때만 자물쇠를 보여 주는 이야기",
+ "sec--token": {
+  "alt": "세 컷 — 요청마다 비밀번호를 실어 보내 샐 자리가 늘던 것이, 로그인 때 받은 출입증 하나로 그다음 요청마다 신원을 대신 증명하는 이야기",
   "cuts": [
    {
-    "caption": "눈으론 못 가린다",
+    "caption": "샐 자리가 늘어난다",
     "actors": [
      {
-      "part": "사람",
+      "part": "폰",
       "slot": "left",
       "face": "sad"
      },
      {
       "part": "서버",
       "slot": "right",
-      "face": "flat",
-      "tag": {
-       "text": "닮은 주소",
-       "tone": "blue-dash"
-      }
+      "face": "flat"
      }
-    ]
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "매번 비밀번호",
+      "tone": "blue"
+     }
+    }
    },
    {
-    "caption": "주소와 맞춰 본다",
+    "caption": "처음 한 번만 준다",
     "actors": [
      {
-      "part": "사람",
+      "part": "폰",
       "slot": "left",
       "face": "flat"
      },
      {
       "part": "서버",
       "slot": "right",
-      "face": "flat"
+      "face": "happy"
      }
     ],
     "move": {
      "from": "right",
      "to": "left",
      "payload": {
-      "text": "보증 문서",
+      "text": "출입증",
       "tone": "blue"
      }
     }
    },
    {
-    "caption": "맞을 때만 통과",
+    "caption": "그다음은 이것만",
+    "actors": [
+     {
+      "part": "폰",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "출입증",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "sec--xss": {
+  "alt": "세 컷 — 남이 남긴 글이 다른 사람 브라우저에서 그대로 실행되던 것이, 화면에 넣는 값을 전부 글자로만 취급하면서 같은 글이 글자로만 보이는 이야기",
+  "cuts": [
+   {
+    "caption": "남의 화면에서 돈다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "face": "flat"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "<script>",
+      "tone": "blue"
+     }
+    },
+    "bubble": {
+     "slot": "left",
+     "text": "이걸 남겼다"
+    }
+   },
+   {
+    "caption": "골라내지 않는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "face": "happy"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "글자로만",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "실행되지 않는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "face": "flat"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "happy",
+      "tag": {
+       "text": "그냥 글자",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "<script>",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "sec--zero-day": {
+  "alt": "세 컷 — 구멍에 맞는 열쇠가 이미 돌아다니는데 내려보낼 패치는 아직 없고, 패치가 나오는 날에야 그 구간이 끝나는 이야기",
+  "cuts": [
+   {
+    "caption": "이미 열고 있다",
     "actors": [
      {
       "part": "사람",
@@ -2833,11 +3740,129 @@
       "face": "happy"
      },
      {
-      "part": "자물쇠",
+      "part": "컴퓨터",
+      "slot": "mid",
+      "face": "sad",
+      "tag": {
+       "text": "구멍 난 채",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "맞는 열쇠",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "고칠 것이 없다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "mid",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "mid",
+     "payload": {
+      "text": "패치",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "패치가 오면 끝난다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "mid",
+      "face": "happy"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "mid",
+     "payload": {
+      "text": "패치",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "sec--zero-trust": {
+  "alt": "세 컷 — 한 번 안에 들어온 것은 그대로 믿어 옆으로 마음껏 옮겨 다니던 것이, 자원 앞마다 매번 다시 확인하게 되면서 안에서 왔다는 말이 통하지 않는 이야기",
+  "cuts": [
+   {
+    "caption": "안에 들면 자유다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "안이니 통과",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "안팎을 안 가린다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "문",
       "slot": "mid",
       "face": "none",
       "tag": {
-       "text": "맞아야 뜬다",
+       "text": "매번 확인",
        "tone": "blue"
       }
      },
@@ -2847,14 +3872,9 @@
       "face": "flat"
      }
     ]
-   }
-  ]
- },
- "sec--post-quantum-cryptography": {
-  "alt": "세 컷 — 곧 나올 만능 열쇠에 지금 자물쇠가 열릴 판이라, 열쇠가 나오기 전에 안 열리는 자물쇠로 미리 갈아 끼우는 이야기",
-  "cuts": [
+   },
    {
-    "caption": "곧 다 열린다",
+    "caption": "그 말은 안 통한다",
     "actors": [
      {
       "part": "사람",
@@ -2862,72 +3882,24 @@
       "face": "sad"
      },
      {
-      "part": "자물쇠",
+      "part": "문",
       "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "지금 것",
-       "tone": "plain"
-      }
-     },
-     {
-      "part": "열쇠",
-      "slot": "right",
       "face": "none"
-     }
-    ]
-   },
-   {
-    "caption": "미리 갈아 끼운다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "flat"
      },
      {
-      "part": "자물쇠",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "새 자물쇠",
-       "tone": "blue"
-      }
-     },
-     {
-      "part": "열쇠",
+      "part": "서버",
       "slot": "right",
-      "face": "none"
-     }
-    ]
-   },
-   {
-    "caption": "열쇠가 안 먹는다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
       "face": "happy"
-     },
-     {
-      "part": "자물쇠",
-      "slot": "mid",
-      "face": "none"
-     },
-     {
-      "part": "열쇠",
-      "slot": "right",
-      "face": "none"
      }
     ],
     "move": {
-     "from": "right",
+     "from": "left",
      "to": "mid",
-     "head": false,
      "payload": {
-      "text": "만능 열쇠",
+      "text": "안이니 통과",
       "tone": "blue"
-     }
+     },
+     "head": false
     },
     "mark": "x"
    }

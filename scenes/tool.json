@@ -65,82 +65,6 @@
    }
   ]
  },
- "tool--cli": {
-  "alt": "세 컷 — 백 번 누르던 일을 글 한 줄로 적어 시키자, 그 글이 남아 다시 쓰이는 이야기",
-  "cuts": [
-   {
-    "caption": "같은 일 또 한다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "sad"
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "right",
-     "payload": {
-      "text": "클릭 100번",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "글로 적어 시킨다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "right",
-     "payload": {
-      "text": "이름 바꿔라",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "그 글이 남는다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "happy"
-     },
-     {
-      "part": "문서",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "그 한 줄",
-       "tone": "blue",
-       "at": "above"
-      }
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "right",
-      "face": "flat"
-     }
-    ]
-   }
-  ]
- },
  "tool--cherry-pick": {
   "alt": "세 컷 — 저 가지의 커밋 하나만 골라 이 가지에 사본으로 얹고, 저쪽에는 그대로 남는 이야기",
   "cuts": [
@@ -220,6 +144,82 @@
        "text": "커밋 B",
        "tone": "blue"
       }
+     }
+    ]
+   }
+  ]
+ },
+ "tool--cli": {
+  "alt": "세 컷 — 백 번 누르던 일을 글 한 줄로 적어 시키자, 그 글이 남아 다시 쓰이는 이야기",
+  "cuts": [
+   {
+    "caption": "같은 일 또 한다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "클릭 100번",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "글로 적어 시킨다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "이름 바꿔라",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "그 글이 남는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "문서",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "그 한 줄",
+       "tone": "blue",
+       "at": "above"
+      }
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "flat"
      }
     ]
    }
@@ -1271,6 +1271,112 @@
    }
   ]
  },
+ "tool--git-flow": {
+  "alt": "세 컷 — 다 된 기능 하나가 혼자서는 main 으로 못 나가고, 판 번호를 붙인 묶음에 모였다가 그 묶음째 나가는 이야기",
+  "cuts": [
+   {
+    "caption": "혼자는 못 낸다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "장부",
+      "slot": "right",
+      "face": "none",
+      "tag": {
+       "text": "main",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "기능 하나",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "판으로 모은다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "소포",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "v1.4",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "장부",
+      "slot": "right",
+      "face": "none",
+      "tag": {
+       "text": "main",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "기능",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "판째 내보낸다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "소포",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "v1.4",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "장부",
+      "slot": "right",
+      "face": "none",
+      "tag": {
+       "text": "main",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "통째로",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
  "tool--git-stash": {
   "alt": "세 컷 — 고치던 것을 안고는 가지를 옮기지 못하던 것이, 서랍에 치우자 깨끗해져 옮기는 이야기",
   "cuts": [
@@ -1793,6 +1899,77 @@
     "move": {
      "from": "left",
      "to": "mid"
+    }
+   }
+  ]
+ },
+ "tool--merge-vs-rebase": {
+  "alt": "세 컷 — 갈라진 두 줄 앞에서 합칠지 다시 쌓을지 고르고, 어느 쪽이든 하나로 합쳐지는 이야기",
+  "cuts": [
+   {
+    "caption": "줄이 갈라졌다",
+    "actors": [
+     {
+      "part": "갈래",
+      "slot": "left",
+      "face": "none",
+      "tag": {
+       "text": "두 줄",
+       "tone": "blue-dash"
+      }
+     },
+     {
+      "part": "사람",
+      "slot": "right",
+      "face": "sad"
+     }
+    ]
+   },
+   {
+    "caption": "고르는 자리다",
+    "actors": [
+     {
+      "part": "갈래",
+      "slot": "left",
+      "face": "none"
+     },
+     {
+      "part": "표지판",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "합칠까 쌓을까",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "사람",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "어느 쪽이든 합친다",
+    "actors": [
+     {
+      "part": "표지판",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "사람",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "합침",
+      "tone": "blue"
+     }
     }
    }
   ]
@@ -2338,6 +2515,94 @@
    }
   ]
  },
+ "tool--term-e82c0160": {
+  "alt": "세 컷 — 코드에 박혀 저장소에 남던 비밀번호를 밖에서 넣어 주게 하고, 코드는 하나로 두는 이야기",
+  "cuts": [
+   {
+    "caption": "저장소에 남는다",
+    "actors": [
+     {
+      "part": "문서",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "비밀번호",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right"
+    }
+   },
+   {
+    "caption": "밖에서 넣어 준다",
+    "actors": [
+     {
+      "part": "서버",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "문서",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "설정값",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "값만 바꿔 끼운다",
+    "actors": [
+     {
+      "part": "서버",
+      "slot": "left",
+      "face": "flat",
+      "tag": {
+       "text": "운영 값",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "문서",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "코드만",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right"
+    }
+   }
+  ]
+ },
  "tool--terminal": {
   "alt": "세 컷 — 화면을 통째로 주고받아야 했던 일이, 창에 한 줄을 치고 글자로 결과를 돌려받는 일로 바뀌는 이야기",
   "cuts": [
@@ -2509,165 +2774,6 @@
       }
      }
     ]
-   }
-  ]
- },
- "tool--term-e82c0160": {
-  "alt": "세 컷 — 코드에 박혀 저장소에 남던 비밀번호를 밖에서 넣어 주게 하고, 코드는 하나로 두는 이야기",
-  "cuts": [
-   {
-    "caption": "저장소에 남는다",
-    "actors": [
-     {
-      "part": "문서",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "비밀번호",
-       "tone": "blue"
-      }
-     },
-     {
-      "part": "저장통",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "right"
-    }
-   },
-   {
-    "caption": "밖에서 넣어 준다",
-    "actors": [
-     {
-      "part": "서버",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "문서",
-      "slot": "mid",
-      "face": "none"
-     },
-     {
-      "part": "저장통",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "mid",
-     "payload": {
-      "text": "설정값",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "값만 바꿔 끼운다",
-    "actors": [
-     {
-      "part": "서버",
-      "slot": "left",
-      "face": "flat",
-      "tag": {
-       "text": "운영 값",
-       "tone": "blue"
-      }
-     },
-     {
-      "part": "문서",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "코드만",
-       "tone": "plain"
-      }
-     },
-     {
-      "part": "저장통",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "right"
-    }
-   }
-  ]
- },
- "tool--merge-vs-rebase": {
-  "alt": "세 컷 — 갈라진 두 줄 앞에서 합칠지 다시 쌓을지 고르고, 어느 쪽이든 하나로 합쳐지는 이야기",
-  "cuts": [
-   {
-    "caption": "줄이 갈라졌다",
-    "actors": [
-     {
-      "part": "갈래",
-      "slot": "left",
-      "face": "none",
-      "tag": {
-       "text": "두 줄",
-       "tone": "blue-dash"
-      }
-     },
-     {
-      "part": "사람",
-      "slot": "right",
-      "face": "sad"
-     }
-    ]
-   },
-   {
-    "caption": "고르는 자리다",
-    "actors": [
-     {
-      "part": "갈래",
-      "slot": "left",
-      "face": "none"
-     },
-     {
-      "part": "표지판",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "합칠까 쌓을까",
-       "tone": "blue"
-      }
-     },
-     {
-      "part": "사람",
-      "slot": "right",
-      "face": "flat"
-     }
-    ]
-   },
-   {
-    "caption": "어느 쪽이든 합친다",
-    "actors": [
-     {
-      "part": "표지판",
-      "slot": "mid",
-      "face": "none"
-     },
-     {
-      "part": "사람",
-      "slot": "right",
-      "face": "happy"
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "right",
-     "payload": {
-      "text": "합침",
-      "tone": "blue"
-     }
-    }
    }
   ]
  }

@@ -1,451 +1,2625 @@
 {
-  "cloud--aws": {
-    "alt": "세 컷 — 서버와 저장소를 사려면 몇 주가 걸리던 것을, AWS 에서 몇 분 만에 빌려 산 것 없이 쓰게 되는 이야기",
-    "cuts": [
-      {
-        "caption": "사면 몇 주 걸린다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "sad",
-           "tag": {"text": "서버·저장소", "tone": "blue-dash"}},
-          {"part": "시계", "slot": "mid", "face": "none"},
-          {"part": "구름", "slot": "right", "face": "flat"}
-        ]
-      },
-      {
-        "caption": "몇 분이면 뜬다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "flat"},
-          {"part": "구름", "slot": "right", "face": "happy"}
-        ],
-        "move": {"from": "right", "to": "left",
-                 "payload": {"text": "서버·저장소", "tone": "blue"}}
-      },
-      {
-        "caption": "산 것은 없다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "happy",
-           "tag": {"text": "서버·저장소", "tone": "blue"}},
-          {"part": "구름", "slot": "right", "face": "flat"}
-        ]
+ "cloud--availability-zone": {
+  "alt": "세 컷 — A 영역이 죽어 요청이 끊기자, 전원이 따로 도는 옆 영역에 하나 더 두어 남은 영역이 대신 받아내는 이야기",
+  "cuts": [
+   {
+    "caption": "한 영역이 죽는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "who": "A 영역",
+      "face": "sad",
+      "tag": {
+       "text": "A 영역",
+       "tone": "plain"
       }
-    ]
-  },
-
-  "cloud--availability-zone": {
-    "alt": "세 컷 — A 영역이 죽어 요청이 끊기자, 전원이 따로 도는 옆 영역에 하나 더 두어 남은 영역이 대신 받아내는 이야기",
-    "cuts": [
-      {
-        "caption": "한 영역이 죽는다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "sad"},
-          {"part": "서버", "slot": "right", "who": "A 영역", "face": "sad",
-           "tag": {"text": "A 영역", "tone": "plain"}}
-        ],
-        "move": {"from": "left", "to": "right", "head": false,
-                 "payload": {"text": "요청", "tone": "blue"}},
-        "mark": "x"
-      },
-      {
-        "caption": "옆 영역에 더 둔다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "flat"},
-          {"part": "서버", "slot": "mid", "who": "B 영역", "face": "flat",
-           "tag": {"text": "B 영역", "tone": "blue"}},
-          {"part": "서버", "slot": "right", "who": "A 영역", "face": "sad",
-           "tag": {"text": "A 영역", "tone": "plain"}}
-        ],
-        "bubble": {"slot": "mid", "text": "전원 따로"}
-      },
-      {
-        "caption": "남은 곳이 받는다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "happy"},
-          {"part": "서버", "slot": "mid", "who": "B 영역", "face": "happy",
-           "tag": {"text": "B 영역", "tone": "plain"}},
-          {"part": "서버", "slot": "right", "who": "A 영역", "face": "sad",
-           "tag": {"text": "A 영역", "tone": "plain"}}
-        ],
-        "move": {"from": "left", "to": "mid",
-                 "payload": {"text": "요청", "tone": "blue"}}
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "요청",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "옆 영역에 더 둔다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "who": "B 영역",
+      "face": "flat",
+      "tag": {
+       "text": "B 영역",
+       "tone": "blue"
       }
-    ]
-  },
-
-  "cloud--azure": {
-    "alt": "세 컷 — 전기와 냉방까지 떠안던 서버실을 Azure 에 넘기고, 쓴 만큼 값만 치르게 되는 이야기",
-    "cuts": [
-      {
-        "caption": "관리가 내 몫이다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "sad"},
-          {"part": "서버", "slot": "mid", "face": "flat",
-           "tag": {"text": "전기·냉방", "tone": "blue"}},
-          {"part": "구름", "slot": "right", "face": "flat"}
-        ]
-      },
-      {
-        "caption": "설비를 맡긴다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "flat"},
-          {"part": "구름", "slot": "right", "face": "happy"}
-        ],
-        "move": {"from": "left", "to": "right",
-                 "payload": {"text": "전기·냉방", "tone": "blue"}}
-      },
-      {
-        "caption": "값만 치른다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "happy"},
-          {"part": "구름", "slot": "right", "face": "flat",
-           "tag": {"text": "전기·냉방", "tone": "blue"}}
-        ]
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "who": "A 영역",
+      "face": "sad",
+      "tag": {
+       "text": "A 영역",
+       "tone": "plain"
       }
-    ]
-  },
-
-  "cloud--cloud": {
-    "alt": "세 컷 — 서버 한 대가 필요하던 사람이 구름에게 필요한 만큼만 빌려, 쓴 만큼만 값을 내는 이야기",
-    "cuts": [
-      {
-        "caption": "필요한데 없다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "sad",
-           "tag": {"text": "서버 한 대", "tone": "blue-dash"}},
-          {"part": "구름", "slot": "right", "face": "flat"}
-        ]
-      },
-      {
-        "caption": "필요한 만큼 빌린다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "flat"},
-          {"part": "구름", "slot": "right", "face": "happy"}
-        ],
-        "move": {"from": "right", "to": "left",
-                 "payload": {"text": "서버 한 대", "tone": "blue"}}
-      },
-      {
-        "caption": "쓴 만큼만 낸다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "happy",
-           "tag": {"text": "서버 한 대", "tone": "blue"}},
-          {"part": "구름", "slot": "right", "face": "flat"}
-        ]
+     }
+    ],
+    "bubble": {
+     "slot": "mid",
+     "text": "전원 따로"
+    }
+   },
+   {
+    "caption": "남은 곳이 받는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "who": "B 영역",
+      "face": "happy",
+      "tag": {
+       "text": "B 영역",
+       "tone": "plain"
       }
-    ]
-  },
-
-  "cloud--ec2": {
-    "alt": "세 컷 — 서버가 당장 필요하던 사람이 AWS 에서 가상 서버를 몇 분 만에 빌려, 빌린 시간만큼만 값을 내는 이야기",
-    "cuts": [
-      {
-        "caption": "당장 필요하다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "sad",
-           "tag": {"text": "서버?", "tone": "blue-dash"}},
-          {"part": "구름", "slot": "right", "face": "flat"}
-        ]
-      },
-      {
-        "caption": "몇 분 만에 뜬다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "flat"},
-          {"part": "구름", "slot": "right", "face": "happy"}
-        ],
-        "move": {"from": "right", "to": "left",
-                 "payload": {"text": "가상 서버", "tone": "blue"}}
-      },
-      {
-        "caption": "쓴 시간만 낸다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "happy"},
-          {"part": "서버", "slot": "mid", "face": "flat",
-           "tag": {"text": "1시간 빌림", "tone": "blue"}},
-          {"part": "구름", "slot": "right", "face": "flat"}
-        ]
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "who": "A 영역",
+      "face": "sad",
+      "tag": {
+       "text": "A 영역",
+       "tone": "plain"
       }
-    ]
-  },
-
-  "cloud--iaas-paas-saas": {
-    "alt": "세 컷 — 장비와 OS 와 앱을 전부 지던 사람이 어디까지 맡길지를 골라, 맡긴 층만큼 구름이 대신 지는 이야기",
-    "cuts": [
-      {
-        "caption": "전부 내 몫이다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "sad",
-           "tag": {"text": "장비·OS·앱", "tone": "blue"}},
-          {"part": "구름", "slot": "right", "face": "flat"}
-        ]
-      },
-      {
-        "caption": "어디까지 맡길까",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "flat"},
-          {"part": "표지판", "slot": "mid", "face": "none",
-           "tag": {"text": "장비→OS→앱", "tone": "blue"}},
-          {"part": "구름", "slot": "right", "face": "flat"}
-        ]
-      },
-      {
-        "caption": "맡길수록 편하다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "happy",
-           "tag": {"text": "쓰기만 한다", "tone": "plain"}},
-          {"part": "구름", "slot": "right", "face": "happy",
-           "tag": {"text": "OS·앱까지", "tone": "blue"}}
-        ]
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "요청",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "cloud--aws": {
+  "alt": "세 컷 — 서버와 저장소를 사려면 몇 주가 걸리던 것을, AWS 에서 몇 분 만에 빌려 산 것 없이 쓰게 되는 이야기",
+  "cuts": [
+   {
+    "caption": "사면 몇 주 걸린다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad",
+      "tag": {
+       "text": "서버·저장소",
+       "tone": "blue-dash"
       }
+     },
+     {
+      "part": "시계",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "flat"
+     }
     ]
-  },
-
-  "cloud--lambda": {
-    "alt": "세 컷 — 안 불려도 종일 켜둬야 하던 서버 대신 함수만 구름에 올려두고, 부를 때만 돌려 실행한 시간만 내는 이야기",
-    "cuts": [
-      {
-        "caption": "안 불려도 켜둔다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "sad"},
-          {"part": "서버", "slot": "mid", "face": "flat",
-           "tag": {"text": "종일 켜둠", "tone": "blue"}},
-          {"part": "구름", "slot": "right", "face": "flat"}
-        ]
-      },
-      {
-        "caption": "함수만 올려둔다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "flat"},
-          {"part": "구름", "slot": "right", "face": "happy"}
-        ],
-        "move": {"from": "left", "to": "right",
-                 "payload": {"text": "함수", "tone": "blue"}}
-      },
-      {
-        "caption": "실행 시간만 낸다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "flat"},
-          {"part": "구름", "slot": "right", "face": "happy"}
-        ],
-        "move": {"from": "left", "to": "right",
-                 "payload": {"text": "호출", "tone": "blue"}},
-        "bubble": {"slot": "right", "text": "이제 실행"}
+   },
+   {
+    "caption": "몇 분이면 뜬다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "left",
+     "payload": {
+      "text": "서버·저장소",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "산 것은 없다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy",
+      "tag": {
+       "text": "서버·저장소",
+       "tone": "blue"
       }
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "flat"
+     }
     ]
-  },
-
-  "cloud--region": {
-    "alt": "세 컷 — 지구 반대편 먼 리전에서 오느라 느리던 화면을, 가까운 리전에도 두어 왕복이 짧아지는 이야기",
-    "cuts": [
-      {
-        "caption": "멀어서 느리다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "sad"},
-          {"part": "서버", "slot": "right", "who": "먼 리전", "face": "flat",
-           "tag": {"text": "먼 리전", "tone": "plain"}}
-        ],
-        "move": {"from": "right", "to": "left",
-                 "payload": {"text": "화면", "tone": "blue"}}
-      },
-      {
-        "caption": "가까운 곳에 둔다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "flat"},
-          {"part": "서버", "slot": "mid", "who": "가까운 리전", "face": "flat",
-           "tag": {"text": "가까운 리전", "tone": "blue"}},
-          {"part": "서버", "slot": "right", "who": "먼 리전", "face": "flat",
-           "tag": {"text": "먼 리전", "tone": "plain"}}
-        ]
-      },
-      {
-        "caption": "훨씬 빠르다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "happy"},
-          {"part": "서버", "slot": "mid", "who": "가까운 리전", "face": "happy",
-           "tag": {"text": "가까운 리전", "tone": "plain"}},
-          {"part": "서버", "slot": "right", "who": "먼 리전", "face": "flat",
-           "tag": {"text": "먼 리전", "tone": "plain"}}
-        ],
-        "move": {"from": "mid", "to": "left",
-                 "payload": {"text": "화면", "tone": "blue"}}
+   }
+  ]
+ },
+ "cloud--azure": {
+  "alt": "세 컷 — 전기와 냉방까지 떠안던 서버실을 Azure 에 넘기고, 쓴 만큼 값만 치르게 되는 이야기",
+  "cuts": [
+   {
+    "caption": "관리가 내 몫이다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "face": "flat",
+      "tag": {
+       "text": "전기·냉방",
+       "tone": "blue"
       }
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "flat"
+     }
     ]
-  },
-
-  "cloud--s3": {
-    "alt": "세 컷 — 한 서버 안에만 있어 다른 서버는 못 보던 사진을, 서버 밖 저장소에 맡겨 어느 서버에서나 보게 되는 이야기",
-    "cuts": [
-      {
-        "caption": "서버가 들고 있다",
-        "actors": [
-          {"part": "서버", "slot": "left", "who": "서버 1", "face": "flat",
-           "tag": {"text": "사진", "tone": "blue"}},
-          {"part": "서버", "slot": "right", "who": "서버 2", "face": "sad"}
-        ]
-      },
-      {
-        "caption": "밖에 맡긴다",
-        "actors": [
-          {"part": "서버", "slot": "left", "who": "서버 1", "face": "flat"},
-          {"part": "저장통", "slot": "mid", "face": "flat"},
-          {"part": "서버", "slot": "right", "who": "서버 2", "face": "flat"}
-        ],
-        "move": {"from": "left", "to": "mid",
-                 "payload": {"text": "사진", "tone": "blue"}}
-      },
-      {
-        "caption": "어느 서버든 본다",
-        "actors": [
-          {"part": "서버", "slot": "left", "who": "서버 1", "face": "happy"},
-          {"part": "저장통", "slot": "mid", "face": "flat",
-           "tag": {"text": "사진", "tone": "blue"}},
-          {"part": "서버", "slot": "right", "who": "서버 2", "face": "happy"}
-        ]
+   },
+   {
+    "caption": "설비를 맡긴다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "전기·냉방",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "값만 치른다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "flat",
+      "tag": {
+       "text": "전기·냉방",
+       "tone": "blue"
       }
+     }
     ]
-  },
-
-  "cloud--serverless": {
-    "alt": "세 컷 — 서버 한 대로는 못 버티던 요청 천 개를, 함수만 올려 두자 구름이 알아서 늘려 다 받아내는 이야기",
-    "cuts": [
-      {
-        "caption": "몰리면 못 버틴다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "flat"},
-          {"part": "서버", "slot": "right", "face": "sad"}
-        ],
-        "move": {"from": "left", "to": "right", "head": false,
-                 "payload": {"text": "요청 천 개", "tone": "blue"}},
-        "mark": "x"
-      },
-      {
-        "caption": "함수만 올린다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "flat"},
-          {"part": "구름", "slot": "right", "face": "happy"}
-        ],
-        "move": {"from": "left", "to": "right",
-                 "payload": {"text": "함수", "tone": "blue"}}
-      },
-      {
-        "caption": "알아서 늘어난다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "happy"},
-          {"part": "구름", "slot": "right", "face": "happy",
-           "tag": {"text": "천 개 실행", "tone": "blue"}}
-        ]
+   }
+  ]
+ },
+ "cloud--block-storage": {
+  "alt": "세 컷 — 서버를 끄면 안에 있던 것이 같이 사라지던 것이, 저장통을 따로 붙여 두자 서버를 갈아 끼워도 그대로 남는 이야기",
+  "cuts": [
+   {
+    "caption": "서버 끄면 사라진다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "left",
+     "head": false,
+     "payload": {
+      "text": "데이터",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "볼륨을 따로 붙인다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "face": "flat"
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "mid",
+     "payload": {
+      "text": "볼륨",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "서버 바꿔도 남는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "face": "flat",
+      "tag": {
+       "text": "새 서버",
+       "tone": "plain"
       }
-    ]
-  },
-
-  "cloud--subnet": {
-    "alt": "세 컷 — 바깥 접근이 DB 까지 닿던 한 덩어리 네트워크를 구획으로 나눠, 바깥 접근이 웹 구획에서 멈추는 이야기",
-    "cuts": [
-      {
-        "caption": "한 덩어리다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "flat"},
-          {"part": "저장통", "slot": "right", "face": "sad",
-           "tag": {"text": "DB", "tone": "plain"}}
-        ],
-        "move": {"from": "left", "to": "right",
-                 "payload": {"text": "바깥 접근", "tone": "blue"}}
-      },
-      {
-        "caption": "구획을 나눈다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "flat"},
-          {"part": "서버", "slot": "mid", "face": "flat",
-           "tag": {"text": "바깥 구획", "tone": "plain"}},
-          {"part": "저장통", "slot": "right", "face": "flat",
-           "tag": {"text": "안쪽 구획", "tone": "plain"}}
-        ]
-      },
-      {
-        "caption": "웹까지만 열린다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "flat"},
-          {"part": "서버", "slot": "mid", "face": "flat",
-           "tag": {"text": "바깥 구획", "tone": "plain"}},
-          {"part": "저장통", "slot": "right", "face": "happy",
-           "tag": {"text": "안쪽 구획", "tone": "plain"}}
-        ],
-        "move": {"from": "left", "to": "mid",
-                 "payload": {"text": "바깥 접근", "tone": "blue"}}
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "none",
+      "tag": {
+       "text": "그대로",
+       "tone": "blue"
       }
+     }
     ]
-  },
-
-  "cloud--tenant": {
-    "alt": "세 컷 — 한 시스템을 같이 쓰다 남의 자료까지 건네지던 것을, 고객마다 칸을 갈라 제 칸 것만 오게 하는 이야기",
-    "cuts": [
-      {
-        "caption": "가르지 않았다",
-        "actors": [
-          {"part": "사람", "slot": "left", "who": "고객 A", "face": "flat"},
-          {"part": "서버", "slot": "mid", "face": "flat"},
-          {"part": "사람", "slot": "right", "who": "고객 B", "face": "sad"}
-        ],
-        "move": {"from": "mid", "to": "left",
-                 "payload": {"text": "B 자료", "tone": "blue"}}
-      },
-      {
-        "caption": "칸을 갈라 둔다",
-        "actors": [
-          {"part": "사람", "slot": "left", "who": "고객 A", "face": "flat"},
-          {"part": "서버", "slot": "mid", "face": "flat",
-           "tag": {"text": "A 칸·B 칸", "tone": "blue"}},
-          {"part": "사람", "slot": "right", "who": "고객 B", "face": "flat"}
-        ]
-      },
-      {
-        "caption": "제 칸만 보인다",
-        "actors": [
-          {"part": "사람", "slot": "left", "who": "고객 A", "face": "happy"},
-          {"part": "서버", "slot": "mid", "face": "flat",
-           "tag": {"text": "A 칸·B 칸", "tone": "plain"}},
-          {"part": "사람", "slot": "right", "who": "고객 B", "face": "flat"}
-        ],
-        "move": {"from": "mid", "to": "left",
-                 "payload": {"text": "A 자료", "tone": "blue"}}
+   }
+  ]
+ },
+ "cloud--cloud": {
+  "alt": "세 컷 — 서버 한 대가 필요하던 사람이 구름에게 필요한 만큼만 빌려, 쓴 만큼만 값을 내는 이야기",
+  "cuts": [
+   {
+    "caption": "필요한데 없다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad",
+      "tag": {
+       "text": "서버 한 대",
+       "tone": "blue-dash"
       }
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "flat"
+     }
     ]
-  },
-
-  "cloud--vpc": {
-    "alt": "세 컷 — 누구나 닿던 내 서버 둘레에 내 것만 담는 경계를 둘러, 바깥 접근이 그 앞에서 막히는 이야기",
-    "cuts": [
-      {
-        "caption": "누구나 닿는다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "flat"},
-          {"part": "서버", "slot": "right", "face": "sad",
-           "tag": {"text": "내 서버", "tone": "plain"}}
-        ],
-        "move": {"from": "left", "to": "right",
-                 "payload": {"text": "바깥 접근", "tone": "blue"}}
-      },
-      {
-        "caption": "경계를 두른다",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "flat"},
-          {"part": "벽", "slot": "mid", "face": "none",
-           "tag": {"text": "내 VPC", "tone": "blue"}},
-          {"part": "서버", "slot": "right", "face": "flat",
-           "tag": {"text": "내 서버", "tone": "plain"}}
-        ]
-      },
-      {
-        "caption": "안쪽은 내 것뿐",
-        "actors": [
-          {"part": "사람", "slot": "left", "face": "sad"},
-          {"part": "벽", "slot": "mid", "face": "none",
-           "tag": {"text": "내 VPC", "tone": "plain"}},
-          {"part": "서버", "slot": "right", "face": "happy",
-           "tag": {"text": "내 서버", "tone": "plain"}}
-        ],
-        "move": {"from": "left", "to": "right", "head": false,
-                 "payload": {"text": "바깥 접근", "tone": "blue"}},
-        "mark": "x"
+   },
+   {
+    "caption": "필요한 만큼 빌린다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "left",
+     "payload": {
+      "text": "서버 한 대",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "쓴 만큼만 낸다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy",
+      "tag": {
+       "text": "서버 한 대",
+       "tone": "blue"
       }
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "flat"
+     }
     ]
-  }
+   }
+  ]
+ },
+ "cloud--cloud-migration": {
+  "alt": "세 컷 — 통째로 옮기다 안 쓰는 것까지 데려가던 이사가, 짐마다 옮길지 끌지를 먼저 갈라 놓자 쓰는 것만 클라우드로 가는 이야기",
+  "cuts": [
+   {
+    "caption": "통째로 옮긴다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "안 쓰는 것도",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "짐마다 정한다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "갈래",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "옮길지 끌지",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "정한 것만 옮긴다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "갈래",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "쓰는 것만",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "cloud--cold-start": {
+  "alt": "세 컷 — 첫 요청이 왔는데 함수를 놓을 자리가 없어, 자리를 만드는 동안 기다렸다가, 그 자리가 남아 있는 다음 요청부터는 곧바로 도는 이야기",
+  "cuts": [
+   {
+    "caption": "놓을 자리가 없다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "첫 요청",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "만드느라 늦는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "시계",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "flat",
+      "tag": {
+       "text": "자리 만드는 중",
+       "tone": "blue"
+      }
+     }
+    ]
+   },
+   {
+    "caption": "다음은 바로 간다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "happy",
+      "tag": {
+       "text": "자리 남아 있다",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "다음 요청",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "cloud--container-registry": {
+  "alt": "세 컷 — 서버마다 따로 만들어 판이 제각각이던 것이, 한 번 만든 판을 창고에 올려 두자 어느 서버나 같은 판을 받아 가는 이야기",
+  "cuts": [
+   {
+    "caption": "서버마다 다르다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "겹친서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "같은 판?",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "만들어 올려 둔다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "사물함",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "겹친서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "판 하나",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "같은 판을 받는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "사물함",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "겹친서버",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "같은 판",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "cloud--ec2": {
+  "alt": "세 컷 — 서버가 당장 필요하던 사람이 AWS 에서 가상 서버를 몇 분 만에 빌려, 빌린 시간만큼만 값을 내는 이야기",
+  "cuts": [
+   {
+    "caption": "당장 필요하다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad",
+      "tag": {
+       "text": "서버?",
+       "tone": "blue-dash"
+      }
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "몇 분 만에 뜬다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "left",
+     "payload": {
+      "text": "가상 서버",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "쓴 시간만 낸다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "face": "flat",
+      "tag": {
+       "text": "1시간 빌림",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   }
+  ]
+ },
+ "cloud--egress-cost": {
+  "alt": "세 컷 — 클라우드로 들어올 때는 값이 안 붙는데 밖으로 나갈 때는 나간 용량만큼 동전이 붙어, 덜 내보낼수록 그 값이 줄어드는 이야기",
+  "cuts": [
+   {
+    "caption": "들어올 땐 공짜",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "구름",
+      "slot": "mid",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "1기가",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "나갈 땐 값이 든다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "구름",
+      "slot": "mid",
+      "face": "flat"
+     },
+     {
+      "part": "동전",
+      "slot": "right",
+      "face": "none",
+      "tag": {
+       "text": "용량만큼",
+       "tone": "blue"
+      }
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "left",
+     "payload": {
+      "text": "1기가",
+      "tone": "plain"
+     }
+    }
+   },
+   {
+    "caption": "덜 내보내면 준다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "구름",
+      "slot": "mid",
+      "face": "flat"
+     },
+     {
+      "part": "동전",
+      "slot": "right",
+      "face": "none",
+      "tag": {
+       "text": "값이 준다",
+       "tone": "blue"
+      }
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "left",
+     "payload": {
+      "text": "조금만",
+      "tone": "plain"
+     }
+    }
+   }
+  ]
+ },
+ "cloud--elastic-ip": {
+  "alt": "세 컷 — 서버를 갈아 끼울 때마다 주소가 바뀌어 못 닿던 것이, 주소를 따로 잡아 두고 새 서버에 옮겨 붙이자 바깥은 늘 같은 주소로 닿는 이야기",
+  "cuts": [
+   {
+    "caption": "주소가 바뀐다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat",
+      "tag": {
+       "text": "새 주소",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "옛 주소",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "주소를 따로 잡는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "표지판",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "고정 주소",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "새 서버에 붙인다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "표지판",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "그대로",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "happy",
+      "tag": {
+       "text": "새 서버",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "주소",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "cloud--finops": {
+  "alt": "세 컷 — 월말 청구서에 놀라던 팀이, 쓴 돈을 팀별로 장부에 적어 보이게 하고 값 하는 것만 남기며 매달 다시 보는 이야기",
+  "cuts": [
+   {
+    "caption": "월말에 놀란다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "left",
+     "payload": {
+      "text": "청구서",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "쓴 돈을 보이게",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "팀별로 적는다",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "줄이고 또 본다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "flat",
+      "tag": {
+       "text": "값 하는 것만",
+       "tone": "blue"
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "cloud--iaas-paas-saas": {
+  "alt": "세 컷 — 장비와 OS 와 앱을 전부 지던 사람이 어디까지 맡길지를 골라, 맡긴 층만큼 구름이 대신 지는 이야기",
+  "cuts": [
+   {
+    "caption": "전부 내 몫이다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad",
+      "tag": {
+       "text": "장비·OS·앱",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "어디까지 맡길까",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "표지판",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "장비→OS→앱",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "맡길수록 편하다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy",
+      "tag": {
+       "text": "쓰기만 한다",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "happy",
+      "tag": {
+       "text": "OS·앱까지",
+       "tone": "blue"
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "cloud--lambda": {
+  "alt": "세 컷 — 안 불려도 종일 켜둬야 하던 서버 대신 함수만 구름에 올려두고, 부를 때만 돌려 실행한 시간만 내는 이야기",
+  "cuts": [
+   {
+    "caption": "안 불려도 켜둔다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "face": "flat",
+      "tag": {
+       "text": "종일 켜둠",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "함수만 올려둔다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "함수",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "실행 시간만 낸다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "호출",
+      "tone": "blue"
+     }
+    },
+    "bubble": {
+     "slot": "right",
+     "text": "이제 실행"
+    }
+   }
+  ]
+ },
+ "cloud--managed-kubernetes": {
+  "alt": "세 컷 — 쿠버네티스의 머리와 노드를 전부 내가 세우던 것이, 머리를 구름에 맡기자 나는 노드와 그 위에 띄울 것만 지게 되는 이야기",
+  "cuts": [
+   {
+    "caption": "전부 내가 세운다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "겹친서버",
+      "slot": "mid",
+      "face": "flat",
+      "tag": {
+       "text": "머리도 노드도",
+       "tone": "blue"
+      }
+     }
+    ]
+   },
+   {
+    "caption": "머리를 맡긴다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "겹친서버",
+      "slot": "mid",
+      "face": "flat"
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "머리",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "선이 여기 그어진다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "겹친서버",
+      "slot": "mid",
+      "face": "flat",
+      "tag": {
+       "text": "노드는 내 몫",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "happy",
+      "tag": {
+       "text": "머리는 구름이",
+       "tone": "blue"
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "cloud--managed-service": {
+  "alt": "세 컷 — 패치와 백업과 새벽 당번이 전부 내 몫이던 것이, 그 운영 일감을 파는 쪽에 넘기자 편해지는 대신 손댈 수 있는 폭은 벽에 막히는 이야기",
+  "cuts": [
+   {
+    "caption": "운영은 내 몫이다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "소포",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "패치·백업·당번",
+       "tone": "blue",
+       "at": "above"
+      }
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "파는 쪽에 넘긴다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "소포",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "운영 일감",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "대신 못 만진다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "벽",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "손댈 폭 줄어",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "happy",
+      "tag": {
+       "text": "운영은 저쪽",
+       "tone": "blue"
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "cloud--multi-region": {
+  "alt": "세 컷 — 지역 하나가 통째로 멈춰 요청이 어디에도 닿지 않던 것이, 다른 지역에 같은 사본을 두자 그쪽이 대신 받아내는 이야기",
+  "cuts": [
+   {
+    "caption": "리전째 멈춘다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "겹친서버",
+      "slot": "right",
+      "who": "서울",
+      "face": "sad",
+      "tag": {
+       "text": "서울 리전",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "요청",
+      "tone": "blue"
+     }
+    },
+    "mark": "x",
+    "bubble": {
+     "slot": "right",
+     "text": "영역 다 멈춤"
+    }
+   },
+   {
+    "caption": "다른 지역에도 둔다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "겹친서버",
+      "slot": "mid",
+      "who": "도쿄",
+      "face": "flat",
+      "tag": {
+       "text": "도쿄 리전",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "겹친서버",
+      "slot": "right",
+      "who": "서울",
+      "face": "sad",
+      "tag": {
+       "text": "서울 리전",
+       "tone": "plain"
+      }
+     }
+    ]
+   },
+   {
+    "caption": "다른 지역이 받는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "겹친서버",
+      "slot": "mid",
+      "who": "도쿄",
+      "face": "happy",
+      "tag": {
+       "text": "도쿄 리전",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "겹친서버",
+      "slot": "right",
+      "who": "서울",
+      "face": "sad",
+      "tag": {
+       "text": "서울 리전",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "요청",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "cloud--object-storage": {
+  "alt": "네 컷 — 폴더를 파고들어도 못 찾던 사진을, 이름표를 붙여 통째로 맡기고 그 이름표만 대서 통째로 꺼내는 이야기",
+  "cuts": [
+   {
+    "caption": "폴더를 파고든다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "갈래",
+      "slot": "right",
+      "face": "none",
+      "tag": {
+       "text": "폴더 나무",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "사진",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "이름표를 붙인다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "소포",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "이름표",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "사물함",
+      "slot": "right",
+      "face": "none"
+     }
+    ]
+   },
+   {
+    "caption": "통째로 맡긴다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "사물함",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "사진 통째",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "이름표로 꺼낸다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "사물함",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "left",
+     "payload": {
+      "text": "사진 통째",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "cloud--region": {
+  "alt": "세 컷 — 지구 반대편 먼 리전에서 오느라 느리던 화면을, 가까운 리전에도 두어 왕복이 짧아지는 이야기",
+  "cuts": [
+   {
+    "caption": "멀어서 느리다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "who": "먼 리전",
+      "face": "flat",
+      "tag": {
+       "text": "먼 리전",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "left",
+     "payload": {
+      "text": "화면",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "가까운 곳에 둔다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "who": "가까운 리전",
+      "face": "flat",
+      "tag": {
+       "text": "가까운 리전",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "who": "먼 리전",
+      "face": "flat",
+      "tag": {
+       "text": "먼 리전",
+       "tone": "plain"
+      }
+     }
+    ]
+   },
+   {
+    "caption": "훨씬 빠르다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "who": "가까운 리전",
+      "face": "happy",
+      "tag": {
+       "text": "가까운 리전",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "who": "먼 리전",
+      "face": "flat",
+      "tag": {
+       "text": "먼 리전",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "left",
+     "payload": {
+      "text": "화면",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "cloud--reserved-instance": {
+  "alt": "세 컷 — 늘 켜 두는 자리에 매달 정가를 다 내던 것이, 1년을 쓰겠다고 약속하자 그 몫의 값이 깎이는 이야기",
+  "cuts": [
+   {
+    "caption": "정가를 다 낸다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat",
+      "tag": {
+       "text": "늘 켜 둔 자리",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "매달 정가",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "1년을 약속한다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "문서",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "1년 약정",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "bubble": {
+     "slot": "left",
+     "text": "안 써도 낸다"
+    }
+   },
+   {
+    "caption": "값이 깎인다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "문서",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "1년 약정",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "할인",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "cloud--s3": {
+  "alt": "세 컷 — 한 서버 안에만 있어 다른 서버는 못 보던 사진을, 서버 밖 저장소에 맡겨 어느 서버에서나 보게 되는 이야기",
+  "cuts": [
+   {
+    "caption": "서버가 들고 있다",
+    "actors": [
+     {
+      "part": "서버",
+      "slot": "left",
+      "who": "서버 1",
+      "face": "flat",
+      "tag": {
+       "text": "사진",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "who": "서버 2",
+      "face": "sad"
+     }
+    ]
+   },
+   {
+    "caption": "밖에 맡긴다",
+    "actors": [
+     {
+      "part": "서버",
+      "slot": "left",
+      "who": "서버 1",
+      "face": "flat"
+     },
+     {
+      "part": "저장통",
+      "slot": "mid",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "who": "서버 2",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "사진",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "어느 서버든 본다",
+    "actors": [
+     {
+      "part": "서버",
+      "slot": "left",
+      "who": "서버 1",
+      "face": "happy"
+     },
+     {
+      "part": "저장통",
+      "slot": "mid",
+      "face": "flat",
+      "tag": {
+       "text": "사진",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "who": "서버 2",
+      "face": "happy"
+     }
+    ]
+   }
+  ]
+ },
+ "cloud--security-group": {
+  "alt": "세 컷 — 아무 접속이나 서버까지 들어오던 것이, 들어와도 되는 것만 적은 허용 명단을 붙이자 적히지 않은 접속이 그 앞에서 막히는 이야기",
+  "cuts": [
+   {
+    "caption": "아무나 들어온다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "아무 접속",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "명단을 붙인다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "문서",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "허용 명단",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "bubble": {
+     "slot": "left",
+     "text": "허용만 적는다"
+    }
+   },
+   {
+    "caption": "적힌 것만 통과",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "문서",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "허용 명단",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "아무 접속",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   }
+  ]
+ },
+ "cloud--serverless": {
+  "alt": "세 컷 — 서버 한 대로는 못 버티던 요청 천 개를, 함수만 올려 두자 구름이 알아서 늘려 다 받아내는 이야기",
+  "cuts": [
+   {
+    "caption": "몰리면 못 버틴다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "요청 천 개",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "함수만 올린다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "함수",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "알아서 늘어난다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "happy",
+      "tag": {
+       "text": "천 개 실행",
+       "tone": "blue"
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "cloud--shared-responsibility-model": {
+  "alt": "세 컷 — 설정 잠그는 일을 서로 미루다 아무도 안 하던 것이, 위는 내 몫 아래는 제공자 몫으로 층에 선을 긋자 제 칸으로 돌아가는 이야기",
+  "cuts": [
+   {
+    "caption": "서로 미룬다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "설정 잠금",
+      "tone": "blue"
+     }
+    },
+    "mark": "x",
+    "bubble": {
+     "slot": "right",
+     "text": "그건 네 몫"
+    }
+   },
+   {
+    "caption": "선을 긋는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "계단",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "위는 내 몫",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "내 칸은 내가",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "계단",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "위는 내 몫",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "설정 잠금",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "cloud--spot-instance": {
+  "alt": "세 컷 — 제값을 다 내던 것이, 남는 자리를 싸게 빌리자 값은 내려가지만 클라우드가 2분 뒤 그 자리를 도로 가져가는 이야기",
+  "cuts": [
+   {
+    "caption": "정가는 비싸다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "제값 다",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "남는 자리를 싸게",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "face": "flat",
+      "tag": {
+       "text": "싼값 남는 자리",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "2분 뒤 비운다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "face": "sad",
+      "tag": {
+       "text": "남는 자리",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "mid",
+     "payload": {
+      "text": "회수",
+      "tone": "blue"
+     }
+    },
+    "bubble": {
+     "slot": "left",
+     "text": "다시 하면 돼"
+    }
+   }
+  ]
+ },
+ "cloud--subnet": {
+  "alt": "세 컷 — 바깥 접근이 DB 까지 닿던 한 덩어리 네트워크를 구획으로 나눠, 바깥 접근이 웹 구획에서 멈추는 이야기",
+  "cuts": [
+   {
+    "caption": "한 덩어리다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "sad",
+      "tag": {
+       "text": "DB",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "바깥 접근",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "구획을 나눈다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "face": "flat",
+      "tag": {
+       "text": "바깥 구획",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "flat",
+      "tag": {
+       "text": "안쪽 구획",
+       "tone": "plain"
+      }
+     }
+    ]
+   },
+   {
+    "caption": "웹까지만 열린다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "face": "flat",
+      "tag": {
+       "text": "바깥 구획",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "happy",
+      "tag": {
+       "text": "안쪽 구획",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "바깥 접근",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "cloud--tenant": {
+  "alt": "세 컷 — 한 시스템을 같이 쓰다 남의 자료까지 건네지던 것을, 고객마다 칸을 갈라 제 칸 것만 오게 하는 이야기",
+  "cuts": [
+   {
+    "caption": "가르지 않았다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "who": "고객 A",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "face": "flat"
+     },
+     {
+      "part": "사람",
+      "slot": "right",
+      "who": "고객 B",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "left",
+     "payload": {
+      "text": "B 자료",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "칸을 갈라 둔다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "who": "고객 A",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "face": "flat",
+      "tag": {
+       "text": "A 칸·B 칸",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "사람",
+      "slot": "right",
+      "who": "고객 B",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "제 칸만 보인다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "who": "고객 A",
+      "face": "happy"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "face": "flat",
+      "tag": {
+       "text": "A 칸·B 칸",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "사람",
+      "slot": "right",
+      "who": "고객 B",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "left",
+     "payload": {
+      "text": "A 자료",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "cloud--vpc": {
+  "alt": "세 컷 — 누구나 닿던 내 서버 둘레에 내 것만 담는 경계를 둘러, 바깥 접근이 그 앞에서 막히는 이야기",
+  "cuts": [
+   {
+    "caption": "누구나 닿는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "sad",
+      "tag": {
+       "text": "내 서버",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "바깥 접근",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "경계를 두른다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "벽",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "내 VPC",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat",
+      "tag": {
+       "text": "내 서버",
+       "tone": "plain"
+      }
+     }
+    ]
+   },
+   {
+    "caption": "안쪽은 내 것뿐",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "벽",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "내 VPC",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "happy",
+      "tag": {
+       "text": "내 서버",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "바깥 접근",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   }
+  ]
+ },
+ "cloud--vpc-peering": {
+  "alt": "세 컷 — 담 하나를 사이에 두고 서로 못 닿던 두 사설망이, 담에 두 망만 쓰는 쪽문을 내자 사설 주소로 저쪽까지 곧장 닿는 이야기",
+  "cuts": [
+   {
+    "caption": "서로 못 닿는다",
+    "actors": [
+     {
+      "part": "서버",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "벽",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "두 망 사이",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "flat",
+      "tag": {
+       "text": "저쪽 망 DB",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "접속",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "쪽문을 낸다",
+    "actors": [
+     {
+      "part": "서버",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "문",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "1대1 쪽문",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "flat",
+      "tag": {
+       "text": "저쪽 망 DB",
+       "tone": "plain"
+      }
+     }
+    ]
+   },
+   {
+    "caption": "저쪽까지 닿는다",
+    "actors": [
+     {
+      "part": "서버",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "문",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "1대1 쪽문",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "접속",
+      "tone": "blue"
+     }
+    },
+    "bubble": {
+     "slot": "left",
+     "text": "이 둘만 오간다"
+    }
+   }
+  ]
+ },
+ "cloud--well-architected": {
+  "alt": "세 컷 — 이 구성 괜찮냐는 물음에 괜찮은 것 같다는 답만 돌아오던 것이, 기둥별로 나눠 묻자 안 채운 칸이 드러나는 이야기",
+  "cuts": [
+   {
+    "caption": "감으로 답한다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat",
+      "tag": {
+       "text": "이 구성",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "left",
+     "head": false,
+     "payload": {
+      "text": "괜찮은 듯",
+      "tone": "blue"
+     }
+    },
+    "mark": "x",
+    "bubble": {
+     "slot": "left",
+     "text": "괜찮나요?"
+    }
+   },
+   {
+    "caption": "기둥별로 묻는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "문서",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "기둥 여섯 칸",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat",
+      "tag": {
+       "text": "이 구성",
+       "tone": "plain"
+      }
+     }
+    ]
+   },
+   {
+    "caption": "빠진 데가 보인다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "문서",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "기둥 여섯 칸",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat",
+      "tag": {
+       "text": "이 구성",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "left",
+     "payload": {
+      "text": "안 채운 칸",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ }
 }
