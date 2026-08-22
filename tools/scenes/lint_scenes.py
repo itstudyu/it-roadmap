@@ -114,15 +114,25 @@ def check_script(term_id: str, script: dict) -> list[str]:
     return [f"{term_id} — {m}" for m in out]
 
 
-def main(argv: list[str]) -> int:
-    wanted = argv[1:]
-    files = sorted(f for f in os.listdir(SOURCE) if f.endswith(".json"))
-    if wanted:
-        files = [f for f in files if f[:-5] in wanted]
+def paths_from(argv: list[str]) -> list[str]:
+    """무엇을 잴지 고른다.
 
+    권 이름이 기본이지만 임의 경로도 받는다. 각본을 여럿이 나눠 쓸 때는
+    같은 파일에 동시에 쓰면 서로를 지우므로 조각 파일로 따로 쓰는데,
+    그 조각도 합치기 전에 재 봐야 한다.
+    """
+    if argv and os.path.sep in argv[0]:
+        return argv
+    files = sorted(f for f in os.listdir(SOURCE) if f.endswith(".json"))
+    if argv:
+        files = [f for f in files if f[:-5] in argv]
+    return [os.path.join(SOURCE, f) for f in files]
+
+
+def main(argv: list[str]) -> int:
     total, bad = 0, []
-    for fn in files:
-        with open(os.path.join(SOURCE, fn), encoding="utf-8") as f:
+    for path in paths_from(argv[1:]):
+        with open(path, encoding="utf-8") as f:
             scripts = json.load(f)
         for term_id, script in sorted(scripts.items()):
             total += 1
