@@ -1,4 +1,172 @@
 {
+ "sec--access-review": {
+  "alt": "세 컷 — 떠난 뒤에도 그대로 사물함을 열던 옛 권한이, 주기마다 명단을 꺼내 아직 필요하냐고 묻자 안 쓰는 줄부터 걷히는 이야기",
+  "cuts": [
+   {
+    "caption": "떠나도 남는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "사물함",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "옛 권한",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "주기마다 묻는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "아직 필요?",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "사물함",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "안 쓰면 걷는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "사물함",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "옛 권한",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   }
+  ]
+ },
+ "sec--anonymous-public-access": {
+  "alt": "세 컷 — 이름도 안 묻고 아무에게나 파일을 내주던 저장소가, 위쪽에서 공개를 아예 못 켜게 끄자 같은 손이 빈손으로 돌아가는 이야기",
+  "cuts": [
+   {
+    "caption": "이름도 안 묻는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat",
+      "tag": {
+       "text": "이름 없음",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "left",
+     "payload": {
+      "text": "파일",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "위에서 끈다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "스위치",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "공개 금지",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "아무도 못 연다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "스위치",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "left",
+     "payload": {
+      "text": "파일",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   }
+  ]
+ },
  "sec--api-key": {
   "alt": "세 컷 — 누가 부르는지 알 수 없던 것이, 요청마다 이름표를 붙이게 되면서 문제가 생긴 그 이름표만 골라 끊게 되는 이야기",
   "cuts": [
@@ -152,6 +320,108 @@
      "head": false
     },
     "mark": "x"
+   }
+  ]
+ },
+ "sec--attribute-based-access-control": {
+  "alt": "세 컷 — 자원이 새로 생길 때마다 이름 목록을 고쳐야 열리던 것이, 사람과 자원에 같은 꼬리표를 달고 같으면 허락한다는 한 줄만 두자 자원이 늘어도 고칠 것이 없는 이야기",
+  "cuts": [
+   {
+    "caption": "새 자원은 막힌다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "사물함",
+      "slot": "right",
+      "face": "flat",
+      "tag": {
+       "text": "새 자원",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "이름 목록",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "꼬리표를 견준다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat",
+      "tag": {
+       "text": "파랑",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "표지판",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "같으면 허락",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "사물함",
+      "slot": "right",
+      "face": "flat",
+      "tag": {
+       "text": "파랑",
+       "tone": "plain"
+      }
+     }
+    ]
+   },
+   {
+    "caption": "늘어도 안 고친다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy",
+      "tag": {
+       "text": "파랑",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "표지판",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "사물함",
+      "slot": "right",
+      "face": "flat",
+      "tag": {
+       "text": "파랑",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "파랑끼리",
+      "tone": "blue"
+     }
+    }
    }
   ]
  },
@@ -331,6 +601,92 @@
    }
   ]
  },
+ "sec--break-glass-account": {
+  "alt": "세 컷 — 평소 로그인이 멎어 아무도 못 들어가던 것이, 미리 만들어 둔 비상 열쇠 하나로 열리되 쓰는 순간 알림이 울리는 이야기",
+  "cuts": [
+   {
+    "caption": "평소 문이 멎는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "평소 로그인",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "미리 둔 열쇠",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "열쇠",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "비상용 하나",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "쓰면 표가 난다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "열쇠",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "비상 로그인",
+      "tone": "blue"
+     }
+    },
+    "bubble": {
+     "slot": "right",
+     "text": "알림!"
+    }
+   }
+  ]
+ },
  "sec--ca": {
   "alt": "세 컷 — 눈앞의 서버가 진짜인지 알 수 없던 브라우저가, 기관이 도메인 주인에게만 준 서명된 문서를 건네받아 그 서명을 보고 믿게 되는 이야기",
   "cuts": [
@@ -499,6 +855,182 @@
      "payload": {
       "text": "보증 없음",
       "tone": "blue-dash"
+     },
+     "head": false
+    },
+    "mark": "x"
+   }
+  ]
+ },
+ "sec--compliance-framework": {
+  "alt": "세 컷 — 보안을 잘하고 있느냐는 물음에 답을 못 대던 것이, 지킬 것을 항목으로 쪼개 적자 항목마다 통과가 찍히고 빈 칸이 눈에 보이는 이야기",
+  "cuts": [
+   {
+    "caption": "빠진 데를 모른다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "겹친서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "잘하고 있나",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "항목으로 쪼갠다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "문서",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "지킬 것 목록",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "겹친서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "빈 칸이 보인다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "문서",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "겹친서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "mid",
+     "payload": {
+      "text": "항목별 통과",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "sec--conditional-access": {
+  "alt": "세 컷 — 비밀번호만 맞으면 낯선 곳에서도 그대로 통하던 문이, 어디서 왔는지까지 견주게 되면서 맞는 비밀번호로도 막히는 이야기",
+  "cuts": [
+   {
+    "caption": "맞기만 하면 통과",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat",
+      "tag": {
+       "text": "낯선 곳",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "맞는 비밀번호",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "상황을 더 본다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat",
+      "tag": {
+       "text": "낯선 곳",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "문",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "어디서 왔나",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "낯설면 막는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad",
+      "tag": {
+       "text": "낯선 곳",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "문",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "맞는 비밀번호",
+      "tone": "blue"
      },
      "head": false
     },
@@ -761,6 +1293,94 @@
    }
   ]
  },
+ "sec--customer-managed-key": {
+  "alt": "세 컷 — 맡긴 열쇠라 내 손으로 끌 수 없던 것이, 그 열쇠를 내 금고로 옮겨 오자 내가 끄는 순간 저장소가 통째로 안 열리는 이야기",
+  "cuts": [
+   {
+    "caption": "내가 못 끈다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "잠가 줘",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "열쇠를 내가 쥔다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "열쇠",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "내 금고에",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "끄면 다 멎는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "열쇠",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "꺼짐",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "열어 줘",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   }
+  ]
+ },
  "sec--cve": {
   "alt": "세 컷 — 같은 구멍을 곳마다 다르게 불러 내 것이 걸리는지 맞춰 볼 수 없던 것이, 구멍마다 세계 공통 번호가 붙으면서 번호로 바로 맞춰지는 이야기",
   "cuts": [
@@ -931,6 +1551,417 @@
    }
   ]
  },
+ "sec--data-classification": {
+  "alt": "세 컷 — 무엇이 급한지 가릴 수 없어 전부를 똑같이 다루던 자료가, 등급 딱지를 붙이자 대외비만 잠기는 자리로 가는 이야기",
+  "cuts": [
+   {
+    "caption": "다 똑같아 보인다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "문서",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "사물함",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "뭐가 급한가",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "딱지를 붙인다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "문서",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "대외비",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "사물함",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "등급대로 다룬다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "문서",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "사물함",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "대외비만",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "sec--data-masking-and-tokenization": {
+  "alt": "세 컷 — 일 하나를 하려고 원본을 통째로 내주던 것이, 값을 번호표로 바꿔 두면서 밖으로는 번호표만 나가고 원본은 안 나오는 이야기",
+  "cuts": [
+   {
+    "caption": "원본이 통째로",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "left",
+     "payload": {
+      "text": "주민번호",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "번호표로 바꾼다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "문서",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "89****",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "원본은 안 나온다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "문서",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "left",
+     "payload": {
+      "text": "89****",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "sec--data-perimeter": {
+  "alt": "세 컷 — 사내 자료가 그대로 바깥까지 새어 나가던 것이, 둘레에 선을 한 겹 치자 조직 밖으로 나가는 길에서 걸리는 이야기",
+  "cuts": [
+   {
+    "caption": "밖으로 새 나간다",
+    "actors": [
+     {
+      "part": "저장통",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "지구",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "사내 자료",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "둘레에 선을 친다",
+    "actors": [
+     {
+      "part": "저장통",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "벽",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "조직 밖은 막음",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "지구",
+      "slot": "right",
+      "face": "none"
+     }
+    ]
+   },
+   {
+    "caption": "밖으론 못 나간다",
+    "actors": [
+     {
+      "part": "저장통",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "벽",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "지구",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "사내 자료",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   }
+  ]
+ },
+ "sec--data-residency": {
+  "alt": "세 컷 — 자료 사본이 어느 나라로든 흘러가던 것이, 머물 나라를 정해 두자 정한 선 밖으로는 나가지 못하는 이야기",
+  "cuts": [
+   {
+    "caption": "아무 나라로 간다",
+    "actors": [
+     {
+      "part": "저장통",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "지구",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "사본",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "머물 나라를 정한다",
+    "actors": [
+     {
+      "part": "저장통",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "표지판",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "이 나라 안에만",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "지구",
+      "slot": "right",
+      "face": "none"
+     }
+    ]
+   },
+   {
+    "caption": "선 밖으론 못 간다",
+    "actors": [
+     {
+      "part": "저장통",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "표지판",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "지구",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "사본",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   }
+  ]
+ },
+ "sec--ddos-mitigation": {
+  "alt": "세 컷 — 사방에서 온 물량이 한 곳으로 몰려 서버가 주저앉던 것이, 바깥에서 먼저 가짜를 걸러 내자 진짜 손님만 그대로 들어오는 이야기",
+  "cuts": [
+   {
+    "caption": "한 곳으로 몰린다",
+    "actors": [
+     {
+      "part": "지구",
+      "slot": "left",
+      "face": "none"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "가짜 물량",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "바깥에서 거른다",
+    "actors": [
+     {
+      "part": "지구",
+      "slot": "left",
+      "face": "none"
+     },
+     {
+      "part": "깔때기",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "가짜는 버림",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "손님은 들어온다",
+    "actors": [
+     {
+      "part": "지구",
+      "slot": "left",
+      "face": "none"
+     },
+     {
+      "part": "깔때기",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "진짜 손님",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
  "sec--defense-in-depth": {
   "alt": "세 컷 — 한 겹이 뚫리면 안쪽까지 그대로 열리던 것이, 성격이 다른 겹을 뒤에 하나 더 세우면서 앞이 뚫려도 뒤에서 걸리는 이야기",
   "cuts": [
@@ -1015,6 +2046,180 @@
      "head": false
     },
     "mark": "x"
+   }
+  ]
+ },
+ "sec--digital-forensics": {
+  "alt": "세 컷 — 원본에 손을 대니 흔적이 사라져 아무것도 못 밝히던 것이, 원본은 그대로 두고 사본을 떠서 거기서 무슨 일이었는지 세우는 이야기",
+  "cuts": [
+   {
+    "caption": "손대니 흔적이 없다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "left",
+     "payload": {
+      "text": "흔적",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "손대지 않고 뜬다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "문서",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "mid",
+     "payload": {
+      "text": "사본",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "사본으로 밝힌다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "문서",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "left",
+     "payload": {
+      "text": "무슨 일이었나",
+      "tone": "blue"
+     }
+    },
+    "bubble": {
+     "slot": "right",
+     "text": "원본 그대로"
+    }
+   }
+  ]
+ },
+ "sec--directory-service": {
+  "alt": "세 컷 — 문마다 명단을 따로 두어 계정을 몇 번씩 만들던 것이, 사람과 기기와 권한을 한 권에 모으자 그 한 권에 물어보는 것만으로 문이 열리는 이야기",
+  "cuts": [
+   {
+    "caption": "문마다 새로 만든다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "문",
+      "slot": "right",
+      "face": "none",
+      "tag": {
+       "text": "명단이 따로",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "새 계정",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "한 권에 모은다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "사람·기기·권한",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "문",
+      "slot": "right",
+      "face": "none"
+     }
+    ]
+   },
+   {
+    "caption": "한 권에 물어 연다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "문",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "이 사람 맞다",
+      "tone": "blue"
+     }
+    }
    }
   ]
  },
@@ -1169,6 +2374,288 @@
      "to": "left",
      "payload": {
       "text": "글자 뭉치",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "sec--envelope-encryption": {
+  "alt": "세 컷 — 큰 자료는 금고에 통째로 들어가지 못하던 것이, 자료는 자료 열쇠로 잠그고 그 열쇠만 금고에 맡기자 겉 열쇠 하나만 갈아도 자료는 그대로인 이야기",
+  "cuts": [
+   {
+    "caption": "금고에 안 들어간다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "저장통",
+      "slot": "mid",
+      "face": "sad"
+     },
+     {
+      "part": "사물함",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "큰 자료",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "열쇠만 금고에",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "저장통",
+      "slot": "mid",
+      "face": "flat",
+      "tag": {
+       "text": "열쇠로 잠금",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "사물함",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "자료 열쇠",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "겉 열쇠만 바꾼다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "저장통",
+      "slot": "mid",
+      "face": "happy"
+     },
+     {
+      "part": "사물함",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "새 겉열쇠",
+      "tone": "blue"
+     }
+    },
+    "bubble": {
+     "slot": "mid",
+     "text": "안은 그대로"
+    }
+   }
+  ]
+ },
+ "sec--external-identity": {
+  "alt": "세 컷 — 우리 계정이 없어 들어오지 못하던 바깥 사람이, 원래 다니던 곳의 확인을 우리가 믿기로 해 두자 그 확인만으로 문이 열리고 권한은 우리가 붙이는 이야기",
+  "cuts": [
+   {
+    "caption": "우리 계정이 없다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "문",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "들어가기",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "저쪽에 로그인한다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "face": "flat",
+      "tag": {
+       "text": "원래 다니던 곳",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "문",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "로그인",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "그 확인으로 열린다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "face": "flat"
+     },
+     {
+      "part": "문",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "이 사람 맞다",
+      "tone": "blue"
+     }
+    },
+    "bubble": {
+     "slot": "right",
+     "text": "권한은 우리"
+    }
+   }
+  ]
+ },
+ "sec--hardware-security-module": {
+  "alt": "네 컷 — 열쇠가 파일로 밖에 있어 통째로 베껴지던 것이, 열쇠를 장치 안에서 만들어 내보내지 않고 잠글 것만 들여보내 잠긴 결과를 돌려받는 이야기",
+  "cuts": [
+   {
+    "caption": "열쇠가 밖에 있다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "열쇠",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "통째로 복사됨",
+       "tone": "blue"
+      }
+     }
+    ]
+   },
+   {
+    "caption": "장치 안에서 만든다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "사물함",
+      "slot": "right",
+      "face": "none",
+      "tag": {
+       "text": "열쇠는 안 나옴",
+       "tone": "blue"
+      }
+     }
+    ]
+   },
+   {
+    "caption": "잠글 것을 넣는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "사물함",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "자료",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "잠긴 것만 나온다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "사물함",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "left",
+     "payload": {
+      "text": "잠긴 자료",
       "tone": "blue"
      }
     }
@@ -1352,6 +2839,282 @@
    }
   ]
  },
+ "sec--identity-based-ssh-access": {
+  "alt": "세 컷 — 기계마다 심어 둔 열쇠를 나중에 다 걷어내지 못하던 것이, 열쇠 대신 회사 신원으로 물어 그 자리에서 잠깐 쓸 증명을 받아 문이 열리는 이야기",
+  "cuts": [
+   {
+    "caption": "다 걷어내지 못해",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "겹친서버",
+      "slot": "right",
+      "face": "sad",
+      "tag": {
+       "text": "열쇠 심어 둠",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "열쇠 회수",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "신원으로 묻는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "겹친서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "회사 신원",
+      "tone": "blue"
+     }
+    },
+    "bubble": {
+     "slot": "mid",
+     "text": "역할 있나"
+    }
+   },
+   {
+    "caption": "그때만 쓸 증명",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "겹친서버",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "짧은 증명",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "sec--identity-impersonation": {
+  "alt": "세 컷 — 남의 열쇠를 그대로 건네받아 누가 한 일인지 뭉개지던 것이, 빌려도 되는 사람이 적힌 문서를 두고 그 사람만 잠깐 쓸 출입증을 새로 받는 이야기",
+  "cuts": [
+   {
+    "caption": "누가 했는지 몰라",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "남의 열쇠로",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "내 자격으로 댄다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "문서",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "내 자격",
+      "tone": "blue"
+     }
+    },
+    "bubble": {
+     "slot": "mid",
+     "text": "적힌 이만"
+    }
+   },
+   {
+    "caption": "잠깐 쓸 출입증",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "문서",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "left",
+     "payload": {
+      "text": "짧은 출입증",
+      "tone": "blue"
+     }
+    },
+    "bubble": {
+     "slot": "right",
+     "text": "몇 시간뿐"
+    }
+   }
+  ]
+ },
+ "sec--incident-response": {
+  "alt": "세 컷 — 사고가 터진 뒤에야 누가 무엇을 할지 찾다 늦던 것이, 사람과 절차와 권한을 터지기 전에 갖춰 두자 그 절차대로 끊고 되돌리며 배운 것을 다시 적어 넣는 이야기",
+  "cuts": [
+   {
+    "caption": "터진 뒤에 찾는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "수습",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x",
+    "bubble": {
+     "slot": "left",
+     "text": "누가 맡나"
+    }
+   },
+   {
+    "caption": "터지기 전에 갖춘다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "문서",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "사람·절차·권한",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "절차대로 수습한다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "문서",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "봉쇄·복구",
+      "tone": "blue"
+     }
+    },
+    "bubble": {
+     "slot": "mid",
+     "text": "배운 건 적음"
+    }
+   }
+  ]
+ },
  "sec--ipsec-vpn": {
   "alt": "세 컷 — 공용 회선이라 오가는 내용이 옆에서 그대로 보이던 것이, 나가는 것을 통째로 잠가 보내면서 지나는 구간엔 덩어리만 보이고 도착해서야 풀리는 이야기",
   "cuts": [
@@ -1438,6 +3201,112 @@
       "face": "sad"
      }
     ]
+   }
+  ]
+ },
+ "sec--just-in-time-access": {
+  "alt": "네 컷 — 평소엔 권한이 없어 못 들어가던 사람이, 사유와 쓸 시간을 적어 신청해 두 시간짜리 권한으로 들어가고, 시간이 지나면 그 권한이 스스로 꺼져 다시 막히는 이야기",
+  "cuts": [
+   {
+    "caption": "평소엔 권한 없다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "문",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "들어갈게",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "그때만 신청한다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "문",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "왜·2시간",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "시간만큼만 열린다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "문",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "2시간짜리",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "스스로 꺼진다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "문",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "시간 끝",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
    }
   ]
  },
@@ -1784,6 +3653,169 @@
    }
   ]
  },
+ "sec--openid-connect": {
+  "alt": "세 컷 — 앱마다 비밀번호를 넘기던 것을, 확인은 믿는 한 곳에만 맡기고 앱에는 누구인지 적힌 표 한 장만 건네는 이야기",
+  "cuts": [
+   {
+    "caption": "앱마다 비번 준다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "비밀번호",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "확인은 저쪽에서",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "구름",
+      "slot": "mid",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "비밀번호",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "표 한 장만 준다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "누구인지 표",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "sec--organization-policy-guardrail": {
+  "alt": "세 컷 — 권한만 있으면 아무 데나 만들어지던 것을, 조직이 위에서 상한선을 둘러 관리자 권한으로도 그 선 밖으로는 못 나가게 하는 이야기",
+  "cuts": [
+   {
+    "caption": "막을 게 없다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "지구",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "아무 데나",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "위에서 선을 긋는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "벽",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "조직 상한선",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "지구",
+      "slot": "right",
+      "face": "none"
+     }
+    ]
+   },
+   {
+    "caption": "관리자여도 막힌다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "벽",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "지구",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "head": false,
+     "payload": {
+      "text": "관리자다",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   }
+  ]
+ },
  "sec--owasp-top-10": {
   "alt": "세 컷 — 점검하는 사람마다 아는 자리만 보고 나머지를 빠뜨리던 것이, 자주 걸리는 자리를 열 부류로 세워 두면서 모두가 같은 열 칸을 보고 빈칸이 드러나는 이야기",
   "cuts": [
@@ -1957,6 +3989,182 @@
      "slot": "right",
      "text": "같으면 통과"
     }
+   }
+  ]
+ },
+ "sec--penetration-testing": {
+  "alt": "세 컷 — 구멍이 있을 것 같다는 짐작만 있던 것을, 허락을 받고 사람이 실제로 벽을 넘어 보아 어디까지 닿는지 확인하는 이야기",
+  "cuts": [
+   {
+    "caption": "뚫릴지 모른다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "벽",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "head": false,
+     "payload": {
+      "text": "구멍 셋?",
+      "tone": "blue-dash"
+     }
+    }
+   },
+   {
+    "caption": "허락받고 넘어본다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "벽",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "넘어 본다",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "여기까지 닿았다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "벽",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "여기",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "sec--permission-boundary": {
+  "alt": "세 컷 — 권한 주는 일을 맡은 사람이 자기 권한을 더 세게 넓히던 것을, 미리 천장을 걸어 두어 아무리 넓게 줘도 그 위로는 못 넘게 하는 이야기",
+  "cuts": [
+   {
+    "caption": "스스로 넓힌다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "더 세게",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "천장을 걸어 둔다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "깔때기",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "여기까지만",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "넘는 건 안 된다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "깔때기",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "여기까지만",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "head": false,
+     "payload": {
+      "text": "더 세게",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
    }
   ]
  },
@@ -2225,6 +4433,87 @@
    }
   ]
  },
+ "sec--presigned-url": {
+  "alt": "세 컷 — 계정이 없어 파일을 못 열던 사람에게, 앱이 오늘까지만 통하는 주소 한 줄에 미리 서명해 건네면 그 주소만으로 열리는 이야기",
+  "cuts": [
+   {
+    "caption": "계정이 없다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "계정 없음",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "기한 붙여 서명",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "face": "flat"
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "left",
+     "payload": {
+      "text": "오늘까지",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "그 주소면 열린다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "오늘까지 주소",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
  "sec--querypie": {
   "alt": "세 컷 — 접속 정보를 복사해 나눠 주다 어디까지 퍼졌는지 모르던 것이, 통로를 한 곳으로 모아 오간 문장이 남고 가릴 값은 가려져 나오는 이야기",
   "cuts": [
@@ -2463,6 +4752,86 @@
    }
   ]
  },
+ "sec--resource-based-policy": {
+  "alt": "세 컷 — 내 쪽에 붙은 권한 문서로는 막히던 남의 계정을, 통 쪽에 올 사람 명단을 붙여 두어 그 통만 보면 누가 들어오는지 알게 되는 이야기",
+  "cuts": [
+   {
+    "caption": "남의 계정은 막힌다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad",
+      "tag": {
+       "text": "내 권한 문서",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "다른 계정",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "통 쪽에 적어 둔다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "flat",
+      "tag": {
+       "text": "올 사람 명단",
+       "tone": "blue"
+      }
+     }
+    ]
+   },
+   {
+    "caption": "통만 보면 안다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "happy",
+      "tag": {
+       "text": "올 사람 명단",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "다른 계정",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
  "sec--saml": {
   "alt": "세 컷 — 서비스마다 계정이 따로 있어 하나를 빠뜨리면 그리로 계속 들어오던 것이, 신원 확인을 한 곳에 모아 그곳에서 끄면 연동된 곳이 함께 막히는 이야기",
   "cuts": [
@@ -2644,6 +5013,514 @@
     "bubble": {
      "slot": "mid",
      "text": "옛것은 끊김"
+    }
+   }
+  ]
+ },
+ "sec--security-hardening": {
+  "alt": "세 컷 — 안 쓰는 것까지 열려 있어 아무 문으로나 들어오던 것을, 쓰지 않는 자리를 하나씩 꺼서 들어올 데 자체를 없애는 이야기",
+  "cuts": [
+   {
+    "caption": "안 쓰는 것도 열림",
+    "actors": [
+     {
+      "part": "지구",
+      "slot": "left",
+      "face": "none"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "sad",
+      "tag": {
+       "text": "문이 열 개",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "아무 문으로",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "안 쓰는 건 끈다",
+    "actors": [
+     {
+      "part": "지구",
+      "slot": "left",
+      "face": "none"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat",
+      "tag": {
+       "text": "안 쓰는 건 끔",
+       "tone": "blue"
+      }
+     }
+    ]
+   },
+   {
+    "caption": "들어올 데가 없다",
+    "actors": [
+     {
+      "part": "지구",
+      "slot": "left",
+      "face": "none"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "happy",
+      "tag": {
+       "text": "쓸 문 하나",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "아무 문으로",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   }
+  ]
+ },
+ "sec--self-service-password-reset": {
+  "alt": "세 컷 — 비밀번호를 잊어 막혔을 때 사람을 부르는 대신, 잊기 전에 걸어 둔 폰으로 본인임을 보이고 스스로 새 비밀번호를 거는 이야기",
+  "cuts": [
+   {
+    "caption": "잊으면 못 들어감",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "비번 잊음",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "미리 걸어 둔 폰",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "폰",
+      "slot": "mid",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "left",
+     "payload": {
+      "text": "숫자 6자리",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "스스로 새로 건다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "새 비밀번호",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "sec--separation-of-duties": {
+  "alt": "세 컷 — 한 사람이 올리고 승인까지 혼자 끝내 문을 열던 것이, 승인하는 자리를 다른 사람에게 떼어 놓으면서 혼자서는 그 문을 못 여는 이야기",
+  "cuts": [
+   {
+    "caption": "혼자 다 끝낸다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat",
+      "who": "올린이"
+     },
+     {
+      "part": "문",
+      "slot": "mid",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "혼자 승인",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "승인을 떼어 낸다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat",
+      "who": "올린이"
+     },
+     {
+      "part": "문",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "둘이 눌러야",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "사람",
+      "slot": "right",
+      "face": "flat",
+      "who": "승인자"
+     }
+    ]
+   },
+   {
+    "caption": "혼자선 못 연다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad",
+      "who": "올린이"
+     },
+     {
+      "part": "문",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "사람",
+      "slot": "right",
+      "face": "flat",
+      "who": "승인자"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "혼자",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   }
+  ]
+ },
+ "sec--service-account": {
+  "alt": "세 컷 — 프로그램이 사람 계정을 빌려 쓰다 그 사람이 나가자 밤 일까지 멈추던 것이, 기계 몫의 이름표를 따로 달아 주면서 사람과 상관없이 도는 이야기",
+  "cuts": [
+   {
+    "caption": "사람 계정을 빌린다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "mid",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "사람 것",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "나가면 멈춘다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "mid",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "사람 것",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "기계 몫으로 돈다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "mid",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "기계 것",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "sec--short-lived-credential": {
+  "alt": "세 컷 — 오래 사는 옛 열쇠가 언제까지고 문을 열던 것이, 한 시간만 사는 출입증으로 바뀌면서 때가 지나면 저절로 안 통하는 이야기",
+  "cuts": [
+   {
+    "caption": "옛 열쇠도 열린다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "문",
+      "slot": "mid",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "옛 열쇠",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "한 시간만 통한다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "문",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "시계",
+      "slot": "right",
+      "face": "none",
+      "tag": {
+       "text": "1시간",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "출입증",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "때 지나면 못 쓴다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "문",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "시계",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "출입증",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   }
+  ]
+ },
+ "sec--siem": {
+  "alt": "세 컷 — 여러 곳에 제각각 남아 이을 수 없던 기록을, 한곳에 모아 같은 양식으로 맞추자 낱낱의 경보가 한 사건으로 이어지는 이야기",
+  "cuts": [
+   {
+    "caption": "따로라 못 잇는다",
+    "actors": [
+     {
+      "part": "겹친서버",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "사람",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "제각각 기록",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "한곳에 모은다",
+    "actors": [
+     {
+      "part": "겹친서버",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "사람",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "한곳으로",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "이어 붙이면 보인다",
+    "actors": [
+     {
+      "part": "겹친서버",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "사람",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "사건",
+      "tone": "blue"
+     }
     }
    }
   ]
@@ -3557,6 +6434,88 @@
    }
   ]
  },
+ "sec--threat-detection": {
+  "alt": "세 컷 — 수상한 낌새가 아무에게도 안 닿던 것이, 쌓이는 기록을 쉬지 않고 훑는 눈이 생기면서 심각한 것만 사람 앞에 오는 이야기",
+  "cuts": [
+   {
+    "caption": "아무도 못 본다",
+    "actors": [
+     {
+      "part": "서버",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "사람",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "낌새",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "쉬지 않고 훑는다",
+    "actors": [
+     {
+      "part": "서버",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "돋보기",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "평소와 다름",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "사람",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "심각한 것만 온다",
+    "actors": [
+     {
+      "part": "서버",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "돋보기",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "사람",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "경보",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
  "sec--token": {
   "alt": "세 컷 — 요청마다 비밀번호를 실어 보내 샐 자리가 늘던 것이, 로그인 때 받은 출입증 하나로 그다음 요청마다 신원을 대신 증명하는 이야기",
   "cuts": [
@@ -3625,6 +6584,363 @@
      "to": "right",
      "payload": {
       "text": "출입증",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "sec--user-provisioning": {
+  "alt": "세 컷 — 나간 사람의 자리를 손으로 지우다 잊던 것이, 인사 기록 한 곳을 원본으로 삼으면서 그것이 닫힐 때 계정도 함께 꺼지는 이야기",
+  "cuts": [
+   {
+    "caption": "지우는 걸 잊는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "사물함",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "지우기",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "원본을 한 곳에",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "인사 기록",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "사물함",
+      "slot": "right",
+      "face": "none"
+     }
+    ]
+   },
+   {
+    "caption": "닫으면 같이 꺼진다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "사물함",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "닫힘",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "sec--vulnerability-scanning": {
+  "alt": "세 컷 — 내 쪽에 어떤 구멍이 났는지 못 찾던 것이, 남이 공개해 둔 구멍 목록을 들고 훑으면서 깔려 있는 것이 걸려 나오는 이야기",
+  "cuts": [
+   {
+    "caption": "구멍을 못 찾는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "어디 났나",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "목록으로 훑는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "돋보기",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "공개된 목록",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "깔린 게 걸린다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "돋보기",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "그 구멍",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "sec--web-application-firewall": {
+  "alt": "세 컷 — 나쁜 요청이 앱에 그대로 닿던 것이, 앱보다 앞에 규칙과 맞춰 보는 한 겹을 세우면서 거기서 걸러지는 이야기",
+  "cuts": [
+   {
+    "caption": "앱에 바로 닿는다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "나쁜 요청",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "앞에 한 겹 세운다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "벽",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "규칙과 맞춤",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "여기서 걸러진다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "벽",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "나쁜 것",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   }
+  ]
+ },
+ "sec--workload-identity-federation": {
+  "alt": "네 컷 — 밖에서 도는 일감에 오래 사는 키를 쥐여 주던 것이, 믿기로 적어 둔 곳이 써 준 증표를 내밀어 짧게 사는 자격으로 바꿔 받고 허락된 것만 여는 이야기",
+  "cuts": [
+   {
+    "caption": "키를 쥐고 연다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "안 죽는 키",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "증표를 내민다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "믿기로 한 곳",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "증표",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "짧은 자격을 준다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "left",
+     "payload": {
+      "text": "짧은 자격",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "허락된 것만 연다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "짧은 자격",
       "tone": "blue"
      }
     }

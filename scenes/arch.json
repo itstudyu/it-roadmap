@@ -1,4 +1,109 @@
 {
+ "arch--active-active-vs-active-passive": {
+  "alt": "세 컷 — 여벌을 세워만 두면 깨우는 동안 손님이 멈추던 것이, 두 곳이 몫을 나눠 같이 받게 하자 한쪽이 죽어도 넘길 것 없이 그대로 흐르는 이야기",
+  "cuts": [
+   {
+    "caption": "깨울 때까지 멈춤",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "who": "이 곳",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "who": "저 곳",
+      "face": "flat",
+      "tag": {
+       "text": "쉬는 여벌",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "head": false,
+     "payload": {
+      "text": "손님",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "둘 다 받게 나눈다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "who": "이 곳",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "who": "저 곳",
+      "face": "flat",
+      "tag": {
+       "text": "같이 받는다",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "절반",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "죽어도 안 멈춘다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "who": "이 곳",
+      "face": "happy"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "who": "저 곳",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "손님",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
  "arch--api": {
   "alt": "세 컷 — 날씨 기능이 없던 앱이 창구에 대고 부르니, 안쪽을 몰라도 결과를 받아 쓰게 되는 이야기",
   "cuts": [
@@ -1275,6 +1380,112 @@
    }
   ]
  },
+ "arch--dead-letter-queue": {
+  "alt": "세 컷 — 끝내 처리되지 않는 한 통이 줄 앞을 막던 것이, 정한 횟수를 넘기는 순간 옆줄로 치워져 뒤가 다시 흐르고 그 통은 버려지지 않고 그대로 남는 이야기",
+  "cuts": [
+   {
+    "caption": "앞이 막힌다",
+    "actors": [
+     {
+      "part": "저장통",
+      "slot": "left",
+      "who": "줄",
+      "face": "sad",
+      "tag": {
+       "text": "뒤가 다 밀린다",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "who": "받는 쪽",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "head": false,
+     "payload": {
+      "text": "한 통",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "정한 횟수 넘기면",
+    "actors": [
+     {
+      "part": "저장통",
+      "slot": "left",
+      "who": "줄",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "who": "받는 쪽",
+      "face": "flat"
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "who": "실패 줄",
+      "face": "flat",
+      "tag": {
+       "text": "실패 줄",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "그 통",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "뒤가 다시 흐른다",
+    "actors": [
+     {
+      "part": "저장통",
+      "slot": "left",
+      "who": "줄",
+      "face": "happy"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "who": "받는 쪽",
+      "face": "happy"
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "who": "실패 줄",
+      "face": "flat",
+      "tag": {
+       "text": "그 통 그대로",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "다음 통",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
  "arch--distributed-lock": {
   "alt": "세 컷 — 여러 대가 한꺼번에 달려들어 깨지던 것이, 가운데 자물쇠를 두어 열쇠를 잡은 한 대만 안으로 들어가게 되는 이야기",
   "cuts": [
@@ -2268,6 +2479,120 @@
      "to": "right",
      "payload": {
       "text": "할 일",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "arch--multi-tier-architecture": {
+  "alt": "세 컷 — 화면과 처리와 저장이 한 덩어리라 통째로만 늘리던 것이, 셋을 따로 세우자 붐비는 층만 골라 늘리게 되는 이야기",
+  "cuts": [
+   {
+    "caption": "한 층만 못 늘린다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "flat",
+      "tag": {
+       "text": "화면·처리·저장",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "붐비는 곳만",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "셋으로 갈라 세운다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat",
+      "tag": {
+       "text": "화면 층",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "face": "flat",
+      "tag": {
+       "text": "처리 층",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "flat",
+      "tag": {
+       "text": "저장 층",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "부탁",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "붐비는 층만 늘린다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "happy",
+      "tag": {
+       "text": "화면 층",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "겹친서버",
+      "slot": "mid",
+      "face": "happy",
+      "tag": {
+       "text": "이 층만 늘림",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "flat",
+      "tag": {
+       "text": "저장 층",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "몰려도",
       "tone": "blue"
      }
     }
@@ -3463,6 +3788,104 @@
      "to": "left",
      "payload": {
       "text": "요금 환급",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "arch--stateless-workload": {
+  "alt": "세 컷 — 기억을 제 안에 쥔 대가 죽으면 하던 것이 함께 사라지던 일이, 기억을 바깥 저장소에 맡기자 표 한 장만으로 아무 대나 그 일을 이어받는 이야기",
+  "cuts": [
+   {
+    "caption": "기억이 같이 죽는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "face": "sad",
+      "tag": {
+       "text": "기억이 안에",
+       "tone": "blue"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "head": false
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "기억을 밖에 맡긴다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "face": "flat",
+      "tag": {
+       "text": "안은 비운다",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "기억",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "아무 대나 된다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "겹친서버",
+      "slot": "mid",
+      "face": "happy",
+      "tag": {
+       "text": "아무 대나",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "flat",
+      "tag": {
+       "text": "기억은 밖에",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "번호표",
       "tone": "blue"
      }
     }

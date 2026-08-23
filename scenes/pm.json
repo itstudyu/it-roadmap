@@ -899,6 +899,91 @@
    }
   ]
  },
+ "pm--dora-metrics": {
+  "alt": "세 컷 — 고친 것은 나가는데 잘하고 있는지 답할 자가 없던 자리에, 나가는 길목에 넷을 적는 기록표를 세우고 그 넷 중 어디가 무너졌는지 짚어 내는 이야기",
+  "cuts": [
+   {
+    "caption": "잘하나 답이 없다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad",
+      "tag": {
+       "text": "?",
+       "tone": "blue-dash"
+      }
+     },
+     {
+      "part": "폰",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "고친 것",
+      "tone": "plain"
+     }
+    }
+   },
+   {
+    "caption": "넷으로 나눠 잰다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "잦기 시간 사고 복구",
+       "tone": "blue",
+       "at": "above"
+      }
+     },
+     {
+      "part": "폰",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "한 자리를 짚는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "폰",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "left",
+     "payload": {
+      "text": "복구 느림",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
  "pm--funnel": {
   "alt": "세 컷 — 끝까지 오는 사람이 적은데 어디서 새는지 몰랐다가, 칸마다 세어 새는 칸을 찾아 고치는 이야기",
   "cuts": [

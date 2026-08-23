@@ -1,252 +1,172 @@
 {
- "net--dhcp": {
-  "alt": "세 컷 — 주소가 없던 폰이 공유기에게 주소를 빌려 그 주소로 통신하게 되는 이야기",
+ "net--alpn": {
+  "alt": "세 컷 — 연결을 다 맺은 뒤에 무슨 규약으로 말할지 또 물어 늦던 것이, 인사에 쓸 수 있는 이름을 함께 실어 보내자 서버가 그중 하나만 골라 돌려주는 이야기",
   "cuts": [
    {
-    "caption": "주소가 없다",
+    "caption": "또 물어 늦는다",
     "actors": [
      {
-      "part": "폰",
+      "part": "컴퓨터",
       "slot": "left",
-      "face": "sad",
-      "tag": {
-       "text": "?",
-       "tone": "blue-dash"
-      }
+      "face": "sad"
      },
      {
-      "part": "공유기",
+      "part": "서버",
       "slot": "right",
       "face": "flat"
      }
-    ]
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "무슨 말로?",
+      "tone": "blue-dash"
+     }
+    }
    },
    {
-    "caption": "공유기가 빌려준다",
+    "caption": "목록을 함께 보낸다",
     "actors": [
      {
-      "part": "폰",
+      "part": "컴퓨터",
       "slot": "left",
       "face": "flat"
      },
      {
-      "part": "공유기",
+      "part": "서버",
       "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "h2, http/1.1",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "하나만 골라 온다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
       "face": "happy"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
      }
     ],
     "move": {
      "from": "right",
      "to": "left",
      "payload": {
-      "text": "192.168.0.7",
+      "text": "h2",
       "tone": "blue"
      }
-    },
-    "bubble": {
-     "slot": "right",
-     "text": "이거 써!"
     }
-   },
+   }
+  ]
+ },
+ "net--anycast": {
+  "alt": "세 컷 — 한 주소가 먼 곳 한 군데만 가리켜 멀리 돌아가던 것이, 가까운 곳도 같은 주소를 올리자 그 주소로 보낸 것이 가까운 쪽에 닿는 이야기",
+  "cuts": [
    {
-    "caption": "그 주소로 통신한다",
+    "caption": "먼 데까지 간다",
     "actors": [
      {
-      "part": "폰",
+      "part": "사람",
       "slot": "left",
-      "face": "happy",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat",
+      "who": "먼 곳",
       "tag": {
-       "text": "…0.7",
+       "text": "먼 곳",
        "tone": "plain"
       }
-     },
-     {
-      "part": "공유기",
-      "slot": "right",
-      "face": "flat"
-     }
-    ]
-   }
-  ]
- },
- "net--tcp": {
-  "alt": "네 컷 — 하나 보내고 답을 듣고, 답이 없으면 다시 보내 끝내 닿게 하는 이야기",
-  "cuts": [
-   {
-    "caption": "1번을 보낸다",
-    "actors": [
-     {
-      "part": "폰",
-      "slot": "left",
-      "face": "flat",
-      "who": "보낸 쪽"
-     },
-     {
-      "part": "폰",
-      "slot": "right",
-      "face": "flat",
-      "who": "받는 쪽"
      }
     ],
     "move": {
      "from": "left",
      "to": "right",
      "payload": {
-      "text": "1",
-      "tone": "blue"
-     }
-    },
-    "check": false
-   },
-   {
-    "caption": "받았다고 답한다",
-    "actors": [
-     {
-      "part": "폰",
-      "slot": "left",
-      "face": "flat",
-      "who": "보낸 쪽"
-     },
-     {
-      "part": "폰",
-      "slot": "right",
-      "face": "happy",
-      "who": "받는 쪽"
-     }
-    ],
-    "move": {
-     "from": "right",
-     "to": "left",
-     "payload": {
-      "text": "1 받음",
-      "tone": "blue"
-     }
-    },
-    "check": false
-   },
-   {
-    "caption": "2번은 답이 없다",
-    "actors": [
-     {
-      "part": "폰",
-      "slot": "left",
-      "face": "sad",
-      "who": "보낸 쪽"
-     },
-     {
-      "part": "폰",
-      "slot": "right",
-      "face": "flat",
-      "who": "받는 쪽"
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "right",
-     "head": false,
-     "payload": {
-      "text": "2",
-      "tone": "blue"
-     }
-    },
-    "mark": "x",
-    "check": false
-   },
-   {
-    "caption": "다시 보내니 닿는다",
-    "actors": [
-     {
-      "part": "폰",
-      "slot": "left",
-      "face": "flat",
-      "who": "보낸 쪽"
-     },
-     {
-      "part": "폰",
-      "slot": "right",
-      "face": "happy",
-      "who": "받는 쪽"
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "right",
-     "payload": {
-      "text": "2",
+      "text": "한 주소",
       "tone": "blue"
      }
     }
-   }
-  ]
- },
- "net--ip-address": {
-  "alt": "세 컷 — 소포에 적은 번호와 같은 문패를 가진 집을 찾아 배달되는 이야기",
-  "cuts": [
+   },
    {
-    "caption": "번호를 적는다",
+    "caption": "가까운 곳도 올린다",
     "actors": [
      {
-      "part": "컴퓨터",
+      "part": "사람",
       "slot": "left",
       "face": "flat"
      },
      {
-      "part": "소포",
+      "part": "서버",
       "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "192.168.0.7",
-       "tone": "blue",
-       "at": "above"
-      }
-     }
-    ]
-   },
-   {
-    "caption": "번호를 따라간다",
-    "actors": [
-     {
-      "part": "컴퓨터",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "폰",
-      "slot": "right",
       "face": "flat",
+      "who": "가까운 곳",
       "tag": {
-       "text": "…0.7",
-       "tone": "plain"
-      }
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "right",
-     "payload": {
-      "text": "…0.7",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "문패가 맞아 닿는다",
-    "actors": [
-     {
-      "part": "컴퓨터",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "폰",
-      "slot": "right",
-      "face": "happy",
-      "tag": {
-       "text": "…0.7",
+       "text": "나도 이 주소",
        "tone": "blue"
       }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat",
+      "who": "먼 곳",
+      "tag": {
+       "text": "먼 곳",
+       "tone": "plain"
+      }
      }
     ]
+   },
+   {
+    "caption": "가까운 쪽이 받는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "face": "happy",
+      "who": "가까운 곳"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat",
+      "who": "먼 곳",
+      "tag": {
+       "text": "먼 곳",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "한 주소",
+      "tone": "blue"
+     }
+    }
    }
   ]
  },
@@ -341,6 +261,86 @@
    }
   ]
  },
+ "net--autonomous-system": {
+  "alt": "세 컷 — 남의 망에 있는 기계를 하나하나 다 셀 수 없던 것이, 그 무더기를 번호 하나로 묶자 바깥에서는 그 번호 하나로 가리키게 되는 이야기",
+  "cuts": [
+   {
+    "caption": "다 셀 수 없다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "겹친서버",
+      "slot": "right",
+      "face": "flat",
+      "tag": {
+       "text": "기계 수만 대",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "다 알아야?",
+      "tone": "blue-dash"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "번호 하나로 묶는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "겹친서버",
+      "slot": "right",
+      "face": "flat",
+      "tag": {
+       "text": "AS15169",
+       "tone": "blue"
+      }
+     }
+    ]
+   },
+   {
+    "caption": "번호로 가리킨다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "겹친서버",
+      "slot": "right",
+      "face": "happy",
+      "tag": {
+       "text": "AS15169",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "그 번호로",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
  "net--bandwidth": {
   "alt": "세 컷 — 한꺼번에 보내려니 지나가지 못하던 것이, 그 회선이 한 번에 지나게 하는 양만큼씩 나뉘어 지나가는 이야기",
   "cuts": [
@@ -429,6 +429,100 @@
      "to": "right",
      "payload": {
       "text": "3개",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "net--bgp": {
+  "alt": "세 컷 — 남의 망까지 가는 길을 몰라 못 가던 것이, 이웃이 나를 거치면 닿는다고 알려 주자 그 이웃을 거쳐 닿는 이야기",
+  "cuts": [
+   {
+    "caption": "길을 모른다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "어디로?",
+      "tone": "blue-dash"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "이웃이 알려 준다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "구름",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "이웃 망",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "left",
+     "payload": {
+      "text": "나를 거쳐라",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "그 길로 닿는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "구름",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "이웃 망",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "이웃 거쳐",
       "tone": "blue"
      }
     }
@@ -617,6 +711,338 @@
    }
   ]
  },
+ "net--curl": {
+  "alt": "세 컷 — 창을 열고 주소와 헤더를 손으로 채우던 요청이, 주소 한 줄이 되어 사람 없이도 같은 줄이 다시 도는 이야기",
+  "cuts": [
+   {
+    "caption": "창을 열어 채운다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "mid",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "주소·헤더",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "주소 한 줄로",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "mid",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "주소 한 줄",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "사람 없이 또 돈다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "mid",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "그 줄",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "net--dedicated-cloud-interconnect": {
+  "alt": "세 컷 — 남의 망을 지나느라 걸리는 시간이 그날그날 달라지던 것이, 두 망을 우리만 쓰는 문 하나로 맞대자 늘 같은 시간에 닿는 이야기",
+  "cuts": [
+   {
+    "caption": "남의 망을 지난다",
+    "actors": [
+     {
+      "part": "서버",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "지구",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "그날그날 다름",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "우리 자료",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "우리 문을 낸다",
+    "actors": [
+     {
+      "part": "서버",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "문",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "우리만의 문",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "none"
+     }
+    ]
+   },
+   {
+    "caption": "늘 같은 시간에",
+    "actors": [
+     {
+      "part": "서버",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "문",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "구름",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "우리 자료",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "net--dhcp": {
+  "alt": "세 컷 — 주소가 없던 폰이 공유기에게 주소를 빌려 그 주소로 통신하게 되는 이야기",
+  "cuts": [
+   {
+    "caption": "주소가 없다",
+    "actors": [
+     {
+      "part": "폰",
+      "slot": "left",
+      "face": "sad",
+      "tag": {
+       "text": "?",
+       "tone": "blue-dash"
+      }
+     },
+     {
+      "part": "공유기",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "공유기가 빌려준다",
+    "actors": [
+     {
+      "part": "폰",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "공유기",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "left",
+     "payload": {
+      "text": "192.168.0.7",
+      "tone": "blue"
+     }
+    },
+    "bubble": {
+     "slot": "right",
+     "text": "이거 써!"
+    }
+   },
+   {
+    "caption": "그 주소로 통신한다",
+    "actors": [
+     {
+      "part": "폰",
+      "slot": "left",
+      "face": "happy",
+      "tag": {
+       "text": "…0.7",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "공유기",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   }
+  ]
+ },
+ "net--dkim": {
+  "alt": "세 컷 — 보낸 이 이름을 아무나 적어 넣던 것이, 제 열쇠로 서명해 보내고 받는 쪽이 그 도메인 장부에서 공개 열쇠를 꺼내 맞춰 보는 이야기",
+  "cuts": [
+   {
+    "caption": "이름은 아무나",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat",
+      "who": "보낸 곳"
+     },
+     {
+      "part": "사람",
+      "slot": "right",
+      "face": "sad",
+      "who": "받는 곳"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "아무 이름",
+      "tone": "blue-dash"
+     }
+    }
+   },
+   {
+    "caption": "열쇠로 서명한다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat",
+      "who": "보낸 곳"
+     },
+     {
+      "part": "사람",
+      "slot": "right",
+      "face": "flat",
+      "who": "받는 곳"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "서명한 편지",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "열쇠로 맞춰 본다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat",
+      "who": "보낸 곳"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "그 도메인",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "사람",
+      "slot": "right",
+      "face": "happy",
+      "who": "받는 곳"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "공개 열쇠",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
  "net--dns": {
   "alt": "세 컷 — 이름만으로는 닿지 못하던 것이, 장부에 물어 그 이름의 번호를 받아 서버에 닿는 이야기",
   "cuts": [
@@ -698,6 +1124,311 @@
    }
   ]
  },
+ "net--dns-over-https": {
+  "alt": "세 컷 — 이름을 묻는 한 통이 엽서처럼 나가 중간의 누구나 읽던 것이, 잠긴 봉투에 넣어 보내자 중간은 못 읽고 받는 그곳만 알게 되는 이야기",
+  "cuts": [
+   {
+    "caption": "중간이 읽는다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "돋보기",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "장부",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "site.com",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "봉투에 넣어 보낸다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "돋보기",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "장부",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "head": false,
+     "payload": {
+      "text": "잠긴 봉투",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "받는 곳만 안다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "돋보기",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "못 읽음",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "장부",
+      "slot": "right",
+      "face": "none",
+      "tag": {
+       "text": "여기선 다 안다",
+       "tone": "blue"
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "net--dns-routing-policy": {
+  "alt": "세 컷 — 어디서 묻든 같은 주소를 돌려주어 부산에서도 서울까지 가던 것이, 답하는 쪽이 누가 물었는지를 보고 저마다 가까운 주소를 주는 이야기",
+  "cuts": [
+   {
+    "caption": "부산에도 서울 답",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat",
+      "who": "서울",
+      "tag": {
+       "text": "서울",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "사람",
+      "slot": "right",
+      "face": "sad",
+      "who": "부산",
+      "tag": {
+       "text": "부산",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "서울 주소",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "누가 물었나 본다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat",
+      "who": "서울",
+      "tag": {
+       "text": "서울",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "어디서 물었나",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "사람",
+      "slot": "right",
+      "face": "flat",
+      "who": "부산",
+      "tag": {
+       "text": "부산",
+       "tone": "plain"
+      }
+     }
+    ]
+   },
+   {
+    "caption": "저마다 다른 답",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy",
+      "who": "서울",
+      "tag": {
+       "text": "서울 주소 받음",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "사람",
+      "slot": "right",
+      "face": "happy",
+      "who": "부산",
+      "tag": {
+       "text": "부산",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "부산 주소",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "net--dnssec": {
+  "alt": "세 컷 — 먼저 도착한 가짜 답이 그대로 이기던 것이, 진짜 답마다 도장을 찍어 두자 도장이 없는 답은 버려지는 이야기",
+  "cuts": [
+   {
+    "caption": "가짜가 먼저 이긴다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad",
+      "who": "묻는 쪽"
+     },
+     {
+      "part": "사람",
+      "slot": "mid",
+      "face": "flat",
+      "who": "가짜",
+      "tag": {
+       "text": "가짜",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "장부",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "left",
+     "payload": {
+      "text": "가짜 주소",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "답에 도장을 찍는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat",
+      "who": "묻는 쪽"
+     },
+     {
+      "part": "장부",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "left",
+     "payload": {
+      "text": "도장 찍힌 답",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "안 맞으면 버린다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy",
+      "who": "묻는 쪽"
+     },
+     {
+      "part": "사람",
+      "slot": "mid",
+      "face": "sad",
+      "who": "가짜",
+      "tag": {
+       "text": "가짜",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "장부",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "left",
+     "head": false,
+     "payload": {
+      "text": "도장 없음",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   }
+  ]
+ },
  "net--domain": {
   "alt": "세 컷 — 숫자 주소를 욀 수 없던 것이, 그 숫자에 이름을 붙여 두자 주소가 바뀌어도 같은 이름으로 닿는 이야기",
   "cuts": [
@@ -770,6 +1501,104 @@
      "to": "right",
      "payload": {
       "text": "site.com",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "net--ebpf": {
+  "alt": "세 컷 — 커널은 손대지 못하던 내 코드가, 검사를 다 통과하고 나서야 커널 안에 붙어 도는 이야기",
+  "cuts": [
+   {
+    "caption": "커널은 못 건드려",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat",
+      "tag": {
+       "text": "커널",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "내 코드",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "먼저 다 따져 본다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "돋보기",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "검증기",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "검사 받고",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "통과한 것만 붙는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "돋보기",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "happy",
+      "tag": {
+       "text": "커널",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "통과",
       "tone": "blue"
      }
     }
@@ -953,6 +1782,112 @@
       "tone": "blue"
      }
     }
+   }
+  ]
+ },
+ "net--head-of-line-blocking": {
+  "alt": "세 컷 — 응답 넷을 한 줄로 세운 곳에서 맨 앞 하나가 막히자, 이미 다 온 뒤의 셋까지 그 자리에 서 버리는 이야기",
+  "cuts": [
+   {
+    "caption": "한 줄로 세운다",
+    "actors": [
+     {
+      "part": "서버",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "깔때기",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "한 줄",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "응답 넷",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "맨 앞이 막힌다",
+    "actors": [
+     {
+      "part": "서버",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "깔때기",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "한 줄",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "맨 앞 하나",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "뒤도 다 선다",
+    "actors": [
+     {
+      "part": "서버",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "깔때기",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "한 줄",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "다 온 뒤 셋",
+      "tone": "blue"
+     }
+    },
+    "mark": "x",
+    "check": false
    }
   ]
  },
@@ -1202,6 +2137,95 @@
    }
   ]
  },
+ "net--http-keep-alive": {
+  "alt": "세 컷 — 요청마다 문을 새로 열고 악수부터 다시 하던 것이, 문을 잠깐 열어 둔 채로 두자 다음 요청이 그 문으로 그대로 나가는 이야기",
+  "cuts": [
+   {
+    "caption": "요청마다 문을 연다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "문",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "열고 닫고",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "악수부터",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "문을 열어 둔다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "문",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "열어 둔 채",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "그대로 또 보낸다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "문",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "다음 요청",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
  "net--https": {
   "alt": "세 컷 — 중간에서 그대로 읽히던 비밀번호가, 봉해 보내진 뒤로는 중간에서 읽히지 않고 받는 쪽만 여는 이야기",
   "cuts": [
@@ -1285,6 +2309,96 @@
      "to": "right",
      "payload": {
       "text": "암호문",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "net--hub-and-spoke-topology": {
+  "alt": "세 컷 — 망마다 따로 바깥 문을 내던 것이, 가운데 통 하나로 모여 그 문 하나만 지키면 되는 이야기",
+  "cuts": [
+   {
+    "caption": "망마다 문을 낸다",
+    "actors": [
+     {
+      "part": "겹친서버",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "지구",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "제각각",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "가운데로 모은다",
+    "actors": [
+     {
+      "part": "겹친서버",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "문",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "검사 한 벌",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "지구",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "나갈 것",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "문 하나면 된다",
+    "actors": [
+     {
+      "part": "겹친서버",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "문",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "지구",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "바깥",
       "tone": "blue"
      }
     }
@@ -1457,6 +2571,344 @@
       }
      }
     ]
+   }
+  ]
+ },
+ "net--ip-address": {
+  "alt": "세 컷 — 소포에 적은 번호와 같은 문패를 가진 집을 찾아 배달되는 이야기",
+  "cuts": [
+   {
+    "caption": "번호를 적는다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "소포",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "192.168.0.7",
+       "tone": "blue",
+       "at": "above"
+      }
+     }
+    ]
+   },
+   {
+    "caption": "번호를 따라간다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "폰",
+      "slot": "right",
+      "face": "flat",
+      "tag": {
+       "text": "…0.7",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "…0.7",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "문패가 맞아 닿는다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "폰",
+      "slot": "right",
+      "face": "happy",
+      "tag": {
+       "text": "…0.7",
+       "tone": "blue"
+      }
+     }
+    ]
+   }
+  ]
+ },
+ "net--ipfix": {
+  "alt": "세 컷 — 지나는 것을 통째로 떠서 창고가 넘치던 것이, 같은 흐름을 한 줄로 세어 요약만 보내는 이야기",
+  "cuts": [
+   {
+    "caption": "다 뜨면 넘친다",
+    "actors": [
+     {
+      "part": "공유기",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "통째로",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "지나간 것을 센다",
+    "actors": [
+     {
+      "part": "공유기",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "같은 흐름 한 줄",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "센 값",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "요약만 보낸다",
+    "actors": [
+     {
+      "part": "공유기",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "저장통",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "한 줄",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "net--ipv6": {
+  "alt": "세 컷 — 번호가 동나 자릿수를 확 늘렸지만 옛 번호와 섞이지 않아, 한동안 새 번호와 옛 번호를 둘 다 들고 다니는 이야기",
+  "cuts": [
+   {
+    "caption": "번호가 동났다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad",
+      "tag": {
+       "text": "번호 없음",
+       "tone": "blue-dash"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "옛 것과 안 섞인다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "2001:db8::1",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "둘 다 들고 산다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "IPv4+IPv6",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "net--layer-4-vs-layer-7-load-balancing": {
+  "alt": "세 컷 — 주소와 포트만 보는 4계층에서는 경로를 가릴 수 없던 것이, 7계층이 봉투를 열어 경로를 읽고 그 경로에 맞는 무리로 보내는 이야기",
+  "cuts": [
+   {
+    "caption": "경로는 못 본다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "깔때기",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "4계층: 주소만",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "겹친서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "head": false,
+     "payload": {
+      "text": "/api",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "열어서 읽는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "깔때기",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "7계층: 경로까지",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "겹친서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "/api",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "경로대로 보낸다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "깔때기",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "겹친서버",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "/api",
+      "tone": "blue"
+     }
+    }
    }
   ]
  },
@@ -1917,6 +3369,206 @@
    }
   ]
  },
+ "net--mtls": {
+  "alt": "네 컷 — 부른 쪽이 누군지 모른 채 받던 것이, 양쪽이 서로 증을 내보인 뒤에야 열리게 되는 이야기",
+  "cuts": [
+   {
+    "caption": "부른 쪽을 모른다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "sad"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "누군지 모름",
+      "tone": "blue-dash"
+     }
+    },
+    "check": false
+   },
+   {
+    "caption": "서버가 증을 낸다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "left",
+     "payload": {
+      "text": "내 증",
+      "tone": "blue"
+     }
+    },
+    "check": false
+   },
+   {
+    "caption": "부른 쪽도 낸다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "내 증",
+      "tone": "blue"
+     }
+    },
+    "check": false
+   },
+   {
+    "caption": "서로 확인해야 연다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "자물쇠",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "서로 확인됨",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "happy"
+     }
+    ]
+   }
+  ]
+ },
+ "net--mtu": {
+  "alt": "세 컷 — 문보다 큰 짐이 그대로 막히던 것이, 문 크기에 맞춰 잘게 쪼개니 그 문을 지나 건너편까지 닿는 이야기",
+  "cuts": [
+   {
+    "caption": "문보다 크면 막힌다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "문",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "1500 까지",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "head": false,
+     "payload": {
+      "text": "1600",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "선에 맞춰 쪼갠다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "문",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "1500 까지",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "1500",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "문을 지나간다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "문",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "1500",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
  "net--multi-tenancy": {
   "alt": "세 컷 — 고객마다 시스템을 한 벌씩 지어야 하던 것이, 한 벌 안에서 칸만 갈라 여러 고객이 나눠 쓰게 되는 이야기",
   "cuts": [
@@ -2007,6 +3659,96 @@
       "who": "나"
      }
     ]
+   }
+  ]
+ },
+ "net--multicast": {
+  "alt": "세 컷 — 받는 사람 수만큼 복사해 보내던 것이, 무리 주소로 한 벌만 보내고 갈림길에서 손 든 쪽으로만 복사되는 이야기",
+  "cuts": [
+   {
+    "caption": "수만큼 복사한다",
+    "actors": [
+     {
+      "part": "서버",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "겹친서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "백 벌",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "한 벌만 보낸다",
+    "actors": [
+     {
+      "part": "서버",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "갈래",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "겹친서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "한 벌",
+      "tone": "blue"
+     }
+    },
+    "bubble": {
+     "slot": "right",
+     "text": "낄래요"
+    }
+   },
+   {
+    "caption": "갈림길이 복사한다",
+    "actors": [
+     {
+      "part": "서버",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "갈래",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "겹친서버",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "한 벌",
+      "tone": "blue"
+     }
+    }
    }
   ]
  },
@@ -2288,6 +4030,95 @@
    }
   ]
  },
+ "net--ospf": {
+  "alt": "세 컷 — 어디로 가라고 일러 주기를 기다리던 것이, 라우터들이 같은 지도 한 장을 나눠 갖고 각자 최단 길을 그리는 이야기",
+  "cuts": [
+   {
+    "caption": "일러 주길 기다린다",
+    "actors": [
+     {
+      "part": "공유기",
+      "who": "나",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "공유기",
+      "who": "이웃",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "left",
+     "head": false,
+     "payload": {
+      "text": "이쪽으로",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "지도를 나눠 갖는다",
+    "actors": [
+     {
+      "part": "공유기",
+      "who": "나",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "문서",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "같은 지도 한 장",
+       "tone": "blue",
+       "at": "above"
+      }
+     },
+     {
+      "part": "공유기",
+      "who": "이웃",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "각자 길을 그린다",
+    "actors": [
+     {
+      "part": "공유기",
+      "who": "나",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "문서",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "공유기",
+      "who": "이웃",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "left",
+     "payload": {
+      "text": "최단 길",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
  "net--packet": {
   "alt": "세 컷 — 통째로는 좁은 길을 지나지 못하던 데이터가, 조각으로 잘려 주소를 달고 지나가 받는 쪽에서 다시 맞춰지는 이야기",
   "cuts": [
@@ -2373,6 +4204,96 @@
      "to": "right",
      "payload": {
       "text": "조각들",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "net--packet-capture": {
+  "alt": "세 컷 — 무엇이 오갔는지 아무도 못 보던 것이, 선 위에서 조건에 맞는 것만 떠서 그 순간을 파일 한 건으로 남기는 이야기",
+  "cuts": [
+   {
+    "caption": "본 사람이 없다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "무엇이 갔나",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "선 위에서 뜬다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "돋보기",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "tcp port 443",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "지나는 것",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "그 순간이 남는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "돋보기",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "left",
+     "payload": {
+      "text": ".pcap",
       "tone": "blue"
      }
     }
@@ -2571,6 +4492,96 @@
      "to": "right",
      "payload": {
       "text": "8080",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "net--private-dns-zone": {
+  "alt": "세 컷 — 사내 이름을 바깥 장부에 물어 답을 못 받던 것이, 이 망에만 묶인 사설 장부에 먼저 물어 사설 주소를 받는 이야기",
+  "cuts": [
+   {
+    "caption": "바깥은 모른다",
+    "actors": [
+     {
+      "part": "폰",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "지구",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "db.사내",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "안쪽 장부에 묻는다",
+    "actors": [
+     {
+      "part": "폰",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "이 망 전용",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "지구",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "db.사내",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "사설 주소로 답한다",
+    "actors": [
+     {
+      "part": "폰",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "지구",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "left",
+     "payload": {
+      "text": "10.0.1.7",
       "tone": "blue"
      }
     }
@@ -3042,14 +5053,390 @@
    }
   ]
  },
- "net--sse": {
-  "alt": "세 컷 — 물어봐도 빈손으로 돌아오던 것이, 연결을 한 번 열어 두자 서버 쪽에서 생길 때마다 밀어 보내는 이야기",
+ "net--routing-table": {
+  "alt": "세 컷 — 짐을 어디로 넘길지 몰라 멈춰 있던 것이, 표에서 앞자리가 더 길게 맞는 줄을 골라 다음 한 곳으로 넘어가는 이야기",
   "cuts": [
    {
-    "caption": "물어봐도 빈손",
+    "caption": "어디로 넘길까",
+    "actors": [
+     {
+      "part": "공유기",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "지구",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "172.31.5.9",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "표에서 고른다",
+    "actors": [
+     {
+      "part": "공유기",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "긴 쪽이 이긴다",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "지구",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "앞자리",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "다음 한 곳으로",
+    "actors": [
+     {
+      "part": "공유기",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "지구",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "/16",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "net--server-name-indication": {
+  "alt": "세 컷 — 한 주소에 사이트가 여럿이라 엉뚱한 증서가 오던 것이, 잠기기 전에 찾는 이름을 먼저 말해 그 이름의 증서로 잠기는 이야기",
+  "cuts": [
+   {
+    "caption": "엉뚱한 증서가 온다",
     "actors": [
      {
       "part": "컴퓨터",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat",
+      "tag": {
+       "text": "한 주소, 여럿",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "left",
+     "payload": {
+      "text": "아무 증서",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "잠기기 전에 이름",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat",
+      "tag": {
+       "text": "아직 안 잠김",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "a.com",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "맞는 증서로 잠근다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "자물쇠",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "mid",
+     "payload": {
+      "text": "증서",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "net--session-affinity": {
+  "alt": "세 컷 — 두 번째 요청이 딴 대로 가서 하던 것이 끊기던 일을, 어느 대였는지 적은 쪽지를 쥐여 주고 그 쪽지대로 같은 대에 보내는 이야기",
+  "cuts": [
+   {
+    "caption": "딴 대로 가면 끊김",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "겹친서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "하던 이야기",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "쪽지를 쥐여 준다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "표지판",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "겹친서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "left",
+     "payload": {
+      "text": "3번 쪽지",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "쪽지 따라 같은 대",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy",
+      "tag": {
+       "text": "쪽지 들고",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "표지판",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "겹친서버",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "3번",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "net--shared-virtual-network": {
+  "alt": "세 컷 — 살림마다 망을 따로 파서 대역이 겹치고 서로 못 통하던 것이, 망 한 벌을 칸으로 나눠 빌려 쓰자 사설 주소로 곧장 통하는 이야기",
+  "cuts": [
+   {
+    "caption": "각자 망은 안 통해",
+    "actors": [
+     {
+      "part": "서버",
+      "slot": "left",
+      "face": "sad",
+      "who": "살림 A",
+      "tag": {
+       "text": "10.0.0.0/16",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "sad",
+      "who": "살림 B",
+      "tag": {
+       "text": "10.0.0.0/16",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "사설로 곧장",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "한 망을 나눠 쓴다",
+    "actors": [
+     {
+      "part": "서버",
+      "slot": "left",
+      "face": "flat",
+      "who": "살림 A",
+      "tag": {
+       "text": "칸 A",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "사물함",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "망 한 벌",
+       "tone": "blue"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat",
+      "who": "살림 B",
+      "tag": {
+       "text": "칸 B",
+       "tone": "plain"
+      }
+     }
+    ]
+   },
+   {
+    "caption": "같은 망이라 통한다",
+    "actors": [
+     {
+      "part": "서버",
+      "slot": "left",
+      "face": "happy",
+      "who": "살림 A",
+      "tag": {
+       "text": "칸 A",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "happy",
+      "who": "살림 B",
+      "tag": {
+       "text": "칸 B",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "사설로 곧장",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "net--smtp": {
+  "alt": "네 컷 — 편지를 그냥은 못 넘기던 것이, 봉투를 먼저 대고 본문을 부은 뒤 250 을 받아야 비로소 넘어가는 이야기",
+  "cuts": [
+   {
+    "caption": "그냥은 못 넘긴다",
+    "actors": [
+     {
+      "part": "사람",
       "slot": "left",
       "face": "sad"
      },
@@ -3060,19 +5447,21 @@
      }
     ],
     "move": {
-     "from": "right",
-     "to": "left",
+     "from": "left",
+     "to": "right",
+     "head": false,
      "payload": {
-      "text": "없음",
+      "text": "편지 한 통",
       "tone": "blue"
      }
-    }
+    },
+    "mark": "x"
    },
    {
-    "caption": "한 번만 열어 둔다",
+    "caption": "봉투를 먼저 댄다",
     "actors": [
      {
-      "part": "컴퓨터",
+      "part": "사람",
       "slot": "left",
       "face": "flat"
      },
@@ -3086,18 +5475,130 @@
      "from": "left",
      "to": "right",
      "payload": {
-      "text": "한 번 연결",
+      "text": "MAIL FROM",
       "tone": "blue"
      }
     }
    },
    {
-    "caption": "서버 쪽에서만 온다",
+    "caption": "본문을 붓는다",
     "actors": [
      {
-      "part": "컴퓨터",
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "DATA 본문",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "250 이면 끝",
+    "actors": [
+     {
+      "part": "사람",
       "slot": "left",
       "face": "happy"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "left",
+     "payload": {
+      "text": "250 OK",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "net--snmp": {
+  "alt": "세 컷 — 장비가 먼저 알려 주지 않던 것을, 정해진 번호로 값을 되풀이해 물어 그 되풀이가 그래프의 선이 되는 이야기",
+  "cuts": [
+   {
+    "caption": "혼자선 안 알린다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat",
+      "tag": {
+       "text": "눈금 다 있음",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "left",
+     "payload": {
+      "text": "알림",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "번호로 물어본다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat",
+      "tag": {
+       "text": "눈금 다 있음",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "이 번호 값은?",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "되물어 선을 그린다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "그래프",
+      "slot": "mid",
+      "face": "none"
      },
      {
       "part": "서버",
@@ -3107,9 +5608,9 @@
     ],
     "move": {
      "from": "right",
-     "to": "left",
+     "to": "mid",
      "payload": {
-      "text": "새 소식",
+      "text": "값",
       "tone": "blue"
      }
     }
@@ -3204,6 +5705,557 @@
      "to": "right",
      "payload": {
       "text": "값",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "net--sse": {
+  "alt": "세 컷 — 물어봐도 빈손으로 돌아오던 것이, 연결을 한 번 열어 두자 서버 쪽에서 생길 때마다 밀어 보내는 이야기",
+  "cuts": [
+   {
+    "caption": "물어봐도 빈손",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "left",
+     "payload": {
+      "text": "없음",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "한 번만 열어 둔다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "한 번 연결",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "서버 쪽에서만 온다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "left",
+     "payload": {
+      "text": "새 소식",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "net--stun": {
+  "alt": "세 컷 — 사설 주소밖에 모르던 기기가, 밖에 있는 서버에 물어 남에게 보이는 제 주소를 받아 오는 이야기",
+  "cuts": [
+   {
+    "caption": "밖 주소를 모른다",
+    "actors": [
+     {
+      "part": "폰",
+      "slot": "left",
+      "face": "sad",
+      "tag": {
+       "text": "밖에선 몇 번?",
+       "tone": "blue-dash"
+      }
+     },
+     {
+      "part": "공유기",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "출발지 바뀜",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ]
+   },
+   {
+    "caption": "밖에 물으러 나간다",
+    "actors": [
+     {
+      "part": "폰",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "공유기",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "출발지 바뀜",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "물음",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "밖에서 본 내 주소",
+    "actors": [
+     {
+      "part": "폰",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "left",
+     "payload": {
+      "text": "1.2.3.4:9000",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "net--tcp": {
+  "alt": "네 컷 — 하나 보내고 답을 듣고, 답이 없으면 다시 보내 끝내 닿게 하는 이야기",
+  "cuts": [
+   {
+    "caption": "1번을 보낸다",
+    "actors": [
+     {
+      "part": "폰",
+      "slot": "left",
+      "face": "flat",
+      "who": "보낸 쪽"
+     },
+     {
+      "part": "폰",
+      "slot": "right",
+      "face": "flat",
+      "who": "받는 쪽"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "1",
+      "tone": "blue"
+     }
+    },
+    "check": false
+   },
+   {
+    "caption": "받았다고 답한다",
+    "actors": [
+     {
+      "part": "폰",
+      "slot": "left",
+      "face": "flat",
+      "who": "보낸 쪽"
+     },
+     {
+      "part": "폰",
+      "slot": "right",
+      "face": "happy",
+      "who": "받는 쪽"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "left",
+     "payload": {
+      "text": "1 받음",
+      "tone": "blue"
+     }
+    },
+    "check": false
+   },
+   {
+    "caption": "2번은 답이 없다",
+    "actors": [
+     {
+      "part": "폰",
+      "slot": "left",
+      "face": "sad",
+      "who": "보낸 쪽"
+     },
+     {
+      "part": "폰",
+      "slot": "right",
+      "face": "flat",
+      "who": "받는 쪽"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": false,
+     "payload": {
+      "text": "2",
+      "tone": "blue"
+     }
+    },
+    "mark": "x",
+    "check": false
+   },
+   {
+    "caption": "다시 보내니 닿는다",
+    "actors": [
+     {
+      "part": "폰",
+      "slot": "left",
+      "face": "flat",
+      "who": "보낸 쪽"
+     },
+     {
+      "part": "폰",
+      "slot": "right",
+      "face": "happy",
+      "who": "받는 쪽"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "2",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "net--tcp-congestion-control": {
+  "alt": "세 컷 — 정해진 속도 없이 잘 가면 보내는 양을 늘리다가, 하나라도 못 닿으면 절반으로 접고 거기서 다시 올리는 이야기",
+  "cuts": [
+   {
+    "caption": "잘 가면 늘린다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "4개 → 8개",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "막히면 잃는다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "8개",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "반으로 접고 다시",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "4개부터 다시",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "net--tcp-three-way-handshake": {
+  "alt": "네 컷 — 다짜고짜 보낸 본문은 헛돌지만, 세 번을 주고받아 서로의 시작 번호를 맞추고 나서야 진짜 내용이 실리는 이야기",
+  "cuts": [
+   {
+    "caption": "바로 말하면 헛말",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "본문 먼저",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "번호를 알린다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "SYN 100",
+      "tone": "blue"
+     }
+    },
+    "bubble": {
+     "slot": "left",
+     "text": "여보세요"
+    }
+   },
+   {
+    "caption": "번호를 맞춘다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "left",
+     "payload": {
+      "text": "SYN+ACK 300",
+      "tone": "blue"
+     }
+    },
+    "bubble": {
+     "slot": "right",
+     "text": "응 들려"
+    }
+   },
+   {
+    "caption": "이제부터 진짜",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "ACK 301",
+      "tone": "blue"
+     }
+    },
+    "bubble": {
+     "slot": "left",
+     "text": "나도 들려"
+    }
+   }
+  ]
+ },
+ "net--tls-termination": {
+  "alt": "세 컷 — 대마다 증서를 두던 것을 앞단 한 곳에서만 풀고, 그 안쪽 뒷단까지는 평문으로 넘기는 이야기",
+  "cuts": [
+   {
+    "caption": "대마다 증서를 둔다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "겹친서버",
+      "slot": "right",
+      "face": "sad",
+      "tag": {
+       "text": "대마다 증서",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "잠긴 채로",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "앞단까지만 잠긴다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "face": "happy",
+      "tag": {
+       "text": "여기서 풀림",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "겹친서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "잠긴 채",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "안쪽은 평문이다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "face": "flat"
+     },
+     {
+      "part": "겹친서버",
+      "slot": "right",
+      "face": "happy"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "평문",
       "tone": "blue"
      }
     }
@@ -3458,6 +6510,109 @@
    }
   ]
  },
+ "net--vlan": {
+  "alt": "세 컷 — 한 선에 붙으면 다 섞이던 것이, 쪽지마다 칸 번호를 적어 두자 번호가 다르면 막히고 같으면 그대로 오가는 이야기",
+  "cuts": [
+   {
+    "caption": "한 선이면 다 섞여",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat",
+      "who": "A"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "sad",
+      "who": "B"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "다 들린다",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "번호 다르면 막힘",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat",
+      "who": "A",
+      "tag": {
+       "text": "10번 칸",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "벽",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "flat",
+      "who": "B",
+      "tag": {
+       "text": "20번 칸",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "10번 표",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "번호만 같으면 간다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "happy",
+      "who": "A",
+      "tag": {
+       "text": "10번 칸",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "happy",
+      "who": "B",
+      "tag": {
+       "text": "10번 칸",
+       "tone": "plain"
+      }
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "10번 표",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
  "net--vpn": {
   "alt": "세 컷 — 공용 길에서 내용이 그대로 보이던 통신이, 통째로 봉해져 전용 서버까지 가고 거기서 풀려 목적지로 이어지는 이야기",
   "cuts": [
@@ -3536,6 +6691,100 @@
      "to": "right",
      "payload": {
       "text": "풀어서",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ },
+ "net--webrtc": {
+  "alt": "세 컷 — 가운데 서버를 다 거쳐 늦던 소리와 화면이, 서버가 주소만 주고받아 짝을 지어 준 뒤 두 쪽 사이로 곧장 흐르는 이야기",
+  "cuts": [
+   {
+    "caption": "가운데 거치면 늦다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "sad",
+      "who": "나"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "face": "sad"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "flat",
+      "who": "친구"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "화면",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "서버는 짝만 지어",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat",
+      "who": "나"
+     },
+     {
+      "part": "서버",
+      "slot": "mid",
+      "face": "flat",
+      "tag": {
+       "text": "친구에게 전달",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "flat",
+      "who": "친구"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "내 주소",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "둘이 곧장 흐른다",
+    "actors": [
+     {
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "happy",
+      "who": "나"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "right",
+      "face": "happy",
+      "who": "친구"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "소리·화면",
       "tone": "blue"
      }
     }
@@ -3639,191 +6888,6 @@
       "tone": "blue"
      }
     }
-   }
-  ]
- },
- "net--curl": {
-  "alt": "세 컷 — 창을 열고 주소와 헤더를 손으로 채우던 요청이, 주소 한 줄이 되어 사람 없이도 같은 줄이 다시 도는 이야기",
-  "cuts": [
-   {
-    "caption": "창을 열어 채운다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "sad"
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "mid",
-      "face": "flat"
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "mid",
-     "payload": {
-      "text": "주소·헤더",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "주소 한 줄로",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "mid",
-      "face": "flat"
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "right",
-     "payload": {
-      "text": "주소 한 줄",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "사람 없이 또 돈다",
-    "actors": [
-     {
-      "part": "컴퓨터",
-      "slot": "mid",
-      "face": "flat"
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "happy"
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "right",
-     "payload": {
-      "text": "그 줄",
-      "tone": "blue"
-     }
-    }
-   }
-  ]
- },
- "net--mtls": {
-  "alt": "네 컷 — 부른 쪽이 누군지 모른 채 받던 것이, 양쪽이 서로 증을 내보인 뒤에야 열리게 되는 이야기",
-  "cuts": [
-   {
-    "caption": "부른 쪽을 모른다",
-    "actors": [
-     {
-      "part": "컴퓨터",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "sad"
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "right",
-     "payload": {
-      "text": "누군지 모름",
-      "tone": "blue-dash"
-     }
-    },
-    "check": false
-   },
-   {
-    "caption": "서버가 증을 낸다",
-    "actors": [
-     {
-      "part": "컴퓨터",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "happy"
-     }
-    ],
-    "move": {
-     "from": "right",
-     "to": "left",
-     "payload": {
-      "text": "내 증",
-      "tone": "blue"
-     }
-    },
-    "check": false
-   },
-   {
-    "caption": "부른 쪽도 낸다",
-    "actors": [
-     {
-      "part": "컴퓨터",
-      "slot": "left",
-      "face": "happy"
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "right",
-     "payload": {
-      "text": "내 증",
-      "tone": "blue"
-     }
-    },
-    "check": false
-   },
-   {
-    "caption": "서로 확인해야 연다",
-    "actors": [
-     {
-      "part": "컴퓨터",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "자물쇠",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "서로 확인됨",
-       "tone": "blue"
-      }
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "happy"
-     }
-    ]
    }
   ]
  }
