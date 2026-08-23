@@ -69,13 +69,13 @@ Book :: 적어 둔 책
 | 끝나는 조건 | 목표한 상태가 됐을 때 | 원인이 좁혀졌을 때 |
 | 순서 | 원인을 찾은 뒤 부른다 | 먼저 온다 |
 
-이름은 회사마다 다르게 쓴다. AWS 문서는 위처럼 둘을 갈라 쓰고, 구글 SRE 책은 알림마다 붙는 대응 문서를 playbook 이라 부른다. 남의 문서를 읽을 때는 이름보다 그 글에 목표가 적혀 있는지를 본다.
+이름은 회사마다 다르게 쓴다. AWS 는 런북과 플레이북을 위처럼 따로 두고 원인을 찾은 플레이북이 런북을 가리키게 하라고 적는 반면, 구글 SRE 는 알림마다 붙는 대응 문서를 통째로 playbook 이라 부른다. 남의 문서를 읽을 때는 이름보다 그 글에 목표가 적혀 있는지를 본다.
 
 ## 💡 실제 사례
 
-- **새 알림에 항목 같이 만들기** — 호출 알림을 하나 추가할 때 그 알림에 무엇을 해야 하는지도 같이 적는다. 알림만 늘면 받는 사람이 매번 처음부터 조사한다.
-- **다른 사람에게 시켜 보기** — 쓴 사람이 아닌 사람이 그대로 따라 해 본다. 여기서 빠진 권한과 건너뛴 단계가 드러난다.
-- **자동화로 옮기기** — 늘 같은 명령을 같은 순서로 치고 있다면 사람이 읽는 글이 아니라 실행되는 것으로 바꾼다.
+- **새 알림에 항목 같이 만들기** — 구글 SRE 에서는 알림을 하나 추가할 때 그 알림에 무엇을 해야 하는지도 같이 적는다. 알림만 늘면 받는 사람이 매번 처음부터 조사한다.
+- **다른 사람에게 시켜 보기** — AWS Well-Architected 는 다 쓴 글을 팀의 다른 사람에게 그대로 따라 하게 해서 검증하라고 적는다. 여기서 빠진 권한과 건너뛴 단계가 드러난다.
+- **자동화로 옮기기** — 짧고 자주 쓰는 것부터 스크립트로 옮기라는 것이 AWS 의 권고다. 구글 SRE 워크북도 늘 같은 명령을 같은 순서로 치는 글이면 자동화로 바꾸라고 적는다.
 
 ## 🚫 흔한 오해
 
@@ -111,4 +111,5 @@ Book :: 적어 둔 책
 
 - https://docs.aws.amazon.com/wellarchitected/latest/operational-excellence-pillar/ops_ready_to_support_use_runbooks.html (AWS Well-Architected Framework — OPS07-BP03 Use runbooks to perform procedures)
 - https://sre.google/sre-book/introduction/ (Site Reliability Engineering — Chapter 1: Introduction)
+- https://docs.aws.amazon.com/wellarchitected/latest/operational-excellence-pillar/ops_ready_to_support_use_playbooks.html (AWS Well-Architected Framework — OPS07-BP04 Use playbooks to investigate issues)
 - https://sre.google/workbook/on-call/ (The Site Reliability Workbook — Chapter 8: On-Call)

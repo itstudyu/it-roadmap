@@ -54,7 +54,7 @@ Affinity :: 끌려 붙는 성질
 
 ## 💡 실제 사례
 
-- **오래된 앱을 여러 대로 늘릴 때** — 손님 것을 밖으로 빼는 개조가 끝날 때까지, 붙임으로 시간을 번다.
+- **오래된 앱을 여러 대로 늘릴 때** — 손님 것을 밖으로 빼는 개조가 끝날 때까지, ALB 가 만들어 주는 `AWSALB` 쪽지로 시간을 번다.
 - **끊지 않고 이어 가는 연결** — 한 번 맺고 계속 주고받는 연결은 애초에 같은 대에 있어야 하므로 붙임이 자연스럽다.
 - **가운데 저장소를 둔 뒤** — 손님 것을 밖으로 뺐다면 붙임을 꺼서 짐이 고르게 퍼지게 한다.
 
@@ -67,7 +67,7 @@ Affinity :: 끌려 붙는 성질
 ## 🚨 주의사항
 
 - **짐이 한쪽으로 쏠린다.** 오래 머무는 손님이 한 대에 몰리면 새로 띄운 대는 붙임이 풀릴 때까지 논다. 늘려도 안 나눠지는 그 상태가 여기서 나온다.
-- **손님 종류가 적으면 못 쓴다.** 문서는 붙임이 고르게 퍼지려면 손님 수가 뒷단 수의 몇 배는 되어야 한다고 적는다. 사내용이나 앱끼리 부르는 자리에서는 대개 이 조건이 안 맞는다.
+- **여럿이 한 주소로 나오면 한 대에 몰린다.** 셈으로 붙일 때 여러 손님이 같은 출발지 주소로 보이면 어떤 대는 연결을 더 많이 받는다고 문서가 적는다. 회사 통로 하나로 나오는 사내용에서 특히 그렇다.
 - **쪽지 수명을 길게 두지 마라.** 하루짜리 쪽지를 쥔 손님은 새 판을 올린 뒤에도 하루 동안 옛 대를 찾아간다.
 
 ## 📝 정리
@@ -76,7 +76,7 @@ Affinity :: 끌려 붙는 성질
 
 ## 🧒 열 살에게
 
-머리 자르러 가면 지난번 그 사람한테 다시 앉히지? 어디를 어떻게 잘랐는지 그 사람 머릿속에만 있어서, 다른 사람한테 가면 처음부터 다시 설명해야 하거든. 그래서 표를 하나 쥐여 주고 다음에도 그 자리로 보내는 거야.
+머리 자르러 가면 지난번에 잘라 준 사람 자리에 다시 앉지? 어디를 어떻게 잘랐는지 그 사람만 알고 있어서, 다른 사람한테 가면 처음부터 다시 설명해야 하거든. 그래서 표를 하나 쥐여 주고 다음에도 그 자리로 보내는 거야.
 
 ## ❓ 이해했는지
 
@@ -96,5 +96,5 @@ Affinity :: 끌려 붙는 성질
 
 **출처**
 
-- [Sticky sessions for Application Load Balancers — AWS](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/sticky-sessions.html) — 분산기가 만드는 쪽지와 앱 쪽지의 차이, 1초~7일 수명과 하루 기본값, 대가 죽었을 때의 동작을 확인했다
+- [Target groups for your Application Load Balancers — AWS](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-target-groups.html) — 분산기 쪽지(`lb_cookie`)와 앱 쪽지(`app_cookie`)의 구분, 1초~7일 수명과 하루 기본값, `AWSALB` 가 예약된 이름이라는 점, 뺀 대가 처리 중인 것을 마칠 때까지 빠지는 동작을 확인했다
 - [Request distribution for external Application Load Balancers — Google Cloud](https://docs.cloud.google.com/load-balancing/docs/https/request-distribution) — 붙임이 최선 노력이라는 서술, 깨지는 조건 목록, 인증·보안 용도로 믿지 말라는 경고를 확인했다

@@ -56,9 +56,9 @@ Call :: 부르는 일
 
 ## 💡 실제 사례
 
-- **교대 인수인계** — 교대 때 남은 일과 진행 중인 것을 다음 사람에게 글로 넘긴다. 인계가 없으면 다음 사람이 같은 조사를 처음부터 다시 한다.
-- **알림마다 대응 문서 붙이기** — 새 호출 알림을 만들 때 그 알림에 무엇을 해야 하는지도 같이 만든다. 알림만 늘리면 받는 사람만 힘들어진다.
-- **호출기 되돌려주기** — 운영 부담이 기준을 넘으면 SRE 팀이 개발팀에 온콜을 돌려주기도 한다. 흔한 일은 아니지만 부담이 한쪽에만 쌓이지 않게 하는 장치다.
+- **교대 인수인계** — 구글 SRE 워크북은 교대가 끝날 때 남은 일을 다음 당번에게 글로 넘기고, 다음 당번은 그 인계부터 읽고 시작한다고 적는다. 인계가 없으면 다음 사람이 같은 조사를 처음부터 다시 한다.
+- **알림마다 대응 문서 붙이기** — 구글 SRE 에서는 알림을 하나 만들 때 그 알림에 무엇을 해야 하는지도 같이 만든다. 알림만 늘리면 받는 사람만 힘들어진다.
+- **호출기 되돌려주기** — 부담이 심하면 구글 SRE 팀은 그 시스템이 기준에 닿을 때까지 개발팀에 온콜을 통째로 넘길 수 있다. 흔한 일은 아니지만 부담이 한쪽에만 쌓이지 않게 하는 장치다.
 
 ## 🚫 흔한 오해
 
@@ -85,7 +85,7 @@ Call :: 부르는 일
 - [[SRE]] — 온콜을 시간의 25% 안으로 묶어 둔 쪽
 - [[Runbook]] — 호출을 받은 사람이 새벽에 여는 글
 - [[Postmortem]] — 받은 사고를 끝낸 뒤 남기는 기록
-- [[Escalation]] — 손쓸 수 없을 때 위로 올리는 그 길
+- [[Alerting]] — 무엇을 호출로 보낼지 가르는 앞자리
 - [[Logging]] — 아무도 볼 필요가 없는 것이 가는 자리
 
 ---
@@ -95,3 +95,4 @@ Call :: 부르는 일
 - https://sre.google/sre-book/being-on-call/ (Site Reliability Engineering — Chapter 11: Being On-Call)
 - https://docs.aws.amazon.com/wellarchitected/latest/framework/ops_event_response_define_escalation_paths.html (AWS Well-Architected Framework — OPS10-BP04 Define escalation paths)
 - https://sre.google/sre-book/introduction/ (Site Reliability Engineering — Chapter 1: Introduction)
+- https://sre.google/workbook/on-call/ (The Site Reliability Workbook — Chapter 8: On-Call)

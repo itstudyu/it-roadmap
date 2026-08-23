@@ -102,6 +102,7 @@ Sizing :: 크기 정하기
 
 **출처**
 
-- [What is AWS Compute Optimizer? (AWS Documentation)](https://docs.aws.amazon.com/compute-optimizer/latest/ug/what-is-compute-optimizer.html) — 크기 맞추기 권고의 정의, 기본 14일과 유료 93일, 모자람·남음·알맞음 분류, 메모리를 밖에서 넣어 주는 방식
+- [What is AWS Compute Optimizer? (AWS Documentation)](https://docs.aws.amazon.com/compute-optimizer/latest/ug/what-is-compute-optimizer.html) — 설정과 쓴 값을 분석해 크기 맞추기 권고를 내고 노는 자원을 찾는다는 정의, 기본 14일과 유료 93일, 여유·문턱·기간을 손댈 수 있다는 설명, 디스크·함수·데이터베이스·주소 변환 장치까지 다룬다는 목록
+- [Viewing EC2 instance recommendations (AWS Documentation)](https://docs.aws.amazon.com/compute-optimizer/latest/ug/view-ec2-recommendations.html) — 모자람·남음·알맞음 세 갈래 분류의 정의, 권고가 매일 다시 돈다는 문장, 메모리는 안에 심부름꾼을 깔아야 보인다는 설명
 - [Apply machine type recommendations for instances (Google Cloud Documentation)](https://docs.cloud.google.com/compute/docs/instances/apply-machine-type-recommendations-for-instances) — 최근 8일치 CPU·메모리 사용률 근거, 60초 평균이라 짧은 치솟음은 못 잡는다는 한계
-- [Cost recommendations (Microsoft Learn — Azure Advisor)](https://learn.microsoft.com/en-us/azure/advisor/advisor-reference-cost-recommendations) — 낮게 쓰는 기계를 줄이거나 끄라는 권고, 최근 7일 사용 패턴 분석
+- [Cost recommendations (Microsoft Learn — Azure Advisor)](https://learn.microsoft.com/en-us/azure/advisor/advisor-reference-cost-recommendations) — 낮게 쓰는 가상 기계를 줄이거나 끄라는 권고, 확장 집합·앱 서비스는 최근 7일 사용 패턴을 본다는 문장

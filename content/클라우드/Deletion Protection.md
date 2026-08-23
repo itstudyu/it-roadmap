@@ -38,7 +38,7 @@ Protection :: 막아 줌
 보호 없이 || 보호를 걸면
 잘못 친 명령 :: 그대로 지워진다 || 오류로 끝난다
 되돌리기 :: 복원부터 시작한다 || 되돌릴 일이 없다
-일괄 삭제 :: 통째로 날아간다 || 요청이 실패한다
+일괄 삭제 :: 통째로 날아간다 || 같은 구역은 남는다
 = 되돌리는 장치와 애초에 못 지우게 하는 장치는 다른 물건이다
 ```
 
@@ -46,7 +46,7 @@ Protection :: 막아 줌
 
 삭제 보호는 그 마지막 한 걸음을 **자원 쪽에** 걸어 둔다. 백업과 비교하면 자리가 분명해진다. 백업은 사고가 난 뒤에 되돌리는 장치라 되돌리는 데 시간이 걸리고, 그 시간만큼 서비스가 멈춘다. 삭제 보호는 사고 자체를 일으키지 않는 쪽이라 되돌릴 시간이 아예 필요 없다. 대신 지워야 할 때는 걸쇠를 먼저 푸는 한 단계가 늘어난다.
 
-폭발 반경도 줄어든다. AWS 는 여러 인스턴스를 한 요청으로 지울 때 그중 하나라도 보호가 켜져 있으면 요청이 실패한다고 적는다. 보호된 인스턴스와 같은 가용 영역에 있던 인스턴스들도 함께 살아남는다.
+폭발 반경도 줄어든다. AWS 는 여러 대를 한 요청으로 지울 때 그중 하나라도 보호가 켜져 있으면 그 요청이 실패로 끝난다고 적는다. 살아남는 범위까지 문서가 못 박는다 — 보호된 대와 **같은 가용 영역에 있던 대들은 함께 남고**, 보호된 대가 하나도 없는 다른 영역의 대들은 그대로 지워진다. 걸쇠 하나가 그 영역 전체를 붙잡아 주는 셈이다.
 
 ## 📊 비교: 세 곳은 이 걸쇠를 어디에 어떻게 거나
 
@@ -61,8 +61,8 @@ Protection :: 막아 줌
 ## 💡 실제 사례
 
 - **운영 데이터베이스** — 운영용에는 켜고 개발용에는 끈다. 실수로 개발용인 줄 알고 고른 명령이 여기서 막힌다.
-- **회계 기록이 든 저장통** — 법으로 몇 년을 보관해야 하는 자료는 지우는 문을 아예 잠가 둔다.
-- **다른 팀에 넘긴 자원** — 여럿이 같은 계정을 쓸 때, 남의 자원을 청소 스크립트가 쓸어 가는 사고를 자원 쪽에서 막는다.
+- **플랫폼이 스스로 거는 잠금** — Azure 는 Databricks 처럼 관리형 앱으로 만든 서비스의 기반 자원 그룹을 직접 잠가 둔다. 사용자가 그 잠금을 풀려고 하면 시스템 앱이 소유한 잠금이라 지울 수 없다는 오류가 돌아온다.
+- **청소 스크립트로부터 지키기** — 여럿이 같은 계정을 쓸 때, 남의 것까지 쓸어 가는 일괄 삭제를 자원 쪽에서 막는다. AWS 문서의 예처럼 네 대를 한 번에 지우려 해도 보호된 한 대가 제 영역의 이웃까지 붙잡아 남긴다.
 
 ## 🚫 흔한 오해
 
@@ -73,7 +73,7 @@ Protection :: 막아 줌
 ## 🚨 주의사항
 
 - **끄는 사람을 미리 정해 둔다.** 급할 때 못 지워서 대응이 늦어지는 일이 실제로 생긴다. Azure 는 잠금을 만들고 지울 수 있는 역할을 소유자와 사용자 액세스 관리자로 좁혀 둔다.
-- **자동으로 도는 일과 부딪힌다.** Azure 문서는 자원 그룹에 삭제 금지 잠금을 걸면 백업 서비스가 옛 복원 지점을 정리하지 못해 백업이 실패한다고 적는다. 걸어 두는 범위를 넓힐수록 이런 충돌이 늘어난다.
+- **자동으로 도는 일과 부딪힌다.** Azure 문서는 백업 서비스가 만든 자원 그룹에 삭제 금지 잠금을 걸면 그 서비스가 옛 복원 지점을 정리하지 못해 백업이 실패한다고 적는다(복원 지점은 최대 열여덟 개까지만 쥔다). 걸어 두는 범위를 넓힐수록 이런 충돌이 늘어난다.
 - **템플릿에 안 들어가는 경우가 있다.** Google 은 삭제 방지를 인스턴스 템플릿에 지정할 수 없다고 적는다. 자동으로 찍어내는 자원에는 다른 방법이 필요하다.
 
 ## 📝 정리
@@ -102,6 +102,6 @@ Protection :: 막아 줌
 
 **출처**
 
-- [Amazon EC2 User Guide — Change instance termination protection](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_ChangingDisableAPITermination.html) — `DisableApiTermination` 속성, 안에서 내린 종료 명령·예정된 회수·오토 스케일링에는 안 걸린다는 점, 스팟 인스턴스 불가, 일괄 삭제 요청이 통째로 실패하는 동작
-- [Microsoft Learn — Lock your Azure resources to protect your infrastructure](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/lock-resources) — CanNotDelete 와 ReadOnly, "잠금이 사용자 권한을 덮어쓴다", 아래로 상속, 관리 명령에만 걸리고 자료 평면에는 안 걸린다는 문장, 백업 충돌 사례
+- [Amazon EC2 User Guide — Change instance termination protection](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_ChangingDisableAPITermination.html) — `DisableApiTermination` 속성, 안에서 내린 종료 명령·예정된 회수·오토 스케일링의 축소와 불량 교체에는 안 걸린다는 점, 스팟 인스턴스 불가, 일괄 삭제 요청이 실패하며 보호된 대와 같은 가용 영역의 대만 함께 남는다는 표
+- [Microsoft Learn — Lock your Azure resources to protect your infrastructure](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/lock-resources) — CanNotDelete 와 ReadOnly, "잠금이 사용자 권한을 덮어쓴다", 아래로 상속되고 가장 센 잠금이 이긴다는 점, 관리 평면 명령에만 걸리고 자료 평면에는 안 걸린다는 문장, 잠금을 만들고 지울 수 있는 역할이 소유자·사용자 액세스 관리자라는 절, 백업 서비스 자원 그룹의 복원 지점 정리 실패 사례
 - [Google Cloud — Prevent accidental VM deletion](https://cloud.google.com/compute/docs/instances/preventing-accidental-vm-deletion) — `deletionProtection` 플래그가 막는 것과 못 막는 것(안에서 내린 종료, 프로젝트 삭제, 관리형 인스턴스 그룹), 인스턴스 템플릿에 지정 불가

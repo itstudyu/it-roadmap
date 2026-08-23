@@ -51,27 +51,27 @@ Domain :: 함께 묶인 구역
 
 ## ⚙️ 작동 원리
 
-Azure 의 가용성 집합에 가상 머신을 넣으면 플랫폼이 각 대에 고장 묶음 번호와 갱신 묶음 번호를 하나씩 붙인다. 새로 넣는 대는 아직 덜 찬 묶음으로 가고, 갱신 묶음이 다섯 개인 집합에 여섯 번째를 넣으면 첫 번째와 같은 묶음에 들어간다. 이 값들은 집합을 만든 뒤에는 바꿀 수 없다.
+Azure 의 가용성 집합에 가상 머신을 넣으면 플랫폼이 각 대에 고장 묶음 번호와 갱신 묶음 번호를 하나씩 붙인다. 번호는 차례로 돌아가며 붙는다 — 문서는 갱신 묶음이 다섯 개인 집합에서 여섯 번째 대가 첫 번째와 같은 묶음에, 일곱 번째가 두 번째와 같은 묶음에 들어간다고 적는다. 이 개수는 집합을 만든 뒤에는 바꿀 수 없다.
 
 유지 보수가 시작되면 갱신 묶음이 **한 번에 하나씩만** 재시작된다. Azure 문서는 재시작된 묶음에 30분의 회복 시간을 준 다음에야 다른 묶음의 작업이 시작된다고 적는다. 순서가 번호대로 도는 것은 아니지만, 동시에 둘이 내려가는 일은 없다.
 
-AWS 는 같은 목적을 배치 그룹으로 부른다. 랙 단위 spread 그룹은 인스턴스를 각각 다른 랙에 놓고, 문서는 그 랙마다 자체 네트워크와 전원이 있다고 적는다. 대신 자리가 한정되어 있어 가용 영역 하나당 7대까지고, 여덟 번째는 아예 안 뜬다. partition 그룹은 파티션마다 랙 묶음을 따로 잡아 주고 가용 영역당 7개까지 나눈다. Google 은 spread 배치 정책의 availability domain 으로 부르며 최대 8개까지 지정할 수 있다.
+AWS 와 Google 에는 이 갱신 축이 따로 없다. 둘은 "서로 다른 하드웨어에 놓아라" 라는 고장 축 하나만 걸게 해 준다 — AWS 문서가 spread 그룹을 설명하며 "랙마다 자체 네트워크와 전원이 있다" 고 적는 대목이 Azure 의 고장 묶음 정의와 사실상 같은 말이고, Google 은 그것을 availability domain 이라 부르며 "격리된 별개의 하드웨어" 라고 적는다. 어디에 몇 대까지 놓을 수 있느냐 하는 숫자는 [[Placement Group]] 쪽 얘기다.
 
-## 📊 비교: 세 곳은 이 나눔을 무엇이라 부르나
+## 📊 비교: 두 축을 세 곳은 각각 어디까지 주나
 
-| 어디 | 부르는 이름 | 몇 개까지 | 무엇으로 가르나 |
-|---|---|---|---|
-| **Azure** | 가용성 집합의 Fault Domain · Update Domain | 3개 · 20개 | 전원과 스위치를 같이 쓰나 · 유지 보수 때 같이 껐다 켜나 |
-| **AWS** | 배치 그룹의 spread (랙 단위) · partition | 가용 영역당 7대 · 파티션 7개 | 각기 다른 랙. 랙마다 자체 네트워크와 전원 |
-| **Google Cloud** | spread 배치 정책의 availability domain | 최대 8개 | 서로 격리된 별개의 하드웨어 |
+| 어디 | 고장 축 — 예고 없이 닥치는 것 | 갱신 축 — 계획된 재시작 |
+|---|---|---|
+| **Azure** | 가용성 집합의 Fault Domain. "전원과 네트워크 스위치를 함께 쓰는 가상 머신들", 최대 3개 | Update Domain, 최대 20개. **한 번에 하나씩만** 재시작되고 그 묶음에 30분의 회복 시간을 준 뒤 다음으로 넘어간다 |
+| **AWS** | 배치 그룹의 spread·partition. "랙마다 자체 네트워크와 전원" | 이런 축이 없다. 흩어 놓는 축 하나만 걸 수 있다 |
+| **Google Cloud** | spread 배치 정책의 availability domain. "격리된 별개의 하드웨어" | 이런 축이 없다. 흩어 놓는 축 하나만 걸 수 있다 |
 
-세 곳 다 **고장 묶음** 쪽은 이름만 다르고 하는 일이 같다. 갈리는 건 갱신 쪽이다 — Azure 만 갱신 묶음을 별도 축으로 세어 주고, AWS 와 Google 은 유지 보수를 이벤트로 알려 주고 대응은 사용자가 짜는 쪽이다.
+**고장 축은 셋이 이름만 다르고 하는 일이 같다.** 갈리는 것은 갱신 축이다 — 계획된 재시작을 별도의 축으로 세어 주는 곳은 Azure 뿐이고, 그래서 "3개와 20개" 라는 서로 다른 두 숫자가 한 집합 안에 같이 나온다. 이 두 숫자가 다르다는 사실 자체가 축이 둘이라는 증거다.
 
 ## 💡 실제 사례
 
 - **데이터베이스 이중화** — 주 서버와 대기 서버를 다른 고장 묶음에 넣는다. 같은 묶음이면 이중화가 아니라 그냥 두 대다.
 - **정기 유지 보수 견디기** — 갱신 묶음을 나눠 두면 사업자가 밑바닥을 껐다 켜도 한 번에 일부만 내려가고 서비스는 계속 뜬다.
-- **분산 저장소 배치** — 같은 자료의 사본들을 서로 다른 묶음에 흩는다. AWS 는 파티션 정보를 앱에 알려 줘 사본을 어디에 둘지 스스로 정하게 한다.
+- **디스크까지 같은 묶음에 맞추기** — Azure 는 가상 머신에 붙은 관리 디스크들이 그 대와 같은 고장 묶음 안에 들어가도록 맞춰 준다. 대만 흩어 놓고 디스크가 한곳에 몰리면 흩어 놓은 뜻이 없어지기 때문이다.
 
 ## 🚫 흔한 오해
 
@@ -82,7 +82,7 @@ AWS 는 같은 목적을 배치 그룹으로 부른다. 랙 단위 spread 그룹
 ## 🚨 주의사항
 
 - **만든 뒤에는 못 바꾼다.** Azure 는 집합의 묶음 개수를 만든 다음에 변경할 수 없다고 적는다. 처음 만들 때 정해야 한다.
-- **자리가 한정되어 있다.** AWS 의 랙 단위 spread 그룹은 가용 영역마다 7대까지고, 여덟 번째를 띄우려 하면 실패한다. 더 필요하면 그룹을 여러 개로 나눈다.
+- **넣는 순서 때문에 같은 묶음에 겹칠 수 있다.** Azure 문서는 첫 대를 띄우고 → 그 대를 멈추거나 할당 해제한 뒤 → 둘째 대를 띄우면, 둘째의 운영체제 디스크가 첫 대와 같은 고장 묶음에 만들어질 수 있다고 적는다. 집합에 넣는 중간에 대를 멈추지 마라. 겹쳤는지는 집합 화면의 고장 도메인 칸에서 확인한다.
 - **더 큰 사고에는 더 큰 단위가 필요하다.** 묶음 나누기는 한 데이터센터 안의 얘기다. 건물이 통째로 흔들리는 경우는 [[Availability Zone]] 이, 지역이 흔들리는 경우는 [[Multi-Region]] 이 맡는다.
 
 ## 📝 정리
@@ -103,7 +103,7 @@ AWS 는 같은 목적을 배치 그룹으로 부른다. 랙 단위 spread 그룹
 
 - [[Availability Zone]] — 묶음보다 한 단계 큰 나눔. 건물이 통째로 흔들릴 때를 맡는다
 - [[High Availability]] — 이 나눔이 떠받치는 목표 그 자체
-- [[Fault Tolerance]] — 일부가 죽어도 계속 도는 성질. 묶음 나누기가 그 바탕이다
+- [[Placement Group]] — 같은 고장 축을 AWS·Google 쪽 이름과 숫자로 다루는 편
 - [[Rolling Update]] — 갱신 묶음과 같은 생각을 내 배포에 적용한 것
 - [[Multi-Region]] — 지역이 통째로 흔들릴 때를 맡는 더 큰 나눔
 
@@ -111,7 +111,6 @@ AWS 는 같은 목적을 배치 그룹으로 부른다. 랙 단위 spread 그룹
 
 **출처**
 
-- [Microsoft Learn — Availability sets overview](https://learn.microsoft.com/en-us/azure/virtual-machines/availability-set-overview) — 고장 묶음과 갱신 묶음의 정의, 최대 3개와 20개, 한 번에 한 갱신 묶음씩 재시작하고 30분의 회복 시간을 준다는 문장, 만든 뒤 변경 불가, 운영체제·앱 장애는 못 막는다는 한계
-- [Amazon EC2 User Guide — Placement strategies for your placement groups](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/placement-strategies.html) — spread 그룹이 각기 다른 랙에 놓이고 "랙마다 자체 네트워크와 전원" 이 있다는 문장, 가용 영역당 7대 한도, partition 그룹의 파티션 7개와 토폴로지 정보 제공
-- [Amazon EC2 User Guide — Placement groups for your Amazon EC2 instances](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/placement-groups.html) — cluster·partition·spread 세 전략의 목적 구분
+- [Microsoft Learn — Availability sets overview](https://learn.microsoft.com/en-us/azure/virtual-machines/availability-set-overview) — 고장 묶음과 갱신 묶음의 정의, 최대 3개와 20개, 한 번에 한 갱신 묶음씩 재시작하고 30분의 회복 시간을 준다는 문장, 만든 뒤 변경 불가, 운영체제·앱 장애와 데이터센터 전체 네트워크 장애는 못 막는다는 한계, 관리 디스크의 고장 묶음 정렬, 배포 중간에 멈추면 고장 묶음이 겹칠 수 있다는 항목
+- [Amazon EC2 User Guide — Placement strategies for your placement groups](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/placement-strategies.html) — spread 그룹이 각기 다른 랙에 놓이고 "랙마다 자체 네트워크와 전원" 이 있다는 문장, 계획된 재시작을 위한 별도 축이 없다는 점
 - [Google Cloud — Placement policies overview](https://cloud.google.com/compute/docs/instances/placement-policies-overview) — spread 정책의 availability domain 최대 8개, "격리된 별개의 하드웨어" 라는 설명과 여러 도메인에 흩을수록 영향 비율이 준다는 문장

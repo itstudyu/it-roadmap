@@ -104,3 +104,4 @@ Point :: 점
 - [What is AWS PrivateLink? (AWS Documentation)](https://docs.aws.amazon.com/vpc/latest/privatelink/what-is-privatelink.html) — 인터넷 관문·주소 변환·공인 주소·전용선 없이 붙는다는 문장
 - [AWS PrivateLink concepts (AWS Documentation)](https://docs.aws.amazon.com/vpc/latest/privatelink/concepts.html) — 인터페이스·게이트웨이 엔드포인트의 구분, 엔드포인트 랜카드, 사설 호스팅 영역으로 같은 이름을 안팎에서 다르게 푸는 방식
 - [Private Service Connect (Google Cloud Documentation)](https://docs.cloud.google.com/vpc/docs/private-service-connect) — 엔드포인트가 내부 주소를 가진 전달 규칙이라는 정의, 트래픽이 망 밖으로 안 나간다는 설명
+- [AWS PrivateLink for Amazon S3 (AWS Documentation)](https://docs.aws.amazon.com/AmazonS3/latest/userguide/privatelink-interface-endpoints.html) — 게이트웨이는 값이 안 붙고 사무실·다른 리전에서 못 쓰며 인터페이스는 값이 붙고 그 둘이 된다는 대조표

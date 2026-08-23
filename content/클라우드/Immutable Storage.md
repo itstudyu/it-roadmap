@@ -4,7 +4,7 @@
 
 Immutable Storage 는 정해 둔 기간 동안 **아무도 못 지우는** 저장소다.
 
-한 번 쓰고 여러 번 읽기만 된다고 해서 WORM(Write Once, Read Many) 이라 부른다. AWS 는 S3 Object Lock, Azure 는 변경 불가 저장소(immutable storage), Google Cloud 는 Bucket Lock 이라는 이름으로 같은 것을 판다. 셋 다 SEC 17a-4·CFTC·FINRA 같은 금융 기록 보존 규정을 겨냥해 만들어졌고, 세 회사 모두 같은 독립 평가 기관(Cohasset Associates)의 검증서를 문서에 걸어 두고 있다.
+한 번 쓰고 여러 번 읽기만 된다고 해서 WORM(Write Once, Read Many) 이라 부른다. AWS 는 S3 Object Lock, Azure 는 변경 불가 저장소(immutable storage), Google Cloud 는 Bucket Lock 이라는 이름으로 같은 것을 판다. 셋 다 SEC 17a-4·CFTC·FINRA 같은 금융 기록 보존 규정을 겨냥해 만들어졌고, AWS 와 Azure 는 같은 독립 평가 기관(Cohasset Associates)의 검증서를 문서에 걸어 두고 있다.
 
 ### 이름
 Im- :: 아니다
@@ -121,5 +121,6 @@ Storage :: 넣어 두는 곳
 **출처**
 
 - [Locking objects with Object Lock — Amazon S3 User Guide](https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock.html) — WORM 정의, 보존 기간과 법적 보류, 거버넌스·컴플라이언스 모드, 판 보관이 전제라는 점, 새 판·삭제 표는 막지 않는다는 점
-- [Overview of immutable storage for blob data — Microsoft Learn](https://learn.microsoft.com/en-us/azure/storage/blobs/immutable-storage-overview) — 시간 기반 보존 정책과 법적 보류, 잠근 정책과 안 잠근 정책의 차이, 1일~146,000일 범위, 수명 주기 삭제가 안 먹는다는 점
+- [Overview of immutable storage for blob data — Microsoft Learn](https://learn.microsoft.com/en-us/azure/storage/blobs/immutable-storage-overview) — 시간 기반 보존 정책과 법적 보류, 잠근 정책과 안 잠근 정책의 차이, 1일~146,000일 범위, 잠근 컨테이너는 비어야 지워진다는 점, 잠근 정책의 연장은 다섯 번까지라는 점
 - [Retention policies and Bucket Lock — Google Cloud Storage](https://docs.cloud.google.com/storage/docs/bucket-lock) — 보존 정책 잠금이 되돌릴 수 없다는 점, 최대 100년, 기한을 못 채운 개체가 있으면 버킷을 못 지운다는 점
+- [Azure Blob Storage lifecycle management overview — Microsoft Learn](https://learn.microsoft.com/en-us/azure/storage/blobs/lifecycle-management-overview) — 수명 주기 정책의 삭제 동작이 변경 불가 컨테이너의 블롭에는 통하지 않는다는 점

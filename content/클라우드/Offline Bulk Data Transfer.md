@@ -100,7 +100,7 @@ Azure 문서는 Data Box 가 **40테라를 넘고 망이 없거나 좁은 경우
 
 ## 🧒 열 살에게
 
-옆 동네로 책 만 권을 옮긴다고 해 봐. 한 권씩 손에 들고 왔다 갔다 하면 몇 달이 걸리지만, 트럭을 한 번 불러서 다 싣고 가면 하루면 끝나. 짐이 아주 많을 때는 길이 좁을수록 차로 나르는 게 빨라.
+옆 동네로 책 만 권을 옮긴다고 해 봐. 한 권씩 손에 들고 왔다 갔다 하면 몇 달이 걸리지만, 트럭을 한 번 불러서 다 싣고 가면 하루면 끝나. 그래서 손으로 나르면 며칠이 걸릴지부터 세어 보고, 너무 오래 걸리겠다 싶으면 차를 부르는 거야.
 
 ## ❓ 이해했는지
 
@@ -122,4 +122,4 @@ Azure 문서는 Data Box 가 **40테라를 넘고 망이 없거나 좁은 경우
 
 - [What is Snowball Edge? — AWS Snowball Edge Developer Guide](https://docs.aws.amazon.com/snowball/latest/developer-guide/whatisedge.html) — 인터넷보다 빠른 이송, 최대 100Gbit/s 포트, 암호화 강제, 스토리지 최적화 210TB, 신규 고객에게는 더 제공하지 않으며 DataSync 와 Data Transfer Terminal 로 안내한다는 공지
 - [Microsoft Azure Data Box overview — Microsoft Learn](https://learn.microsoft.com/en-us/azure/databox/data-box-overview) — 120TB·525TB 쓸 수 있는 용량, 40테라 초과에 망이 없거나 좁을 때 적합하다는 기준, 초기 대량 전송 뒤 증분은 망으로 올리는 방식, AES-256 과 포털 비밀번호, NIST 800-88r1 소거, 장비는 상거래 경계를 넘지 않는다는 점
-- [Transfer Appliance overview — Google Cloud](https://docs.cloud.google.com/transfer-appliance/docs/4.0/overview) — 100메가 선으로 300테라는 약 9개월, 장비로는 25일 안쪽에 이후 열 영업일쯤이 더 걸린다는 수치, 일주일이 넘으면 오프라인을 쓰라는 기준, AES-256 과 고객 관리 열쇠, NIST 800-88 소거
+- [Transfer Appliance overview — Google Cloud](https://docs.cloud.google.com/transfer-appliance/docs/4.0/overview) — 100메가 선으로 300테라는 약 9개월, 장비로는 25일 안쪽에 이후 열 영업일쯤이 더 걸린다는 수치, 일주일이 넘으면 오프라인을 쓰라는 기준, 10기가·40기가·100기가(100기가는 TA300 만) 연결 포트, AES-256 과 고객 관리 열쇠, NIST 800-88 소거
