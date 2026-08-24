@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>개편안 A — 능선</title>
+<style>
+/* ============================================================
+   개편안 A — 능선
+   레퍼런스: MNTN 하이킹 가이드
+
+   그 화면이 실제로 쓰는 수단을 뜯어 보면 다섯이다.
+     1) 전면을 덮는 사진, 위아래로 어둠이 깔린다
+     2) 절 앞에 놓인 거대한 유령 숫자 (01, 02)
+     3) 짧은 가로선 + 소문자 캡스 꼬리표 (A HIKING GUIDE)
+     4) 모래빛 헤어라인 하나. 그 밖에는 색이 없다
+     5) 상자 버튼이 아니라 "read more →" 밑줄 링크
+
+   사진이 없다는 문제를 이렇게 푼다 — **컷 만화를 사진 자리에 앉힌다.**
+   스톡 사진을 끌어오면 이 앱의 그림과 싸운다. 이 앱의 이미지는 컷 만화다.
+
+   모래빛은 헤어라인과 10px 캡스에만 쓴다. 학습 상태의 호박색과 색상이
+   가깝지만, 저쪽은 채운 점과 칩이고 이쪽은 선과 잔글씨라 부딪히지 않는다.
+   ============================================================ */
+
+@font-face{font-family:"Pretendard Variable";font-weight:45 920;font-display:swap;
+  src:url("../fonts/pretendard-subset.woff2") format("woff2-variations")}
+@font-face{font-family:"Source Serif 4";font-weight:200 900;font-display:swap;
+  src:url("../fonts/source-serif-4-latin.woff2") format("woff2-variations")}
+
+:root{
+  /* 깊은 녹흑. 레퍼런스의 안개 낀 산 그늘에서 가져왔다. */
+  --paper:#0c1310;
+  --surface:#121b17;
+  --surface-sunken:#18231e;
+  --line:#1f2c26;
+  --line-strong:#33453c;
+
+  --ink:#eef2ef;
+  --ink-2:#9fada6;
+  --ink-3:#71827a;
+  --ink-inverse:#0c1310;
+
+  /* 모래빛. 선과 잔글씨에만. */
+  --sand:#c2a878;
+
+  --st-new:#71827a;
+  --st-reading:#8cbdd6; --st-reading-bg:#152530;
+  --st-learned:#86c2a0;
+  --st-passed:#9ad3b2;
+  --st-review:#e0ac5e;
+
+  --font-sans:"Pretendard Variable",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",system-ui,sans-serif;
+  --font-head:"Source Serif 4",Charter,Georgia,serif;
+  --font-mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,monospace;
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:#242c28;font-family:var(--font-sans);
+     display:flex;gap:14px;padding:16px;overflow-x:auto;align-items:flex-start}
+.frame{width:390px;flex:0 0 390px}
+.frame>h2{color:#fff;font-size:12px;font-weight:700;margin:0 0 6px 2px}
+.phone{width:390px;height:844px;overflow:hidden;border-radius:14px;
+       background:var(--paper);color:var(--ink);display:flex;flex-direction:column;
+       position:relative}
+
+.bar{height:50px;flex:0 0 50px;display:flex;align-items:center;gap:10px;padding:0 20px;
+     position:relative;z-index:2}
+.bar b{font-family:var(--font-head);font-size:17px;font-weight:600;letter-spacing:.02em}
+.bar .r{margin-left:auto;font-family:var(--font-mono);font-size:10.5px;color:var(--ink-3)}
+.body{flex:1;overflow:hidden;position:relative;z-index:2}
+.pad{padding:0 20px}
+.tabs{flex:0 0 60px;display:grid;grid-template-columns:repeat(4,1fr);
+      border-top:1px solid var(--line);position:relative;z-index:2;background:var(--paper)}
+.tabs div{display:flex;flex-direction:column;align-items:center;justify-content:center;
+          gap:4px;font-size:10px;color:var(--ink-3)}
+.tabs div.on{color:var(--ink)}
+.tabs i{width:17px;height:17px;border:1.5px solid currentColor;display:block}
+.tabs div.on i{background:currentColor}
+
+/* ---- 꼬리표 ----
+   짧은 선 + 소문자 캡스. 레퍼런스가 절마다 쓰는 장치다. */
+.kicker{display:flex;align-items:center;gap:10px;font-family:var(--font-mono);
+        font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--sand)}
+.kicker::before{content:"";width:22px;height:1px;background:var(--sand);flex:0 0 22px}
+
+/* ---- 유령 숫자 ----
+   레퍼런스의 01, 02. 배경에 크게 깔리고 본문이 그 위를 지난다. */
+.ghost{position:absolute;font-family:var(--font-head);font-size:104px;font-weight:600;
+       color:var(--ink);opacity:.045;line-height:.8;letter-spacing:-.04em;
+       pointer-events:none;user-select:none}
+
+/* ---- 전면 그림 ----
+   레퍼런스의 사진 자리. 좌우 여백을 뚫고 나가고 아래로 어둠이 깔린다. */
+.hero{position:relative;margin-top:6px}
+.hero .art{padding:0 12px}
+.hero svg{width:100%;height:auto;display:block}
+/* 아래로 어둠을 깔되 컷을 먹지 않게 24px 만. */
+.hero::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:24px;
+             background:linear-gradient(180deg,transparent,var(--paper));pointer-events:none}
+
+.word{font-family:var(--font-head);font-size:44px;font-weight:600;letter-spacing:-.015em;
+      line-height:1.04;margin:14px 0 0}
+.word.big{font-size:52px}
+.rom{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.08em;
+     text-transform:uppercase;color:var(--ink-3);margin-top:10px}
+.blurb{font-size:14px;line-height:1.72;color:var(--ink-2);margin-top:14px;max-width:19rem}
+
+/* ---- 밑줄 링크 액션 ---- */
+.more{display:inline-flex;align-items:center;gap:10px;height:44px;margin-top:10px;
+      font-size:14.5px;font-weight:600;color:var(--ink);
+      border-bottom:1px solid var(--sand)}
+
+/* ---- 절 ----
+   유령 숫자가 왼쪽 위에 앉고 그 위로 꼬리표와 제목이 지난다. */
+.sec{position:relative;padding:18px 0 0;margin-top:2px}
+.sec .ghost{left:-4px;top:-16px}
+.sec .in{position:relative;padding-top:34px}
+.sec h3{font-family:var(--font-head);font-size:23px;font-weight:600;
+        letter-spacing:-.01em;margin:12px 0 0;line-height:1.24}
+.sec p{font-size:13px;line-height:1.65;color:var(--ink-2);margin:7px 0 0;max-width:19rem}
+
+/* ---- 숫자 줄 ---- */
+.figs{display:flex;gap:0;margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
+.figs div{flex:1}
+.figs .n{font-family:var(--font-head);font-size:29px;font-weight:600;line-height:1;
+         font-variant-numeric:tabular-nums}
+.figs .k{font-family:var(--font-mono);font-size:9px;letter-spacing:.14em;
+         text-transform:uppercase;color:var(--ink-3);margin-top:8px}
+
+/* ---- 목록 ----
+   레퍼런스에 목록이 없어서, 장르의 논리(선 하나로 가르고 잔글씨로 번호)를
+   그대로 적용했다. 두 칸으로 세워 화면당 서른둘. */
+.search{display:flex;align-items:center;height:44px;margin-top:16px;
+        border-bottom:1px solid var(--line-strong);color:var(--ink-3);font-size:14px}
+.chips{display:flex;gap:16px;margin-top:16px;overflow:hidden;font-family:var(--font-mono);
+       font-size:10.5px;letter-spacing:.06em;text-transform:uppercase}
+.chips div{white-space:nowrap;color:var(--ink-3)}
+.chips div.on{color:var(--sand)}
+.list{display:grid;grid-template-columns:1fr 1fr;column-gap:18px;margin-top:14px}
+.li{display:flex;align-items:baseline;gap:8px;padding:9px 0;
+    border-bottom:1px solid var(--line);min-width:0}
+.li .no{font-family:var(--font-mono);font-size:9px;color:var(--ink-3);flex:0 0 17px}
+.li .t{font-size:13.5px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;flex:1}
+.li .d{flex:0 0 5px;height:5px;border-radius:50%;background:var(--st-new);align-self:center}
+.li .d.r{background:var(--st-reading)} .li .d.p{background:var(--st-passed)}
+.li .d.v{background:var(--st-review)} .li .d.o{background:transparent;
+         box-shadow:inset 0 0 0 1.1px var(--st-new)}
+
+/* ---- 읽기 ---- */
+.lede{font-family:var(--font-head);font-size:20px;line-height:1.56;margin-top:20px}
+.lede u{text-decoration:none;border-bottom:1px solid var(--sand)}
+.dock{flex:0 0 76px;display:flex;align-items:center;gap:18px;padding:0 20px;
+      border-top:1px solid var(--line);position:relative;z-index:2;background:var(--paper)}
+.dock .s{font-size:15px;color:var(--ink-3)}
+.dock .m{margin-left:auto;display:inline-flex;align-items:center;gap:10px;height:44px;
+         font-size:15px;font-weight:600;border-bottom:1px solid var(--sand)}
+
+/* ---- 진도 ----
+   레퍼런스의 오른쪽 세로 눈금(01 02 03)에서 가져왔다. 권마다 한 줄,
+   채운 트랙 대신 얇은 선 위에 밝은 만큼만 얹는다. */
+.rows{margin-top:18px}
+.pr{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+.pr .no{font-family:var(--font-mono);font-size:9px;color:var(--ink-3);flex:0 0 18px}
+.pr .n{flex:0 0 74px;font-size:12.5px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.pr .t{flex:1;height:1px;background:var(--line-strong);position:relative}
+.pr .t i{position:absolute;left:0;top:0;height:1px;background:var(--sand)}
+.pr .v{flex:0 0 42px;text-align:right;font-family:var(--font-mono);font-size:10px;color:var(--ink-3)}
+</style>
+</head>
+<body>
+<script src="_mockdata.js"></script>
+
+<section class="frame"><h2>홈</h2><div class="phone">
+  <div class="bar"><b>IT 단어</b><span class="r">8월 25일 · 6일 연속</span></div>
+  <div class="body" id="home"></div>
+  <div class="tabs"><div class="on"><i></i>홈</div><div><i></i>단어장</div><div><i></i>퀴즈</div><div><i></i>진도</div></div>
+</div></section>
+
+<section class="frame"><h2>단어장</h2><div class="phone">
+  <div class="bar"><b>단어장</b><span class="r">629</span></div>
+  <div class="body pad" id="browse"></div>
+  <div class="tabs"><div><i></i>홈</div><div class="on"><i></i>단어장</div><div><i></i>퀴즈</div><div><i></i>진도</div></div>
+</div></section>
+
+<section class="frame"><h2>읽기</h2><div class="phone">
+  <div class="bar"><span style="font-size:16px">&larr;</span><span class="r">11 / 76</span></div>
+  <div class="body" id="read"></div>
+  <div class="dock"><div class="s">&larr;</div><div class="m">학습 완료 <span>&rarr;</span></div></div>
+</div></section>
+
+<section class="frame"><h2>진도</h2><div class="phone">
+  <div class="bar"><b>진도</b><span class="r">249 / 629</span></div>
+  <div class="body pad" id="prog"></div>
+  <div class="tabs"><div><i></i>홈</div><div><i></i>단어장</div><div><i></i>퀴즈</div><div class="on"><i></i>진도</div></div>
+</div></section>
+
+<script>
+(function(){
+  var M=window.MOCK, c=M.cards[0];
+  var esc=function(s){return String(s).replace(/[&<>]/g,function(x){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;"}[x];});};
+  var plain=function(s){return esc(String(s||"").replace(/\*\*/g,""));};
+
+  document.getElementById("home").innerHTML =
+    '<div class="hero"><div class="art">' + c.svg + '</div></div>' +
+    '<div class="pad" style="margin-top:14px;position:relative">' +
+      '<div class="kicker">오늘의 단어</div>' +
+      '<h1 class="word big">' + esc(c.term) + '</h1>' +
+      '<div class="rom">Domain Name System</div>' +
+      '<div class="more">읽기 시작 <span>&rarr;</span></div>' +
+      '<div class="sec"><span class="ghost">01</span><div class="in">' +
+        '<div class="kicker">기다리는 것</div>' +
+        '<h3>복습할 단어 146개</h3>' +
+        '<p>퀴즈에서 틀렸거나 본 지 오래된 단어입니다.</p>' +
+      '</div></div>' +
+      '<div class="figs">' +
+        '<div><div class="n">249</div><div class="k">읽음</div></div>' +
+        '<div><div class="n">146</div><div class="k">복습</div></div>' +
+        '<div><div class="n">6</div><div class="k">연속</div></div>' +
+      '</div>' +
+    '</div>';
+
+  var ds=["o","r","p","o","v","p","o","o","r","o","p","o","o","o","p","o",
+          "o","r","o","p","v","o","o","p","o","o","r","o","o","p","o","o"];
+  document.getElementById("browse").innerHTML =
+    '<div class="search">단어나 뜻으로 검색</div>' +
+    '<div class="chips">' + M.books.map(function(b,i){
+      return '<div' + (i===2?' class="on"':'') + '>' + esc(b.name) + '</div>'; }).join("") + '</div>' +
+    '<div class="list">' + M.netlist.slice(0,32).map(function(t,i){
+      return '<div class="li"><span class="no">' + String(i+1).padStart(2,"0") + '</span>' +
+             '<span class="t">' + esc(t.term) + '</span>' +
+             '<span class="d ' + ds[i] + '"></span></div>'; }).join("") + '</div>';
+
+  document.getElementById("read").innerHTML =
+    '<div class="hero"><div class="art">' + c.svg + '</div></div>' +
+    '<div class="pad" style="margin-top:14px;position:relative">' +
+      '<div class="kicker">' + esc(c.bookName) + '</div>' +
+      '<h1 class="word">' + esc(c.term) + '</h1>' +
+      '<div class="rom">Domain Name System</div>' +
+      '<div class="lede">DNS는 <u>도메인 이름</u>을 <u>IP 주소</u>로 바꿔주는 시스템이다.</div>' +
+    '</div>';
+
+  var pct=[62,48,33,41,25,19,11,14,9,52,21,38];
+  document.getElementById("prog").innerHTML =
+    '<div class="kicker" style="margin-top:18px">권별</div>' +
+    '<div class="rows">' + M.books.map(function(b,i){
+      return '<div class="pr"><span class="no">' + String(i+1).padStart(2,"0") + '</span>' +
+             '<span class="n">' + esc(b.name) + '</span>' +
+             '<span class="t"><i style="width:' + pct[i] + '%"></i></span>' +
+             '<span class="v">' + Math.round(b.n*pct[i]/100) + '/' + b.n + '</span></div>';
+    }).join("") + '</div>';
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>개편안 B — 활자</title>
+<style>
+/* ============================================================
+   개편안 B — 활자
+   레퍼런스: Area
+
+   그 화면이 쓰는 수단은 셋뿐이다.
+     1) 순백 바탕에 **화면을 가득 채우는 고대비 세리프 한 줄**
+     2) 나머지 글자는 전부 작은 산세리프. 대비가 극단적이다
+     3) 올리브 알약 버튼 딱 하나. 그 밖에는 색이 없다
+     4) 제목 아래에 제품 화면이 크게 놓인다
+
+   이 앱으로 옮기면 화면을 채우는 한 줄은 **표제어**다. 그리고 제품 화면
+   자리에 컷 만화가 들어간다. 구조가 그대로 맞는다.
+
+   ── 부딪히는 곳과 그 해결 ──
+   올리브가 학습 상태의 초록(학습 완료·퀴즈 통과)과 색상이 겹친다.
+   레퍼런스의 올리브를 포기하지 않으려면 상태 쪽을 비켜야 한다. 그래서
+   이 안에서는 **상태를 색이 아니라 모양으로 말한다.** 빈 사각, 반 채운
+   사각, 채운 사각, 테두리 굵은 사각. 색은 브랜드가 가져간다.
+   ============================================================ */
+
+@font-face{font-family:"Pretendard Variable";font-weight:45 920;font-display:swap;
+  src:url("../fonts/pretendard-subset.woff2") format("woff2-variations")}
+@font-face{font-family:"Source Serif 4";font-weight:200 900;font-display:swap;
+  src:url("../fonts/source-serif-4-latin.woff2") format("woff2-variations")}
+
+:root{
+  --paper:#ffffff;
+  --surface:#ffffff;
+  --surface-sunken:#f2f3ef;
+  --line:#e6e7e1;
+  --line-strong:#c9cbc1;
+
+  --ink:#0b0c0a;
+  --ink-2:#4f5249;
+  --ink-3:#83867b;
+  --ink-inverse:#ffffff;
+
+  /* 레퍼런스의 이끼 올리브. 이 안에서 색을 쓰는 유일한 자리다. */
+  --olive:#4a5d23;
+  --olive-soft:#a8bd7a;
+
+  /* 상태는 색을 놓고 모양만 쓴다. 위 주석 참고. */
+  --mark:#0b0c0a;
+
+  --st-reading:#2c5f7c; --st-reading-bg:#e9eff2;
+
+  --font-sans:"Pretendard Variable",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",system-ui,sans-serif;
+  --font-head:"Source Serif 4",Charter,Georgia,serif;
+  --font-mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,monospace;
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:#8e9187;font-family:var(--font-sans);
+     display:flex;gap:14px;padding:16px;overflow-x:auto;align-items:flex-start}
+.frame{width:390px;flex:0 0 390px}
+.frame>h2{color:#fff;font-size:12px;font-weight:700;margin:0 0 6px 2px}
+.phone{width:390px;height:844px;overflow:hidden;background:var(--paper);
+       color:var(--ink);display:flex;flex-direction:column}
+
+/* 레퍼런스의 상단바 그대로 — 왼쪽 워드마크, 가운데 링크, 오른쪽 알약 하나 */
+.bar{height:58px;flex:0 0 58px;display:flex;align-items:center;gap:14px;padding:0 20px}
+.bar .mark{font-family:var(--font-head);font-size:19px;font-weight:600;letter-spacing:-.01em}
+.bar .r{margin-left:auto;height:34px;padding:0 15px;border-radius:999px;
+        background:var(--olive);color:#fff;display:flex;align-items:center;gap:6px;
+        font-size:12.5px;font-weight:700}
+.body{flex:1;overflow:hidden;padding:0 20px}
+.tabs{flex:0 0 60px;display:grid;grid-template-columns:repeat(4,1fr);
+      border-top:1px solid var(--line)}
+.tabs div{display:flex;flex-direction:column;align-items:center;justify-content:center;
+          gap:4px;font-size:10.5px;color:var(--ink-3)}
+.tabs div.on{color:var(--ink);font-weight:700}
+.tabs i{width:17px;height:17px;border:1.6px solid currentColor;border-radius:999px;display:block}
+.tabs div.on i{background:currentColor}
+
+/* ---- 거대한 세리프 ----
+   레퍼런스의 핵심. 화면 폭을 다 쓰고 마침표까지 찍는다. */
+.huge{font-family:var(--font-head);font-size:74px;font-weight:600;letter-spacing:-.035em;
+      line-height:.92;margin:22px 0 0;text-wrap:balance}
+.huge.mid{font-size:58px}
+.sub{font-size:13.5px;color:var(--ink-3);margin-top:14px;font-family:var(--font-mono);
+     letter-spacing:.04em}
+
+/* ---- 제품 샷 자리 = 컷 만화 ----
+   레퍼런스는 노트북 목업을 놓는다. 여기서는 그림을 그 자리에 놓고
+   아래에 올리브 판을 깔아 띄운다. */
+.shot{position:relative;margin-top:26px}
+.shot::before{content:"";position:absolute;left:-10px;right:-10px;bottom:-22px;height:130px;
+              background:var(--olive-soft);border-radius:20px;opacity:.6}
+.shot .in{position:relative;border:1px solid var(--line);border-radius:14px;
+          overflow:hidden;background:var(--surface)}
+.shot svg{width:100%;height:auto;display:block}
+
+.pill{display:inline-flex;align-items:center;gap:8px;height:48px;padding:0 22px;
+      border-radius:999px;background:var(--olive);color:#fff;font-weight:700;
+      font-size:15px;margin-top:34px}
+
+/* ---- 숫자 ----
+   레퍼런스의 "78% Efficiency Improvements" 꼴. 세리프 숫자 + 작은 산세리프. */
+.stat{display:flex;align-items:baseline;gap:12px;margin-top:26px;
+      padding-top:20px;border-top:1px solid var(--line)}
+.stat .n{font-family:var(--font-head);font-size:40px;font-weight:600;line-height:1;
+         font-variant-numeric:tabular-nums}
+.stat .k{font-size:14px;color:var(--ink-2)}
+.statrow{display:flex;gap:26px;margin-top:18px}
+.statrow .n{font-family:var(--font-head);font-size:24px;font-weight:600;line-height:1}
+.statrow .k{font-size:11px;color:var(--ink-3);margin-top:5px}
+
+/* ---- 검색 ---- */
+.search{display:flex;align-items:center;height:46px;margin-top:16px;padding:0 16px;
+        border:1px solid var(--line-strong);border-radius:999px;
+        color:var(--ink-3);font-size:14px}
+
+/* ---- 권 줄 ---- */
+.chips{display:flex;gap:8px;margin-top:12px;overflow:hidden}
+.chips div{flex:0 0 auto;height:32px;padding:0 13px;border-radius:999px;
+           border:1px solid var(--line);display:flex;align-items:center;
+           font-size:12.5px;white-space:nowrap;color:var(--ink-2)}
+.chips div.on{background:var(--olive);color:#fff;border-color:var(--olive);font-weight:700}
+
+/* ---- 목록 ----
+   표제어를 세리프로 쓴다. 큰 활자가 이 안의 정체성이라 목록에서도 유지한다.
+   대신 뜻을 빼서 두 칸으로 세운다. 화면당 서른둘. */
+.list{display:grid;grid-template-columns:1fr 1fr;column-gap:18px;margin-top:14px}
+.li{display:flex;align-items:center;gap:9px;padding:9.5px 0;
+    border-bottom:1px solid var(--line);min-width:0}
+.li .t{font-family:var(--font-head);font-size:15px;overflow:hidden;
+       white-space:nowrap;text-overflow:ellipsis;flex:1}
+/* 상태 = 모양. 색을 안 쓴다. */
+.m{flex:0 0 8px;height:8px;border:1.3px solid var(--mark)}
+.m.half{background:linear-gradient(90deg,var(--mark) 50%,transparent 50%)}
+.m.full{background:var(--mark)}
+.m.thick{border-width:3px}
+.m.none{border-color:var(--line-strong)}
+
+/* ---- 읽기 ---- */
+.lede{font-family:var(--font-head);font-size:23px;line-height:1.48;margin-top:24px}
+.lede u{text-decoration:none;box-shadow:inset 0 -8px 0 var(--olive-soft)}
+.dock{flex:0 0 80px;display:flex;align-items:center;gap:12px;padding:0 20px;
+      border-top:1px solid var(--line)}
+.dock .s{flex:0 0 44px;height:44px;border-radius:999px;border:1px solid var(--line-strong);
+         display:flex;align-items:center;justify-content:center;color:var(--ink-2)}
+.dock .m2{flex:1;height:48px;border-radius:999px;background:var(--olive);color:#fff;
+          display:flex;align-items:center;justify-content:center;gap:8px;
+          font-weight:700;font-size:15px}
+
+/* ---- 진도 ---- */
+.rows{margin-top:20px}
+.pr{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+.pr .n{flex:0 0 76px;font-size:12.5px;color:var(--ink-2);overflow:hidden;
+       white-space:nowrap;text-overflow:ellipsis}
+.pr .t{flex:1;height:5px;border-radius:999px;background:var(--surface-sunken);overflow:hidden}
+.pr .t i{display:block;height:5px;background:var(--olive);border-radius:999px}
+.pr .v{flex:0 0 44px;text-align:right;font-family:var(--font-mono);font-size:10.5px;color:var(--ink-3)}
+</style>
+</head>
+<body>
+<script src="_mockdata.js"></script>
+
+<section class="frame"><h2>홈</h2><div class="phone">
+  <div class="bar"><span class="mark">단어</span><span class="r">복습 146 &rarr;</span></div>
+  <div class="body" id="home"></div>
+  <div class="tabs"><div class="on"><i></i>홈</div><div><i></i>단어장</div><div><i></i>퀴즈</div><div><i></i>진도</div></div>
+</div></section>
+
+<section class="frame"><h2>단어장</h2><div class="phone">
+  <div class="bar"><span class="mark">단어장</span><span class="r">629</span></div>
+  <div class="body" id="browse"></div>
+  <div class="tabs"><div><i></i>홈</div><div class="on"><i></i>단어장</div><div><i></i>퀴즈</div><div><i></i>진도</div></div>
+</div></section>
+
+<section class="frame"><h2>읽기</h2><div class="phone">
+  <div class="bar"><span style="font-size:17px">&larr;</span><span class="r">11 / 76</span></div>
+  <div class="body" id="read"></div>
+  <div class="dock"><div class="s">&larr;</div><div class="m2">학습 완료</div><div class="s">&rarr;</div></div>
+</div></section>
+
+<section class="frame"><h2>진도</h2><div class="phone">
+  <div class="bar"><span class="mark">진도</span><span class="r">249 / 629</span></div>
+  <div class="body" id="prog"></div>
+  <div class="tabs"><div><i></i>홈</div><div><i></i>단어장</div><div><i></i>퀴즈</div><div class="on"><i></i>진도</div></div>
+</div></section>
+
+<script>
+(function(){
+  var M=window.MOCK, c=M.cards[0];
+  var esc=function(s){return String(s).replace(/[&<>]/g,function(x){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;"}[x];});};
+
+  document.getElementById("home").innerHTML =
+    '<h1 class="huge">' + esc(c.term) + '.</h1>' +
+    '<div class="sub">' + esc(c.bookName) + ' · DOMAIN NAME SYSTEM</div>' +
+    '<div class="shot"><div class="in">' + c.svg + '</div></div>' +
+    '<div class="pill">읽기 시작 &rarr;</div>' +
+    '<div class="statrow">' +
+      '<div><div class="n">249</div><div class="k">읽은 단어</div></div>' +
+      '<div><div class="n">146</div><div class="k">복습 대기</div></div>' +
+      '<div><div class="n">6</div><div class="k">연속</div></div>' +
+    '</div>';
+
+  var ms=["none","half","full","none","thick","full","none","none","half","none","full","none",
+          "none","none","full","none","none","half","none","full","thick","none","none","full",
+          "none","none","half","none","none","full","none","none"];
+  document.getElementById("browse").innerHTML =
+    '<div class="search">단어나 뜻으로 검색</div>' +
+    '<div class="chips">' + M.books.map(function(b,i){
+      return '<div' + (i===2?' class="on"':'') + '>' + esc(b.name) + '</div>'; }).join("") + '</div>' +
+    '<div class="list">' + M.netlist.slice(0,32).map(function(t,i){
+      return '<div class="li"><span class="m ' + ms[i] + '"></span>' +
+             '<span class="t">' + esc(t.term) + '</span></div>'; }).join("") + '</div>';
+
+  document.getElementById("read").innerHTML =
+    '<h1 class="huge mid">' + esc(c.term) + '.</h1>' +
+    '<div class="sub">' + esc(c.bookName) + ' · DOMAIN NAME SYSTEM</div>' +
+    '<div class="shot"><div class="in">' + c.svg + '</div></div>' +
+    '<div class="lede">DNS는 <u>도메인 이름</u>을 <u>IP 주소</u>로 바꿔주는 시스템이다.</div>';
+
+  var pct=[62,48,33,41,25,19,11,14,9,52,21,38];
+  document.getElementById("prog").innerHTML =
+    '<div class="stat"><span class="n">249</span><span class="k">629편 중 읽었다</span></div>' +
+    '<div class="rows">' + M.books.map(function(b,i){
+      return '<div class="pr"><span class="n">' + esc(b.name) + '</span>' +
+             '<span class="t"><i style="width:' + pct[i] + '%"></i></span>' +
+             '<span class="v">' + Math.round(b.n*pct[i]/100) + '/' + b.n + '</span></div>';
+    }).join("") + '</div>';
+})();
+</script>
+</body>
+</html>
