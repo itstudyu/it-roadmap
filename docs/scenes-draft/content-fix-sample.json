@@ -1,0 +1,235 @@
+{
+ "db--bloom-filter": {
+  "alt": "네 컷 — 없는 열쇠도 다 뒤지던 것이, 앞에 체를 세우자 없는 것은 안 뒤지고 바로 답하고, 있다고 나온 것만 한 번 더 확인하는 이야기",
+  "cuts": [
+   {
+    "caption": "없어도 다 뒤진다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "사물함",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "없는 열쇠",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "앞에 체를 세운다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "벽",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "켠 칸만 본다",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "사물함",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "없는 열쇠",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "없다면 확실하다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "벽",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "사물함",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "left",
+     "payload": {
+      "text": "없다",
+      "tone": "blue"
+     }
+    },
+    "check": false
+   },
+   {
+    "caption": "있다면 또 본다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "벽",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "있을지도",
+       "tone": "blue-dash"
+      }
+     },
+     {
+      "part": "사물함",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "head": true
+    }
+   }
+  ]
+ },
+ "net--dns": {
+  "alt": "네 컷 — 이름만으로는 서버에 닿지 못하던 것이, 이름 장부에 물어 그 이름의 번호를 돌려받고 그 번호로 서버에 닿는 이야기",
+  "cuts": [
+   {
+    "caption": "이름만으론 못 간다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "site.com",
+      "tone": "blue"
+     },
+     "head": false
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "이름으로 물어본다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "site.com",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "번호를 돌려받는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "left",
+     "payload": {
+      "text": "93.184…",
+      "tone": "blue"
+     }
+    },
+    "check": false
+   },
+   {
+    "caption": "그 번호로 닿는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "장부",
+      "slot": "mid",
+      "face": "none"
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "93.184…",
+      "tone": "blue"
+     }
+    }
+   }
+  ]
+ }
+}
