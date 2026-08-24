@@ -115,27 +115,21 @@ def check_script(term_id: str, script: dict) -> list[str]:
 
 
 def check_names() -> list[str]:
-    """부품 이름이 열 살에게 통하는 낱말인가.
+    """부품마다 이름이 있는가, 그리고 그 이름이 자리에 들어가는가.
 
-    그림이 "서버" 라고 적으면 그림을 보고 남에게 옮길 수가 없다. 그 낱말은
-    이 단어장이 열 살 카드에서 금지한 36개 중 하나이기 때문이다. 한 번
-    고쳐 놓고도 다음에 부품을 늘릴 때 다시 "서버" 라고 쓰기 쉬워서, 사람의
-    기억이 아니라 여기서 막는다.
+    금지어 대조를 여기 걸었다가 걷어냈다. 열 살 카드의 금지어 규칙은
+    그 카드의 산문에 거는 것이지 그림 라벨에 걸 것이 아니다. 서버를
+    "저쪽 기계" 라고 부르면 정작 배우려는 낱말이 그림에서 사라진다.
+    열 살이 이해하는 힘은 낱말을 피하는 데서 오지 않고 무슨 일이
+    벌어지는지가 그림에 다 보이는 데서 온다.
     """
     import re as _re
-    here = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    src = open(os.path.join(here, "check_template.py"), encoding="utf-8").read()
-    block = _re.search(r"KID_BANNED\s*=\s*\[(.*?)\]", src, _re.S)
-    if not block:
-        return ["check_template.py 에서 금지어 목록을 못 찾았다"]
-    banned = [w.strip().strip('"') for w in block.group(1).split(",") if w.strip()]
     out = []
     for part, nm in sorted(P.NAMES.items()):
-        hit = [b for b in banned if b and b in nm]
-        if hit:
-            out.append(f"부품 이름 '{part}' -> '{nm}' 에 IT 낱말이 있다 — {', '.join(hit)}")
         if _re.search(r"[A-Za-z]{2,}", nm):
             out.append(f"부품 이름 '{part}' -> '{nm}' 에 영문이 있다")
+        if len(nm) > 7:
+            out.append(f"부품 이름 '{part}' -> '{nm}' 이 {len(nm)}자다 (7자 이내)")
     missing = sorted(set(P.ACTORS) - set(P.NAMES))
     if missing:
         out.append("이름 없는 부품 — " + ", ".join(missing))
