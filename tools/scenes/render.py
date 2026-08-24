@@ -172,8 +172,8 @@ def _cut(cut: dict, top: float, num: int, last: bool) -> str:
 def render(script: dict) -> str:
     """각본 하나 → SVG 하나."""
     cuts = script.get("cuts") or []
-    if len(cuts) not in (3, 4):
-        raise SceneError(f"컷이 {len(cuts)}개다 (3컷 또는 왕복 4컷)")
+    if not 3 <= len(cuts) <= 6:
+        raise SceneError(f"컷이 {len(cuts)}개다 (3~6컷)")
 
     height = len(cuts) * H + (len(cuts) - 1) * GUTTER
     body = ""

@@ -231,5 +231,173 @@
     }
    }
   ]
+ },
+ "sec--oauth-2-0": {
+  "alt": "다섯 컷 — 앱에 비밀번호를 주면 계정을 통째로 내주던 것이, 앱이 나를 서비스로 넘기고 내가 서비스에서만 로그인하자 서비스가 사진만 허용하는 표를 내주고 앱은 그 표로 사진만 가져가는 이야기",
+  "cuts": [
+   {
+    "caption": "통째로 넘어간다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "sad"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "mid",
+      "face": "flat",
+      "tag": {
+       "text": "앱",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "mid",
+     "payload": {
+      "text": "비밀번호",
+      "tone": "blue"
+     }
+    },
+    "mark": "x"
+   },
+   {
+    "caption": "앱이 넘겨준다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "mid",
+      "face": "flat",
+      "tag": {
+       "text": "앱",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "mid",
+     "to": "right",
+     "payload": {
+      "text": "이 사람",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "여기서만 넣는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "mid",
+      "face": "none",
+      "tag": {
+       "text": "앱",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "left",
+     "to": "right",
+     "payload": {
+      "text": "비밀번호",
+      "tone": "blue"
+     }
+    }
+   },
+   {
+    "caption": "표를 받는다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "happy"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "mid",
+      "face": "flat",
+      "tag": {
+       "text": "앱",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "mid",
+     "payload": {
+      "text": "사진만 허용",
+      "tone": "blue"
+     }
+    },
+    "check": true
+   },
+   {
+    "caption": "사진만 가져간다",
+    "actors": [
+     {
+      "part": "사람",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "컴퓨터",
+      "slot": "mid",
+      "face": "flat",
+      "tag": {
+       "text": "앱",
+       "tone": "plain"
+      }
+     },
+     {
+      "part": "서버",
+      "slot": "right",
+      "face": "flat"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "mid",
+     "payload": {
+      "text": "사진",
+      "tone": "blue"
+     }
+    },
+    "check": false
+   }
+  ]
  }
 }

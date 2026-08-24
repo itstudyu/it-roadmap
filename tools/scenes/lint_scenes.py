@@ -11,6 +11,15 @@
 문법의 핵심은 규칙 ④ 다. **파랑은 컷당 한 군데.** 파랑만 눈으로 따라가도
 이야기가 되게 하는 장치라, 둘이 되는 순간 눈이 어느 쪽을 따라갈지 잃는다.
 마지막 컷만 사물과 마침 체크 둘을 허용한다.
+
+컷 수는 3~6 이다. 예전에는 3컷(왕복이면 4컷)만 허용했는데, 단계가 정말
+여럿인 단어 — OAuth 의 넘겨주고 로그인하고 표를 받는 춤 같은 것 — 을
+세 칸에 우겨 넣으면 가운데 단계가 통째로 사라졌다. 그래서 풀었다.
+
+그래도 위를 6 으로 막아 둔다. 일곱 컷을 넘어가면 읽는 사람이 줄거리를
+놓치고, 그쯤 되면 대개 한 단어가 아니라 두 단어다. 제한이 없으면 다음에
+어려운 단어를 만날 때마다 컷을 한 칸씩 늘리게 되고, 스무 편쯤 뒤에는
+편마다 길이가 제각각인 책이 된다.
 """
 
 from __future__ import annotations
@@ -31,7 +40,13 @@ SOURCE = os.path.join(ROOT, "scenes")
 CAPTION_MAX = 10   # 컷 아래 한 줄
 BUBBLE_MAX = 8     # 말풍선
 TAG_MAX = 12       # 이름표
-LETTERS_MAX = 48   # 한 편의 캡션 + 말풍선 글자 총합
+CUTS_MIN = 3       # 문제 · 동작 · 결과. 이보다 적으면 이야기가 아니다
+CUTS_MAX = 6       # 아래 주석 참고
+
+# 한 편의 캡션 + 말풍선 글자 총합. 컷이 늘면 같이 늘되, 컷당 몫은 오히려
+# 줄인다 — 컷이 많을수록 한 컷이 지는 말이 적어야 눈이 안 지친다.
+def letters_max(cuts: int) -> int:
+    return max(48, 13 * cuts)
 BLUE_TONES = ("blue", "blue-dash")
 
 
@@ -73,8 +88,12 @@ def check_cut(cut: dict, i: int, last: bool, out: list[str]) -> None:
         if len(str(label.get("text", ""))) > TAG_MAX:
             out.append(f"{where}: 이름표가 {len(label['text'])}자다 ({TAG_MAX}자 이내)")
 
-    allowed = 2 if last else 1
-    got = blues(cut) + (1 if cut.get("check", last) else 0)
+    # 마침 표시가 붙는 컷에만 파랑 둘을 허용한다. 예전에는 "마지막 컷" 으로
+    # 적어 뒀는데, 컷이 늘면서 마침이 가운데(접힌 선 위)로 오게 되어
+    # 자리가 아니라 역할로 다시 적는다.
+    closing = bool(cut.get("check", last))
+    allowed = 2 if closing else 1
+    got = blues(cut) + (1 if closing else 0)
     if got > allowed:
         out.append(f"{where}: 파랑이 {got}군데다 ({allowed}군데까지) — 눈이 따라갈 줄이 갈라진다")
 
@@ -82,8 +101,8 @@ def check_cut(cut: dict, i: int, last: bool, out: list[str]) -> None:
 def check_script(term_id: str, script: dict) -> list[str]:
     out: list[str] = []
     cuts = script.get("cuts") or []
-    if len(cuts) not in (3, 4):
-        out.append(f"컷이 {len(cuts)}개다 (3컷, 왕복이면 4컷)")
+    if not CUTS_MIN <= len(cuts) <= CUTS_MAX:
+        out.append(f"컷이 {len(cuts)}개다 ({CUTS_MIN}~{CUTS_MAX}컷)")
         return [f"{term_id} — {m}" for m in out]
 
     if not script.get("alt"):
@@ -103,8 +122,19 @@ def check_script(term_id: str, script: dict) -> list[str]:
 
     letters = sum(len(c.get("caption", "")) for c in cuts)
     letters += sum(len((c.get("bubble") or {}).get("text", "")) for c in cuts)
-    if letters > LETTERS_MAX:
-        out.append(f"글자가 {letters}자다 ({LETTERS_MAX}자 안팎) — 그림이 못 하는 말만 남긴다")
+    cap = letters_max(len(cuts))
+    if letters > cap:
+        out.append(f"글자가 {letters}자다 ({cap}자 안팎) — 그림이 못 하는 말만 남긴다")
+
+    # 다섯 컷부터는 폰에서 접힌 선 아래로 내려간다(390×844 에서 실측:
+    # 4컷 448px 은 들어가고 5컷 562px 은 넘친다). 그러니 **앞 네 컷만으로도
+    # 이야기가 서야 한다.** 마침 체크가 다섯째 컷 뒤에만 있으면 스크롤을
+    # 안 한 사람은 결말을 못 본다.
+    if len(cuts) > 4:
+        early = any(c.get("check") for c in cuts[:4])
+        if not early:
+            out.append("다섯 컷을 넘는데 앞 네 컷 안에 마침 표시가 없다 — "
+                       "접힌 선 위에서 이야기가 끝나야 한다")
 
     try:
         R.render(script)
