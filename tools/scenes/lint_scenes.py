@@ -114,6 +114,34 @@ def check_script(term_id: str, script: dict) -> list[str]:
     return [f"{term_id} — {m}" for m in out]
 
 
+def check_names() -> list[str]:
+    """부품 이름이 열 살에게 통하는 낱말인가.
+
+    그림이 "서버" 라고 적으면 그림을 보고 남에게 옮길 수가 없다. 그 낱말은
+    이 단어장이 열 살 카드에서 금지한 36개 중 하나이기 때문이다. 한 번
+    고쳐 놓고도 다음에 부품을 늘릴 때 다시 "서버" 라고 쓰기 쉬워서, 사람의
+    기억이 아니라 여기서 막는다.
+    """
+    import re as _re
+    here = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    src = open(os.path.join(here, "check_template.py"), encoding="utf-8").read()
+    block = _re.search(r"KID_BANNED\s*=\s*\[(.*?)\]", src, _re.S)
+    if not block:
+        return ["check_template.py 에서 금지어 목록을 못 찾았다"]
+    banned = [w.strip().strip('"') for w in block.group(1).split(",") if w.strip()]
+    out = []
+    for part, nm in sorted(P.NAMES.items()):
+        hit = [b for b in banned if b and b in nm]
+        if hit:
+            out.append(f"부품 이름 '{part}' -> '{nm}' 에 IT 낱말이 있다 — {', '.join(hit)}")
+        if _re.search(r"[A-Za-z]{2,}", nm):
+            out.append(f"부품 이름 '{part}' -> '{nm}' 에 영문이 있다")
+    missing = sorted(set(P.ACTORS) - set(P.NAMES))
+    if missing:
+        out.append("이름 없는 부품 — " + ", ".join(missing))
+    return out
+
+
 def paths_from(argv: list[str]) -> list[str]:
     """무엇을 잴지 고른다.
 
@@ -130,7 +158,7 @@ def paths_from(argv: list[str]) -> list[str]:
 
 
 def main(argv: list[str]) -> int:
-    total, bad = 0, []
+    total, bad = 0, list(check_names())
     for path in paths_from(argv[1:]):
         with open(path, encoding="utf-8") as f:
             scripts = json.load(f)

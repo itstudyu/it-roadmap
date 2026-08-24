@@ -67,8 +67,38 @@
   --font-mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,monospace;
 }
 
+/* ── 밝은 화면 ──
+   레퍼런스는 어두운 산 사진뿐이라 밝은 판이 없다. 그래서 지어내지 않고
+   같은 사진의 **다른 시간**을 골랐다 — 해 뜨기 전 안개. 색상은 그대로 두고
+   명도만 뒤집는다. 녹색기가 종이 쪽으로 가면 회색이 아니라 안개가 된다.
+
+   모래빛은 밝은 바탕에서 그대로 쓰면 흰 데 흰 것이라 안 보인다. 어두운
+   쪽(#8a7955)을 글자에, 더 어두운 쪽을 선에 쓴다. 어두운 화면과 정확히
+   반대로 뒤집는 것이다. */
+:root[data-theme="light"]{
+  --paper:#f2f4f1;
+  --surface:#ffffff;
+  --surface-sunken:#e8ebe6;
+  --line:#dde1da;
+  --line-strong:#b9c1b6;
+
+  --ink:#131a16;
+  --ink-2:#4a564f;
+  --ink-3:#6b776f;
+  --ink-inverse:#f2f4f1;
+
+  --sand:#8a7955;
+  --sand-dim:#c3b48d;
+
+  --st-new:#6b776f;
+  --st-reading:#2c5f7c; --st-reading-bg:#e4eef3;
+  --st-learned:#3a6b4c;
+  --st-passed:#235c43;
+  --st-review:#8a5a18;
+}
+
 *{box-sizing:border-box}
-body{margin:0;background:#242c28;font-family:var(--font-sans);
+body{margin:0;background:#5f6a63;font-family:var(--font-sans);
      display:flex;gap:14px;padding:16px;overflow-x:auto;align-items:flex-start}
 .frame{width:390px;flex:0 0 390px}
 .frame>h2{color:#fff;font-size:12px;font-weight:700;margin:0 0 6px 2px}
@@ -262,6 +292,27 @@ body{margin:0;background:#242c28;font-family:var(--font-sans);
              '<span class="t"><i style="width:' + pct[i] + '%"></i></span>' +
              '<span class="v">' + Math.round(b.n*pct[i]/100) + '/' + b.n + '</span></div>';
     }).join("") + '</div>';
+})();
+</script>
+<script>
+/* 오른쪽 넷은 같은 화면을 밝은 판으로 세운 것이다. 목업에서 두 판을
+   나란히 안 세우면, 한쪽만 보고 "됐다" 하고 다른 쪽이 무너진 채 나간다. */
+(function(){
+  document.querySelectorAll("section.frame").forEach(function(sec){
+    var c = sec.cloneNode(true);
+    c.querySelector("h2").textContent = sec.querySelector("h2").textContent + " · 밝게";
+    c.querySelector(".phone").setAttribute("data-theme","light");
+    document.body.appendChild(c);
+  });
+  /* data-theme 는 :root 에만 걸려 있으므로 복제본에 토큰을 직접 얹는다 */
+  var css = document.createElement("style");
+  css.textContent = '.phone[data-theme="light"]{' +
+    '--paper:#f2f4f1;--surface:#fff;--surface-sunken:#e8ebe6;--line:#dde1da;' +
+    '--line-strong:#b9c1b6;--ink:#131a16;--ink-2:#4a564f;--ink-3:#6b776f;' +
+    '--ink-inverse:#f2f4f1;--sand:#8a7955;--sand-dim:#c3b48d;--st-new:#6b776f;' +
+    '--st-reading:#2c5f7c;--st-reading-bg:#e4eef3;--st-learned:#3a6b4c;' +
+    '--st-passed:#235c43;--st-review:#8a5a18}';
+  document.head.appendChild(css);
 })();
 </script>
 </body>
