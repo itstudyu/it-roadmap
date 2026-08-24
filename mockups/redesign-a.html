@@ -28,23 +28,36 @@
   src:url("../fonts/source-serif-4-latin.woff2") format("woff2-variations")}
 
 :root{
-  /* 깊은 녹흑. 레퍼런스의 안개 낀 산 그늘에서 가져왔다. */
-  --paper:#0c1310;
-  --surface:#121b17;
-  --surface-sunken:#18231e;
-  --line:#1f2c26;
-  --line-strong:#33453c;
+  /* ── 색 ──
+     레퍼런스의 세련됨은 화려함이 아니라 **낮은 채도와 좁은 명도 간격**에서
+     나온다. 안개 낀 산 사진에는 순수한 색이 하나도 없다. 그래서 여기서도
+     녹색을 "녹색"으로 쓰지 않고, 검정에 아주 조금 섞어 색이라기보다
+     기온처럼 느껴지게 둔다.
 
-  --ink:#eef2ef;
-  --ink-2:#9fada6;
-  --ink-3:#71827a;
-  --ink-inverse:#0c1310;
+     대신 면은 네 단계로 나눈다. 지난 판은 바탕과 카드가 너무 붙어 있어
+     그림판이 종이에 얹힌 것으로 안 읽혔다. */
+  --paper:#0a0f0d;         /* 가장 깊은 바닥 */
+  --surface:#111815;       /* 그림판·카드 */
+  --surface-sunken:#161e1a; /* 눌린 면 */
+  --line:#1d2723;
+  --line-strong:#2f3c36;
 
-  /* 모래빛. 선과 잔글씨에만. */
-  --sand:#c2a878;
+  --ink:#e9eeeb;
+  --ink-2:#9daba4;
+  /* 9.5px 이름 글씨가 이 색으로 나간다. 지난 판(#71827a)은 4.4:1 이라
+     작은 글자에 모자랐다. 6:1 로 올린다. */
+  --ink-3:#8b9c94;
+  --ink-inverse:#0a0f0d;
 
-  --st-new:#71827a;
-  --st-reading:#8cbdd6; --st-reading-bg:#152530;
+  /* ── 모래빛 ──
+     금색으로 가면 싸구려가 된다. 노랑을 빼고 채도를 낮춰 **뼈에 가까운
+     따뜻한 회색**으로 둔다. 두 단계를 두어, 글자는 밝은 쪽 헤어라인은
+     어두운 쪽을 쓴다. 한 색을 두 밝기로 쓰면 선이 글자를 이기지 않는다. */
+  --sand:#c9b596;
+  --sand-dim:#6b6049;
+
+  --st-new:#8b9c94;
+  --st-reading:#8cbdd6; --st-reading-bg:#132229;
   --st-learned:#86c2a0;
   --st-passed:#9ad3b2;
   --st-review:#e0ac5e;
@@ -81,7 +94,7 @@ body{margin:0;background:#242c28;font-family:var(--font-sans);
    짧은 선 + 소문자 캡스. 레퍼런스가 절마다 쓰는 장치다. */
 .kicker{display:flex;align-items:center;gap:10px;font-family:var(--font-mono);
         font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--sand)}
-.kicker::before{content:"";width:22px;height:1px;background:var(--sand);flex:0 0 22px}
+.kicker::before{content:"";width:22px;height:1px;background:var(--sand-dim);flex:0 0 22px}
 
 /* ---- 유령 숫자 ----
    레퍼런스의 01, 02. 배경에 크게 깔리고 본문이 그 위를 지난다. */
@@ -100,7 +113,7 @@ body{margin:0;background:#242c28;font-family:var(--font-sans);
 
 .word{font-family:var(--font-head);font-size:44px;font-weight:600;letter-spacing:-.015em;
       line-height:1.04;margin:14px 0 0}
-.word.big{font-size:52px}
+.word.big{font-size:48px}
 .rom{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.08em;
      text-transform:uppercase;color:var(--ink-3);margin-top:10px}
 .blurb{font-size:14px;line-height:1.72;color:var(--ink-2);margin-top:14px;max-width:19rem}
@@ -108,19 +121,19 @@ body{margin:0;background:#242c28;font-family:var(--font-sans);
 /* ---- 밑줄 링크 액션 ---- */
 .more{display:inline-flex;align-items:center;gap:10px;height:44px;margin-top:10px;
       font-size:14.5px;font-weight:600;color:var(--ink);
-      border-bottom:1px solid var(--sand)}
+      border-bottom:1px solid var(--sand-dim)}
 
 /* ---- 절 ----
    유령 숫자가 왼쪽 위에 앉고 그 위로 꼬리표와 제목이 지난다. */
 .sec{position:relative;padding:18px 0 0;margin-top:2px}
 .sec .ghost{left:-4px;top:-16px}
 .sec .in{position:relative;padding-top:34px}
-.sec h3{font-family:var(--font-head);font-size:23px;font-weight:600;
-        letter-spacing:-.01em;margin:12px 0 0;line-height:1.24}
+.sec h3{font-family:var(--font-head);font-size:21px;font-weight:600;
+        letter-spacing:-.01em;margin:10px 0 0;line-height:1.22}
 .sec p{font-size:13px;line-height:1.65;color:var(--ink-2);margin:7px 0 0;max-width:19rem}
 
 /* ---- 숫자 줄 ---- */
-.figs{display:flex;gap:0;margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
+.figs{display:flex;gap:0;margin-top:12px;border-top:1px solid var(--line);padding-top:12px}
 .figs div{flex:1}
 .figs .n{font-family:var(--font-head);font-size:29px;font-weight:600;line-height:1;
          font-variant-numeric:tabular-nums}
@@ -148,12 +161,12 @@ body{margin:0;background:#242c28;font-family:var(--font-sans);
 
 /* ---- 읽기 ---- */
 .lede{font-family:var(--font-head);font-size:20px;line-height:1.56;margin-top:20px}
-.lede u{text-decoration:none;border-bottom:1px solid var(--sand)}
+.lede u{text-decoration:none;border-bottom:1px solid var(--sand-dim)}
 .dock{flex:0 0 76px;display:flex;align-items:center;gap:18px;padding:0 20px;
       border-top:1px solid var(--line);position:relative;z-index:2;background:var(--paper)}
 .dock .s{font-size:15px;color:var(--ink-3)}
 .dock .m{margin-left:auto;display:inline-flex;align-items:center;gap:10px;height:44px;
-         font-size:15px;font-weight:600;border-bottom:1px solid var(--sand)}
+         font-size:15px;font-weight:600;border-bottom:1px solid var(--sand-dim)}
 
 /* ---- 진도 ----
    레퍼런스의 오른쪽 세로 눈금(01 02 03)에서 가져왔다. 권마다 한 줄,
@@ -163,7 +176,7 @@ body{margin:0;background:#242c28;font-family:var(--font-sans);
 .pr .no{font-family:var(--font-mono);font-size:9px;color:var(--ink-3);flex:0 0 18px}
 .pr .n{flex:0 0 74px;font-size:12.5px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .pr .t{flex:1;height:1px;background:var(--line-strong);position:relative}
-.pr .t i{position:absolute;left:0;top:0;height:1px;background:var(--sand)}
+.pr .t i{position:absolute;left:0;top:0;height:1.5px;background:var(--sand)}
 .pr .v{flex:0 0 42px;text-align:right;font-family:var(--font-mono);font-size:10px;color:var(--ink-3)}
 </style>
 </head>

@@ -54,6 +54,7 @@ SLOT_X = {"left": 64, "mid": 200, "right": 316}
 GROUND = 72      # 배우가 서는 바닥 (컷 위에서부터)
 LANE_Y = 52      # 화살표가 지나는 높이
 TAG_TOP = 76     # 이름표가 붙는 자리
+NAME_Y = 88      # 이름이 앉는 기준선. 이름표 자리보다 아래, 캡션보다 위.
 CAP_Y = 113      # 캡션 글자의 기준선. 이름표 아래로 넉넉히 띄운다
 BUBBLE_BOTTOM = 26
 
@@ -86,6 +87,14 @@ def _cast(cut: dict, top: float) -> tuple[str, dict]:
         boxes[spec.get("slot", "left")] = box
         body += art
         label = spec.get("tag")
+        # 이름표가 없으면 부품 이름을 대신 단다. 각본이 "who" 로 따로
+        # 불러 준 이름이 있으면 그쪽이 우선이다 — 같은 부품 둘을 가를 때
+        # 쓰는 이름이라 부품 이름보다 정확하다.
+        if not label:
+            who = spec.get("who")
+            nm = who if who and who != spec.get("part") else P.NAMES.get(spec.get("part"))
+            if nm:
+                body += P.name(SLOT_X[spec["slot"]], top + NAME_Y, nm)
         if label:
             # 이름표는 배우 밑이 기본이다. 옮겨지는 사물(소포·문서)에 붙는
             # 이름표만 위로 올린다 — 상자 위에 붙은 송장처럼 읽히고, 컷 아래의
