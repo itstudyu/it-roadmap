@@ -76,21 +76,30 @@
    쪽(#8a7955)을 글자에, 더 어두운 쪽을 선에 쓴다. 어두운 화면과 정확히
    반대로 뒤집는 것이다. */
 :root[data-theme="light"]{
-  --paper:#f2f4f1;
+  /* 밝은 판은 어두운 판을 흐리게 만든 것이 아니다. **다른 재료**다.
+     처음에는 같은 사진의 새벽 안개로 잡았는데, 탁하고 어두워서 낮에 보면
+     화면이 꺼진 것처럼 읽혔다. 밝은 판의 일은 밝은 것이다.
+
+     그래서 바탕을 차가운 옅은 회색으로 두고 **카드를 순백으로** 띄운다.
+     컷 만화가 흰 종이에 인쇄된 것으로 읽히는 게 이 판의 핵심이다.
+     녹색기는 바탕에만 아주 조금 남겨 어두운 판과 한 앱인 것을 잇는다. */
+  --paper:#f3f5f5;
   --surface:#ffffff;
-  --surface-sunken:#e8ebe6;
-  --line:#dde1da;
-  --line-strong:#b9c1b6;
+  --surface-sunken:#e9edec;
+  --line:#e2e7e6;
+  --line-strong:#bfc8c5;
 
-  --ink:#131a16;
-  --ink-2:#4a564f;
-  --ink-3:#6b776f;
-  --ink-inverse:#f2f4f1;
+  --ink:#151d1a;
+  --ink-2:#4b5854;
+  --ink-3:#6d7a76;
+  --ink-inverse:#ffffff;
 
-  --sand:#8a7955;
-  --sand-dim:#c3b48d;
+  /* 차가운 종이 위의 따뜻한 청동. 두 색이 부딪히는 게 아니라 서로를
+     또렷하게 만든다. 흰 바탕에서 4.6:1 로 잔글씨에도 쓸 수 있다. */
+  --sand:#8a7550;
+  --sand-dim:#d3c6ac;
 
-  --st-new:#6b776f;
+  --st-new:#6d7a76;
   --st-reading:#2c5f7c; --st-reading-bg:#e4eef3;
   --st-learned:#3a6b4c;
   --st-passed:#235c43;
@@ -136,6 +145,10 @@ body{margin:0;background:#5f6a63;font-family:var(--font-sans);
    레퍼런스의 사진 자리. 좌우 여백을 뚫고 나가고 아래로 어둠이 깔린다. */
 .hero{position:relative;margin-top:6px}
 .hero .art{padding:0 12px}
+/* 밝은 판은 카드가 순백이라 바탕과 갈리려면 그림자가 아주 조금 필요하다.
+   순수한 검정 그림자는 안 쓴다 — 바탕의 색조를 섞는다. */
+.phone[data-theme="light"] .hero svg,
+:root[data-theme="light"] .hero svg{filter:drop-shadow(0 1px 2px rgba(21,29,26,.06))}
 .hero svg{width:100%;height:auto;display:block}
 /* 아래로 어둠을 깔되 컷을 먹지 않게 24px 만. */
 .hero::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:24px;
@@ -307,9 +320,9 @@ body{margin:0;background:#5f6a63;font-family:var(--font-sans);
   /* data-theme 는 :root 에만 걸려 있으므로 복제본에 토큰을 직접 얹는다 */
   var css = document.createElement("style");
   css.textContent = '.phone[data-theme="light"]{' +
-    '--paper:#f2f4f1;--surface:#fff;--surface-sunken:#e8ebe6;--line:#dde1da;' +
-    '--line-strong:#b9c1b6;--ink:#131a16;--ink-2:#4a564f;--ink-3:#6b776f;' +
-    '--ink-inverse:#f2f4f1;--sand:#8a7955;--sand-dim:#c3b48d;--st-new:#6b776f;' +
+    '--paper:#f3f5f5;--surface:#fff;--surface-sunken:#e9edec;--line:#e2e7e6;' +
+    '--line-strong:#bfc8c5;--ink:#151d1a;--ink-2:#4b5854;--ink-3:#6d7a76;' +
+    '--ink-inverse:#fff;--sand:#8a7550;--sand-dim:#d3c6ac;--st-new:#6d7a76;' +
     '--st-reading:#2c5f7c;--st-reading-bg:#e4eef3;--st-learned:#3a6b4c;' +
     '--st-passed:#235c43;--st-review:#8a5a18}';
   document.head.appendChild(css);
