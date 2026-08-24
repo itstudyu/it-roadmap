@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>개편안 E — 규격</title>
+<style>
+/* ============================================================
+   개편안 E — 규격
+   레퍼런스: Straightforward Brand Guidelines
+
+   브랜드 가이드라인 문서가 쓰는 수단은 셋이다. 번호 붙은 절, 왼쪽에
+   붙는 작은 고정폭 라벨, 그리고 표와 선.
+
+   이 장르가 이 앱에 유난히 잘 맞는 이유가 있다. 이 앱은 이미 규격
+   문서다 — 629개 항목이 같은 틀(정의·그림·오해·사례·열살카드)로
+   적혀 있다. 다른 안들은 학습 앱처럼 보이게 만들지만, 이 안은
+   **있는 그대로의 것처럼 보이게** 만든다.
+
+   밀도가 장르에서 공짜로 나온다. 라벨이 왼쪽에 붙으면 오른쪽이 통째로
+   비고, 거기에 내용이 줄줄이 들어간다.
+   ============================================================ */
+
+@font-face{font-family:"Pretendard Variable";font-weight:45 920;font-display:swap;
+  src:url("../fonts/pretendard-subset.woff2") format("woff2-variations")}
+
+:root{
+  --paper:#ffffff;
+  --sunken:#f4f4f2;
+  --line:#e3e3e0;
+  --rule:#111111;        /* 절을 가르는 굵은 선 */
+
+  --ink:#111111;
+  --ink-2:#55554f;
+  --ink-3:#8a8a83;
+  --ink-inverse:#ffffff;
+
+  --st-new:#8a8a83;
+  --st-reading:#2c5f7c; --st-reading-bg:#e6eef3;
+  --st-learned:#3a6b4c;
+  --st-passed:#235c43;
+  --st-review:#8a5a18;
+
+  --font-sans:"Pretendard Variable",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",system-ui,sans-serif;
+  --font-mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,monospace;
+
+  /* 그림이 요구하는 이름. 규격 문서라 면은 흰 종이, 선은 진하게. */
+  --surface:#ffffff;
+  --surface-sunken:var(--sunken);
+  --line-strong:#c9c9c4;
+  --r:0px;
+  --lab:74px;            /* 왼쪽 라벨 칸의 폭. 문서 전체가 이 격자에 선다 */
+}
+:root[data-theme="dark"]{
+  --surface:#161616; --surface-sunken:var(--sunken); --line-strong:#3b3b38;
+  --paper:#0e0e0e; --sunken:#171717; --line:#262625; --rule:#f0f0ee;
+  --ink:#f0f0ee; --ink-2:#a3a39c; --ink-3:#77776f; --ink-inverse:#0e0e0e;
+  --st-new:#77776f;
+  --st-reading:#8cbdd6; --st-reading-bg:#16242b;
+  --st-learned:#86c2a0; --st-passed:#9ad3b2; --st-review:#e0ac5e;
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:#54544f;font-family:var(--font-sans);
+     display:flex;gap:14px;padding:16px;overflow-x:auto;align-items:flex-start}
+.frame{width:390px;flex:0 0 390px}
+.frame>h2{color:#fff;font-size:12px;font-weight:700;margin:0 0 6px 2px}
+.phone{width:390px;height:844px;overflow:hidden;background:var(--paper);
+       color:var(--ink);display:flex;flex-direction:column}
+
+/* ---- 문서 머리 ----
+   가이드라인 문서의 첫 줄. 무슨 문서이고 몇 쪽인지. */
+.head{flex:0 0 auto;padding:22px 20px 12px;border-bottom:2px solid var(--rule)}
+.head .k{font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;
+         text-transform:uppercase;color:var(--ink-3)}
+.head .t{display:flex;align-items:baseline;gap:8px;margin-top:6px}
+.head .t b{font-size:20px;font-weight:800;letter-spacing:-.02em}
+.head .t .r{margin-left:auto;font-family:var(--font-mono);font-size:11px;color:var(--ink-3)}
+
+.body{flex:1;overflow:hidden;padding:0 20px}
+.tabs{flex:0 0 56px;display:grid;grid-template-columns:repeat(4,1fr);
+      border-top:2px solid var(--rule)}
+.tabs div{display:flex;align-items:center;justify-content:center;
+          font-size:11.5px;color:var(--ink-3);font-family:var(--font-mono);
+          letter-spacing:.04em}
+.tabs div.on{color:var(--ink);font-weight:700;background:var(--sunken)}
+
+/* ---- 절 ----
+   번호 · 라벨 · 내용. 문서 전체가 이 세 칸으로만 만들어진다. */
+.sec{display:grid;grid-template-columns:var(--lab) 1fr;gap:0 14px;
+     padding:14px 0;border-bottom:1px solid var(--line)}
+.sec > .lab{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.08em;
+            text-transform:uppercase;color:var(--ink-3);padding-top:3px;line-height:1.5}
+.sec > .val{min-width:0}
+
+.word{font-size:34px;font-weight:800;letter-spacing:-.035em;line-height:1.04;margin:0}
+.rom{font-family:var(--font-mono);font-size:11.5px;color:var(--ink-3);margin-top:6px}
+.plate svg{width:100%;height:auto;display:block}
+.def{font-size:15.5px;line-height:1.66}
+.def u{text-decoration:none;box-shadow:inset 0 -6px 0 var(--st-reading-bg);font-weight:700}
+
+/* ---- 숫자표 ----
+   가이드라인 문서의 수치 표. 선이 얇고 숫자가 고정폭이다. */
+.tbl{width:100%;border-collapse:collapse}
+.tbl td{padding:7px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.tbl td.n{text-align:right;font-family:var(--font-mono);font-variant-numeric:tabular-nums;
+          color:var(--ink);width:52px}
+.tbl tr:last-child td{border-bottom:0}
+
+.act{display:flex;align-items:center;justify-content:space-between;height:48px;
+     margin-top:16px;padding:0 16px;background:var(--ink);color:var(--ink-inverse);
+     font-size:15px;font-weight:700}
+
+/* ---- 검색 ---- */
+.search{display:flex;align-items:center;height:44px;padding:0 14px;margin-top:14px;
+        border:1px solid var(--line);background:var(--sunken);
+        color:var(--ink-3);font-size:14px}
+
+/* ---- 색인 ----
+   가이드라인 문서의 목차. 번호가 붙고 점선이 이어진다.
+   두 칸으로 세우면 화면당 서른둘. */
+.idx{display:grid;grid-template-columns:1fr 1fr;column-gap:16px;margin-top:6px}
+.ix{display:flex;align-items:baseline;gap:7px;padding:8px 0;
+    border-bottom:1px solid var(--line);min-width:0}
+.ix .no{font-family:var(--font-mono);font-size:9.5px;color:var(--ink-3);flex:0 0 20px}
+.ix .t{font-size:13.5px;font-weight:600;overflow:hidden;white-space:nowrap;
+       text-overflow:ellipsis;flex:1}
+.ix .m{flex:0 0 6px;height:6px;border:1.2px solid var(--st-new);align-self:center}
+.ix .m.r{background:var(--st-reading);border-color:var(--st-reading)}
+.ix .m.p{background:var(--st-passed);border-color:var(--st-passed)}
+.ix .m.l{border-color:var(--st-learned);border-width:2px}
+
+/* ---- 권 탭 ---- */
+.tabs2{display:flex;gap:0;margin:12px -20px 0;padding:0 20px;overflow:hidden;
+       border-bottom:1px solid var(--line)}
+.tabs2 div{flex:0 0 auto;padding:9px 12px 9px 0;font-size:12.5px;color:var(--ink-3);
+           white-space:nowrap;font-family:var(--font-mono)}
+.tabs2 div.on{color:var(--ink);font-weight:700;box-shadow:inset 0 -2px 0 var(--rule)}
+
+/* ---- 커버리지 표 ----
+   가이드라인 문서가 규격 준수를 보여 줄 때 쓰는 꼴. 칸이 곧 항목이다. */
+.cov{display:flex;flex-wrap:wrap;gap:2px;margin-top:5px}
+.cov i{width:8px;height:8px;background:var(--sunken);display:block}
+.cov i.r{background:var(--st-reading)}
+.cov i.l{background:var(--st-learned)}
+.cov i.p{background:var(--st-passed)}
+.cov i.v{background:var(--st-review)}
+.key{display:flex;gap:12px;flex-wrap:wrap;font-family:var(--font-mono);
+     font-size:9.5px;letter-spacing:.05em;color:var(--ink-3);text-transform:uppercase}
+.key b{display:inline-flex;align-items:center;gap:5px;font-weight:400}
+.key i{width:8px;height:8px;display:block}
+
+.dock{flex:0 0 72px;display:flex;align-items:center;gap:0;
+      border-top:2px solid var(--rule)}
+.dock .s{flex:0 0 62px;height:100%;display:flex;align-items:center;justify-content:center;
+         color:var(--ink-2);border-right:1px solid var(--line);font-size:16px}
+.dock .m{flex:1;height:100%;display:flex;align-items:center;justify-content:center;
+         gap:8px;background:var(--ink);color:var(--ink-inverse);font-weight:700;font-size:15px}
+.dock .s.e{border-right:0;border-left:1px solid var(--line)}
+</style>
+</head>
+<body>
+<script src="_mockdata.js"></script>
+
+<section class="frame"><h2>홈 — 오늘 항목</h2><div class="phone">
+  <div class="head"><div class="k">IT 단어 규격 · 629 항목</div>
+    <div class="t"><b>오늘 항목</b><span class="r">08.24 / 1일 연속</span></div></div>
+  <div class="body" id="home"></div>
+  <div class="tabs"><div class="on">홈</div><div>단어장</div><div>퀴즈</div><div>진도</div></div>
+</div></section>
+
+<section class="frame"><h2>단어장 — 색인</h2><div class="phone">
+  <div class="head"><div class="k">색인</div>
+    <div class="t"><b>단어장</b><span class="r">629 항목 / 12 권</span></div></div>
+  <div class="body" id="browse"></div>
+  <div class="tabs"><div>홈</div><div class="on">단어장</div><div>퀴즈</div><div>진도</div></div>
+</div></section>
+
+<section class="frame"><h2>읽기 — 규격서</h2><div class="phone">
+  <div class="head"><div class="k">네트워크 / 항목 11 of 76</div>
+    <div class="t"><b>DNS</b><span class="r">읽는 중</span></div></div>
+  <div class="body" id="read"></div>
+  <div class="dock"><div class="s">&larr;</div><div class="m">✓ 학습 완료</div><div class="s e">&rarr;</div></div>
+</div></section>
+
+<section class="frame"><h2>진도 — 커버리지</h2><div class="phone">
+  <div class="head"><div class="k">커버리지</div>
+    <div class="t"><b>진도</b><span class="r">212 / 629</span></div></div>
+  <div class="body" id="prog"></div>
+  <div class="tabs"><div>홈</div><div>단어장</div><div>퀴즈</div><div class="on">진도</div></div>
+</div></section>
+
+<script>
+(function(){
+  var M = window.MOCK, c = M.cards[0];
+  var esc=function(s){return String(s).replace(/[&<>]/g,function(x){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;"}[x];});};
+
+  var sec=function(lab,val){return '<div class="sec"><div class="lab">'+lab+'</div>'+
+                                   '<div class="val">'+val+'</div></div>';};
+
+  document.getElementById("home").innerHTML =
+    sec("권", '<div style="font-size:13.5px">' + esc(c.bookName) + '</div>') +
+    sec("표제어", '<h1 class="word">' + esc(c.term) + '</h1>' +
+                  '<div class="rom">Domain Name System</div>') +
+    sec("그림", '<div class="plate">' + c.svg + '</div>') +
+    sec("오늘", '<table class="tbl">' +
+        '<tr><td>새 단어</td><td class="n">1</td></tr>' +
+        '<tr><td>복습 대기</td><td class="n">4</td></tr>' +
+        '<tr><td>퀴즈</td><td class="n">10</td></tr></table>') +
+    '<div class="act"><span>읽기 시작</span><span>&rarr;</span></div>';
+
+  var ms=["","r","p","","l","","","p","","","r","","","l","","p","","","","l",
+          "","r","","p","","","l","","p","","","r"];
+  var ixs = M.netlist.slice(0,32).map(function(t,i){
+    return '<div class="ix"><span class="no">' + String(i+1).padStart(3,"0") + '</span>' +
+           '<span class="t">' + esc(t.term) + '</span>' +
+           '<span class="m ' + ms[i] + '"></span></div>';
+  }).join("");
+  var bt = M.books.map(function(b,i){
+    return '<div' + (i===2?' class="on"':'') + '>' + esc(b.name) + ' ' + b.n + '</div>';
+  }).join("");
+  document.getElementById("browse").innerHTML =
+    '<div class="search">단어나 뜻으로 검색</div>' +
+    '<div class="tabs2">' + bt + '</div>' +
+    '<div class="idx">' + ixs + '</div>';
+
+  document.getElementById("read").innerHTML =
+    sec("표제어", '<h1 class="word">' + esc(c.term) + '</h1>' +
+                  '<div class="rom">Domain Name System</div>') +
+    sec("그림", '<div class="plate">' + c.svg + '</div>') +
+    sec("정의", '<div class="def">DNS는 <u>도메인 이름</u>을 <u>IP 주소</u>로 ' +
+                '바꿔주는 시스템이다.</div>') +
+    sec("관련", '<div style="font-size:13px;color:var(--ink-2);line-height:1.7">' +
+                'IP Address · CDN · Load Balancer</div>');
+
+  var cls=["","","","r","","l","","","p","","","","v","","","p","","","","l","","","r",""];
+  var html="";
+  M.bookSizes.forEach(function(b,bi){
+    var cells="";
+    for(var i=0;i<b.n;i++){
+      cells += '<i class="' + (bi<7 ? cls[(i*5+bi*4)%cls.length] : "") + '"></i>';
+    }
+    html += '<div class="sec"><div class="lab">' + esc(b.name) + '</div>' +
+            '<div class="val"><div class="cov">' + cells + '</div></div></div>';
+  });
+  document.getElementById("prog").innerHTML =
+    '<div class="sec"><div class="lab">요약</div><div class="val">' +
+      '<table class="tbl">' +
+      '<tr><td>읽은 항목</td><td class="n">212</td></tr>' +
+      '<tr><td>퀴즈 통과</td><td class="n">148</td></tr>' +
+      '<tr><td>복습 필요</td><td class="n">17</td></tr></table></div></div>' +
+    html +
+    '<div class="sec"><div class="lab">범례</div><div class="val"><div class="key">' +
+      '<b><i style="background:var(--sunken)"></i>아직</b>' +
+      '<b><i style="background:var(--st-reading)"></i>읽는중</b>' +
+      '<b><i style="background:var(--st-learned)"></i>완료</b>' +
+      '<b><i style="background:var(--st-passed)"></i>통과</b>' +
+      '<b><i style="background:var(--st-review)"></i>복습</b>' +
+    '</div></div></div>';
+})();
+</script>
+</body>
+</html>
