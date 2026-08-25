@@ -1,0 +1,252 @@
+<title>단어장 개편안</title>
+<style>
+@font-face{font-family:"P";font-weight:45 920;font-display:swap;src:url(__FONT__) format("woff2-variations")}
+:root{
+  --paper:#f4f3f1; --surface:#ffffff; --sunken:#eae8e4;
+  --line:#dedbd6; --line-2:#c4c0b8;
+  --ink:#1b1c1e; --ink-2:#4d4f53; --ink-3:#7a7c81;
+  --mark:#33477e; --mark-bg:#e8ebf4;
+  --warn:#8a5a18; --warn-bg:#f6eddc;
+  --font:"P",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,"Apple SD Gothic Neo",monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#131416; --surface:#1a1c1f; --sunken:#212428; --line:#2b2e33; --line-2:#414549;
+  --ink:#eeeff1; --ink-2:#adb0b6; --ink-3:#82868c;
+  --mark:#9db0e6; --mark-bg:#1c2233; --warn:#e0ac5e; --warn-bg:#2a2216;}}
+:root[data-theme="dark"]{
+  --paper:#131416; --surface:#1a1c1f; --sunken:#212428; --line:#2b2e33; --line-2:#414549;
+  --ink:#eeeff1; --ink-2:#adb0b6; --ink-3:#82868c;
+  --mark:#9db0e6; --mark-bg:#1c2233; --warn:#e0ac5e; --warn-bg:#2a2216;}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);
+     font-size:16px;line-height:1.72;-webkit-text-size-adjust:100%}
+.wrap{max-width:64rem;margin:0 auto;padding:0 24px 96px}
+header{padding:72px 0 40px;border-bottom:1px solid var(--line);margin-bottom:44px}
+h1{font-size:clamp(30px,5vw,46px);line-height:1.12;letter-spacing:-.03em;font-weight:800;
+   margin:0;text-wrap:balance}
+.sub{color:var(--ink-2);margin-top:14px;font-size:17px;max-width:34rem}
+.box{margin-top:22px;padding:15px 17px;border-radius:10px;font-size:14.5px;
+     line-height:1.66;max-width:42rem}
+.box.info{background:var(--mark-bg)} .box.info b{color:var(--mark)}
+.box.warn{background:var(--warn-bg)} .box.warn b{color:var(--warn)}
+h2{font-size:clamp(21px,3vw,27px);letter-spacing:-.02em;font-weight:800;margin:60px 0 4px;
+   padding-top:26px;border-top:1px solid var(--line);text-wrap:balance}
+h2 .n{font-family:var(--mono);font-size:12px;color:var(--ink-3);font-weight:400;
+      display:block;margin-bottom:8px}
+h3{font-size:17px;font-weight:800;letter-spacing:-.01em;margin:30px 0 8px}
+p{margin:12px 0} .lead{font-size:17.5px;color:var(--ink-2);margin-top:14px;max-width:38rem}
+code{font-family:var(--mono);font-size:.86em;background:var(--sunken);padding:1.5px 5px;border-radius:4px}
+figure{margin:24px 0 0}
+figure img{width:100%;height:auto;display:block;border-radius:10px;border:1px solid var(--line)}
+figcaption{font-size:13px;color:var(--ink-3);margin-top:9px;line-height:1.6;max-width:44rem}
+.scrollx{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.scrollx img{min-width:900px}
+ul,ol{margin:12px 0;padding-left:20px;max-width:38rem} li{margin:7px 0}
+li::marker{color:var(--ink-3)}
+.opt{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-top:6px}
+.opt .src{font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+.dl{display:grid;grid-template-columns:auto 1fr;column-gap:16px;row-gap:8px;
+    margin-top:16px;font-size:14.5px;max-width:36rem}
+.dl dt{color:var(--ink-3);white-space:nowrap} .dl dd{margin:0}
+table{border-collapse:collapse;width:100%;margin-top:16px;font-size:14.5px}
+th,td{text-align:left;padding:10px 12px 10px 0;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12.5px;color:var(--ink-3);font-weight:600}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.ask{margin-top:40px;padding:24px;background:var(--surface);border:1px solid var(--line-2);
+     border-radius:12px;max-width:42rem}
+.ask h3{margin-top:0} .ask ol{margin-bottom:0}
+footer{margin-top:64px;padding-top:20px;border-top:1px solid var(--line);
+       color:var(--ink-3);font-size:13.5px}
+</style>
+
+<div class="wrap">
+
+<header>
+  <h1>레퍼런스 셋으로 지은 세 갈래</h1>
+  <p class="sub">주신 화면 셋을 뜯어 각각이 실제로 쓰는 수단을 찾고, 그것을
+     629편짜리 학습 앱으로 옮겼다. 실제 데이터와 실제 컷 만화로 세웠다.</p>
+  <div class="box warn"><b>먼저 정정.</b> 지난 회차에 제가 1번으로 꼽은
+     "홈이 비어 있다"는 <strong>틀렸다.</strong> 진도가 0인 신규 사용자 화면을 보고
+     앱을 판단했기 때문이다. 진도를 심어 놓고 다시 재니 홈에는 복습 안내, 읽던 단어
+     이어 읽기, 되짚기, 공부 중인 단어장이 다 들어 있었다. 이 앱은 제가 보고한 것보다
+     훨씬 나은 상태다.</div>
+</header>
+
+<h2><span class="n">00</span>다시 잰 결과</h2>
+<figure class="scrollx">
+  <img src="__IMG_AUDIT__" alt="진도를 심고 다시 찍은 현재 앱 네 화면">
+  <figcaption>단어 249편에 진도를 심고 찍은 현재 앱. 홈은 비어 있지 않고, 권 카드도
+    학습·읽는 중·복습으로 쪼개 보여 준다. 퀴즈 탭에는 146 배지가 붙는다.</figcaption>
+</figure>
+<p>살아남는 지적은 둘뿐이다.</p>
+<ul>
+  <li><strong>그림이 접힌 선 아래에 있다.</strong> 읽기 화면에서 컷 만화는 권 이름, 표제어,
+      로마자, 상태 배지, 뜻 카드를 지나야 나온다. 이 앱이 남과 다른 유일한 것을 가장 늦게 보여 준다.</li>
+  <li><strong>목록이 화면당 여덟이다.</strong> 76편짜리 권을 끝까지 보려면 열 번 가까이 넘긴다.</li>
+</ul>
+<p>세 안 모두 이 둘을 푼다. 나머지는 취향의 문제이지 결함이 아니다.</p>
+
+<h2><span class="n">01</span>A — 능선 (개선판)</h2>
+<div class="opt"><span class="src">레퍼런스: MNTN 하이킹 가이드</span></div>
+<p class="lead">색을 다시 잡고 일러스트를 고쳤다. 아래 두 절이 무엇을 왜 바꿨는지다.</p>
+<figure class="scrollx">
+  <img src="__IMG_A__" alt="A안 개선판 네 화면">
+  <figcaption>왼쪽 넷이 어두운 판, 오른쪽 넷이 밝은 판. 목업에 두 판을 나란히 세웠다.
+    한쪽만 보고 넘기면 다른 쪽이 무너진 채 나간다.</figcaption>
+</figure>
+
+<h3>밝은 판 — 지어내지 않고 같은 사진의 다른 시간을 골랐다</h3>
+<p>레퍼런스는 어두운 산 사진뿐이라 밝은 판이 없다. 색을 새로 지어내면 두 판이 다른 앱이 된다.
+   그래서 같은 사진의 <strong>해 뜨기 전 안개</strong>를 골랐다. 색상은 그대로 두고 명도만 뒤집는다.
+   녹색기가 종이 쪽으로 가면 회색이 아니라 안개가 된다.</p>
+<p>모래빛은 밝은 바탕에서 그대로 쓰면 흰 데 흰 것이라 안 보인다. <strong>어두운 쪽을 글자에,
+   밝은 쪽을 선에 쓴다.</strong> 어두운 화면과 정확히 반대로 뒤집는 것이다.</p>
+
+<h3>색 — 세련됨은 채도가 아니라 간격에서 나온다</h3>
+<p>레퍼런스의 안개 낀 산 사진에는 <strong>순수한 색이 하나도 없다.</strong> 그래서 여기서도
+   녹색을 녹색으로 쓰지 않고 검정에 아주 조금 섞어, 색이라기보다 기온처럼 느껴지게 뒀다.</p>
+<ul>
+  <li><strong>면을 넷으로 나눴다.</strong> 지난 판은 바탕(<code>#0c1310</code>)과 카드(<code>#121b17</code>)가
+      너무 붙어 그림판이 떠 보이지 않았다. 바닥을 <code>#0a0f0d</code>로 더 내리고 카드를 올렸다.</li>
+  <li><strong>모래빛에서 노랑을 뺐다.</strong> <code>#c2a878</code>은 금색으로 기울어 싸구려가 된다.
+      채도를 낮춰 뼈에 가까운 <code>#c9b596</code>으로 옮기고, 어두운 짝(<code>#6b6049</code>)을 하나 더 뒀다.
+      글자는 밝은 쪽, 헤어라인은 어두운 쪽. 한 색을 두 밝기로 쓰면 선이 글자를 이기지 않는다.</li>
+  <li><strong>잔글씨 색을 올렸다.</strong> 새로 붙는 이름이 9.5px인데 옛 <code>#71827a</code>는 4.4:1이라
+      작은 글자에 모자랐다. <code>#8b9c94</code>로 6:1을 맞췄다.</li>
+</ul>
+
+<h2><span class="n">01b</span>일러스트 — 열 살이 그림만 보고 설명하게</h2>
+<p class="lead">"그림만 보면 뜻이 100% 잡혀야 한다"를 그대로 재 봤다. 캡션을 지우고 그림만 남겼다.</p>
+<figure class="scrollx">
+  <img src="__IMG_CMP__" alt="캡션을 지운 그림 비교">
+  <figcaption>왼쪽이 손대기 전. 가운데 줄 그어진 상자가 장부인지 문서인지 목록인지 알 수 없다.
+    뜻을 그림이 아니라 캡션이 지고 있었다.</figcaption>
+</figure>
+<p><strong>배우 4,834명 중 이름이 붙은 배우는 1,150명(23%)뿐이었다.</strong> 나머지 77%는 윤곽선
+   상자였다. 그림만 봐서 100%가 안 되는 진짜 이유다.</p>
+
+<h3>한 번 잘못 고쳤다가 되돌렸다</h3>
+<p>중간에 부품 이름을 열 살 낱말로 바꿔 봤다. 서버를 "저쪽 기계", 저장통을 "보관함"으로.
+   열 살 카드가 금지한 IT 낱말을 그림에서도 빼려 한 것이다. <strong>잘못 건 규칙이었다.</strong></p>
+<p>금지어 규칙은 <strong>열 살 카드의 산문</strong>에 거는 것이다. 그 카드의 일은 IT를 모르는
+   사람에게 비유로 옮겨 주는 것이라, IT 낱말이 들어가면 옮김 자체가 성립하지 않는다.
+   그림의 일은 다르다. 그림은 <strong>배우려는 낱말이 무엇을 하는지 보여 주는 자리</strong>라,
+   정작 그 낱말을 지우면 배울 것이 사라진다.</p>
+<div class="box info"><b>다시 세운 원칙.</b> 열 살이 이해하는 힘은 낱말을 피하는 데서 오지 않는다.
+   <strong>무슨 일이 벌어지는지가 그림에 다 보이는 데서</strong> 온다. 사람이 이름을 보냈는데 못 갔고,
+   이름 장부에 물어 번호를 받았고, 그 번호로 닿았다. 이 셋이 보이면 "서버"라고 적혀 있어도
+   열 살이 옮겨 말할 수 있다.</div>
+<p>이름은 진짜 용어로 간다. 서버는 서버, 공유기는 공유기다.
+   <code>lint_scenes.py</code>에 잠깐 걸었던 금지어 대조도 걷어냈다.
+   잘못된 규칙을 검사기에 박아 두면 다음 사람이 그것을 옳은 줄 안다.</p>
+
+<h3>결과 — 캡션을 지워도 읽힌다</h3>
+<figure class="scrollx">
+  <img src="__IMG_KID__" alt="이름을 단 그림, 어두운 판과 밝은 판">
+  <figcaption>글을 하나도 안 읽고 그림만 봤을 때 — "이름만 가지고는 서버한테 못 가.
+    이름 장부에 물어보면 번호를 알려줘. 그 번호로 가면 닿아." 그게 DNS다.</figcaption>
+</figure>
+<p><strong>이름표와 이름을 다르게 그린다.</strong> 이름표는 테두리 있는 칩이고
+   "옮겨지는 그것"이나 값을 말하며 파랑을 입는다. 이름은 테두리 없는 9.5px 잔글씨고
+   "이것이 무엇인가"를 말하며 회색이다. 둘을 같은 모양으로 그리면 눈이 무엇을
+   따라가야 할지 잃는다.</p>
+<p><strong>되돌아가지 않게 못을 박았다.</strong> <code>lint_scenes.py</code>가 부품 이름을
+   금지어 목록과 대조하고, 영문이 섞였는지 보고, 이름 없는 부품을 센다.
+   일부러 "서버"로 되돌려 보니 실제로 걸린다. 사람의 기억에 맡기면 다음에
+   부품을 늘릴 때 똑같이 쓴다.</p>
+<p><strong>629편이 한꺼번에 바뀌었다.</strong> 각본은 한 글자도 안 고쳤다. 부품을 그리는
+   손이 하나라서 가능한 일이다. 컷 문법 검사 629편 어긋남 0건, 단어 id 629개 그대로.</p>
+
+<h2><span class="n">02</span>B — 활자</h2>
+<div class="opt"><span class="src">레퍼런스: Area</span></div>
+<p class="lead">순백 바탕에 화면을 가득 채우는 고대비 세리프 한 줄, 나머지는 전부 작은
+   산세리프, 올리브 알약 하나. 대비가 극단적이라는 것이 이 화면의 전부다.</p>
+<figure class="scrollx">
+  <img src="__IMG_B__" alt="B안 네 화면">
+  <figcaption>화면을 채우는 한 줄은 표제어가 됐다. 마침표까지 레퍼런스 그대로 찍었다.
+    노트북 목업 자리에 컷 만화를 놓고 아래에 올리브 판을 깔아 띄웠다.</figcaption>
+</figure>
+<dl class="dl">
+  <dt>바탕</dt><dd>순백</dd>
+  <dt>표제어</dt><dd>세리프 74px. 마침표 포함</dd>
+  <dt>색</dt><dd>이끼 올리브 하나</dd>
+  <dt>상태</dt><dd><strong>색을 안 쓴다.</strong> 빈 사각 · 반 채운 사각 · 채운 사각 · 굵은 테두리</dd>
+  <dt>목록</dt><dd>세리프 두 칸, 화면당 32</dd>
+</dl>
+<p><strong>부딪힌 곳과 해결.</strong> 올리브가 학습 상태의 초록(학습 완료·퀴즈 통과)과 겹친다.
+   레퍼런스의 올리브를 포기하지 않으려면 상태 쪽이 비켜야 한다. 그래서 이 안에서는
+   상태를 색이 아니라 모양으로 말한다. 색은 브랜드가 독점한다.</p>
+
+<h2><span class="n">03</span>C — 체계</h2>
+<div class="opt"><span class="src">레퍼런스: Nexcent</span></div>
+<p class="lead">옅은 회청색 바탕에 흰 카드, 초록 액센트, 아이콘 + 큰 숫자 + 작은 라벨로 된
+   지표 줄, 가운데 정렬 절 제목.</p>
+<figure class="scrollx">
+  <img src="__IMG_C__" alt="C안 네 화면">
+  <figcaption>제목 둘째 줄만 초록으로 물들이는 레퍼런스의 버릇을 그대로 썼다.
+    지표 카드 넷, 초록 진행바, 카드 격자. 셋 중 가장 앱처럼 생겼다.</figcaption>
+</figure>
+<dl class="dl">
+  <dt>바탕</dt><dd>옅은 회청색, 흰 카드</dd>
+  <dt>표제어</dt><dd>산세리프 30px, 굵게</dd>
+  <dt>색</dt><dd>초록 하나</dd>
+  <dt>상태</dt><dd><strong>잉크 농도로 말한다.</strong> 옅은 회색 → 중간 → 진한 잉크</dd>
+  <dt>목록</dt><dd>한 줄 카드, 뜻 포함, 화면당 14</dd>
+</dl>
+<p>셋 중 이 제품에 <strong>가장 덜 낯선</strong> 안이다. 동시에 <strong>가장 흔한 얼굴</strong>이기도 하다.
+   그게 이 안의 값이자 값어치다.</p>
+
+<h2><span class="n">04</span>나란히</h2>
+<table>
+  <tr><th>&nbsp;</th><th>A 능선</th><th>B 활자</th><th>C 체계</th></tr>
+  <tr><td>바탕</td><td>깊은 녹흑</td><td>순백</td><td>옅은 회청</td></tr>
+  <tr><td>표제어</td><td class="num">세리프 52</td><td class="num">세리프 74</td><td class="num">산세리프 30</td></tr>
+  <tr><td>브랜드색</td><td>모래빛</td><td>올리브</td><td>초록</td></tr>
+  <tr><td>상태 표현</td><td>색 유지</td><td>모양</td><td>잉크 농도</td></tr>
+  <tr><td>목록 밀도</td><td class="num">32</td><td class="num">32</td><td class="num">14</td></tr>
+  <tr><td>뜻을 목록에</td><td>숨김</td><td>숨김</td><td>보임</td></tr>
+  <tr><td>손댈 범위</td><td>큼</td><td>큼</td><td>중간</td></tr>
+  <tr><td>강한 지점</td><td>그림이 주인공이 된다</td><td>표제어가 압도한다</td><td>정보가 가장 많이 들어간다</td></tr>
+  <tr><td>약한 지점</td><td>어두운 화면 고정</td><td>목록에서 뜻을 잃는다</td><td>어디서 본 얼굴이다</td></tr>
+</table>
+
+<h3>세 안이 공통으로 드러낸 것</h3>
+<p>레퍼런스 셋 중 <strong>둘이 초록 계열을 브랜드색으로 쓴다.</strong> 그런데 이 앱에서 초록은
+   이미 "학습 완료"와 "퀴즈 통과"를 뜻한다. 그래서 B와 C는 둘 다 상태 표시를 다른 수단으로
+   옮겨야 했다. 하나는 모양으로, 하나는 잉크 농도로.</p>
+<p>이건 우연이 아니라 <strong>이 제품의 구조적 제약</strong>이다. 학습 앱은 색을 이미 다 써 버린
+   제품이라, 브랜드색을 하나 들이려면 반드시 어딘가에서 자리를 비켜 줘야 한다.
+   지금 앱이 브랜드색을 두지 않은 것은 그 값을 안 치르겠다는 선택이었다.</p>
+
+<div class="ask">
+  <h3>정해 주셔야 할 것</h3>
+  <ol>
+    <li><strong>어느 안인가.</strong> 섞어도 된다.</li>
+    <li><strong>상태를 색에서 빼는 것을 받아들이나.</strong> B와 C를 고르시면 따라온다.
+        퀴즈의 정답 초록·오답 빨강은 그대로 두고 학습 상태만 옮기는 것이다.</li>
+    <li><strong>목록에서 뜻을 뺄까.</strong> 빼면 화면당 32, 두면 14다.</li>
+  </ol>
+</div>
+
+<h2><span class="n">05</span>짓는 순서</h2>
+<p class="lead">토큰부터 손대면 컷 만화 629편이 한꺼번에 바뀐다. 되돌리기 쉬운 것부터 간다.</p>
+<ol>
+  <li><strong>토큰만 갈아 끼운다.</strong> <code>css/tokens.css</code> 한 파일. 그림이 요구하는
+      이름 아홉 개(<code>--surface</code> <code>--surface-sunken</code> <code>--line-strong</code>
+      <code>--ink</code> <code>--ink-2</code> <code>--ink-3</code> <code>--st-reading</code>
+      <code>--st-reading-bg</code> <code>--font-mono</code>)는 값만 바꾸고 이름은 살려 둔다.
+      이 셋을 빼먹었더니 목업을 처음 세웠을 때 컷 629편이 전부 까맣게 떨어졌다.</li>
+  <li><strong>읽기 화면에서 그림을 올린다.</strong> 살아남은 지적 첫째가 여기서 풀린다.</li>
+  <li><strong>목록 밀도를 올린다.</strong> 둘째가 풀린다.</li>
+  <li><strong>홈과 진도를 새 얼굴로.</strong> 기능은 이미 다 있으니 옷만 갈아입힌다.</li>
+</ol>
+
+<footer>
+  실제 데이터로 세웠다. 표제어와 뜻은 <code>data/index.js</code>, 컷 만화는
+  <code>tools/scenes/render.py</code>가 <code>scenes/*.json</code>을 그린 것이다.<br>
+  파일: <code>mockups/redesign-a.html</code> · <code>-b.html</code> · <code>-c.html</code>
+</footer>
+
+</div>
