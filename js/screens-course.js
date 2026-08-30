@@ -83,7 +83,8 @@
             '<div class="today-hero__meta">' + ring(today.progress.percent) +
               "<span><b>" + today.progress.done + " / " + today.progress.total +
               "</b><small>이 길에서 설명할 수 있는 칸</small></span></div>" +
-            '<a class="cta" href="' + href("/learn/" + enc(node.id)) + '">' +
+            '<a class="cta" href="' + href("/learn/" + enc(node.id)) + '"' +
+              ' data-from-book="' + UI.esc(today.bookId) + '" data-from-path="' + today.index + '">' +
               "<span>이어서 배우기</span>" + UI.icon("forward", 18) + "</a>" +
             '<a class="cta cta--quiet" href="' +
               href("/course/" + enc(today.bookId) + "/" + today.index) + '">이 길 전체 보기</a>' +
@@ -117,7 +118,7 @@
       '<main class="screen today" id="today">' +
         '<header class="screen-top"><div><span class="eyebrow">오늘</span>' +
           "<b>" + streak.count + "일째 · 설명 가능 " +
-          (stats.counts.learned + stats.counts.passed) + " / " + stats.total + "</b></div>" +
+          Store.ableCount(stats.counts) + " / " + stats.total + "</b></div>" +
           '<button class="round-btn" type="button" data-action="theme" aria-label="밝기 바꾸기">' +
             UI.icon("moon", 18) + "</button></header>" +
         hero + dueCard + recentRow +
@@ -132,7 +133,7 @@
       var books = group.books.map(function (book) {
         var stats = Store.bookStats(book);
         var meta = Paths.meta(book.id) || {};
-        var able = stats.counts.learned + stats.counts.passed;
+        var able = Store.ableCount(stats.counts);
         return (
           '<a class="book-row" href="' + href("/course/" + enc(book.id)) + '">' +
             '<span class="book-row__mark">' + UI.esc(meta.mark || "") + "</span>" +
@@ -202,7 +203,9 @@
       var done = status === Store.STATUS.PASSED || status === Store.STATUS.LEARNED;
       return (
         '<a class="node' + (done ? " is-done" : "") + (isNext ? " is-next" : "") + '" href="' +
-          href("/learn/" + enc(node.id)) + '">' +
+          href("/learn/" + enc(node.id)) + '"' +
+          // 어느 길을 걷다 들어왔는지. 학습을 끝냈을 때 그 길에서 다음 칸을 고른다.
+          ' data-from-book="' + UI.esc(book.id) + '" data-from-path="' + Number(params.pathIndex) + '">' +
           '<span class="node__no">' + (done ? UI.icon("check", 14) : i + 1) + "</span>" +
           "<span><b>" + UI.esc(node.term) + "</b>" +
             (node.borrowed
@@ -225,7 +228,8 @@
         "</header>" +
         '<ol class="node-list">' + nodes + "</ol>" +
         (next
-          ? '<a class="cta cta--sticky" href="' + href("/learn/" + enc(next.id)) + '">' +
+          ? '<a class="cta cta--sticky" href="' + href("/learn/" + enc(next.id)) + '"' +
+            ' data-from-book="' + UI.esc(book.id) + '" data-from-path="' + Number(params.pathIndex) + '">' +
             "<span>" + UI.esc(next.term) + " 부터 이어가기</span>" + UI.icon("forward", 18) + "</a>"
           : '<p class="route-done">이 길은 다 걸었습니다. 이제 남에게 설명해 보세요.</p>') +
       "</main>"
@@ -320,7 +324,16 @@
   };
   App.register("/search", searchScreen);
 
-  App.on("search-book", function (data) { search.book = data.book; App.render(); });
+  /* 칩을 눌러도 화면을 통째로 세우지 않는다. 그러면 입력칸이 새로 서면서
+     초점이 제목으로 옮겨가고 폰에서는 자판이 내려간다 — swap() 을 만든 이유가
+     바로 그것이다. 칩의 눌림 표시만 손으로 옮기고 결과만 갈아 끼운다. */
+  App.on("search-book", function (data) {
+    search.book = data.book;
+    document.querySelectorAll("#find .chip").forEach(function (el) {
+      el.classList.toggle("is-on", el.dataset.book === data.book);
+    });
+    swap("#find .term-rows, #find .empty", searchScreen());
+  });
 
   /* 자판 입력은 다시 그리지 않는다 — 한 글자마다 화면을 세우면 커서가 튄다.
      찾기는 결과가 바로 나와야 하므로 목록만 갈아 끼운다. */
@@ -349,5 +362,10 @@
     wrap.innerHTML = html;
     var fresh = wrap.querySelector(".term-rows") || wrap.querySelector(".empty");
     if (fresh) current.replaceWith(fresh);
+    /* 머리글의 "N개 가운데 M개" 도 같이 갈아 끼운다. 목록만 바꾸면 숫자가
+       거르기 전 값에 머물러 화면이 사실과 다른 말을 한다. */
+    var headOld = document.querySelector(".screen-head p");
+    var headNew = wrap.querySelector(".screen-head p");
+    if (headOld && headNew) headOld.replaceWith(headNew);
   }
 })();

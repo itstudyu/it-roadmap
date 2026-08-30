@@ -148,6 +148,17 @@ window.App = (function () {
      OS·브라우저 뒤로가기는 지금처럼 이력을 되감는다. 둘이 서로 다른
      일을 맡는 것이 맞다 — 하나는 "위로", 하나는 "아까 그 화면으로". */
   function parentOf(path) {
+    /* 학습 화면은 길을 걷다 들어온다. 위로 올라가면 그 길이어야지 오늘 탭이
+       아니다. 걷던 길을 모르면(찾기나 목록에서 바로 들어온 경우) 그 단어가
+       든 첫 길로, 그것도 없으면 그 권의 허브로 올린다. */
+    var learn = path.match(/^\/learn\/(.+)$/);
+    if (learn) {
+      var id = decodeParam(learn[1]);
+      var hit = (window.Paths ? window.Paths.pathsContaining(id) : [])[0];
+      if (hit) return "/course/" + encodeURIComponent(hit.bookId) + "/" + hit.index;
+      var t2 = window.Store.termById(id);
+      return t2 ? "/course/" + encodeURIComponent(t2.bookId) : "/course";
+    }
     var term = path.match(/^\/term\/(.+)$/);
     if (term) {
       var found = window.Store.termById(decodeParam(term[1]));
@@ -245,7 +256,11 @@ window.App = (function () {
     }
 
     var html = found.render(found.params);
-    root.className = goingBack ? "screen-enter screen-enter--back" : "screen-enter";
+    // 제자리 갱신에는 진입 애니메이션을 걸지 않는다. 컷 하나 열 때마다 화면이
+    // 통째로 미끄러져 들어오면 무엇이 바뀌었는지가 안 보인다.
+    root.className = path === lastPath
+      ? ""
+      : goingBack ? "screen-enter screen-enter--back" : "screen-enter";
     // 화면 함수는 문자열 템플릿으로 조립하되, 데이터가 들어가는 모든 지점에서
     // UI.esc 또는 UI.markdown(내부에서 먼저 이스케이프)을 통과시킨다.
     // 이스케이프 없이 값을 끼워 넣는 화면 함수는 이 프로젝트에서 버그로 취급한다.
@@ -254,12 +269,19 @@ window.App = (function () {
     renderTabbar(path);
     document.body.dataset.route = path;
 
-    // 앞으로 갈 때는 맨 위에서 시작하고, 뒤로 올 때는 보던 자리로 돌아간다.
-    var restore = goingBack ? scrollMemory[path] || 0 : 0;
-    window.scrollTo(0, restore);
+    /* 앞으로 갈 때는 맨 위에서 시작하고, 뒤로 올 때는 보던 자리로 돌아간다.
+       주소가 그대로면 화면을 옮긴 것이 아니라 같은 화면을 고쳐 그린 것이다 —
+       컷 하나 열기, 확인 질문 펴기, 밝기 바꾸기 같은 것들이다. 그때 맨 위로
+       올리면 접힌 자리 아래에서 무언가를 누른 사람이 매번 화면 꼭대기로
+       튕겨 나간다. 있던 자리에 그대로 둔다. */
+    var samePlace = path === lastPath;
+    if (!samePlace) {
+      window.scrollTo(0, goingBack ? scrollMemory[path] || 0 : 0);
+    }
 
-    // 화면이 바뀌면 스크린리더 초점을 본문으로 옮긴다
-    var heading = root.querySelector("h1, h2, [data-focus]");
+    // 화면이 바뀌면 스크린리더 초점을 본문으로 옮긴다. 제자리 갱신에는 안 한다 —
+    // 입력칸에 치던 사람의 초점을 제목으로 빼앗으면 폰에서 자판이 내려간다.
+    var heading = samePlace ? null : root.querySelector("h1, h2, [data-focus]");
     if (heading) {
       heading.setAttribute("tabindex", "-1");
       heading.focus({ preventScroll: true });

@@ -290,11 +290,6 @@
     }).join("");
   }
 
-  App.on("filter", function (data) {
-    listState.filter = data.key;
-    App.render();
-  });
-
   // 입력할 때마다 화면을 통째로 다시 그리면 포커스가 날아간다.
   // 목록만 갈아 끼우고 입력창은 그대로 둔다.
   document.addEventListener("input", function (event) {

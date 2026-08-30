@@ -406,7 +406,7 @@ a {
    색만으로 말하지 않고 글자로도 "전부 지우기" 라고 적는다. */
 .btn--danger {
   background: var(--danger);
-  color: #fff;
+  color: var(--ink-inverse); /* #fff 를 박으면 다크에서 안 뒤집힌다 */
   border: 1px solid var(--danger);
 }
 

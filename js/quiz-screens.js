@@ -333,7 +333,9 @@
 
   App.on("quit-quiz", function () {
     session = null;
-    App.navigate("/review");
+    /* replace 로 나간다. push 하면 브라우저 뒤로가기가 세션이 없어진 진행
+       화면으로 돌아가고, 그 화면이 다시 앞으로 튕겨 내보내 갇힌다. */
+    App.navigate("/review", true, "back");
   });
 
   /* 해설이 나타나면 그 자리까지 내려준다.

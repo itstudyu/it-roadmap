@@ -35,10 +35,17 @@
     { no: "06", name: "확인", hint: "답을 떠올려 마무리한다" },
   ];
 
-  var state = { termId: null, step: 0, cut: 0, teach: "", peeked: false, checked: {} };
+  /* from 은 어느 길을 걷다 들어왔는지다. 이게 없으면 끝낸 뒤 '다음 칸' 을
+     데이터 순서상 첫 길에서 고르게 되어, 사용자가 걷던 이야기가 아닌 다른
+     이야기로 옮겨진다. 빌려 온 칸에서는 권까지 바뀐다. */
+  var state = { termId: null, step: 0, cut: 0, teach: "", peeked: false, checked: {}, from: null };
+
+  var pendingFrom = null;
 
   function reset(termId) {
-    state = { termId: termId, step: 0, cut: 0, teach: "", peeked: false, checked: {} };
+    state = { termId: termId, step: 0, cut: 0, teach: "", peeked: false, checked: {},
+              from: pendingFrom };
+    pendingFrom = null;
   }
 
   function body(term) {
@@ -174,6 +181,20 @@
     );
   }
 
+  /* 못 받았을 때. 그냥 비워 두면 사용자는 앱이 멈춘 줄 안다. 무엇이 없는지
+     말하고 다시 시도할 문을 준다 — 저절로 다시 시도하지는 않는다. */
+  function failed(term) {
+    return (
+      '<main class="learn" id="learn">' +
+      '<header class="learn-top"><button class="round-btn" type="button" data-action="back" aria-label="뒤로">' +
+        UI.icon("back", 20) + "</button><div><b>" + UI.esc(term.term) + "</b></div></header>" +
+      '<div class="learn-loading"><p>이 단어장의 내용을 못 받았습니다.</p>' +
+        '<button class="learn-more" type="button" data-action="learn-retry" ' +
+        'data-book="' + UI.esc(term.bookId) + '" data-term="' + UI.esc(term.id) + '">' +
+        UI.icon("rotate", 16) + "다시 시도</button></div></main>"
+    );
+  }
+
   function render(params) {
     var term = Store.termById(params.termId);
     if (!term) {
@@ -181,6 +202,14 @@
         '<a class="learn-more" href="#/course">코스로 가기</a></main>';
     }
     if (state.termId !== term.id) reset(term.id);
+
+    /* 실패는 반드시 성공과 갈라서 다뤄야 한다. 실패한 채로 다시 그리면
+       hasBody 가 여전히 false 라 또 부르고, 그런데 loadBody 는 이미 실패로
+       적힌 권에 대해 콜백을 **같은 틱에 동기로** 부른다. 그 콜백이 다시
+       render 를 부르면 그 자리에서 스택이 넘친다.
+       js/screens.js 가 같은 함정을 6초에 2만 번 돌고 나서 이 가드를 뒀는데,
+       여기로 옮겨 오면서 빠뜨렸다. */
+    if (Store.bodyFailed(term.bookId)) return failed(term);
 
     if (!Store.hasBody(term.bookId)) {
       Store.loadBody(term.bookId, function (ok) {
@@ -242,6 +271,13 @@
 
   /* ---------------------------------------------------------- 조작 */
 
+  App.on("learn-retry", function (data) {
+    Store.loadBody(data.book, function () {
+      if (App.currentPath() === "/learn/" + encodeURIComponent(data.term)) App.render();
+    }, true);
+    App.render();
+  });
+
   App.on("learn-step", function (data) { state.step = Number(data.step); App.render(); });
   App.on("learn-cut", function (data) { state.cut = Number(data.cut); App.render(); });
   App.on("learn-peek", function () { state.peeked = true; App.render(); });
@@ -268,16 +304,39 @@
     var term = Store.termById(state.termId);
     if (!term) return;
     Store.markLearned(term.id);
+    /* 걷던 길이 있으면 그 길에서 다음 칸을 고른다. 모르면(찾기나 목록에서 바로
+       들어온 경우) 이 단어가 든 길 중 첫 길을 쓴다. */
+    var hits = window.Paths.pathsContaining(term.id);
+    var walking = state.from
+      ? hits.find(function (h) {
+          return h.bookId === state.from.bookId && h.index === state.from.index;
+        })
+      : null;
+    var order = walking ? [walking].concat(hits) : hits;
     var next = null;
-    window.Paths.pathsContaining(term.id).some(function (hit) {
+    order.some(function (hit) {
       var node = window.Paths.nextNode(hit.path);
       if (node && node.id !== term.id) { next = node; return true; }
       return false;
     });
     UI.toast(next ? "설명 가능으로 올렸습니다. 다음 칸으로 갑니다." : "설명 가능으로 올렸습니다.");
-    App.navigate(next ? "/learn/" + encodeURIComponent(next.id)
-                      : "/course/" + encodeURIComponent(term.bookId));
+    var home = walking
+      ? "/course/" + encodeURIComponent(walking.bookId) + "/" + walking.index
+      : "/course/" + encodeURIComponent(term.bookId);
+    App.navigate(next ? "/learn/" + encodeURIComponent(next.id) : home);
   });
+
+  /* 링크를 누르는 순간 어느 길에서 왔는지를 담아 둔다. 주소가 바뀌기 전에
+     잡아야 한다 — 주소에는 이 정보가 없고, 넣으면 같은 단어가 길마다 다른
+     주소를 갖게 되어 진도와 북마크가 갈라진다. */
+  document.addEventListener("click", function (event) {
+    var el = event.target.closest && event.target.closest("[data-from-book]");
+    if (!el) return;
+    pendingFrom = {
+      bookId: el.dataset.fromBook,
+      index: Number(el.dataset.fromPath),
+    };
+  }, true);
 
   /* 자판 입력은 다시 그리면 안 된다. 한 글자 칠 때마다 화면을 새로 세우면
      커서가 맨 뒤로 튄다. 값만 상태에 담아 둔다. */

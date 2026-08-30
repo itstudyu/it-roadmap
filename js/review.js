@@ -41,7 +41,36 @@
     return window.Quiz.countQuestions(targets, Store.allTerms(), NO_LIMIT);
   }
 
+  /* 문항 수는 본문에서 나온다 — 오해·사례·도해가 있어야 그 유형을 낼 수 있다.
+     본문 없이 세면 인덱스만으로 낼 수 있는 유형만 잡혀서 실제의 3분의 1쯤이
+     적힌다. 화면이 코드가 하지 않는 말을 하게 두면 안 된다.
+
+     받을 게 없으면 아무것도 부르지 않고 돌아간다. 여기서 done 을 부르면 다시
+     그리기가 또 이 함수를 부르고 그게 또 다시 그리기를 불러 스택이 넘친다. */
+  function warmBodies(done) {
+    var missing = Store.books().filter(function (b) {
+      return !Store.hasBody(b.id) && !Store.bodyFailed(b.id);
+    });
+    if (!missing.length) return;
+    var left = missing.length;
+    missing.forEach(function (b) {
+      Store.loadBody(b.id, function () {
+        left -= 1;
+        if (left === 0) done();
+      });
+    });
+  }
+
   App.register("/review", function () {
+    /* 본문이 도착하면 문항 수를 다시 센다. 보던 자리는 지켜준다 —
+       숫자가 바뀌었다고 목록이 맨 위로 튀면 안 된다. */
+    warmBodies(function () {
+      if (App.currentPath() !== "/review") return;
+      var y = window.scrollY;
+      App.render();
+      window.scrollTo(0, y);
+    });
+
     var due = Store.reviewQueue();
     var recall = recallable();
     var learned = quizable();
@@ -70,13 +99,18 @@
           : '<a class="cta cta--quiet" href="#/course">코스에서 한 단어 끝내기</a>') +
       "</article>";
 
+    /* 낼 문제가 있는지는 복습분과 끝낸 것을 합쳐서 본다. 통과한 단어가 전부
+       복습 차례로 돌아온 사람에게는 learned 가 비는데, 그때 '먼저 단어를
+       끝내야 낼 문제가 생깁니다' 와 '복습할 것부터 (N문제)' 가 한 카드에
+       나란히 서서 서로 반대말을 했다. */
+    var anyQuestions = dueQuestions || learnedQuestions;
     var quizCard =
-      '<article class="mode' + (learnedQuestions ? "" : " is-off") + '">' +
+      '<article class="mode' + (anyQuestions ? "" : " is-off") + '">' +
         '<header><span class="mode__no">02</span><div><b>고르기</b>' +
           "<small>객관식입니다. 맞히면 다음 복습 날짜가 밀립니다.</small></div></header>" +
         '<p class="mode__meta">' +
-          (learnedQuestions ? learnedQuestions + "문제까지 낼 수 있습니다"
-                            : "먼저 단어를 끝내야 낼 문제가 생깁니다") + "</p>" +
+          (anyQuestions ? Math.max(dueQuestions, learnedQuestions) + "문제까지 낼 수 있습니다"
+                        : "먼저 단어를 끝내야 낼 문제가 생깁니다") + "</p>" +
         (dueQuestions
           ? '<button class="cta" type="button" data-action="start-scope" data-key="review">' +
             "<span>복습할 것부터 (" + dueQuestions + "문제)</span>" + UI.icon("forward", 18) + "</button>"
@@ -85,7 +119,7 @@
           ? '<button class="cta' + (dueQuestions ? " cta--quiet" : "") + '" type="button" ' +
             'data-action="start-scope" data-key="learned"><span>끝낸 단어 전체 (' +
             learnedQuestions + "문제)</span></button>"
-          : '<a class="cta cta--quiet" href="#/course">코스로 가기</a>') +
+          : (anyQuestions ? "" : '<a class="cta cta--quiet" href="#/course">코스로 가기</a>')) +
       "</article>";
 
     /* 권별 범위. 문제가 없는 권은 회색으로 두되 지우지 않는다 —

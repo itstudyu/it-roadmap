@@ -40,10 +40,13 @@ window.Paths = (function () {
     return found ? found.paths : [];
   }
 
+  /* 범위 밖이면 null 이다. 0번으로 눕히면 주소는 3번인데 화면은 0번을 보이고,
+     그 어긋남이 스스로 고쳐지지 않는다 — 공유한 주소가 다른 길을 연다. */
   function pathAt(bookId, index) {
     var list = pathsFor(bookId);
     var i = Number(index);
-    return list[i >= 0 && i < list.length ? i : 0] || null;
+    if (!Number.isInteger(i) || i < 0 || i >= list.length) return null;
+    return list[i];
   }
 
   /* 이 단어가 들어간 경로 전부. 하나의 낱말이 여러 상황에 겹쳐 드는 것이

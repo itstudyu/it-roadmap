@@ -221,21 +221,25 @@ def main(argv: list[str]) -> int:
             total += 1
             bad += check_script(term_id, script)
 
+    # 짝 검사를 요약 줄보다 먼저 돌린다. 나중에 돌리면 그때 더한 어긋남이
+    # 이미 찍은 숫자에 안 잡혀서, 머리글과 아래 목록이 서로 다른 말을 한다.
+    undrawn, orphan = ([], [])
+    if len(argv) <= 1:
+        undrawn, orphan = coverage()
+        bad += orphan
+
     for line in bad:
         sys.stdout.write(f"  ✗ {line}\n")
     sys.stdout.write(f"각본 {total}편 — 어긋남 {len(bad)}건\n")
 
-    # 권을 골라 잰 때는 짝을 못 센다. 전수로 잴 때만 보고한다.
     if len(argv) <= 1:
-        undrawn, orphan = coverage()
         if undrawn:
             sys.stdout.write(f"  · 그림 없는 단어 {len(undrawn)}편 — "
                              + ", ".join(undrawn[:6])
                              + (" …" if len(undrawn) > 6 else "") + "\n")
         if orphan:
-            sys.stdout.write(f"  ✗ 단어가 없는 각본 {len(orphan)}편 — "
+            sys.stdout.write(f"  · 단어가 없는 각본 {len(orphan)}편 — "
                              + ", ".join(orphan[:6]) + "\n")
-            bad += orphan
         if not undrawn and not orphan:
             sys.stdout.write("  · 단어와 각본이 짝이 맞는다\n")
 
