@@ -1044,78 +1044,95 @@
   ]
  },
  "net--dns": {
-  "alt": "세 컷 — 이름만으로는 닿지 못하던 것이, 장부에 물어 그 이름의 번호를 받아 서버에 닿는 이야기",
+  "alt": "네 컷 — 브라우저에 site.com을 입력하고, DNS에 그 이름을 물어 IP 주소를 돌려받은 뒤, 브라우저가 그 주소로 서버에 직접 연결하는 이야기",
   "cuts": [
    {
-    "caption": "이름만으론 못 간다",
+    "caption": "이름을 입력한다",
     "actors": [
      {
-      "part": "사람",
+      "part": "컴퓨터",
       "slot": "left",
-      "face": "sad"
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "right",
-     "payload": {
+      "face": "flat",
+     "tag": {
       "text": "site.com",
-      "tone": "blue"
-     },
-     "head": false
-    },
-    "mark": "x"
+      "tone": "blue",
+      "fs": 13.5,
+      "pad": 8,
+      "height": 24
+     }
+     }
+    ]
    },
    {
-    "caption": "이름으로 물어본다",
+    "caption": "DNS에 묻는다",
     "actors": [
      {
-      "part": "사람",
+      "part": "컴퓨터",
       "slot": "left",
       "face": "flat"
      },
      {
       "part": "장부",
-      "slot": "mid",
-      "face": "none"
-     },
-     {
-      "part": "서버",
       "slot": "right",
-      "face": "flat"
+      "face": "none"
      }
     ],
     "move": {
      "from": "left",
-     "to": "mid",
+     "to": "right",
+     "line": "solid",
+     "payload_at": "above",
      "payload": {
-      "text": "site.com",
+      "text": "site.com?",
       "tone": "blue"
      }
     }
    },
    {
-    "caption": "번호를 받아 닿는다",
+    "caption": "IP 주소를 받는다",
     "actors": [
      {
-      "part": "사람",
+      "part": "컴퓨터",
+      "slot": "left",
+      "face": "flat"
+     },
+     {
+      "part": "장부",
+      "slot": "right",
+      "face": "none"
+     }
+    ],
+    "move": {
+     "from": "right",
+     "to": "left",
+     "line": "solid",
+     "payload_at": "above",
+     "payload": {
+      "text": "93.184…",
+      "tone": "blue"
+     }
+    },
+    "check": false
+   },
+   {
+    "caption": "그 주소로 연결한다",
+    "actors": [
+     {
+      "part": "컴퓨터",
       "slot": "left",
       "face": "happy"
      },
      {
       "part": "서버",
       "slot": "right",
-      "face": "flat"
+      "face": "happy"
      }
     ],
     "move": {
      "from": "left",
      "to": "right",
+     "line": "solid",
+     "payload_at": "above",
      "payload": {
       "text": "93.184…",
       "tone": "blue"

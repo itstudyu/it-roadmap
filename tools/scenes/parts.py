@@ -426,7 +426,7 @@ def tag_width(text, fs, pad):
     return max(24, wide * (fs * 1.0) + (len(text) - wide) * (fs * 0.58) + pad * 2)
 
 
-def tag(cx, top, text, tone="plain", fs=11.5, pad=11, maxw=None):
+def tag(cx, top, text, tone="plain", fs=11.5, pad=11, maxw=None, h=19):
     """이름표. 배우 밑에 붙거나 화살표에 얹힌다.
 
     tone: blue 이야기의 사물 · blue-dash 아직 없는 것 · plain 이미 있는 것
@@ -444,7 +444,6 @@ def tag(cx, top, text, tone="plain", fs=11.5, pad=11, maxw=None):
     while maxw and w > maxw and fs > 9:
         fs -= 0.5
         w = tag_width(text, fs, pad)
-    h = 19
     x = cx - w / 2
     if tone == "blue":
         rect = frame(x, top, w, h, rx=5, stroke=AC, sw=1.5, fill=ACBG)
@@ -462,14 +461,28 @@ def tag(cx, top, text, tone="plain", fs=11.5, pad=11, maxw=None):
     return svg, (x, top, w, h)
 
 
-def arrow(x1, y, x2, head=True, color=INK3):
-    """이동. 회색 점선 한 줄에 화살촉 하나. 파랑은 실려 가는 사물의 몫이다."""
-    svg = line(x1, y, x2, y, color, 1.8, dash="5 5")
+def arrow(x1, y, x2, head=True, color=INK3, style="dashed"):
+    """이동. 기본은 점선, 작은 화면에서 선명해야 하는 장면은 실선을 쓴다.
+
+    파랑은 계속 실려 가는 사물의 몫이다. ``solid``는 선만 진하게 만들어
+    짧은 길 양옆에 점선 조각이 뭉쳐 보이는 문제를 피한다.
+    """
+    solid = style == "solid"
+    stroke_width = 2.4 if solid else 1.8
+    dash = "" if solid else "5 5"
+    svg = line(x1, y, x2, y, color, stroke_width, dash=dash)
     if head:
         d = -1 if x2 < x1 else 1
-        svg += (f'<path d="M{n(x2 - 8 * d)} {n(y - 3.9)}L{n(x2)} {n(y)}L{n(x2 - 8 * d)} {n(y + 3.9)}" '
-                f'fill="none" stroke="{color}" stroke-width="1.8" '
-                f'stroke-linecap="round" stroke-linejoin="round"/>')
+        head_length = 10 if solid else 8
+        head_height = 5.4 if solid else 3.9
+        if solid:
+            svg += (f'<path d="M{n(x2)} {n(y)}L{n(x2 - head_length * d)} {n(y - head_height)}'
+                    f'L{n(x2 - head_length * d)} {n(y + head_height)}Z" fill="{color}"/>')
+        else:
+            svg += (f'<path d="M{n(x2 - head_length * d)} {n(y - head_height)}L{n(x2)} {n(y)}'
+                    f'L{n(x2 - head_length * d)} {n(y + head_height)}" '
+                    f'fill="none" stroke="{color}" stroke-width="{n(stroke_width)}" '
+                    f'stroke-linecap="round" stroke-linejoin="round"/>')
     return svg
 
 

@@ -101,7 +101,9 @@ def _cast(cut: dict, top: float) -> tuple[str, dict]:
             # 캡션과 한 덩어리로 뭉치지 않는다.
             at = box[1] - 23 if label.get("at") == "above" else top + TAG_TOP
             body += P.tag(SLOT_X[spec["slot"]], at,
-                          label.get("text", ""), label.get("tone", "plain"))[0]
+                          label.get("text", ""), label.get("tone", "plain"),
+                          fs=label.get("fs", 11.5), pad=label.get("pad", 11),
+                          h=label.get("height", 19))[0]
     return body, boxes
 
 
@@ -132,13 +134,23 @@ def _lane(cut: dict, top: float, boxes: dict) -> str:
     if load:
         at = x1 + (dead - x1) * (0.5 if head else 0.38)
         room = max(30, abs(dead - x1) - (40 if cut.get("mark") else 26))
-        tail, box = P.tag(at, y - 9.5, load.get("text", ""), load.get("tone", "blue"),
-                          maxw=room)
+        raised = move.get("payload_at") == "above"
+        payload_height = 24 if raised else 19
+        payload_top = y - 30 if raised else y - 9.5
+        tail, box = P.tag(
+            at, payload_top, load.get("text", ""), load.get("tone", "blue"),
+            fs=13.5 if raised else 11.5, pad=8 if raised else 11,
+            maxw=room, h=payload_height
+        )
         if cut.get("mark") == "x":
             edge = box[0] + box[2] + 13 if x2 > x1 else box[0] - 13
             dead = max(dead, edge) if x2 > x1 else min(dead, edge)
 
-    body = P.arrow(x1, y, dead, head=head) + tail
+    line_style = move.get("line", "dashed")
+    if line_style not in ("dashed", "solid"):
+        raise SceneError(f"모르는 화살표 선이다 — {line_style}")
+    line_color = P.INK2 if line_style == "solid" else P.INK3
+    body = P.arrow(x1, y, dead, head=head, color=line_color, style=line_style) + tail
     if cut.get("mark") == "x":
         body += P.cross(dead, y)
     return body
@@ -157,8 +169,14 @@ def _speech(cut: dict, top: float, boxes: dict) -> str:
 
 def _cut(cut: dict, top: float, num: int, last: bool) -> str:
     cast, boxes = _cast(cut, top)
-    body = P.panel(0, top, W, H, num) + cast
-    body += _lane(cut, top, boxes)
+    lane = _lane(cut, top, boxes)
+    move = cut.get("move") or {}
+    # 강조 실선은 배우 뒤를 지나게 한다. 끝점이 아이콘 외곽선을 덮지 않고,
+    # 별도 정보 레인의 칩은 그 위에서 또렷하게 읽힌다.
+    if move.get("line") == "solid":
+        body = P.panel(0, top, W, H, num) + lane + cast
+    else:
+        body = P.panel(0, top, W, H, num) + cast + lane
     body += _speech(cut, top, boxes)
     # 마침 체크는 마지막 컷의 몫이다. 중간 컷에 두면 이야기가 거기서 끝난 것처럼
     # 읽히고, 마지막 컷에서 빼면 "그래서 됐다" 를 말할 자리가 없어진다.
