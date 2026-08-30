@@ -282,7 +282,9 @@ a {
   max-width: var(--app-max);
   z-index: var(--z-nav);
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  /* 칸 수를 자바스크립트가 --tabs 로 넘긴다. 4 를 여기 박아 두면 탭이 늘어난
+     날 다섯째가 조용히 아랫줄로 접힌다 — 실제로 그렇게 깨진 것을 보고 고쳤다. */
+  grid-template-columns: repeat(var(--tabs, 4), 1fr);
   background: color-mix(in srgb, var(--paper) 92%, transparent);
   backdrop-filter: blur(16px);
   border-top: 1px solid var(--line);
@@ -404,7 +406,7 @@ a {
    색만으로 말하지 않고 글자로도 "전부 지우기" 라고 적는다. */
 .btn--danger {
   background: var(--danger);
-  color: #fff;
+  color: var(--ink-inverse); /* #fff 를 박으면 다크에서 안 뒤집힌다 */
   border: 1px solid var(--danger);
 }
 
@@ -3442,6 +3444,9 @@ a {
   display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
+  /* 홀로 선 단추다. 본문 속 인라인 표시(.tmark)와 달리 줄 간격에 매이지
+     않으므로 44px 을 그대로 지킬 수 있다. 실측에서 31px 로 나와 올렸다. */
+  min-height: 44px;
   padding: var(--sp-1) var(--sp-3);
   border: 1px solid var(--line);
   border-radius: var(--r-full);

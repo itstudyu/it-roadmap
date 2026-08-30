@@ -229,17 +229,26 @@ window.Store = (function () {
   }
 
   /* 단어장 하나의 진행 상황. 진도 화면과 목록 화면이 같은 숫자를 쓰게 한다. */
+  /* '설명 가능' 이 무엇을 세는지는 한 곳에서만 정한다. 화면마다 따로 더하면
+     같은 이름 아래 다른 숫자가 서고, 사용자는 어느 쪽이 맞는지 알 수 없다.
+     여섯 칸을 지난 것(LEARNED)과 퀴즈까지 통과한 것(PASSED) 둘 다 설명할 수
+     있는 상태다. 복습 차례가 돌아온 것은 아직 세지 않는다. */
+  function ableCount(counts) {
+    return counts.learned + counts.passed;
+  }
+
   function bookStats(book) {
     var counts = { new: 0, reading: 0, learned: 0, passed: 0, review: 0 };
     book.terms.forEach(function (t) {
       counts[statusOf(t.id)]++;
     });
+    var able = ableCount(counts);
     return {
       total: book.terms.length,
       counts: counts,
       touched: book.terms.length - counts.new,
-      done: counts.passed,
-      percent: book.terms.length ? Math.round((counts.passed / book.terms.length) * 100) : 0,
+      done: able,
+      percent: book.terms.length ? Math.round((able / book.terms.length) * 100) : 0,
     };
   }
 
@@ -251,7 +260,7 @@ window.Store = (function () {
       total: terms.length,
       counts: counts,
       studied: counts.reading + counts.learned + counts.passed + counts.review,
-      passed: counts.passed,
+      passed: ableCount(counts),
       review: counts.review,
     };
   }
@@ -294,10 +303,11 @@ window.Store = (function () {
     return state.history.slice(0, limit || 10);
   }
 
+  /* 오늘을 무조건 밀어 넣으면 한 번도 공부하지 않은 사람에게 "1일째" 와
+     오늘 칸이 켜진 격자를 보여준다. 앱이 하지 않은 일을 했다고 말하는 셈이다.
+     오늘 실제로 무언가를 했을 때만 센다. */
   function streak() {
     var days = state.studyDays.slice();
-    var today = dayKey(Date.now());
-    if (days.indexOf(today) === -1) days.push(today);
 
     var count = 0;
     for (var i = 0; i < 60; i++) {
@@ -343,7 +353,16 @@ window.Store = (function () {
     save();
   }
 
+  /* 이미 복습 차례가 된 단어를 여기서 LEARNED 로 내리면 복습 대기열에서
+     사라진다. 예약(dueAt)은 남아 있는데 statusOf 가 REVIEW 를 안 돌려주니
+     그 단어는 다시는 안 올라온다 — 간격 반복 고리가 거기서 끊긴다.
+     한 번 더 읽은 것은 진도가 아니라 복습이므로 그대로 둔다. */
   function markLearned(termId) {
+    if (statusOf(termId) === STATUS.REVIEW) {
+      logHistory(termId, "learned");
+      save();
+      return;
+    }
     var rec = touch(termId, STATUS.LEARNED);
     rec.readAt = Date.now();
     logHistory(termId, "learned");
@@ -437,6 +456,7 @@ window.Store = (function () {
     hasBody: hasBody,
     loadBody: loadBody,
     bodyFailed: bodyFailed,
+    ableCount: ableCount,
     bookStats: bookStats,
     overallStats: overallStats,
     reviewQueue: reviewQueue,

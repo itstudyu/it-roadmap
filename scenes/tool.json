@@ -1,2780 +1,3547 @@
 {
- "tool--breakpoint": {
-  "alt": "세 컷 — 어디서 멈출지 정할 수 없던 실행에 '여기서 멈춰' 표시를 남겨, 그 줄에서 서게 되는 이야기",
-  "cuts": [
-   {
-    "caption": "멈출 자리가 없다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "sad"
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "right",
-      "face": "flat",
-      "tag": {
-       "text": "?",
-       "tone": "blue-dash"
+  "tool--breakpoint": {
+    "alt": "네 컷 — 어디서 멈출지 정할 수 없던 실행에 '여기서 멈춰' 표시를 남겨, 그 줄에서 서게 되는 이야기다, 반복문 안에 하나만 찍어도 수천 번 멈춰 오히려 느려지는 이야기",
+    "cuts": [
+      {
+        "caption": "멈출 자리가 없다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "sad"
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "right",
+            "face": "flat",
+            "tag": {
+              "text": "?",
+              "tone": "blue-dash"
+            }
+          }
+        ]
+      },
+      {
+        "caption": "이 줄에 표시",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "right",
+            "face": "flat"
+          }
+        ],
+        "move": {
+          "from": "left",
+          "to": "right",
+          "payload": {
+            "text": "여기서 멈춰",
+            "tone": "blue"
+          }
+        }
+      },
+      {
+        "caption": "그 줄에서 선다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "happy"
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "right",
+            "face": "flat",
+            "tag": {
+              "text": "멈춤",
+              "tone": "blue"
+            }
+          }
+        ],
+        "check": true
+      },
+      {
+        "caption": "많으면 계속 선다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "sad"
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "right",
+            "tag": {
+              "text": "천 번 멈춤",
+              "tone": "plain"
+            }
+          }
+        ],
+        "check": false
       }
-     }
     ]
-   },
-   {
-    "caption": "이 줄에 표시",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "right",
-     "payload": {
-      "text": "여기서 멈춰",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "그 줄에서 선다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "happy"
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "right",
-      "face": "flat",
-      "tag": {
-       "text": "멈춤",
-       "tone": "blue"
+  },
+  "tool--cherry-pick": {
+    "alt": "네 컷 — 저 가지의 커밋 하나만 골라 이 가지에 사본으로 얹고, 저쪽에는 그대로 남는 이야기다, 원본은 그대로 남고 해시가 다른 사본이 하나 더 생겨 둘이 서로를 모르는 이야기",
+    "cuts": [
+      {
+        "caption": "하나만 필요하다",
+        "actors": [
+          {
+            "part": "장부",
+            "slot": "left",
+            "face": "none",
+            "who": "저 가지",
+            "tag": {
+              "text": "커밋 B 있음",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "장부",
+            "slot": "right",
+            "face": "none",
+            "who": "이 가지",
+            "tag": {
+              "text": "B 없음",
+              "tone": "blue-dash"
+            }
+          }
+        ]
+      },
+      {
+        "caption": "그 하나만 고른다",
+        "actors": [
+          {
+            "part": "장부",
+            "slot": "left",
+            "face": "none",
+            "who": "저 가지",
+            "tag": {
+              "text": "커밋 B 있음",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "장부",
+            "slot": "right",
+            "face": "none",
+            "who": "이 가지"
+          }
+        ],
+        "move": {
+          "from": "left",
+          "to": "right",
+          "payload": {
+            "text": "커밋 B",
+            "tone": "blue"
+          }
+        }
+      },
+      {
+        "caption": "사본이 얹힌다",
+        "actors": [
+          {
+            "part": "장부",
+            "slot": "left",
+            "face": "none",
+            "who": "저 가지",
+            "tag": {
+              "text": "커밋 B 있음",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "장부",
+            "slot": "right",
+            "face": "none",
+            "who": "이 가지",
+            "tag": {
+              "text": "커밋 B",
+              "tone": "blue"
+            }
+          }
+        ],
+        "check": true
+      },
+      {
+        "caption": "둘은 서로 모른다",
+        "actors": [
+          {
+            "part": "장부",
+            "slot": "left",
+            "tag": {
+              "text": "커밋 B",
+              "tone": "plain"
+            },
+            "who": "저 가지"
+          },
+          {
+            "part": "장부",
+            "slot": "right",
+            "tag": {
+              "text": "해시가 다름",
+              "tone": "plain"
+            },
+            "who": "이 가지"
+          }
+        ],
+        "check": false
       }
-     }
     ]
-   }
-  ]
- },
- "tool--cherry-pick": {
-  "alt": "세 컷 — 저 가지의 커밋 하나만 골라 이 가지에 사본으로 얹고, 저쪽에는 그대로 남는 이야기",
-  "cuts": [
-   {
-    "caption": "하나만 필요하다",
-    "actors": [
-     {
-      "part": "장부",
-      "slot": "left",
-      "face": "none",
-      "who": "저 가지",
-      "tag": {
-       "text": "커밋 B 있음",
-       "tone": "plain"
+  },
+  "tool--cli": {
+    "alt": "네 컷 — 백 번 누르던 일을 글 한 줄로 적어 시키자, 그 글이 남아 다시 쓰이는 이야기다, 다 외우는 것이 아니라 손에 붙는 열 개 남짓과 적어 둔 파일로 쓰는 이야기",
+    "cuts": [
+      {
+        "caption": "같은 일 또 한다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "sad"
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "right",
+            "face": "flat"
+          }
+        ],
+        "move": {
+          "from": "left",
+          "to": "right",
+          "payload": {
+            "text": "클릭 100번",
+            "tone": "blue"
+          }
+        }
+      },
+      {
+        "caption": "글로 적어 시킨다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "right",
+            "face": "flat"
+          }
+        ],
+        "move": {
+          "from": "left",
+          "to": "right",
+          "payload": {
+            "text": "이름 바꿔라",
+            "tone": "blue"
+          }
+        }
+      },
+      {
+        "caption": "그 글이 남는다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "happy"
+          },
+          {
+            "part": "문서",
+            "slot": "mid",
+            "face": "none",
+            "tag": {
+              "text": "그 한 줄",
+              "tone": "blue",
+              "at": "above"
+            }
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "right",
+            "face": "flat"
+          }
+        ]
+      },
+      {
+        "caption": "열 개면 거의 된다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "happy"
+          },
+          {
+            "part": "문서",
+            "slot": "mid",
+            "tag": {
+              "text": "자주 쓰는 열 줄",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "right",
+            "face": "flat"
+          }
+        ]
       }
-     },
-     {
-      "part": "장부",
-      "slot": "right",
-      "face": "none",
-      "who": "이 가지",
-      "tag": {
-       "text": "B 없음",
-       "tone": "blue-dash"
-      }
-     }
     ]
-   },
-   {
-    "caption": "그 하나만 고른다",
-    "actors": [
-     {
-      "part": "장부",
-      "slot": "left",
-      "face": "none",
-      "who": "저 가지",
-      "tag": {
-       "text": "커밋 B 있음",
-       "tone": "plain"
+  },
+  "tool--container": {
+    "alt": "네 컷 — 한 서버에서 옆 앱까지 흔들던 폭주가, 사이에 벽을 세우자 그 안에서 멈추는 이야기다, 격리해도 커널은 함께 쓰므로 가상 머신만큼 갈라지지는 않는 이야기",
+    "cuts": [
+      {
+        "caption": "옆 앱까지 간다",
+        "actors": [
+          {
+            "part": "소포",
+            "slot": "left",
+            "face": "none",
+            "who": "앱 A",
+            "tag": {
+              "text": "3.9",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "소포",
+            "slot": "right",
+            "face": "none",
+            "who": "앱 B",
+            "tag": {
+              "text": "3.12",
+              "tone": "plain"
+            }
+          }
+        ],
+        "move": {
+          "from": "left",
+          "to": "right",
+          "payload": {
+            "text": "폭주",
+            "tone": "blue"
+          }
+        }
+      },
+      {
+        "caption": "서버는 한 대다",
+        "actors": [
+          {
+            "part": "소포",
+            "slot": "left",
+            "face": "none",
+            "who": "앱 A",
+            "tag": {
+              "text": "3.9",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "벽",
+            "slot": "mid",
+            "face": "none",
+            "tag": {
+              "text": "격리",
+              "tone": "blue"
+            }
+          },
+          {
+            "part": "소포",
+            "slot": "right",
+            "face": "none",
+            "who": "앱 B",
+            "tag": {
+              "text": "3.12",
+              "tone": "plain"
+            }
+          }
+        ]
+      },
+      {
+        "caption": "번지지 않는다",
+        "actors": [
+          {
+            "part": "소포",
+            "slot": "left",
+            "face": "none",
+            "who": "앱 A",
+            "tag": {
+              "text": "3.9",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "벽",
+            "slot": "mid",
+            "face": "none"
+          },
+          {
+            "part": "소포",
+            "slot": "right",
+            "face": "none",
+            "who": "앱 B",
+            "tag": {
+              "text": "3.12",
+              "tone": "plain"
+            }
+          }
+        ],
+        "move": {
+          "from": "left",
+          "to": "mid",
+          "head": false,
+          "payload": {
+            "text": "폭주",
+            "tone": "blue"
+          }
+        },
+        "mark": "x",
+        "check": true
+      },
+      {
+        "caption": "커널은 같이 쓴다",
+        "actors": [
+          {
+            "part": "소포",
+            "slot": "left",
+            "who": "앱 A"
+          },
+          {
+            "part": "벽",
+            "slot": "mid",
+            "tag": {
+              "text": "커널은 공유",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "소포",
+            "slot": "right",
+            "who": "앱 B"
+          }
+        ],
+        "check": false
       }
-     },
-     {
-      "part": "장부",
-      "slot": "right",
-      "face": "none",
-      "who": "이 가지"
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "right",
-     "payload": {
-      "text": "커밋 B",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "사본이 얹힌다",
-    "actors": [
-     {
-      "part": "장부",
-      "slot": "left",
-      "face": "none",
-      "who": "저 가지",
-      "tag": {
-       "text": "커밋 B 있음",
-       "tone": "plain"
-      }
-     },
-     {
-      "part": "장부",
-      "slot": "right",
-      "face": "none",
-      "who": "이 가지",
-      "tag": {
-       "text": "커밋 B",
-       "tone": "blue"
-      }
-     }
     ]
-   }
-  ]
- },
- "tool--cli": {
-  "alt": "세 컷 — 백 번 누르던 일을 글 한 줄로 적어 시키자, 그 글이 남아 다시 쓰이는 이야기",
-  "cuts": [
-   {
-    "caption": "같은 일 또 한다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "sad"
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "right",
-     "payload": {
-      "text": "클릭 100번",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "글로 적어 시킨다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "right",
-     "payload": {
-      "text": "이름 바꿔라",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "그 글이 남는다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "happy"
-     },
-     {
-      "part": "문서",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "그 한 줄",
-       "tone": "blue",
-       "at": "above"
+  },
+  "tool--debugger": {
+    "alt": "네 컷 — 무엇을 볼지 미리 맞혀야 했던 일이, 먼저 세워 두고 그 자리에서 아무거나 들여다보는 일로 바뀌는 이야기다, 멈춰 세우는 일은 실행 환경이 하고 편집기는 그 자리에 붙는 것뿐인 이야기",
+    "cuts": [
+      {
+        "caption": "미리 맞혀야 한다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "sad"
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "right",
+            "face": "flat"
+          }
+        ],
+        "move": {
+          "from": "left",
+          "to": "right",
+          "payload": {
+            "text": "출력문",
+            "tone": "blue"
+          }
+        }
+      },
+      {
+        "caption": "먼저 세운다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "right",
+            "face": "flat",
+            "tag": {
+              "text": "멈춤",
+              "tone": "blue"
+            }
+          }
+        ]
+      },
+      {
+        "caption": "그 자리에서 본다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "happy"
+          },
+          {
+            "part": "돋보기",
+            "slot": "mid",
+            "face": "none",
+            "tag": {
+              "text": "아무 값이나",
+              "tone": "blue"
+            }
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "right",
+            "face": "flat",
+            "tag": {
+              "text": "멈춤",
+              "tone": "plain"
+            }
+          }
+        ],
+        "check": true
+      },
+      {
+        "caption": "멈추는 건 실행 쪽",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "돋보기",
+            "slot": "mid"
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "right",
+            "tag": {
+              "text": "멈추는 건 여기",
+              "tone": "plain"
+            }
+          }
+        ],
+        "check": false
       }
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "right",
-      "face": "flat"
-     }
     ]
-   }
-  ]
- },
- "tool--container": {
-  "alt": "세 컷 — 한 서버에서 옆 앱까지 흔들던 폭주가, 사이에 벽을 세우자 그 안에서 멈추는 이야기",
-  "cuts": [
-   {
-    "caption": "옆 앱까지 간다",
-    "actors": [
-     {
-      "part": "소포",
-      "slot": "left",
-      "face": "none",
-      "who": "앱 A",
-      "tag": {
-       "text": "3.9",
-       "tone": "plain"
+  },
+  "tool--dependency": {
+    "alt": "네 컷 — 직접 만들면 몇 달 걸리던 것을 이름 한 줄로 받아 오고, 그 남의 코드가 내 책임이 되는 이야기다, 이름 한 줄을 적으면 그것이 기대는 것까지 함께 실려 오는 이야기",
+    "cuts": [
+      {
+        "caption": "만들면 몇 달이다",
+        "actors": [
+          {
+            "part": "컴퓨터",
+            "slot": "left",
+            "face": "sad",
+            "tag": {
+              "text": "로그인?",
+              "tone": "blue-dash"
+            }
+          },
+          {
+            "part": "구름",
+            "slot": "right",
+            "face": "flat"
+          }
+        ]
+      },
+      {
+        "caption": "이름 한 줄 적는다",
+        "actors": [
+          {
+            "part": "컴퓨터",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "구름",
+            "slot": "right",
+            "face": "flat"
+          }
+        ],
+        "move": {
+          "from": "right",
+          "to": "left",
+          "payload": {
+            "text": "남의 코드",
+            "tone": "blue"
+          }
+        }
+      },
+      {
+        "caption": "내 책임이 된다",
+        "actors": [
+          {
+            "part": "컴퓨터",
+            "slot": "left",
+            "face": "happy",
+            "tag": {
+              "text": "남의 코드",
+              "tone": "blue"
+            }
+          },
+          {
+            "part": "구름",
+            "slot": "right",
+            "face": "flat"
+          }
+        ],
+        "check": true
+      },
+      {
+        "caption": "딸린 것도 온다",
+        "actors": [
+          {
+            "part": "컴퓨터",
+            "slot": "left",
+            "tag": {
+              "text": "적은 건 하나",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "구름",
+            "slot": "right"
+          }
+        ],
+        "move": {
+          "from": "right",
+          "to": "left",
+          "payload": {
+            "text": "딸린 것 수십",
+            "tone": "blue"
+          }
+        },
+        "check": false
       }
-     },
-     {
-      "part": "소포",
-      "slot": "right",
-      "face": "none",
-      "who": "앱 B",
-      "tag": {
-       "text": "3.12",
-       "tone": "plain"
-      }
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "right",
-     "payload": {
-      "text": "폭주",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "서버는 한 대다",
-    "actors": [
-     {
-      "part": "소포",
-      "slot": "left",
-      "face": "none",
-      "who": "앱 A",
-      "tag": {
-       "text": "3.9",
-       "tone": "plain"
-      }
-     },
-     {
-      "part": "벽",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "격리",
-       "tone": "blue"
-      }
-     },
-     {
-      "part": "소포",
-      "slot": "right",
-      "face": "none",
-      "who": "앱 B",
-      "tag": {
-       "text": "3.12",
-       "tone": "plain"
-      }
-     }
     ]
-   },
-   {
-    "caption": "번지지 않는다",
-    "actors": [
-     {
-      "part": "소포",
-      "slot": "left",
-      "face": "none",
-      "who": "앱 A",
-      "tag": {
-       "text": "3.9",
-       "tone": "plain"
+  },
+  "tool--docker": {
+    "alt": "네 컷 — 코드만 보내면 어긋나던 것이, 코드와 환경을 한 덩어리로 묶자 서버에서 그대로 도는 이야기다, 컨테이너를 지우면 안에 쌓인 데이터도 같이 사라지는 이야기",
+    "cuts": [
+      {
+        "caption": "환경이 다르다",
+        "actors": [
+          {
+            "part": "컴퓨터",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "서버",
+            "slot": "right",
+            "face": "sad"
+          }
+        ],
+        "move": {
+          "from": "left",
+          "to": "right",
+          "payload": {
+            "text": "코드만",
+            "tone": "blue"
+          }
+        }
+      },
+      {
+        "caption": "환경까지 담는다",
+        "actors": [
+          {
+            "part": "컴퓨터",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "소포",
+            "slot": "mid",
+            "face": "none",
+            "tag": {
+              "text": "코드+환경",
+              "tone": "blue",
+              "at": "above"
+            }
+          },
+          {
+            "part": "서버",
+            "slot": "right",
+            "face": "flat"
+          }
+        ]
+      },
+      {
+        "caption": "그대로 돈다",
+        "actors": [
+          {
+            "part": "컴퓨터",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "소포",
+            "slot": "mid",
+            "face": "none",
+            "tag": {
+              "text": "코드+환경",
+              "tone": "blue",
+              "at": "above"
+            }
+          },
+          {
+            "part": "서버",
+            "slot": "right",
+            "face": "happy"
+          }
+        ],
+        "move": {
+          "from": "mid",
+          "to": "right"
+        },
+        "check": true
+      },
+      {
+        "caption": "지우면 안이 빈다",
+        "actors": [
+          {
+            "part": "컴퓨터",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "소포",
+            "slot": "mid",
+            "tag": {
+              "text": "안의 데이터",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "서버",
+            "slot": "right",
+            "face": "sad"
+          }
+        ],
+        "check": false
       }
-     },
-     {
-      "part": "벽",
-      "slot": "mid",
-      "face": "none"
-     },
-     {
-      "part": "소포",
-      "slot": "right",
-      "face": "none",
-      "who": "앱 B",
-      "tag": {
-       "text": "3.12",
-       "tone": "plain"
-      }
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "mid",
-     "head": false,
-     "payload": {
-      "text": "폭주",
-      "tone": "blue"
-     }
-    },
-    "mark": "x"
-   }
-  ]
- },
- "tool--debugger": {
-  "alt": "세 컷 — 무엇을 볼지 미리 맞혀야 했던 일이, 먼저 세워 두고 그 자리에서 아무거나 들여다보는 일로 바뀌는 이야기",
-  "cuts": [
-   {
-    "caption": "미리 맞혀야 한다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "sad"
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "right",
-     "payload": {
-      "text": "출력문",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "먼저 세운다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "right",
-      "face": "flat",
-      "tag": {
-       "text": "멈춤",
-       "tone": "blue"
-      }
-     }
     ]
-   },
-   {
-    "caption": "그 자리에서 본다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "happy"
-     },
-     {
-      "part": "돋보기",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "아무 값이나",
-       "tone": "blue"
+  },
+  "tool--docker-compose": {
+    "alt": "네 컷 — 손으로 띄우다 하나를 빠뜨리던 일이, 한 파일에 적어 두자 앱과 DB와 캐시가 함께 뜨는 이야기다, 여러 대에 걸쳐 자리를 잡고 갈아 끼우는 일은 다른 도구의 몫인 이야기",
+    "cuts": [
+      {
+        "caption": "하나를 빠뜨린다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "sad"
+          },
+          {
+            "part": "서버",
+            "slot": "right",
+            "face": "flat",
+            "tag": {
+              "text": "앱만 떴다",
+              "tone": "blue-dash"
+            }
+          }
+        ]
+      },
+      {
+        "caption": "한 파일에 적는다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "문서",
+            "slot": "mid",
+            "face": "none",
+            "tag": {
+              "text": "앱·DB·캐시",
+              "tone": "blue",
+              "at": "above"
+            }
+          },
+          {
+            "part": "서버",
+            "slot": "right",
+            "face": "flat"
+          }
+        ]
+      },
+      {
+        "caption": "한 번에 함께 뜬다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "happy"
+          },
+          {
+            "part": "문서",
+            "slot": "mid",
+            "face": "none",
+            "tag": {
+              "text": "앱·DB·캐시",
+              "tone": "blue",
+              "at": "above"
+            }
+          },
+          {
+            "part": "서버",
+            "slot": "right",
+            "face": "flat"
+          }
+        ],
+        "move": {
+          "from": "mid",
+          "to": "right"
+        },
+        "check": true
+      },
+      {
+        "caption": "한 대까지다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "문서",
+            "slot": "mid"
+          },
+          {
+            "part": "서버",
+            "slot": "right",
+            "tag": {
+              "text": "여러 대는 딴 일",
+              "tone": "plain"
+            }
+          }
+        ],
+        "check": false
       }
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "right",
-      "face": "flat",
-      "tag": {
-       "text": "멈춤",
-       "tone": "plain"
-      }
-     }
     ]
-   }
-  ]
- },
- "tool--dependency": {
-  "alt": "세 컷 — 직접 만들면 몇 달 걸리던 것을 이름 한 줄로 받아 오고, 그 남의 코드가 내 책임이 되는 이야기",
-  "cuts": [
-   {
-    "caption": "만들면 몇 달이다",
-    "actors": [
-     {
-      "part": "컴퓨터",
-      "slot": "left",
-      "face": "sad",
-      "tag": {
-       "text": "로그인?",
-       "tone": "blue-dash"
+  },
+  "tool--docker-image": {
+    "alt": "네 컷 — 서버마다 다르던 것이, 읽기 전용 꾸러미 하나를 두 서버에 그대로 내려 같은 판이 되는 이야기다, 태그는 옮겨 붙일 수 있는 이름이라 어제의 latest 와 오늘의 latest 가 다를 수 있는 이야기",
+    "cuts": [
+      {
+        "caption": "서버마다 다르다",
+        "actors": [
+          {
+            "part": "서버",
+            "slot": "left",
+            "face": "flat",
+            "who": "서버 A",
+            "tag": {
+              "text": "3.9",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "서버",
+            "slot": "right",
+            "face": "sad",
+            "who": "서버 B",
+            "tag": {
+              "text": "3.12",
+              "tone": "plain"
+            }
+          }
+        ]
+      },
+      {
+        "caption": "하나로 찍어낸다",
+        "actors": [
+          {
+            "part": "서버",
+            "slot": "left",
+            "face": "flat",
+            "who": "서버 A"
+          },
+          {
+            "part": "소포",
+            "slot": "mid",
+            "face": "none",
+            "tag": {
+              "text": "읽기 전용",
+              "tone": "blue",
+              "at": "above"
+            }
+          },
+          {
+            "part": "서버",
+            "slot": "right",
+            "face": "flat",
+            "who": "서버 B"
+          }
+        ],
+        "move": {
+          "from": "mid",
+          "to": "left"
+        }
+      },
+      {
+        "caption": "둘이 같아진다",
+        "actors": [
+          {
+            "part": "서버",
+            "slot": "left",
+            "face": "flat",
+            "who": "서버 A",
+            "tag": {
+              "text": "같은 판",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "소포",
+            "slot": "mid",
+            "face": "none",
+            "tag": {
+              "text": "읽기 전용",
+              "tone": "blue",
+              "at": "above"
+            }
+          },
+          {
+            "part": "서버",
+            "slot": "right",
+            "face": "happy",
+            "who": "서버 B",
+            "tag": {
+              "text": "같은 판",
+              "tone": "plain"
+            }
+          }
+        ],
+        "move": {
+          "from": "mid",
+          "to": "right"
+        },
+        "check": true
+      },
+      {
+        "caption": "이름표는 옮겨진다",
+        "actors": [
+          {
+            "part": "서버",
+            "slot": "left",
+            "who": "서버 A"
+          },
+          {
+            "part": "소포",
+            "slot": "mid",
+            "tag": {
+              "text": "latest",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "서버",
+            "slot": "right",
+            "who": "서버 B"
+          }
+        ],
+        "check": false
       }
-     },
-     {
-      "part": "구름",
-      "slot": "right",
-      "face": "flat"
-     }
     ]
-   },
-   {
-    "caption": "이름 한 줄 적는다",
-    "actors": [
-     {
-      "part": "컴퓨터",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "구름",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "right",
-     "to": "left",
-     "payload": {
-      "text": "남의 코드",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "내 책임이 된다",
-    "actors": [
-     {
-      "part": "컴퓨터",
-      "slot": "left",
-      "face": "happy",
-      "tag": {
-       "text": "남의 코드",
-       "tone": "blue"
+  },
+  "tool--docker-volume": {
+    "alt": "네 컷 — 컨테이너를 갈면 사라지던 데이터를 밖의 저장 칸으로 빼내, 갈아도 그대로 남는 이야기다, 쓰는 컨테이너가 하나도 없어도 볼륨은 지워지지 않고 남아 있는 이야기",
+    "cuts": [
+      {
+        "caption": "갈면 사라진다",
+        "actors": [
+          {
+            "part": "소포",
+            "slot": "left",
+            "face": "none",
+            "who": "헌 것"
+          },
+          {
+            "part": "소포",
+            "slot": "right",
+            "face": "none",
+            "who": "새 것"
+          }
+        ],
+        "move": {
+          "from": "left",
+          "to": "right",
+          "head": false,
+          "payload": {
+            "text": "데이터",
+            "tone": "blue"
+          }
+        },
+        "mark": "x"
+      },
+      {
+        "caption": "밖에 둔다",
+        "actors": [
+          {
+            "part": "소포",
+            "slot": "left",
+            "face": "none",
+            "who": "헌 것"
+          },
+          {
+            "part": "저장통",
+            "slot": "mid",
+            "face": "flat"
+          },
+          {
+            "part": "소포",
+            "slot": "right",
+            "face": "none",
+            "who": "새 것"
+          }
+        ],
+        "move": {
+          "from": "left",
+          "to": "mid",
+          "payload": {
+            "text": "데이터",
+            "tone": "blue"
+          }
+        }
+      },
+      {
+        "caption": "갈아도 그대로다",
+        "actors": [
+          {
+            "part": "저장통",
+            "slot": "mid",
+            "face": "flat",
+            "tag": {
+              "text": "데이터",
+              "tone": "blue"
+            }
+          },
+          {
+            "part": "소포",
+            "slot": "right",
+            "face": "none",
+            "who": "새 것"
+          }
+        ],
+        "move": {
+          "from": "mid",
+          "to": "right"
+        }
+      },
+      {
+        "caption": "지워도 남아 있다",
+        "actors": [
+          {
+            "part": "저장통",
+            "slot": "mid",
+            "tag": {
+              "text": "그대로 남음",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "소포",
+            "slot": "right"
+          }
+        ]
       }
-     },
-     {
-      "part": "구름",
-      "slot": "right",
-      "face": "flat"
-     }
     ]
-   }
-  ]
- },
- "tool--docker": {
-  "alt": "세 컷 — 코드만 보내면 어긋나던 것이, 코드와 환경을 한 덩어리로 묶자 서버에서 그대로 도는 이야기",
-  "cuts": [
-   {
-    "caption": "환경이 다르다",
-    "actors": [
-     {
-      "part": "컴퓨터",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "sad"
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "right",
-     "payload": {
-      "text": "코드만",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "환경까지 담는다",
-    "actors": [
-     {
-      "part": "컴퓨터",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "소포",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "코드+환경",
-       "tone": "blue",
-       "at": "above"
+  },
+  "tool--dockerfile": {
+    "alt": "네 컷 — 사람이 따라 하다 빠뜨리던 설치 문서를, 실행되는 파일로 적어 같은 이미지가 나오게 되는 이야기다, 고친 줄 위쪽은 캐시를 그대로 쓰고 그 줄부터 아래만 다시 도는 이야기",
+    "cuts": [
+      {
+        "caption": "빠뜨려도 모른다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "sad"
+          },
+          {
+            "part": "문서",
+            "slot": "mid",
+            "face": "none",
+            "tag": {
+              "text": "설치 문서",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "서버",
+            "slot": "right",
+            "face": "flat",
+            "tag": {
+              "text": "?",
+              "tone": "blue-dash"
+            }
+          }
+        ]
+      },
+      {
+        "caption": "실행되게 적는다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "문서",
+            "slot": "mid",
+            "face": "none",
+            "tag": {
+              "text": "만드는 순서",
+              "tone": "blue"
+            }
+          },
+          {
+            "part": "서버",
+            "slot": "right",
+            "face": "flat"
+          }
+        ]
+      },
+      {
+        "caption": "같은 것이 나온다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "happy"
+          },
+          {
+            "part": "문서",
+            "slot": "mid",
+            "face": "none",
+            "tag": {
+              "text": "만드는 순서",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "서버",
+            "slot": "right",
+            "face": "flat"
+          }
+        ],
+        "move": {
+          "from": "mid",
+          "to": "right",
+          "payload": {
+            "text": "이미지",
+            "tone": "blue"
+          }
+        }
+      },
+      {
+        "caption": "위쪽은 캐시를 쓴다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "happy"
+          },
+          {
+            "part": "문서",
+            "slot": "mid",
+            "tag": {
+              "text": "고친 줄부터",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "서버",
+            "slot": "right",
+            "face": "flat"
+          }
+        ]
       }
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "flat"
-     }
     ]
-   },
-   {
-    "caption": "그대로 돈다",
-    "actors": [
-     {
-      "part": "컴퓨터",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "소포",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "코드+환경",
-       "tone": "blue",
-       "at": "above"
+  },
+  "tool--feature-flag": {
+    "alt": "네 컷 — 배포가 곧 공개이던 것이, 꺼 둔 문을 하나 두자 배포 없이 스위치만으로 열리는 이야기다, 꺼 두었을 뿐 배포는 이미 끝나 코드가 운영에 함께 올라가 있는 이야기",
+    "cuts": [
+      {
+        "caption": "배포가 곧 공개다",
+        "actors": [
+          {
+            "part": "서버",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "사람",
+            "slot": "right",
+            "face": "flat"
+          }
+        ],
+        "move": {
+          "from": "left",
+          "to": "right",
+          "payload": {
+            "text": "새 기능",
+            "tone": "blue"
+          }
+        }
+      },
+      {
+        "caption": "꺼 둔 채 배포한다",
+        "actors": [
+          {
+            "part": "서버",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "문",
+            "slot": "mid",
+            "face": "none",
+            "tag": {
+              "text": "꺼짐",
+              "tone": "blue-dash"
+            }
+          },
+          {
+            "part": "사람",
+            "slot": "right",
+            "face": "flat"
+          }
+        ]
+      },
+      {
+        "caption": "배포 없이 열린다",
+        "actors": [
+          {
+            "part": "서버",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "문",
+            "slot": "mid",
+            "face": "none",
+            "tag": {
+              "text": "켜짐",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "사람",
+            "slot": "right",
+            "face": "happy"
+          }
+        ],
+        "move": {
+          "from": "mid",
+          "to": "right",
+          "payload": {
+            "text": "새 기능",
+            "tone": "blue"
+          }
+        },
+        "check": true
+      },
+      {
+        "caption": "코드는 이미 올랐다",
+        "actors": [
+          {
+            "part": "서버",
+            "slot": "left",
+            "tag": {
+              "text": "꺼진 채 올라감",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "문",
+            "slot": "mid",
+            "tag": {
+              "text": "꺼짐",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "사람",
+            "slot": "right",
+            "face": "flat"
+          }
+        ],
+        "check": false
       }
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "happy"
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "right"
-    }
-   }
-  ]
- },
- "tool--docker-compose": {
-  "alt": "세 컷 — 손으로 띄우다 하나를 빠뜨리던 일이, 한 파일에 적어 두자 앱과 DB와 캐시가 함께 뜨는 이야기",
-  "cuts": [
-   {
-    "caption": "하나를 빠뜨린다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "sad"
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "flat",
-      "tag": {
-       "text": "앱만 떴다",
-       "tone": "blue-dash"
-      }
-     }
     ]
-   },
-   {
-    "caption": "한 파일에 적는다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "문서",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "앱·DB·캐시",
-       "tone": "blue",
-       "at": "above"
+  },
+  "tool--git": {
+    "alt": "네 컷 — 덮어쓰면 끝이던 파일이, 바뀐 시점마다 장부에 적히자 그 시점으로 되돌아가는 이야기다, 커밋은 내 컴퓨터에만 쌓이고 올려야 비로소 남에게 가는 이야기",
+    "cuts": [
+      {
+        "caption": "덮으면 끝이다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "sad"
+          },
+          {
+            "part": "문서",
+            "slot": "right",
+            "face": "none",
+            "tag": {
+              "text": "지난 판 없음",
+              "tone": "blue-dash"
+            }
+          }
+        ]
+      },
+      {
+        "caption": "시점마다 적는다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "장부",
+            "slot": "mid",
+            "face": "none"
+          },
+          {
+            "part": "문서",
+            "slot": "right",
+            "face": "none"
+          }
+        ],
+        "move": {
+          "from": "right",
+          "to": "mid",
+          "payload": {
+            "text": "5월 2일",
+            "tone": "blue"
+          }
+        }
+      },
+      {
+        "caption": "그 시점으로 간다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "happy"
+          },
+          {
+            "part": "장부",
+            "slot": "mid",
+            "face": "none"
+          },
+          {
+            "part": "문서",
+            "slot": "right",
+            "face": "none",
+            "tag": {
+              "text": "5월 2일",
+              "tone": "blue"
+            }
+          }
+        ],
+        "move": {
+          "from": "mid",
+          "to": "right"
+        },
+        "check": true
+      },
+      {
+        "caption": "올려야 남이 본다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "장부",
+            "slot": "mid",
+            "tag": {
+              "text": "내 컴퓨터",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "문서",
+            "slot": "right"
+          }
+        ],
+        "check": false
       }
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "flat"
-     }
     ]
-   },
-   {
-    "caption": "한 번에 함께 뜬다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "happy"
-     },
-     {
-      "part": "문서",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "앱·DB·캐시",
-       "tone": "blue",
-       "at": "above"
+  },
+  "tool--git-branch": {
+    "alt": "네 컷 — main 에 그대로 섞이던 실험이, 이름표를 하나 더 내자 그 뒤에만 쌓이는 이야기다, 가지를 내는 것은 이름표를 만드는 일이고 그 가지로 옮기는 것은 따로인 이야기",
+    "cuts": [
+      {
+        "caption": "실험이 섞인다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "sad"
+          },
+          {
+            "part": "장부",
+            "slot": "right",
+            "face": "none",
+            "who": "main",
+            "tag": {
+              "text": "main",
+              "tone": "plain"
+            }
+          }
+        ],
+        "move": {
+          "from": "left",
+          "to": "right",
+          "payload": {
+            "text": "실험",
+            "tone": "blue"
+          }
+        }
+      },
+      {
+        "caption": "이름표를 하나 낸다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "장부",
+            "slot": "mid",
+            "face": "none",
+            "who": "내 가지",
+            "tag": {
+              "text": "내 가지",
+              "tone": "blue"
+            }
+          },
+          {
+            "part": "장부",
+            "slot": "right",
+            "face": "none",
+            "who": "main",
+            "tag": {
+              "text": "main",
+              "tone": "plain"
+            }
+          }
+        ]
+      },
+      {
+        "caption": "거기에만 쌓인다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "happy"
+          },
+          {
+            "part": "장부",
+            "slot": "mid",
+            "face": "none",
+            "who": "내 가지",
+            "tag": {
+              "text": "내 가지",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "장부",
+            "slot": "right",
+            "face": "none",
+            "who": "main",
+            "tag": {
+              "text": "main",
+              "tone": "plain"
+            }
+          }
+        ],
+        "move": {
+          "from": "left",
+          "to": "mid",
+          "payload": {
+            "text": "실험",
+            "tone": "blue"
+          }
+        },
+        "check": true
+      },
+      {
+        "caption": "옮기는 건 따로다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "장부",
+            "slot": "mid",
+            "tag": {
+              "text": "이름표만",
+              "tone": "plain"
+            },
+            "who": "내 가지"
+          },
+          {
+            "part": "장부",
+            "slot": "right",
+            "who": "main"
+          }
+        ],
+        "check": false
       }
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "right"
-    }
-   }
-  ]
- },
- "tool--docker-image": {
-  "alt": "세 컷 — 서버마다 다르던 것이, 읽기 전용 꾸러미 하나를 두 서버에 그대로 내려 같은 판이 되는 이야기",
-  "cuts": [
-   {
-    "caption": "서버마다 다르다",
-    "actors": [
-     {
-      "part": "서버",
-      "slot": "left",
-      "face": "flat",
-      "who": "서버 A",
-      "tag": {
-       "text": "3.9",
-       "tone": "plain"
-      }
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "sad",
-      "who": "서버 B",
-      "tag": {
-       "text": "3.12",
-       "tone": "plain"
-      }
-     }
     ]
-   },
-   {
-    "caption": "하나로 찍어낸다",
-    "actors": [
-     {
-      "part": "서버",
-      "slot": "left",
-      "face": "flat",
-      "who": "서버 A"
-     },
-     {
-      "part": "소포",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "읽기 전용",
-       "tone": "blue",
-       "at": "above"
+  },
+  "tool--git-commit": {
+    "alt": "네 컷 — 고친 것이 전부 딸려 가던 기록이, 담는 자리에 골라 담자 한 가지 일로 남는 이야기다, 커밋은 내 저장소에 쌓이므로 연결이 없어도 되고 보내는 것은 그다음 일인 이야기",
+    "cuts": [
+      {
+        "caption": "실험까지 딸려 간다",
+        "actors": [
+          {
+            "part": "컴퓨터",
+            "slot": "left",
+            "face": "sad"
+          },
+          {
+            "part": "장부",
+            "slot": "right",
+            "face": "none",
+            "tag": {
+              "text": "기록",
+              "tone": "plain"
+            }
+          }
+        ],
+        "move": {
+          "from": "left",
+          "to": "right",
+          "payload": {
+            "text": "고친 것 전부",
+            "tone": "blue"
+          }
+        }
+      },
+      {
+        "caption": "골라 담는다",
+        "actors": [
+          {
+            "part": "컴퓨터",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "소포",
+            "slot": "mid",
+            "face": "none",
+            "tag": {
+              "text": "버그 수정만",
+              "tone": "blue",
+              "at": "above"
+            }
+          },
+          {
+            "part": "장부",
+            "slot": "right",
+            "face": "none",
+            "tag": {
+              "text": "기록",
+              "tone": "plain"
+            }
+          }
+        ],
+        "move": {
+          "from": "left",
+          "to": "mid"
+        }
+      },
+      {
+        "caption": "한 일만 남는다",
+        "actors": [
+          {
+            "part": "컴퓨터",
+            "slot": "left",
+            "face": "happy"
+          },
+          {
+            "part": "소포",
+            "slot": "mid",
+            "face": "none"
+          },
+          {
+            "part": "장부",
+            "slot": "right",
+            "face": "none",
+            "tag": {
+              "text": "버그 수정",
+              "tone": "blue"
+            }
+          }
+        ],
+        "move": {
+          "from": "mid",
+          "to": "right"
+        },
+        "check": true
+      },
+      {
+        "caption": "내 쪽에만 쌓인다",
+        "actors": [
+          {
+            "part": "컴퓨터",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "소포",
+            "slot": "mid"
+          },
+          {
+            "part": "장부",
+            "slot": "right",
+            "tag": {
+              "text": "내 컴퓨터",
+              "tone": "plain"
+            }
+          }
+        ],
+        "check": false
       }
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "flat",
-      "who": "서버 B"
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "left"
-    }
-   },
-   {
-    "caption": "둘이 같아진다",
-    "actors": [
-     {
-      "part": "서버",
-      "slot": "left",
-      "face": "flat",
-      "who": "서버 A",
-      "tag": {
-       "text": "같은 판",
-       "tone": "plain"
-      }
-     },
-     {
-      "part": "소포",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "읽기 전용",
-       "tone": "blue",
-       "at": "above"
-      }
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "happy",
-      "who": "서버 B",
-      "tag": {
-       "text": "같은 판",
-       "tone": "plain"
-      }
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "right"
-    }
-   }
-  ]
- },
- "tool--docker-volume": {
-  "alt": "세 컷 — 컨테이너를 갈면 사라지던 데이터를 밖의 저장 칸으로 빼내, 갈아도 그대로 남는 이야기",
-  "cuts": [
-   {
-    "caption": "갈면 사라진다",
-    "actors": [
-     {
-      "part": "소포",
-      "slot": "left",
-      "face": "none",
-      "who": "헌 것"
-     },
-     {
-      "part": "소포",
-      "slot": "right",
-      "face": "none",
-      "who": "새 것"
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "right",
-     "head": false,
-     "payload": {
-      "text": "데이터",
-      "tone": "blue"
-     }
-    },
-    "mark": "x"
-   },
-   {
-    "caption": "밖에 둔다",
-    "actors": [
-     {
-      "part": "소포",
-      "slot": "left",
-      "face": "none",
-      "who": "헌 것"
-     },
-     {
-      "part": "저장통",
-      "slot": "mid",
-      "face": "flat"
-     },
-     {
-      "part": "소포",
-      "slot": "right",
-      "face": "none",
-      "who": "새 것"
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "mid",
-     "payload": {
-      "text": "데이터",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "갈아도 그대로다",
-    "actors": [
-     {
-      "part": "저장통",
-      "slot": "mid",
-      "face": "flat",
-      "tag": {
-       "text": "데이터",
-       "tone": "blue"
-      }
-     },
-     {
-      "part": "소포",
-      "slot": "right",
-      "face": "none",
-      "who": "새 것"
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "right"
-    }
-   }
-  ]
- },
- "tool--dockerfile": {
-  "alt": "세 컷 — 사람이 따라 하다 빠뜨리던 설치 문서를, 실행되는 파일로 적어 같은 이미지가 나오게 되는 이야기",
-  "cuts": [
-   {
-    "caption": "빠뜨려도 모른다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "sad"
-     },
-     {
-      "part": "문서",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "설치 문서",
-       "tone": "plain"
-      }
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "flat",
-      "tag": {
-       "text": "?",
-       "tone": "blue-dash"
-      }
-     }
     ]
-   },
-   {
-    "caption": "실행되게 적는다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "문서",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "만드는 순서",
-       "tone": "blue"
+  },
+  "tool--git-flow": {
+    "alt": "네 컷 — 다 된 기능 하나가 혼자서는 main 으로 못 나가고, 판 번호를 붙인 묶음에 모였다가 그 묶음째 나가는 이야기다, 배포를 자주 내보내는 팀에는 판으로 모으는 방식이 오히려 짐이 되는 이야기",
+    "cuts": [
+      {
+        "caption": "혼자는 못 낸다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "sad"
+          },
+          {
+            "part": "장부",
+            "slot": "right",
+            "face": "none",
+            "tag": {
+              "text": "main",
+              "tone": "plain"
+            }
+          }
+        ],
+        "move": {
+          "from": "left",
+          "to": "right",
+          "head": false,
+          "payload": {
+            "text": "기능 하나",
+            "tone": "blue"
+          }
+        },
+        "mark": "x"
+      },
+      {
+        "caption": "판으로 모은다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "소포",
+            "slot": "mid",
+            "face": "none",
+            "tag": {
+              "text": "v1.4",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "장부",
+            "slot": "right",
+            "face": "none",
+            "tag": {
+              "text": "main",
+              "tone": "plain"
+            }
+          }
+        ],
+        "move": {
+          "from": "left",
+          "to": "mid",
+          "payload": {
+            "text": "기능",
+            "tone": "blue"
+          }
+        }
+      },
+      {
+        "caption": "판째 내보낸다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "happy"
+          },
+          {
+            "part": "소포",
+            "slot": "mid",
+            "face": "none",
+            "tag": {
+              "text": "v1.4",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "장부",
+            "slot": "right",
+            "face": "none",
+            "tag": {
+              "text": "main",
+              "tone": "plain"
+            }
+          }
+        ],
+        "move": {
+          "from": "mid",
+          "to": "right",
+          "payload": {
+            "text": "통째로",
+            "tone": "blue"
+          }
+        },
+        "check": true
+      },
+      {
+        "caption": "자주 내면 안 맞다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "sad"
+          },
+          {
+            "part": "소포",
+            "slot": "mid",
+            "tag": {
+              "text": "판이 커진다",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "장부",
+            "slot": "right"
+          }
+        ],
+        "check": false
       }
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "flat"
-     }
     ]
-   },
-   {
-    "caption": "같은 것이 나온다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "happy"
-     },
-     {
-      "part": "문서",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "만드는 순서",
-       "tone": "plain"
+  },
+  "tool--git-stash": {
+    "alt": "네 컷 — 고치던 것을 안고는 가지를 옮기지 못하던 것이, 서랍에 치우자 깨끗해져 옮기는 이야기다, 꺼내 쓴 뒤에도 서랍에서 지워지지 않아 같은 변경을 두 번 얹게 되는 이야기",
+    "cuts": [
+      {
+        "caption": "옮길 수 없다",
+        "actors": [
+          {
+            "part": "컴퓨터",
+            "slot": "mid",
+            "face": "sad",
+            "tag": {
+              "text": "고치던 것",
+              "tone": "blue"
+            }
+          },
+          {
+            "part": "장부",
+            "slot": "right",
+            "face": "none",
+            "tag": {
+              "text": "다른 가지",
+              "tone": "plain"
+            }
+          }
+        ],
+        "move": {
+          "from": "mid",
+          "to": "right",
+          "head": false
+        },
+        "mark": "x"
+      },
+      {
+        "caption": "서랍에 치운다",
+        "actors": [
+          {
+            "part": "저장통",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "mid",
+            "face": "flat"
+          },
+          {
+            "part": "장부",
+            "slot": "right",
+            "face": "none",
+            "tag": {
+              "text": "다른 가지",
+              "tone": "plain"
+            }
+          }
+        ],
+        "move": {
+          "from": "mid",
+          "to": "left",
+          "payload": {
+            "text": "고치던 것",
+            "tone": "blue"
+          }
+        }
+      },
+      {
+        "caption": "이제 옮긴다",
+        "actors": [
+          {
+            "part": "저장통",
+            "slot": "left",
+            "face": "flat",
+            "tag": {
+              "text": "고치던 것",
+              "tone": "blue"
+            }
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "mid",
+            "face": "happy"
+          },
+          {
+            "part": "장부",
+            "slot": "right",
+            "face": "none",
+            "tag": {
+              "text": "다른 가지",
+              "tone": "plain"
+            }
+          }
+        ],
+        "move": {
+          "from": "mid",
+          "to": "right"
+        },
+        "check": true
+      },
+      {
+        "caption": "꺼내도 남아 있다",
+        "actors": [
+          {
+            "part": "저장통",
+            "slot": "left",
+            "tag": {
+              "text": "그대로 남음",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "mid"
+          },
+          {
+            "part": "장부",
+            "slot": "right"
+          }
+        ],
+        "check": false
       }
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "right",
-     "payload": {
-      "text": "이미지",
-      "tone": "blue"
-     }
-    }
-   }
-  ]
- },
- "tool--feature-flag": {
-  "alt": "세 컷 — 배포가 곧 공개이던 것이, 꺼 둔 문을 하나 두자 배포 없이 스위치만으로 열리는 이야기",
-  "cuts": [
-   {
-    "caption": "배포가 곧 공개다",
-    "actors": [
-     {
-      "part": "서버",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "사람",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "right",
-     "payload": {
-      "text": "새 기능",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "꺼 둔 채 배포한다",
-    "actors": [
-     {
-      "part": "서버",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "문",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "꺼짐",
-       "tone": "blue-dash"
-      }
-     },
-     {
-      "part": "사람",
-      "slot": "right",
-      "face": "flat"
-     }
     ]
-   },
-   {
-    "caption": "배포 없이 열린다",
-    "actors": [
-     {
-      "part": "서버",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "문",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "켜짐",
-       "tone": "plain"
+  },
+  "tool--git-tag": {
+    "alt": "네 컷 — 해시밖에 없던 커밋에 사람이 부를 이름을 박고, 그 이름이 움직이지 않는 이야기다, 커밋을 올려도 태그는 따라가지 않아 따로 밀어야 동료가 보는 이야기",
+    "cuts": [
+      {
+        "caption": "부를 이름이 없다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "sad"
+          },
+          {
+            "part": "장부",
+            "slot": "right",
+            "face": "none",
+            "tag": {
+              "text": "a3f9c1e2",
+              "tone": "plain"
+            }
+          }
+        ]
+      },
+      {
+        "caption": "이름을 박는다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "장부",
+            "slot": "right",
+            "face": "none",
+            "tag": {
+              "text": "a3f9c1e2",
+              "tone": "plain"
+            }
+          }
+        ],
+        "move": {
+          "from": "left",
+          "to": "right",
+          "payload": {
+            "text": "v1.4.0",
+            "tone": "blue"
+          }
+        }
+      },
+      {
+        "caption": "안 움직인다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "happy"
+          },
+          {
+            "part": "장부",
+            "slot": "right",
+            "face": "none",
+            "tag": {
+              "text": "v1.4.0",
+              "tone": "blue"
+            }
+          }
+        ],
+        "check": true
+      },
+      {
+        "caption": "따로 밀어야 간다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "장부",
+            "slot": "right",
+            "tag": {
+              "text": "아직 내 쪽",
+              "tone": "plain"
+            }
+          }
+        ],
+        "check": false
       }
-     },
-     {
-      "part": "사람",
-      "slot": "right",
-      "face": "happy"
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "right",
-     "payload": {
-      "text": "새 기능",
-      "tone": "blue"
-     }
-    }
-   }
-  ]
- },
- "tool--git": {
-  "alt": "세 컷 — 덮어쓰면 끝이던 파일이, 바뀐 시점마다 장부에 적히자 그 시점으로 되돌아가는 이야기",
-  "cuts": [
-   {
-    "caption": "덮으면 끝이다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "sad"
-     },
-     {
-      "part": "문서",
-      "slot": "right",
-      "face": "none",
-      "tag": {
-       "text": "지난 판 없음",
-       "tone": "blue-dash"
-      }
-     }
     ]
-   },
-   {
-    "caption": "시점마다 적는다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "장부",
-      "slot": "mid",
-      "face": "none"
-     },
-     {
-      "part": "문서",
-      "slot": "right",
-      "face": "none"
-     }
-    ],
-    "move": {
-     "from": "right",
-     "to": "mid",
-     "payload": {
-      "text": "5월 2일",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "그 시점으로 간다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "happy"
-     },
-     {
-      "part": "장부",
-      "slot": "mid",
-      "face": "none"
-     },
-     {
-      "part": "문서",
-      "slot": "right",
-      "face": "none",
-      "tag": {
-       "text": "5월 2일",
-       "tone": "blue"
+  },
+  "tool--ide": {
+    "alt": "네 컷 — 창을 옮겨 다니며 확인하던 일이, 한 화면에 모이자 치는 중에 오류를 알려주는 이야기다, 버튼으로 되는 것은 내 컴퓨터 안이고 서버에서는 같은 일을 명령으로 하는 이야기",
+    "cuts": [
+      {
+        "caption": "창을 옮겨 다닌다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "sad"
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "mid",
+            "face": "flat",
+            "who": "편집기",
+            "tag": {
+              "text": "편집기",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "right",
+            "face": "flat",
+            "who": "터미널",
+            "tag": {
+              "text": "터미널",
+              "tone": "plain"
+            }
+          }
+        ]
+      },
+      {
+        "caption": "한 화면에 모은다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "mid",
+            "face": "flat",
+            "who": "한 화면",
+            "tag": {
+              "text": "편집·실행·Git",
+              "tone": "blue"
+            }
+          }
+        ]
+      },
+      {
+        "caption": "치는 중에 알려준다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "happy"
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "mid",
+            "face": "flat",
+            "who": "한 화면",
+            "tag": {
+              "text": "편집·실행·Git",
+              "tone": "plain"
+            }
+          }
+        ],
+        "move": {
+          "from": "mid",
+          "to": "left",
+          "payload": {
+            "text": "오류 여기",
+            "tone": "blue"
+          }
+        },
+        "check": true
+      },
+      {
+        "caption": "서버에선 명령이다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "mid",
+            "tag": {
+              "text": "내 컴퓨터만",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "서버",
+            "slot": "right",
+            "face": "flat"
+          }
+        ],
+        "check": false
       }
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "right"
-    }
-   }
-  ]
- },
- "tool--git-branch": {
-  "alt": "세 컷 — main 에 그대로 섞이던 실험이, 이름표를 하나 더 내자 그 뒤에만 쌓이는 이야기",
-  "cuts": [
-   {
-    "caption": "실험이 섞인다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "sad"
-     },
-     {
-      "part": "장부",
-      "slot": "right",
-      "face": "none",
-      "who": "main",
-      "tag": {
-       "text": "main",
-       "tone": "plain"
-      }
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "right",
-     "payload": {
-      "text": "실험",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "이름표를 하나 낸다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "장부",
-      "slot": "mid",
-      "face": "none",
-      "who": "내 가지",
-      "tag": {
-       "text": "내 가지",
-       "tone": "blue"
-      }
-     },
-     {
-      "part": "장부",
-      "slot": "right",
-      "face": "none",
-      "who": "main",
-      "tag": {
-       "text": "main",
-       "tone": "plain"
-      }
-     }
     ]
-   },
-   {
-    "caption": "거기에만 쌓인다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "happy"
-     },
-     {
-      "part": "장부",
-      "slot": "mid",
-      "face": "none",
-      "who": "내 가지",
-      "tag": {
-       "text": "내 가지",
-       "tone": "plain"
+  },
+  "tool--linter-formatter": {
+    "alt": "네 컷 — 공백 지적에 묻히던 버그가, 모양은 포매터가 맞추고 남은 것을 린터가 짚자 눈에 띄는 이야기다, 모양을 맞추는 일과 버그가 될 것을 잡는 일이 서로 다른 도구의 몫인 이야기",
+    "cuts": [
+      {
+        "caption": "공백 얘기로 끝난다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "sad"
+          },
+          {
+            "part": "문서",
+            "slot": "right",
+            "face": "none",
+            "tag": {
+              "text": "공백 + 버그",
+              "tone": "blue"
+            }
+          }
+        ]
+      },
+      {
+        "caption": "모양은 자동으로",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "mid",
+            "face": "flat",
+            "tag": {
+              "text": "포매터",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "문서",
+            "slot": "right",
+            "face": "none"
+          }
+        ],
+        "move": {
+          "from": "mid",
+          "to": "right",
+          "payload": {
+            "text": "모양 맞춤",
+            "tone": "blue"
+          }
+        }
+      },
+      {
+        "caption": "버그만 남는다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "happy"
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "mid",
+            "face": "flat",
+            "tag": {
+              "text": "린터",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "문서",
+            "slot": "right",
+            "face": "none",
+            "tag": {
+              "text": "버그",
+              "tone": "blue"
+            }
+          }
+        ],
+        "move": {
+          "from": "mid",
+          "to": "right"
+        },
+        "check": true
+      },
+      {
+        "caption": "모양과 버그는 딴것",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "mid",
+            "tag": {
+              "text": "둘은 다른 일",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "문서",
+            "slot": "right"
+          }
+        ],
+        "check": false
       }
-     },
-     {
-      "part": "장부",
-      "slot": "right",
-      "face": "none",
-      "who": "main",
-      "tag": {
-       "text": "main",
-       "tone": "plain"
-      }
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "mid",
-     "payload": {
-      "text": "실험",
-      "tone": "blue"
-     }
-    }
-   }
-  ]
- },
- "tool--git-commit": {
-  "alt": "세 컷 — 고친 것이 전부 딸려 가던 기록이, 담는 자리에 골라 담자 한 가지 일로 남는 이야기",
-  "cuts": [
-   {
-    "caption": "실험까지 딸려 간다",
-    "actors": [
-     {
-      "part": "컴퓨터",
-      "slot": "left",
-      "face": "sad"
-     },
-     {
-      "part": "장부",
-      "slot": "right",
-      "face": "none",
-      "tag": {
-       "text": "기록",
-       "tone": "plain"
-      }
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "right",
-     "payload": {
-      "text": "고친 것 전부",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "골라 담는다",
-    "actors": [
-     {
-      "part": "컴퓨터",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "소포",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "버그 수정만",
-       "tone": "blue",
-       "at": "above"
-      }
-     },
-     {
-      "part": "장부",
-      "slot": "right",
-      "face": "none",
-      "tag": {
-       "text": "기록",
-       "tone": "plain"
-      }
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "mid"
-    }
-   },
-   {
-    "caption": "한 일만 남는다",
-    "actors": [
-     {
-      "part": "컴퓨터",
-      "slot": "left",
-      "face": "happy"
-     },
-     {
-      "part": "소포",
-      "slot": "mid",
-      "face": "none"
-     },
-     {
-      "part": "장부",
-      "slot": "right",
-      "face": "none",
-      "tag": {
-       "text": "버그 수정",
-       "tone": "blue"
-      }
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "right"
-    }
-   }
-  ]
- },
- "tool--git-flow": {
-  "alt": "세 컷 — 다 된 기능 하나가 혼자서는 main 으로 못 나가고, 판 번호를 붙인 묶음에 모였다가 그 묶음째 나가는 이야기",
-  "cuts": [
-   {
-    "caption": "혼자는 못 낸다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "sad"
-     },
-     {
-      "part": "장부",
-      "slot": "right",
-      "face": "none",
-      "tag": {
-       "text": "main",
-       "tone": "plain"
-      }
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "right",
-     "head": false,
-     "payload": {
-      "text": "기능 하나",
-      "tone": "blue"
-     }
-    },
-    "mark": "x"
-   },
-   {
-    "caption": "판으로 모은다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "소포",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "v1.4",
-       "tone": "plain"
-      }
-     },
-     {
-      "part": "장부",
-      "slot": "right",
-      "face": "none",
-      "tag": {
-       "text": "main",
-       "tone": "plain"
-      }
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "mid",
-     "payload": {
-      "text": "기능",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "판째 내보낸다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "happy"
-     },
-     {
-      "part": "소포",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "v1.4",
-       "tone": "plain"
-      }
-     },
-     {
-      "part": "장부",
-      "slot": "right",
-      "face": "none",
-      "tag": {
-       "text": "main",
-       "tone": "plain"
-      }
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "right",
-     "payload": {
-      "text": "통째로",
-      "tone": "blue"
-     }
-    }
-   }
-  ]
- },
- "tool--git-stash": {
-  "alt": "세 컷 — 고치던 것을 안고는 가지를 옮기지 못하던 것이, 서랍에 치우자 깨끗해져 옮기는 이야기",
-  "cuts": [
-   {
-    "caption": "옮길 수 없다",
-    "actors": [
-     {
-      "part": "컴퓨터",
-      "slot": "mid",
-      "face": "sad",
-      "tag": {
-       "text": "고치던 것",
-       "tone": "blue"
-      }
-     },
-     {
-      "part": "장부",
-      "slot": "right",
-      "face": "none",
-      "tag": {
-       "text": "다른 가지",
-       "tone": "plain"
-      }
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "right",
-     "head": false
-    },
-    "mark": "x"
-   },
-   {
-    "caption": "서랍에 치운다",
-    "actors": [
-     {
-      "part": "저장통",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "mid",
-      "face": "flat"
-     },
-     {
-      "part": "장부",
-      "slot": "right",
-      "face": "none",
-      "tag": {
-       "text": "다른 가지",
-       "tone": "plain"
-      }
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "left",
-     "payload": {
-      "text": "고치던 것",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "이제 옮긴다",
-    "actors": [
-     {
-      "part": "저장통",
-      "slot": "left",
-      "face": "flat",
-      "tag": {
-       "text": "고치던 것",
-       "tone": "blue"
-      }
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "mid",
-      "face": "happy"
-     },
-     {
-      "part": "장부",
-      "slot": "right",
-      "face": "none",
-      "tag": {
-       "text": "다른 가지",
-       "tone": "plain"
-      }
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "right"
-    }
-   }
-  ]
- },
- "tool--git-tag": {
-  "alt": "세 컷 — 해시밖에 없던 커밋에 사람이 부를 이름을 박고, 그 이름이 움직이지 않는 이야기",
-  "cuts": [
-   {
-    "caption": "부를 이름이 없다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "sad"
-     },
-     {
-      "part": "장부",
-      "slot": "right",
-      "face": "none",
-      "tag": {
-       "text": "a3f9c1e2",
-       "tone": "plain"
-      }
-     }
     ]
-   },
-   {
-    "caption": "이름을 박는다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "장부",
-      "slot": "right",
-      "face": "none",
-      "tag": {
-       "text": "a3f9c1e2",
-       "tone": "plain"
+  },
+  "tool--lock-file": {
+    "alt": "네 컷 — 설치할 때마다 다른 버전이 깔리던 것이, 깔린 버전을 그대로 적어 두자 동료에게도 같은 것이 깔리는 이야기다, 못 박아 둔 그대로 낡으므로 올리는 일은 사람이 따로 해야 하는 이야기",
+    "cuts": [
+      {
+        "caption": "설치 때마다 다르다",
+        "actors": [
+          {
+            "part": "컴퓨터",
+            "slot": "left",
+            "face": "flat",
+            "who": "나",
+            "tag": {
+              "text": "1.2.3",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "right",
+            "face": "sad",
+            "who": "동료",
+            "tag": {
+              "text": "1.9.0",
+              "tone": "plain"
+            }
+          }
+        ]
+      },
+      {
+        "caption": "깔린 것을 적는다",
+        "actors": [
+          {
+            "part": "컴퓨터",
+            "slot": "left",
+            "face": "flat",
+            "who": "나"
+          },
+          {
+            "part": "문서",
+            "slot": "mid",
+            "face": "none",
+            "tag": {
+              "text": "1.2.3",
+              "tone": "blue",
+              "at": "above"
+            }
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "right",
+            "face": "flat",
+            "who": "동료"
+          }
+        ],
+        "move": {
+          "from": "left",
+          "to": "mid"
+        }
+      },
+      {
+        "caption": "그대로 깔린다",
+        "actors": [
+          {
+            "part": "컴퓨터",
+            "slot": "left",
+            "face": "flat",
+            "who": "나"
+          },
+          {
+            "part": "문서",
+            "slot": "mid",
+            "face": "none",
+            "tag": {
+              "text": "1.2.3",
+              "tone": "blue",
+              "at": "above"
+            }
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "right",
+            "face": "happy",
+            "who": "동료",
+            "tag": {
+              "text": "1.2.3",
+              "tone": "plain"
+            }
+          }
+        ],
+        "move": {
+          "from": "mid",
+          "to": "right"
+        },
+        "check": true
+      },
+      {
+        "caption": "그대로 낡는다",
+        "actors": [
+          {
+            "part": "컴퓨터",
+            "slot": "left",
+            "who": "나"
+          },
+          {
+            "part": "문서",
+            "slot": "mid",
+            "tag": {
+              "text": "1.2.3 그대로",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "right",
+            "who": "동료"
+          }
+        ],
+        "check": false
       }
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "right",
-     "payload": {
-      "text": "v1.4.0",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "안 움직인다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "happy"
-     },
-     {
-      "part": "장부",
-      "slot": "right",
-      "face": "none",
-      "tag": {
-       "text": "v1.4.0",
-       "tone": "blue"
-      }
-     }
     ]
-   }
-  ]
- },
- "tool--ide": {
-  "alt": "세 컷 — 창을 옮겨 다니며 확인하던 일이, 한 화면에 모이자 치는 중에 오류를 알려주는 이야기",
-  "cuts": [
-   {
-    "caption": "창을 옮겨 다닌다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "sad"
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "mid",
-      "face": "flat",
-      "who": "편집기",
-      "tag": {
-       "text": "편집기",
-       "tone": "plain"
+  },
+  "tool--merge-conflict": {
+    "alt": "네 컷 — 말없이 덮이던 한쪽 작업이, 둘 다 남긴 채 멈춰 서서 사람이 고르게 되는 이야기다, 표시를 지운 뒤 해결했다고 알려야 병합이 이어지는 이야기",
+    "cuts": [
+      {
+        "caption": "말없이 덮는다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "sad",
+            "who": "A"
+          },
+          {
+            "part": "문서",
+            "slot": "mid",
+            "face": "none"
+          },
+          {
+            "part": "사람",
+            "slot": "right",
+            "face": "flat",
+            "who": "B"
+          }
+        ],
+        "move": {
+          "from": "right",
+          "to": "mid",
+          "payload": {
+            "text": "B 것",
+            "tone": "blue"
+          }
+        }
+      },
+      {
+        "caption": "여기서 멈춘다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat",
+            "who": "A"
+          },
+          {
+            "part": "문서",
+            "slot": "mid",
+            "face": "none",
+            "tag": {
+              "text": "A · B 둘 다",
+              "tone": "blue"
+            }
+          },
+          {
+            "part": "사람",
+            "slot": "right",
+            "face": "flat",
+            "who": "B"
+          }
+        ]
+      },
+      {
+        "caption": "사람이 고른다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "happy",
+            "who": "A"
+          },
+          {
+            "part": "문서",
+            "slot": "mid",
+            "face": "none",
+            "tag": {
+              "text": "A 것",
+              "tone": "blue"
+            }
+          },
+          {
+            "part": "사람",
+            "slot": "right",
+            "face": "flat",
+            "who": "B"
+          }
+        ],
+        "move": {
+          "from": "left",
+          "to": "mid"
+        },
+        "check": true
+      },
+      {
+        "caption": "알려야 이어진다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat",
+            "who": "A"
+          },
+          {
+            "part": "문서",
+            "slot": "mid",
+            "tag": {
+              "text": "아직 멈춤",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "사람",
+            "slot": "right",
+            "face": "flat",
+            "who": "B"
+          }
+        ],
+        "check": false
       }
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "right",
-      "face": "flat",
-      "who": "터미널",
-      "tag": {
-       "text": "터미널",
-       "tone": "plain"
-      }
-     }
     ]
-   },
-   {
-    "caption": "한 화면에 모은다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "mid",
-      "face": "flat",
-      "who": "한 화면",
-      "tag": {
-       "text": "편집·실행·Git",
-       "tone": "blue"
+  },
+  "tool--merge-vs-rebase": {
+    "alt": "네 컷 — 갈라진 두 줄 앞에서 합칠지 다시 쌓을지 고르고, 어느 쪽이든 하나로 합쳐지는 이야기다, 이미 남과 나눈 커밋에는 다시 쌓는 쪽을 쓸 수 없는 이야기",
+    "cuts": [
+      {
+        "caption": "줄이 갈라졌다",
+        "actors": [
+          {
+            "part": "갈래",
+            "slot": "left",
+            "face": "none",
+            "tag": {
+              "text": "두 줄",
+              "tone": "blue-dash"
+            }
+          },
+          {
+            "part": "사람",
+            "slot": "right",
+            "face": "sad"
+          }
+        ]
+      },
+      {
+        "caption": "고르는 자리다",
+        "actors": [
+          {
+            "part": "갈래",
+            "slot": "left",
+            "face": "none"
+          },
+          {
+            "part": "표지판",
+            "slot": "mid",
+            "face": "none",
+            "tag": {
+              "text": "합칠까 쌓을까",
+              "tone": "blue"
+            }
+          },
+          {
+            "part": "사람",
+            "slot": "right",
+            "face": "flat"
+          }
+        ]
+      },
+      {
+        "caption": "어느 쪽이든 합친다",
+        "actors": [
+          {
+            "part": "표지판",
+            "slot": "mid",
+            "face": "none"
+          },
+          {
+            "part": "사람",
+            "slot": "right",
+            "face": "happy"
+          }
+        ],
+        "move": {
+          "from": "mid",
+          "to": "right",
+          "payload": {
+            "text": "합침",
+            "tone": "blue"
+          }
+        },
+        "check": true
+      },
+      {
+        "caption": "나눈 것엔 못 쓴다",
+        "actors": [
+          {
+            "part": "갈래",
+            "slot": "left"
+          },
+          {
+            "part": "표지판",
+            "slot": "mid",
+            "tag": {
+              "text": "이미 올린 것",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "사람",
+            "slot": "right",
+            "face": "flat"
+          }
+        ],
+        "check": false
       }
-     }
     ]
-   },
-   {
-    "caption": "치는 중에 알려준다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "happy"
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "mid",
-      "face": "flat",
-      "who": "한 화면",
-      "tag": {
-       "text": "편집·실행·Git",
-       "tone": "plain"
+  },
+  "tool--monorepo": {
+    "alt": "네 컷 — 내보내야 건너가던 옆 프로젝트의 수정이, 한 저장소에 함께 두자 그 자리에서 쓰이는 이야기다, 저장소가 하나인 것과 배포 단위가 하나인 것은 다른 이야기",
+    "cuts": [
+      {
+        "caption": "먼저 내보내야 한다",
+        "actors": [
+          {
+            "part": "소포",
+            "slot": "mid",
+            "face": "none",
+            "who": "앱",
+            "tag": {
+              "text": "앱",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "소포",
+            "slot": "right",
+            "face": "none",
+            "who": "라이브러리",
+            "tag": {
+              "text": "라이브러리",
+              "tone": "plain"
+            }
+          }
+        ],
+        "move": {
+          "from": "right",
+          "to": "mid",
+          "head": false,
+          "payload": {
+            "text": "고친 것",
+            "tone": "blue"
+          }
+        },
+        "mark": "x"
+      },
+      {
+        "caption": "옆 폴더가 된다",
+        "actors": [
+          {
+            "part": "저장통",
+            "slot": "left",
+            "face": "flat",
+            "tag": {
+              "text": "한 저장소",
+              "tone": "blue"
+            }
+          },
+          {
+            "part": "소포",
+            "slot": "mid",
+            "face": "none",
+            "who": "앱",
+            "tag": {
+              "text": "앱",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "소포",
+            "slot": "right",
+            "face": "none",
+            "who": "라이브러리",
+            "tag": {
+              "text": "라이브러리",
+              "tone": "plain"
+            }
+          }
+        ]
+      },
+      {
+        "caption": "그 자리에서 쓴다",
+        "actors": [
+          {
+            "part": "저장통",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "소포",
+            "slot": "mid",
+            "face": "none",
+            "who": "앱",
+            "tag": {
+              "text": "앱",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "소포",
+            "slot": "right",
+            "face": "none",
+            "who": "라이브러리",
+            "tag": {
+              "text": "라이브러리",
+              "tone": "plain"
+            }
+          }
+        ],
+        "move": {
+          "from": "right",
+          "to": "mid",
+          "payload": {
+            "text": "고친 것",
+            "tone": "blue"
+          }
+        }
+      },
+      {
+        "caption": "배포는 따로 한다",
+        "actors": [
+          {
+            "part": "저장통",
+            "slot": "left",
+            "tag": {
+              "text": "한 저장소",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "소포",
+            "slot": "mid",
+            "who": "앱"
+          },
+          {
+            "part": "소포",
+            "slot": "right",
+            "who": "라이브러리"
+          }
+        ]
       }
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "left",
-     "payload": {
-      "text": "오류 여기",
-      "tone": "blue"
-     }
-    }
-   }
-  ]
- },
- "tool--linter-formatter": {
-  "alt": "세 컷 — 공백 지적에 묻히던 버그가, 모양은 포매터가 맞추고 남은 것을 린터가 짚자 눈에 띄는 이야기",
-  "cuts": [
-   {
-    "caption": "공백 얘기로 끝난다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "sad"
-     },
-     {
-      "part": "문서",
-      "slot": "right",
-      "face": "none",
-      "tag": {
-       "text": "공백 + 버그",
-       "tone": "blue"
-      }
-     }
     ]
-   },
-   {
-    "caption": "모양은 자동으로",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "mid",
-      "face": "flat",
-      "tag": {
-       "text": "포매터",
-       "tone": "plain"
+  },
+  "tool--package-manager": {
+    "alt": "네 컷 — 딸린 것을 놓치던 손 작업이, 이름만 적어 두자 딸린 것까지 한꺼번에 깔리는 이야기다, 버전을 범위로 적어 두면 조건에 맞는 더 높은 것이 깔리는 이야기",
+    "cuts": [
+      {
+        "caption": "딸린 것을 놓친다",
+        "actors": [
+          {
+            "part": "컴퓨터",
+            "slot": "left",
+            "face": "sad"
+          },
+          {
+            "part": "구름",
+            "slot": "right",
+            "face": "flat"
+          }
+        ],
+        "move": {
+          "from": "right",
+          "to": "left",
+          "head": false,
+          "payload": {
+            "text": "딸린 것",
+            "tone": "blue"
+          }
+        },
+        "mark": "x"
+      },
+      {
+        "caption": "이름만 적어 둔다",
+        "actors": [
+          {
+            "part": "컴퓨터",
+            "slot": "left",
+            "face": "flat",
+            "tag": {
+              "text": "이름 한 줄",
+              "tone": "blue"
+            }
+          },
+          {
+            "part": "구름",
+            "slot": "right",
+            "face": "flat"
+          }
+        ]
+      },
+      {
+        "caption": "한꺼번에 깔린다",
+        "actors": [
+          {
+            "part": "컴퓨터",
+            "slot": "left",
+            "face": "happy"
+          },
+          {
+            "part": "구름",
+            "slot": "right",
+            "face": "flat"
+          }
+        ],
+        "move": {
+          "from": "right",
+          "to": "left",
+          "payload": {
+            "text": "딸린 것까지",
+            "tone": "blue"
+          }
+        },
+        "check": true
+      },
+      {
+        "caption": "범위면 올라간다",
+        "actors": [
+          {
+            "part": "컴퓨터",
+            "slot": "left",
+            "tag": {
+              "text": "^1.2.3",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "구름",
+            "slot": "right"
+          }
+        ],
+        "move": {
+          "from": "right",
+          "to": "left",
+          "payload": {
+            "text": "1.9.0",
+            "tone": "blue"
+          }
+        },
+        "check": false
       }
-     },
-     {
-      "part": "문서",
-      "slot": "right",
-      "face": "none"
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "right",
-     "payload": {
-      "text": "모양 맞춤",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "버그만 남는다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "happy"
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "mid",
-      "face": "flat",
-      "tag": {
-       "text": "린터",
-       "tone": "plain"
-      }
-     },
-     {
-      "part": "문서",
-      "slot": "right",
-      "face": "none",
-      "tag": {
-       "text": "버그",
-       "tone": "blue"
-      }
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "right"
-    }
-   }
-  ]
- },
- "tool--lock-file": {
-  "alt": "세 컷 — 설치할 때마다 다른 버전이 깔리던 것이, 깔린 버전을 그대로 적어 두자 동료에게도 같은 것이 깔리는 이야기",
-  "cuts": [
-   {
-    "caption": "설치 때마다 다르다",
-    "actors": [
-     {
-      "part": "컴퓨터",
-      "slot": "left",
-      "face": "flat",
-      "who": "나",
-      "tag": {
-       "text": "1.2.3",
-       "tone": "plain"
-      }
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "right",
-      "face": "sad",
-      "who": "동료",
-      "tag": {
-       "text": "1.9.0",
-       "tone": "plain"
-      }
-     }
     ]
-   },
-   {
-    "caption": "깔린 것을 적는다",
-    "actors": [
-     {
-      "part": "컴퓨터",
-      "slot": "left",
-      "face": "flat",
-      "who": "나"
-     },
-     {
-      "part": "문서",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "1.2.3",
-       "tone": "blue",
-       "at": "above"
+  },
+  "tool--pull-request": {
+    "alt": "네 컷 — 아무도 안 보고 들어가던 변경이, 합쳐 달라는 제안으로 리뷰어를 거쳐 승인 뒤에 들어가는 이야기다, 승인은 합쳐도 되겠다는 신호이지 코드가 맞다는 증명은 아닌 이야기",
+    "cuts": [
+      {
+        "caption": "아무도 안 본다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat",
+            "who": "낸 사람"
+          },
+          {
+            "part": "장부",
+            "slot": "right",
+            "face": "none",
+            "tag": {
+              "text": "main",
+              "tone": "plain"
+            }
+          }
+        ],
+        "move": {
+          "from": "left",
+          "to": "right",
+          "payload": {
+            "text": "변경",
+            "tone": "blue"
+          }
+        }
+      },
+      {
+        "caption": "합쳐 달라고 낸다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat",
+            "who": "낸 사람"
+          },
+          {
+            "part": "사람",
+            "slot": "mid",
+            "face": "flat",
+            "who": "리뷰어"
+          },
+          {
+            "part": "장부",
+            "slot": "right",
+            "face": "none",
+            "tag": {
+              "text": "main",
+              "tone": "plain"
+            }
+          }
+        ],
+        "move": {
+          "from": "left",
+          "to": "mid",
+          "payload": {
+            "text": "제안",
+            "tone": "blue"
+          }
+        }
+      },
+      {
+        "caption": "승인 뒤에 합쳐진다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat",
+            "who": "낸 사람"
+          },
+          {
+            "part": "사람",
+            "slot": "mid",
+            "face": "happy",
+            "who": "리뷰어"
+          },
+          {
+            "part": "장부",
+            "slot": "right",
+            "face": "none",
+            "tag": {
+              "text": "main",
+              "tone": "plain"
+            }
+          }
+        ],
+        "move": {
+          "from": "mid",
+          "to": "right",
+          "payload": {
+            "text": "변경",
+            "tone": "blue"
+          }
+        },
+        "check": true
+      },
+      {
+        "caption": "읽었다는 표시다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat",
+            "who": "낸 사람"
+          },
+          {
+            "part": "사람",
+            "slot": "mid",
+            "tag": {
+              "text": "읽고 판단",
+              "tone": "plain"
+            },
+            "who": "리뷰어"
+          },
+          {
+            "part": "장부",
+            "slot": "right"
+          }
+        ],
+        "check": false
       }
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "right",
-      "face": "flat",
-      "who": "동료"
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "mid"
-    }
-   },
-   {
-    "caption": "그대로 깔린다",
-    "actors": [
-     {
-      "part": "컴퓨터",
-      "slot": "left",
-      "face": "flat",
-      "who": "나"
-     },
-     {
-      "part": "문서",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "1.2.3",
-       "tone": "blue",
-       "at": "above"
-      }
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "right",
-      "face": "happy",
-      "who": "동료",
-      "tag": {
-       "text": "1.2.3",
-       "tone": "plain"
-      }
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "right"
-    }
-   }
-  ]
- },
- "tool--merge-conflict": {
-  "alt": "세 컷 — 말없이 덮이던 한쪽 작업이, 둘 다 남긴 채 멈춰 서서 사람이 고르게 되는 이야기",
-  "cuts": [
-   {
-    "caption": "말없이 덮는다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "sad",
-      "who": "A"
-     },
-     {
-      "part": "문서",
-      "slot": "mid",
-      "face": "none"
-     },
-     {
-      "part": "사람",
-      "slot": "right",
-      "face": "flat",
-      "who": "B"
-     }
-    ],
-    "move": {
-     "from": "right",
-     "to": "mid",
-     "payload": {
-      "text": "B 것",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "여기서 멈춘다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "flat",
-      "who": "A"
-     },
-     {
-      "part": "문서",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "A · B 둘 다",
-       "tone": "blue"
-      }
-     },
-     {
-      "part": "사람",
-      "slot": "right",
-      "face": "flat",
-      "who": "B"
-     }
     ]
-   },
-   {
-    "caption": "사람이 고른다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "happy",
-      "who": "A"
-     },
-     {
-      "part": "문서",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "A 것",
-       "tone": "blue"
+  },
+  "tool--sdk": {
+    "alt": "네 컷 — 규격부터 읽어야 했던 플랫폼 기능이, 함수와 도구를 묶은 꾸러미를 거쳐 몇 줄로 받아지는 이야기다, 특정 플랫폼용으로 만들어진 상자라 다른 곳으로 옮기면 새로 배워야 하는 이야기",
+    "cuts": [
+      {
+        "caption": "규격부터 읽는다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "sad"
+          },
+          {
+            "part": "폰",
+            "slot": "right",
+            "face": "flat"
+          }
+        ],
+        "move": {
+          "from": "left",
+          "to": "right",
+          "head": false,
+          "payload": {
+            "text": "GPS 값?",
+            "tone": "blue"
+          }
+        },
+        "mark": "x"
+      },
+      {
+        "caption": "한 꾸러미로 온다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "소포",
+            "slot": "mid",
+            "face": "none",
+            "tag": {
+              "text": "함수·도구·문서",
+              "tone": "blue",
+              "at": "above"
+            }
+          },
+          {
+            "part": "폰",
+            "slot": "right",
+            "face": "flat"
+          }
+        ]
+      },
+      {
+        "caption": "몇 줄로 받는다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "happy"
+          },
+          {
+            "part": "소포",
+            "slot": "mid",
+            "face": "none",
+            "tag": {
+              "text": "함수 하나",
+              "tone": "blue",
+              "at": "above"
+            }
+          },
+          {
+            "part": "폰",
+            "slot": "right",
+            "face": "flat"
+          }
+        ],
+        "move": {
+          "from": "mid",
+          "to": "right"
+        },
+        "check": true
+      },
+      {
+        "caption": "다른 데선 새로",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "소포",
+            "slot": "mid",
+            "tag": {
+              "text": "이 플랫폼용",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "폰",
+            "slot": "right"
+          }
+        ],
+        "check": false
       }
-     },
-     {
-      "part": "사람",
-      "slot": "right",
-      "face": "flat",
-      "who": "B"
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "mid"
-    }
-   }
-  ]
- },
- "tool--merge-vs-rebase": {
-  "alt": "세 컷 — 갈라진 두 줄 앞에서 합칠지 다시 쌓을지 고르고, 어느 쪽이든 하나로 합쳐지는 이야기",
-  "cuts": [
-   {
-    "caption": "줄이 갈라졌다",
-    "actors": [
-     {
-      "part": "갈래",
-      "slot": "left",
-      "face": "none",
-      "tag": {
-       "text": "두 줄",
-       "tone": "blue-dash"
-      }
-     },
-     {
-      "part": "사람",
-      "slot": "right",
-      "face": "sad"
-     }
     ]
-   },
-   {
-    "caption": "고르는 자리다",
-    "actors": [
-     {
-      "part": "갈래",
-      "slot": "left",
-      "face": "none"
-     },
-     {
-      "part": "표지판",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "합칠까 쌓을까",
-       "tone": "blue"
+  },
+  "tool--semantic-versioning": {
+    "alt": "네 컷 — 올려도 되는지 모르던 번호가, 자리마다 뜻을 갖자 열어 보지 않고도 받게 되는 이야기다, 앞자리가 0 인 구간에는 그 약속이 없어 무엇이든 바뀔 수 있는 이야기",
+    "cuts": [
+      {
+        "caption": "올려도 되나 모른다",
+        "actors": [
+          {
+            "part": "컴퓨터",
+            "slot": "left",
+            "face": "sad"
+          },
+          {
+            "part": "소포",
+            "slot": "right",
+            "face": "none",
+            "tag": {
+              "text": "?",
+              "tone": "blue-dash"
+            }
+          }
+        ]
+      },
+      {
+        "caption": "앞자리만 깨진다",
+        "actors": [
+          {
+            "part": "컴퓨터",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "소포",
+            "slot": "right",
+            "face": "none"
+          }
+        ],
+        "move": {
+          "from": "right",
+          "to": "left",
+          "payload": {
+            "text": "1.4.2→1.4.3",
+            "tone": "blue"
+          }
+        }
+      },
+      {
+        "caption": "열어 보지 않는다",
+        "actors": [
+          {
+            "part": "컴퓨터",
+            "slot": "left",
+            "face": "happy",
+            "tag": {
+              "text": "1.4.3",
+              "tone": "blue"
+            }
+          },
+          {
+            "part": "소포",
+            "slot": "right",
+            "face": "none"
+          }
+        ],
+        "check": true
+      },
+      {
+        "caption": "0 이면 약속 없다",
+        "actors": [
+          {
+            "part": "컴퓨터",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "소포",
+            "slot": "right",
+            "tag": {
+              "text": "0.x 는 예외",
+              "tone": "plain"
+            }
+          }
+        ],
+        "check": false
       }
-     },
-     {
-      "part": "사람",
-      "slot": "right",
-      "face": "flat"
-     }
     ]
-   },
-   {
-    "caption": "어느 쪽이든 합친다",
-    "actors": [
-     {
-      "part": "표지판",
-      "slot": "mid",
-      "face": "none"
-     },
-     {
-      "part": "사람",
-      "slot": "right",
-      "face": "happy"
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "right",
-     "payload": {
-      "text": "합침",
-      "tone": "blue"
-     }
-    }
-   }
-  ]
- },
- "tool--monorepo": {
-  "alt": "세 컷 — 내보내야 건너가던 옆 프로젝트의 수정이, 한 저장소에 함께 두자 그 자리에서 쓰이는 이야기",
-  "cuts": [
-   {
-    "caption": "먼저 내보내야 한다",
-    "actors": [
-     {
-      "part": "소포",
-      "slot": "mid",
-      "face": "none",
-      "who": "앱",
-      "tag": {
-       "text": "앱",
-       "tone": "plain"
+  },
+  "tool--shell": {
+    "alt": "네 컷 — 기계가 그대로는 못 알아듣던 명령 줄을, 셸이 받아 알아듣고 이어 붙여 시키는 이야기다, 한 셸의 기능으로 적어 두면 다른 셸에서는 그대로 돌지 않는 이야기",
+    "cuts": [
+      {
+        "caption": "글자만으론 안 된다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "sad"
+          },
+          {
+            "part": "서버",
+            "slot": "right",
+            "face": "flat",
+            "tag": {
+              "text": "기계",
+              "tone": "plain"
+            }
+          }
+        ],
+        "move": {
+          "from": "left",
+          "to": "right",
+          "head": false,
+          "payload": {
+            "text": "grep | wc",
+            "tone": "blue"
+          }
+        },
+        "mark": "x"
+      },
+      {
+        "caption": "셸이 알아듣는다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "mid",
+            "face": "flat",
+            "tag": {
+              "text": "셸",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "서버",
+            "slot": "right",
+            "face": "flat",
+            "tag": {
+              "text": "기계",
+              "tone": "plain"
+            }
+          }
+        ],
+        "move": {
+          "from": "left",
+          "to": "mid",
+          "payload": {
+            "text": "grep | wc",
+            "tone": "blue"
+          }
+        }
+      },
+      {
+        "caption": "이어 붙여 시킨다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "happy"
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "mid",
+            "face": "flat",
+            "tag": {
+              "text": "셸",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "서버",
+            "slot": "right",
+            "face": "flat",
+            "tag": {
+              "text": "기계",
+              "tone": "plain"
+            }
+          }
+        ],
+        "move": {
+          "from": "mid",
+          "to": "right",
+          "payload": {
+            "text": "이어 붙인 것",
+            "tone": "blue"
+          }
+        },
+        "check": true
+      },
+      {
+        "caption": "셸마다 다르다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "mid",
+            "tag": {
+              "text": "셸이 다르면",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "서버",
+            "slot": "right"
+          }
+        ],
+        "check": false
       }
-     },
-     {
-      "part": "소포",
-      "slot": "right",
-      "face": "none",
-      "who": "라이브러리",
-      "tag": {
-       "text": "라이브러리",
-       "tone": "plain"
-      }
-     }
-    ],
-    "move": {
-     "from": "right",
-     "to": "mid",
-     "head": false,
-     "payload": {
-      "text": "고친 것",
-      "tone": "blue"
-     }
-    },
-    "mark": "x"
-   },
-   {
-    "caption": "옆 폴더가 된다",
-    "actors": [
-     {
-      "part": "저장통",
-      "slot": "left",
-      "face": "flat",
-      "tag": {
-       "text": "한 저장소",
-       "tone": "blue"
-      }
-     },
-     {
-      "part": "소포",
-      "slot": "mid",
-      "face": "none",
-      "who": "앱",
-      "tag": {
-       "text": "앱",
-       "tone": "plain"
-      }
-     },
-     {
-      "part": "소포",
-      "slot": "right",
-      "face": "none",
-      "who": "라이브러리",
-      "tag": {
-       "text": "라이브러리",
-       "tone": "plain"
-      }
-     }
     ]
-   },
-   {
-    "caption": "그 자리에서 쓴다",
-    "actors": [
-     {
-      "part": "저장통",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "소포",
-      "slot": "mid",
-      "face": "none",
-      "who": "앱",
-      "tag": {
-       "text": "앱",
-       "tone": "plain"
+  },
+  "tool--term-e82c0160": {
+    "alt": "네 컷 — 코드에 박혀 저장소에 남던 비밀번호를 밖에서 넣어 주게 하고, 코드는 하나로 두는 이야기다, 저장소에 안 올라갈 뿐 값은 평문이라 서버에 들어온 사람은 그대로 읽는 이야기",
+    "cuts": [
+      {
+        "caption": "저장소에 남는다",
+        "actors": [
+          {
+            "part": "문서",
+            "slot": "mid",
+            "face": "none",
+            "tag": {
+              "text": "비밀번호",
+              "tone": "blue"
+            }
+          },
+          {
+            "part": "저장통",
+            "slot": "right",
+            "face": "flat"
+          }
+        ],
+        "move": {
+          "from": "mid",
+          "to": "right"
+        }
+      },
+      {
+        "caption": "밖에서 넣어 준다",
+        "actors": [
+          {
+            "part": "서버",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "문서",
+            "slot": "mid",
+            "face": "none"
+          },
+          {
+            "part": "저장통",
+            "slot": "right",
+            "face": "flat"
+          }
+        ],
+        "move": {
+          "from": "left",
+          "to": "mid",
+          "payload": {
+            "text": "설정값",
+            "tone": "blue"
+          }
+        }
+      },
+      {
+        "caption": "값만 바꿔 끼운다",
+        "actors": [
+          {
+            "part": "서버",
+            "slot": "left",
+            "face": "flat",
+            "tag": {
+              "text": "운영 값",
+              "tone": "blue"
+            }
+          },
+          {
+            "part": "문서",
+            "slot": "mid",
+            "face": "none",
+            "tag": {
+              "text": "코드만",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "저장통",
+            "slot": "right",
+            "face": "flat"
+          }
+        ],
+        "move": {
+          "from": "mid",
+          "to": "right"
+        },
+        "check": true
+      },
+      {
+        "caption": "평문 그대로다",
+        "actors": [
+          {
+            "part": "서버",
+            "slot": "left",
+            "tag": {
+              "text": "들어오면 보임",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "문서",
+            "slot": "mid"
+          },
+          {
+            "part": "저장통",
+            "slot": "right"
+          }
+        ],
+        "check": false
       }
-     },
-     {
-      "part": "소포",
-      "slot": "right",
-      "face": "none",
-      "who": "라이브러리",
-      "tag": {
-       "text": "라이브러리",
-       "tone": "plain"
-      }
-     }
-    ],
-    "move": {
-     "from": "right",
-     "to": "mid",
-     "payload": {
-      "text": "고친 것",
-      "tone": "blue"
-     }
-    }
-   }
-  ]
- },
- "tool--package-manager": {
-  "alt": "세 컷 — 딸린 것을 놓치던 손 작업이, 이름만 적어 두자 딸린 것까지 한꺼번에 깔리는 이야기",
-  "cuts": [
-   {
-    "caption": "딸린 것을 놓친다",
-    "actors": [
-     {
-      "part": "컴퓨터",
-      "slot": "left",
-      "face": "sad"
-     },
-     {
-      "part": "구름",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "right",
-     "to": "left",
-     "head": false,
-     "payload": {
-      "text": "딸린 것",
-      "tone": "blue"
-     }
-    },
-    "mark": "x"
-   },
-   {
-    "caption": "이름만 적어 둔다",
-    "actors": [
-     {
-      "part": "컴퓨터",
-      "slot": "left",
-      "face": "flat",
-      "tag": {
-       "text": "이름 한 줄",
-       "tone": "blue"
-      }
-     },
-     {
-      "part": "구름",
-      "slot": "right",
-      "face": "flat"
-     }
     ]
-   },
-   {
-    "caption": "한꺼번에 깔린다",
-    "actors": [
-     {
-      "part": "컴퓨터",
-      "slot": "left",
-      "face": "happy"
-     },
-     {
-      "part": "구름",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "right",
-     "to": "left",
-     "payload": {
-      "text": "딸린 것까지",
-      "tone": "blue"
-     }
-    }
-   }
-  ]
- },
- "tool--pull-request": {
-  "alt": "세 컷 — 아무도 안 보고 들어가던 변경이, 합쳐 달라는 제안으로 리뷰어를 거쳐 승인 뒤에 들어가는 이야기",
-  "cuts": [
-   {
-    "caption": "아무도 안 본다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "flat",
-      "who": "낸 사람"
-     },
-     {
-      "part": "장부",
-      "slot": "right",
-      "face": "none",
-      "tag": {
-       "text": "main",
-       "tone": "plain"
+  },
+  "tool--terminal": {
+    "alt": "네 컷 — 화면을 통째로 주고받아야 했던 일이, 창에 한 줄을 치고 글자로 결과를 돌려받는 일로 바뀌는 이야기다, 창은 글자를 나르고 그릴 뿐이며 해석하고 실행하는 것은 그 안의 셸인 이야기",
+    "cuts": [
+      {
+        "caption": "화면이 있어야 한다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "sad"
+          },
+          {
+            "part": "서버",
+            "slot": "right",
+            "face": "flat"
+          }
+        ],
+        "move": {
+          "from": "left",
+          "to": "right",
+          "head": false,
+          "payload": {
+            "text": "화면 통째로",
+            "tone": "blue"
+          }
+        },
+        "mark": "x"
+      },
+      {
+        "caption": "창에 한 줄 친다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "mid",
+            "face": "flat",
+            "tag": {
+              "text": "터미널",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "서버",
+            "slot": "right",
+            "face": "flat"
+          }
+        ],
+        "move": {
+          "from": "left",
+          "to": "mid",
+          "payload": {
+            "text": "명령 한 줄",
+            "tone": "blue"
+          }
+        }
+      },
+      {
+        "caption": "결과가 돌아온다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "happy"
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "mid",
+            "face": "flat",
+            "tag": {
+              "text": "터미널",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "서버",
+            "slot": "right",
+            "face": "flat"
+          }
+        ],
+        "move": {
+          "from": "right",
+          "to": "mid",
+          "payload": {
+            "text": "결과",
+            "tone": "blue"
+          }
+        },
+        "check": true
+      },
+      {
+        "caption": "해석은 셸이 한다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "mid",
+            "tag": {
+              "text": "창일 뿐",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "서버",
+            "slot": "right"
+          }
+        ],
+        "check": false
       }
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "right",
-     "payload": {
-      "text": "변경",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "합쳐 달라고 낸다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "flat",
-      "who": "낸 사람"
-     },
-     {
-      "part": "사람",
-      "slot": "mid",
-      "face": "flat",
-      "who": "리뷰어"
-     },
-     {
-      "part": "장부",
-      "slot": "right",
-      "face": "none",
-      "tag": {
-       "text": "main",
-       "tone": "plain"
-      }
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "mid",
-     "payload": {
-      "text": "제안",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "승인 뒤에 합쳐진다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "flat",
-      "who": "낸 사람"
-     },
-     {
-      "part": "사람",
-      "slot": "mid",
-      "face": "happy",
-      "who": "리뷰어"
-     },
-     {
-      "part": "장부",
-      "slot": "right",
-      "face": "none",
-      "tag": {
-       "text": "main",
-       "tone": "plain"
-      }
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "right",
-     "payload": {
-      "text": "변경",
-      "tone": "blue"
-     }
-    }
-   }
-  ]
- },
- "tool--sdk": {
-  "alt": "세 컷 — 규격부터 읽어야 했던 플랫폼 기능이, 함수와 도구를 묶은 꾸러미를 거쳐 몇 줄로 받아지는 이야기",
-  "cuts": [
-   {
-    "caption": "규격부터 읽는다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "sad"
-     },
-     {
-      "part": "폰",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "right",
-     "head": false,
-     "payload": {
-      "text": "GPS 값?",
-      "tone": "blue"
-     }
-    },
-    "mark": "x"
-   },
-   {
-    "caption": "한 꾸러미로 온다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "소포",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "함수·도구·문서",
-       "tone": "blue",
-       "at": "above"
-      }
-     },
-     {
-      "part": "폰",
-      "slot": "right",
-      "face": "flat"
-     }
     ]
-   },
-   {
-    "caption": "몇 줄로 받는다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "happy"
-     },
-     {
-      "part": "소포",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "함수 하나",
-       "tone": "blue",
-       "at": "above"
+  },
+  "tool--trunk-based-development": {
+    "alt": "네 컷 — 세 주치를 한꺼번에 합치다 부딪치던 것이, 매일 하루치씩 합치자 늘 낼 수 있게 되는 이야기다, 커밋마다 도는 자동 검사가 먼저 있어야 매일 합치는 것이 성립하는 이야기",
+    "cuts": [
+      {
+        "caption": "한꺼번에 부딪친다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "sad"
+          },
+          {
+            "part": "장부",
+            "slot": "right",
+            "face": "none",
+            "tag": {
+              "text": "줄기",
+              "tone": "plain"
+            }
+          }
+        ],
+        "move": {
+          "from": "left",
+          "to": "right",
+          "head": false,
+          "payload": {
+            "text": "3주치",
+            "tone": "blue"
+          }
+        },
+        "mark": "x"
+      },
+      {
+        "caption": "매일 합친다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "장부",
+            "slot": "right",
+            "face": "none",
+            "tag": {
+              "text": "줄기",
+              "tone": "plain"
+            }
+          }
+        ],
+        "move": {
+          "from": "left",
+          "to": "right",
+          "payload": {
+            "text": "하루치",
+            "tone": "blue"
+          }
+        }
+      },
+      {
+        "caption": "늘 낼 수 있다",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "happy"
+          },
+          {
+            "part": "장부",
+            "slot": "right",
+            "face": "none",
+            "tag": {
+              "text": "오늘 것까지",
+              "tone": "blue"
+            }
+          }
+        ],
+        "check": true
+      },
+      {
+        "caption": "검사가 먼저 있어야",
+        "actors": [
+          {
+            "part": "사람",
+            "slot": "left",
+            "face": "flat"
+          },
+          {
+            "part": "컴퓨터",
+            "slot": "mid",
+            "tag": {
+              "text": "자동 검사",
+              "tone": "plain"
+            }
+          },
+          {
+            "part": "장부",
+            "slot": "right"
+          }
+        ],
+        "check": false
       }
-     },
-     {
-      "part": "폰",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "right"
-    }
-   }
-  ]
- },
- "tool--semantic-versioning": {
-  "alt": "세 컷 — 올려도 되는지 모르던 번호가, 자리마다 뜻을 갖자 열어 보지 않고도 받게 되는 이야기",
-  "cuts": [
-   {
-    "caption": "올려도 되나 모른다",
-    "actors": [
-     {
-      "part": "컴퓨터",
-      "slot": "left",
-      "face": "sad"
-     },
-     {
-      "part": "소포",
-      "slot": "right",
-      "face": "none",
-      "tag": {
-       "text": "?",
-       "tone": "blue-dash"
-      }
-     }
     ]
-   },
-   {
-    "caption": "앞자리만 깨진다",
-    "actors": [
-     {
-      "part": "컴퓨터",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "소포",
-      "slot": "right",
-      "face": "none"
-     }
-    ],
-    "move": {
-     "from": "right",
-     "to": "left",
-     "payload": {
-      "text": "1.4.2→1.4.3",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "열어 보지 않는다",
-    "actors": [
-     {
-      "part": "컴퓨터",
-      "slot": "left",
-      "face": "happy",
-      "tag": {
-       "text": "1.4.3",
-       "tone": "blue"
-      }
-     },
-     {
-      "part": "소포",
-      "slot": "right",
-      "face": "none"
-     }
-    ]
-   }
-  ]
- },
- "tool--shell": {
-  "alt": "세 컷 — 기계가 그대로는 못 알아듣던 명령 줄을, 셸이 받아 알아듣고 이어 붙여 시키는 이야기",
-  "cuts": [
-   {
-    "caption": "글자만으론 안 된다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "sad"
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "flat",
-      "tag": {
-       "text": "기계",
-       "tone": "plain"
-      }
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "right",
-     "head": false,
-     "payload": {
-      "text": "grep | wc",
-      "tone": "blue"
-     }
-    },
-    "mark": "x"
-   },
-   {
-    "caption": "셸이 알아듣는다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "mid",
-      "face": "flat",
-      "tag": {
-       "text": "셸",
-       "tone": "plain"
-      }
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "flat",
-      "tag": {
-       "text": "기계",
-       "tone": "plain"
-      }
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "mid",
-     "payload": {
-      "text": "grep | wc",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "이어 붙여 시킨다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "happy"
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "mid",
-      "face": "flat",
-      "tag": {
-       "text": "셸",
-       "tone": "plain"
-      }
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "flat",
-      "tag": {
-       "text": "기계",
-       "tone": "plain"
-      }
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "right",
-     "payload": {
-      "text": "이어 붙인 것",
-      "tone": "blue"
-     }
-    }
-   }
-  ]
- },
- "tool--term-e82c0160": {
-  "alt": "세 컷 — 코드에 박혀 저장소에 남던 비밀번호를 밖에서 넣어 주게 하고, 코드는 하나로 두는 이야기",
-  "cuts": [
-   {
-    "caption": "저장소에 남는다",
-    "actors": [
-     {
-      "part": "문서",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "비밀번호",
-       "tone": "blue"
-      }
-     },
-     {
-      "part": "저장통",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "right"
-    }
-   },
-   {
-    "caption": "밖에서 넣어 준다",
-    "actors": [
-     {
-      "part": "서버",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "문서",
-      "slot": "mid",
-      "face": "none"
-     },
-     {
-      "part": "저장통",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "mid",
-     "payload": {
-      "text": "설정값",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "값만 바꿔 끼운다",
-    "actors": [
-     {
-      "part": "서버",
-      "slot": "left",
-      "face": "flat",
-      "tag": {
-       "text": "운영 값",
-       "tone": "blue"
-      }
-     },
-     {
-      "part": "문서",
-      "slot": "mid",
-      "face": "none",
-      "tag": {
-       "text": "코드만",
-       "tone": "plain"
-      }
-     },
-     {
-      "part": "저장통",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "mid",
-     "to": "right"
-    }
-   }
-  ]
- },
- "tool--terminal": {
-  "alt": "세 컷 — 화면을 통째로 주고받아야 했던 일이, 창에 한 줄을 치고 글자로 결과를 돌려받는 일로 바뀌는 이야기",
-  "cuts": [
-   {
-    "caption": "화면이 있어야 한다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "sad"
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "right",
-     "head": false,
-     "payload": {
-      "text": "화면 통째로",
-      "tone": "blue"
-     }
-    },
-    "mark": "x"
-   },
-   {
-    "caption": "창에 한 줄 친다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "mid",
-      "face": "flat",
-      "tag": {
-       "text": "터미널",
-       "tone": "plain"
-      }
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "mid",
-     "payload": {
-      "text": "명령 한 줄",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "결과가 돌아온다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "happy"
-     },
-     {
-      "part": "컴퓨터",
-      "slot": "mid",
-      "face": "flat",
-      "tag": {
-       "text": "터미널",
-       "tone": "plain"
-      }
-     },
-     {
-      "part": "서버",
-      "slot": "right",
-      "face": "flat"
-     }
-    ],
-    "move": {
-     "from": "right",
-     "to": "mid",
-     "payload": {
-      "text": "결과",
-      "tone": "blue"
-     }
-    }
-   }
-  ]
- },
- "tool--trunk-based-development": {
-  "alt": "세 컷 — 세 주치를 한꺼번에 합치다 부딪치던 것이, 매일 하루치씩 합치자 늘 낼 수 있게 되는 이야기",
-  "cuts": [
-   {
-    "caption": "한꺼번에 부딪친다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "sad"
-     },
-     {
-      "part": "장부",
-      "slot": "right",
-      "face": "none",
-      "tag": {
-       "text": "줄기",
-       "tone": "plain"
-      }
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "right",
-     "head": false,
-     "payload": {
-      "text": "3주치",
-      "tone": "blue"
-     }
-    },
-    "mark": "x"
-   },
-   {
-    "caption": "매일 합친다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "flat"
-     },
-     {
-      "part": "장부",
-      "slot": "right",
-      "face": "none",
-      "tag": {
-       "text": "줄기",
-       "tone": "plain"
-      }
-     }
-    ],
-    "move": {
-     "from": "left",
-     "to": "right",
-     "payload": {
-      "text": "하루치",
-      "tone": "blue"
-     }
-    }
-   },
-   {
-    "caption": "늘 낼 수 있다",
-    "actors": [
-     {
-      "part": "사람",
-      "slot": "left",
-      "face": "happy"
-     },
-     {
-      "part": "장부",
-      "slot": "right",
-      "face": "none",
-      "tag": {
-       "text": "오늘 것까지",
-       "tone": "blue"
-      }
-     }
-    ]
-   }
-  ]
- }
+  }
 }

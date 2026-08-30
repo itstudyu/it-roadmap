@@ -26,6 +26,8 @@
 
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/app.css">
+  <!-- 코스 · 경로 · 6단계 학습 화면. 색과 활자는 tokens.css 에서 받는다. -->
+  <link rel="stylesheet" href="css/atlas.css">
 </head>
 <body>
   <div class="app">
@@ -37,21 +39,31 @@
        여기서 읽는 것은 이름과 한 줄 뜻뿐이다. 본문은 단어를 펼칠 때
        data/terms/<권>.js 를 그때 받는다 (js/store.js 의 loadBody). -->
   <script src="data/index.js"></script>
+  <!-- 상황별 경로 36개. tools/build_paths.py 가 단어 이름을 id 로 굳혀 굽는다. -->
+  <script src="data/paths.js"></script>
 
   <script src="js/ui.js"></script>
   <script src="js/store.js"></script>
   <script src="js/quiz.js"></script>
   <script src="js/app.js"></script>
+  <!-- 경로 데이터를 다루는 층. Store 위에 얹히므로 그 뒤에 온다. -->
+  <script src="js/paths.js"></script>
   <!-- 그림 어휘(배우 아이콘 · 장면 컷 만화). screens.js 가 화면을 세울 때
        Art.scene 을 부르므로 그 앞에 온다. -->
   <script src="js/art.js"></script>
   <script src="js/screens.js"></script>
+  <!-- 새 정보 구조의 화면들. Art 와 Paths 를 쓰므로 둘 뒤에 온다. -->
+  <script src="js/screens-course.js"></script>
+  <script src="js/learn.js"></script>
   <!-- 읽기 화면의 장치들(용어 풀이 · 그림 단계 보기 · 배우 아이콘 부착).
        screens.js 가 화면을 세운 다음에 DOM 을 손보므로 반드시 그 뒤에 온다.
        없어도 앱은 읽힌다. -->
   <script src="js/reading.js"></script>
   <script src="js/recall.js"></script>
   <script src="js/quiz-screens.js"></script>
+  <!-- 복습 허브. 떠올리기와 고르기를 한 자리에 모은다. quiz-screens.js 가
+       등록해 둔 /review 를 덮어쓰므로 반드시 그 뒤에 온다. -->
+  <script src="js/review.js"></script>
   <script>
     window.App.start();
 
