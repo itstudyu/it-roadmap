@@ -13,3 +13,6 @@ node_modules/
 
 # 기각된 ImageGen 렌더. 인물과 질감이 정보보다 앞서서 안 쓰기로 했다.
 mockups/assets/
+
+# 검토용으로 만든 페이지. 저장소에 남길 것이 아니다.
+개편-결과.html
