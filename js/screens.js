@@ -99,15 +99,52 @@
     return Math.floor(days / 7) + "주 전";
   }
 
+  /* 색인(data/index.js)을 못 받았을 때.
+
+     못 받으면 Store.books() 가 빈 배열이다. 그 상태에서 단어장 탭은 제목만 남은
+     백지가 됐고, 홈은 nextUp() 이 null 이라는 이유로 "다 봤습니다 — 모든 단어를
+     한 번씩 통과했습니다" 를 축하했다. 한 글자도 못 읽은 사람에게 완주를 알린 셈이라,
+     실패가 완료로 읽히고 사용자는 고칠 기회를 잃는다.
+
+     색인은 앱이 켜질 때 통째로 오는 것이라 이 자리에서 다시 받을 길이 없다.
+     새로고침이 곧 재시도다. 진도는 localStorage 에 있으니 새로고침해도 안 사라진다 —
+     그 말을 같이 적어 두지 않으면 이 단추를 누르기가 무섭다. */
+  function indexFailed() {
+    return '<main class="screen">' +
+      emptyState("inbox", "단어 목록을 불러오지 못했습니다",
+        "연결이 끊겼거나 파일을 받지 못했습니다. 공부한 기록은 그대로 남아 있습니다.") +
+      '<div class="empty__act"><button class="btn btn--primary" data-action="reload-app">' +
+      "다시 시도</button></div></main>";
+  }
+
+  App.on("reload-app", function () {
+    location.reload();
+  });
+
   /* ---------------------------------------------------------- 홈
      앱을 열었을 때 3초 안에 "지금 뭘 하면 되지"가 보여야 한다.
      그래서 통계가 아니라 다음 행동 하나를 가장 크게 놓는다. */
 
+  /* nextUp() 의 갈래마다 이 카드에 적을 말. 여기 적은 말이 곧 약속이라
+     누르고 나서 벌어지는 일과 어긋나면 안 된다.
+
+     "quiz-ready" 가 그렇게 어긋나 있었다. 이 갈래가 주는 단어는 이미 학습을 마친
+     단어인데 라벨은 "다음 단어", 단추는 "읽기 시작" 이었고, 눌러도 퀴즈가 아니라
+     본문으로만 갔다. 들어가 보면 제목 밑에 "학습 완료" 배지가 붙어 있어서
+     카드가 방금 한 말이 도착하자마자 틀린 말이 됐다.
+     할 일을 그대로 적고, 실제로 그리로 보낸다.
+
+     action 이 없으면 "go"(주소로 이동)다. 있으면 그 이름으로 부르고 단어 id 를 넘긴다. */
   var REASON_COPY = {
     reading: { label: "읽던 단어", cta: "이어서 읽기" },
-    "quiz-ready": { label: "다음 단어", cta: "읽기 시작" },
     new: { label: "다음 단어", cta: "읽기 시작" },
     review: { label: "복습할 단어", cta: "다시 읽기" },
+    "quiz-ready": {
+      label: "확인할 단어",
+      icon: "quiz",
+      cta: "퀴즈로 확인하기",
+      action: "quiz-one",
+    },
   };
 
   /* 0 인 항목은 세지 않는다. 아직 안 본 단어장에 "통과 0 · 학습 0" 을 적어두면
@@ -131,6 +168,8 @@
 
   function todayCard() {
     var next = Store.nextUp();
+    /* 여기까지 오면 단어는 반드시 있다 — 색인을 못 받은 경우는 /home 이 위에서
+       먼저 걸러낸다. 그래서 할 일이 없다는 건 정말로 다 통과했다는 뜻이다. */
     if (!next) {
       return '<div class="today"><div class="today__main">' +
         '<p class="today__label">' + UI.icon("check-double", 14) + "오늘 할 일 없음</p>" +
@@ -141,14 +180,20 @@
 
     var copy = REASON_COPY[next.reason] || REASON_COPY.new;
     var t = next.term;
+    /* 갈래마다 단추가 다른 데로 간다. "go" 는 주소(data-to)를 읽고 그 밖은 단어
+       id(data-id)를 읽는다. 둘을 같이 달면 어느 쪽이 쓰이는지 여기서는 안 보인다. */
+    var target = copy.action
+      ? ' data-id="' + esc(t.id) + '"'
+      : ' data-to="/term/' + esc(t.id) + '"';
 
     return '<div class="today"><div class="today__main">' +
-      '<p class="today__label">' + UI.icon("book", 14) + esc(copy.label) + "</p>" +
+      '<p class="today__label">' + UI.icon(copy.icon || "book", 14) + esc(copy.label) + "</p>" +
       '<p class="today__term">' + esc(t.term) + "</p>" +
       '<p class="today__summary">' + esc(UI.plain(t.summary)) + "</p>" +
-      '<div class="today__cta"><button class="btn btn--primary btn--block" data-action="go" data-to="/term/' +
-      esc(t.id) + '">' + esc(copy.cta) + UI.icon("forward", 18) + "</button></div>" +
-      "</div>" + nextStep() + "</div>";
+      '<div class="today__cta"><button class="btn btn--primary btn--block" data-action="' +
+      esc(copy.action || "go") + '"' + target + ">" +
+      esc(copy.cta) + UI.icon("forward", 18) + "</button></div>" +
+      "</div>" + nextStep(next.reason === "quiz-ready") + "</div>";
   }
 
   /* 학습 루프의 다음 걸음 하나만 보여준다.
@@ -156,8 +201,12 @@
      할 수 있다고 말만 하고 누를 데가 없었다. 문장을 버튼으로 바꾼다.
 
      읽기 -> 떠올리기 -> 퀴즈 순서대로 검사해서 먼저 걸리는 것을 내보낸다.
-     둘 다 띄우면 어느 쪽이 먼저인지 다시 고민하게 된다. */
-  function nextStep() {
+     둘 다 띄우면 어느 쪽이 먼저인지 다시 고민하게 된다.
+
+     skipQuiz 는 카드의 큰 단추가 이미 퀴즈로 가는 경우에 준다. 안 주면 한 카드
+     안에서 "퀴즈로 확인하기" 와 "퀴즈로 확인할까요" 가 위아래로 두 번 나온다 —
+     두 번 말하면 서로 다른 두 가지 일처럼 읽힌다. */
+  function nextStep(skipQuiz) {
     var toRecall = window.Recall ? window.Recall.candidates().length : 0;
     var toQuiz = Store.allTerms().filter(function (t) {
       return Store.statusOf(t.id) === Store.STATUS.LEARNED;
@@ -165,7 +214,7 @@
 
     var step = toRecall
       ? { action: "start-recall", icon: "layers", label: "읽은 단어 " + toRecall + "개, 뜻을 떠올려볼까요" }
-      : toQuiz
+      : toQuiz && !skipQuiz
         ? { action: "go", to: "/quiz", icon: "quiz", label: "학습 완료한 " + toQuiz + "개, 퀴즈로 확인할까요" }
         : null;
 
@@ -177,13 +226,73 @@
       UI.icon("right", 16) + "</button>";
   }
 
+  /* 한 판의 진짜 길이는 js/quiz-screens.js 가 들고 있다(SESSION_MAX).
+     내보내 주면 그 값을 쓰고, 아니면 여기 적힌 수로 버틴다. 두 파일이 서로 다른
+     수를 알고 있으면 이 카드가 광고한 길이와 실제로 시작되는 판이 또 어긋난다 —
+     아래 주석이 적은 바로 그 병이 단위만 바뀐 채 돌아온다. */
+  function sessionMax() {
+    var n = window.QuizScreens && window.QuizScreens.SESSION_MAX;
+    return typeof n === "number" && n > 0 ? n : 20;
+  }
+
+  /* 이 카드는 "복습할 단어 12개" 라고만 적고 곧바로 판을 시작했는데, 실제로는
+     68문제가 나왔다. 단어 수는 범위의 크기이지 한 판의 길이가 아니다.
+     게다가 퀴즈 탭은 같은 범위를 "68문제" 로 적어서, 같은 판으로 가는 두 문이
+     서로 다른 단위로 광고하고 있었다. 시작될 판의 길이를 같이 적는다.
+
+     본문이 아직 안 온 권이 섞여 있으면 문제 수를 아예 안 적는다. js/quiz.js 는
+     본문이 없는 유형을 조용히 건너뛰므로 그때 센 수는 실제보다 작게 나온다.
+     틀린 숫자를 적느니 없는 게 낫다. */
+  /* 복습 대상이 걸린 권의 본문을 받아 둔다. 홈은 여태 본문을 한 번도 안 불러서
+     문제 수를 세려 해도 재료가 없었다 — 그래서 "· 한 판 20문제" 가 앱을 새로 연
+     사람에게는 거의 안 보였고, 고친 것이 안 고쳐진 것과 같았다.
+
+     이미 왔거나 실패한 권은 다시 안 부른다. 그게 곧 고리를 끊는 조건이다 —
+     받고 나면 missing 이 비므로 도착 -> 다시 그리기 -> 여기 -> 도착이 안 돈다.
+     열두 권을 다 받지 않는다. 복습 큐에 걸린 권만이다. */
+  var homeWarmed = {};
+  function warmReviewBodies(due) {
+    var missing = {};
+    due.forEach(function (t) {
+      if (!Store.hasBody(t.bookId) && !Store.bodyFailed(t.bookId) && !homeWarmed[t.bookId]) {
+        missing[t.bookId] = true;
+      }
+    });
+    var ids = Object.keys(missing);
+    if (!ids.length) return;
+    ids.forEach(function (id) { homeWarmed[id] = true; });
+
+    var left = ids.length;
+    ids.forEach(function (id) {
+      Store.loadBody(id, function () {
+        left -= 1;
+        // 홈에 그대로 있을 때만 다시 그린다. 다른 화면으로 옮겨 갔으면 남의 화면이다.
+        if (!left && App.currentPath() === "/home") App.refresh();
+      });
+    });
+  }
+
+  function reviewQuestionCount(due) {
+    if (!window.Quiz) return 0;
+    /* 아직 안 온 권이 있으면 세지 않는다. quiz.js 가 본문 없는 유형을 건너뛰므로
+       그때 센 수는 실제보다 작다 — 작은 수를 적어 두면 눌렀을 때 또 어긋난다. */
+    var ready = due.every(function (t) { return Store.hasBody(t.bookId); });
+    if (!ready) {
+      warmReviewBodies(due);
+      return 0;
+    }
+    return window.Quiz.countQuestions(due, Store.allTerms(), sessionMax());
+  }
+
   function reviewCall() {
     var due = Store.reviewQueue();
     if (!due.length) return "";
+    var n = reviewQuestionCount(due);
     return '<button class="review-call" data-action="start-review">' +
       '<span class="review-call__icon">' + UI.icon("rotate", 22) + "</span>" +
       '<span style="flex:1;min-width:0">' +
-      '<span class="review-call__title">복습할 단어 ' + due.length + "개</span>" +
+      '<span class="review-call__title">복습할 단어 ' + due.length + "개" +
+      (n ? " · 한 판 " + n + "문제" : "") + "</span>" +
       '<span class="review-call__sub">퀴즈에서 틀렸거나 본 지 오래된 단어입니다</span>' +
       "</span>" + UI.icon("right", 18) + "</button>";
   }
@@ -250,6 +359,9 @@
   }
 
   App.register("/home", function () {
+    // 단어가 하나도 없으면 인사도 통계도 할 말이 없다. 무슨 일이 있었는지만 말한다.
+    if (!Store.books().length) return topbar({ right: themeButton() }) + indexFailed();
+
     return topbar({ right: themeButton() }) +
       '<main class="screen">' +
       greetingLine() +
@@ -264,6 +376,10 @@
   App.register("/books", function () {
     var books = Store.books();
     var total = Store.overallStats();
+
+    /* 색인이 없으면 이 화면은 제목만 남은 백지였다. 백지는 "여기엔 아무것도 없다" 로
+       읽히지 "못 받았다" 로는 안 읽힌다. 그래서 다시 받을 길과 함께 사실을 적는다. */
+    if (!books.length) return topbar({ title: "단어장", right: themeButton() }) + indexFailed();
 
     return topbar({ title: "단어장", right: themeButton() }) +
       '<main class="screen">' +
@@ -361,9 +477,12 @@
       '<main class="screen screen--flush">' + body + "</main>";
   });
 
+  /* 칩을 눌러도 주소는 그대로다. render() 로 다시 그리면 화면 전환으로 쳐서
+     목록이 맨 위로 튀고 옆에서 미끄러져 들어온다 — 같은 목록을 거른 것뿐인데
+     다른 데로 온 것처럼 보인다. 제자리에서 갈아 끼운다. */
   App.on("filter", function (data) {
     listState.filter = data.key;
-    App.render();
+    App.refresh();
   });
 
   // 입력할 때마다 화면을 통째로 다시 그리면 포커스가 날아간다.
@@ -384,9 +503,11 @@
   });
 
   /* ---------------------------------------------------------- 단어 상세
-     제품의 중심 화면. 정보를 한 번에 쏟지 않는다.
-     항상 보이는 것: 표제어, 한 줄 뜻, 정의.
-     접어두는 것: 왜 필요한가, 어떻게 작동하나, 사례, 관련 개념. */
+     제품의 중심 화면. 정보를 한 번에 쏟지 않는다. 다만 접는 기준은
+     "길다" 가 아니라 "본체가 아니다" 다.
+     항상 보이는 것: 표제어, 한 줄 뜻, 정의, 그림, 어떻게 작동하나,
+                    왜 필요한가, 무엇으로 되어 있나, 흔히 잘못 아는 것.
+     접어두는 것: 실제 사례, 무엇과 비교되나, 주의할 점, 관련 개념. */
 
   /* 접힌 줄에 붙일 한 줄 미리보기.
      NN/g 가 말하는 information scent — 열기 전에 뭐가 나올지 짐작할 수 있어야 한다.
@@ -529,8 +650,18 @@
     });
   }
 
-  function disclosureSections(term) {
-    return term.sections.map(function (s) {
+  /* 고정 자리로 올라간 칸은 여기서 빠져야 한다. 안 빼면 같은 글이 한 화면에
+     두 번 나오고 id 도 겹친다.
+
+     거를 때 슬롯 이름을 쓰지 않는다. 저자가 자기 제목을 써서 같은 슬롯으로
+     짐작된 칸이 둘이 되는 편이 있는데(build.py 의 own_sections), 이름으로 거르면
+     위로 안 올라간 나머지 하나까지 함께 사라진다. 실제로 꺼내 쓴 그 객체만 뺀다. */
+  function disclosureSections(term, pinned) {
+    var taken = (pinned || []).map(function (p) { return p.part; });
+
+    return term.sections.filter(function (s) {
+      return taken.indexOf(s) === -1;
+    }).map(function (s) {
       var id = slugOf(s.label);
       var hint = s.slot === "myth" ? mythPeek(s.body) : plainPeek(s.body);
       var draw = PANEL[s.slot] || UI.markdown;
@@ -539,7 +670,7 @@
 
       /* 전부 닫힌 채 시작한다. 예전에는 첫 칸을 열어뒀는데, 그때는 "해결하는
          문제"가 접혀 있어서 안 열면 읽을 게 요약 한 장뿐이었기 때문이다.
-         이제 네 기둥이 전부 위에 펼쳐져 있고 접힌 칸에 남는 것은 심화뿐이다 —
+         이제 본체가 전부 위에 펼쳐져 있고 접힌 칸에 남는 것은 곁가지뿐이다 —
          그중 하나만 열어두면 그 칸이 특별해 보인다. */
       return '<details class="disclose" id="' + esc(id) + '"' +
         '><summary class="disclose__btn">' +
@@ -627,29 +758,56 @@
       UI.markdown(term.tryit).replace(/^<p>|<\/p>$/g, "") + "</aside>";
   }
 
-  /* ---- 접지 않는 두 기둥 ----
+  /* ---- 접지 않는 자리 ----
 
-     이해의 네 기둥은 무엇인가(정의) · 어떻게 되나(그림) · 왜 필요한가 ·
-     무엇으로 되어 있나 다. 앞의 둘은 원래 펼쳐져 있었고, 뒤의 둘이
-     접힌 칸 안에 있었다. 접힌 것은 대체로 안 열린다 — 열어야 보이는
-     기둥은 없는 기둥이다. 그래서 접이식 밖으로 꺼냈다.
+     밖에 나와 있던 것은 "왜 필요한가"·"무엇으로 되어 있나" 둘뿐이었고, 그 아래
+     접힌 무더기 위에 "몰라도 판은 읽힌다" 가 붙어 있었다. 그런데 접힌 쪽은
+     심화가 아니었다. 세어 보니 어떻게 작동하나 634/634, 흔히 잘못 아는 것
+     634/634 로 전 편에 빠짐없이 있는 본체였고, 글 끝 확인 문제 1,902개 중
+     903개가 그 둘을 답이 있는 자리로 가리키고 있었다. 안내를 믿고 접힌 것을
+     건너뛴 사람은 마지막 문제에서 막힌다. 본체를 접어놓고 몰라도 된다고
+     적어둔 셈이라 둘을 밖으로 꺼낸다.
 
-     "무엇으로 되어 있나"(🧱 구성)는 부품이 있는 단어에만 있다.
-     없으면 그 자리도 없다 — 빈 제목만 세워두지 않는다. */
-  var PINNED_SLOTS = ["why", "compose"];
+     순서는 이해가 나아가는 순서다 — 무엇인가(정의·그림) → 어떻게 되나 →
+     왜 필요한가 → 무엇으로 되어 있나 → 흔히 잘못 아는 것. 오해가 맨 뒤인 것은
+     무엇인지 알기 전에 "이건 틀린 말이다" 를 먼저 읽으면 부술 대상이 없어서
+     틀린 쪽만 남기 때문이다.
 
-  function pinnedSection(part) {
+     자리마다 있고 없고가 다르다. "무엇으로 되어 있나" 는 부품이 있는 단어에만
+     있다(634편 중 93편). 없으면 그 자리도 없다 — 빈 제목만 세워두지 않는다. */
+  var PINNED_SLOTS = ["how", "why", "compose", "myth"];
+
+  /* 고정 자리의 재료가 두 군데서 온다. 굽는 쪽(tools/build.py)이 이미 밖으로 빼 둔
+     것은 term.why · term.compose 처럼 통째로 오고, 어떻게 작동하나 · 흔히 잘못
+     아는 것은 아직 접이식 목록(term.sections) 안에 들어 있다. 한쪽만 보면
+     그 자리가 조용히 사라지므로 화면에서 두 군데를 다 뒤진다. */
+  function pinnedPart(term, slot) {
+    if (term[slot]) return term[slot];
+    return (term.sections || []).find(function (s) { return s.slot === slot; }) || null;
+  }
+
+  function pinnedParts(term) {
+    var used = [];
+    PINNED_SLOTS.forEach(function (slot) {
+      var part = pinnedPart(term, slot);
+      if (part) used.push({ slot: slot, part: part });
+    });
+    return used;
+  }
+
+  function pinnedSection(part, slot) {
     var id = slugOf(part.label);
+    /* 오해 칸은 밖으로 나와도 그리는 법이 다르다 — 틀린 문장을 앞에 세우고
+       그 밑에서 부순다. 접혀 있을 때 쓰던 그 판을 그대로 쓴다. */
+    var draw = PANEL[slot] || UI.markdown;
     aimAll([part.label, part.head], id);
     return '<section class="pinsec" id="' + esc(id) + '">' +
       '<h2 class="pinsec__head">' + esc(part.label) + "</h2>" +
-      '<div class="pinsec__body prose">' + UI.markdown(part.body) + "</div></section>";
+      '<div class="pinsec__body prose">' + draw(part.body) + "</div></section>";
   }
 
-  function pinnedSections(term) {
-    return PINNED_SLOTS.map(function (slot) {
-      return term[slot] ? pinnedSection(term[slot]) : "";
-    }).join("");
+  function pinnedSections(parts) {
+    return parts.map(function (p) { return pinnedSection(p.part, p.slot); }).join("");
   }
 
   /* 이해했는지. 맨 아래, 펼쳐진 채로, 다음 버튼 바로 위에 둔다.
@@ -736,6 +894,17 @@
     }) || null;
   }
 
+  /* ---- 단어에서 단어로 ----
+
+     관련 개념과 본문 [[링크]] 는 목록에서 단어로 들어가는 것과 다른 일을 한다.
+     계층을 한 칸 내려가는 게 아니라 옆으로 건너뛰는 것이다. 그런데 둘 다 평범한
+     "go" 였다. HTTP 를 읽다 [[TCP]] 로 건너뛴 뒤 ← 를 누르면 상단바가 계층을
+     거슬러 올라가서 HTTP 가 아니라 네트워크 목록으로 나갔고, TCP 가 다른 권이면
+     읽던 것과 상관없는 단어장 한복판에 떨어졌다. 돌아갈 곳은 읽던 그 단어다. */
+  App.on("go-term", function (data) {
+    App.navigateLateral("/term/" + data.id);
+  });
+
   function relatedSection(term) {
     if (!term.related || !term.related.length) return "";
 
@@ -747,7 +916,7 @@
           '<span class="related__term">' + esc(r.term) + "</span>" +
           '<span class="related__note">' + esc(r.note) + "</span></div>";
       }
-      return '<button class="related__item" data-action="go" data-to="/term/' + esc(found.id) + '">' +
+      return '<button class="related__item" data-action="go-term" data-id="' + esc(found.id) + '">' +
         '<span class="related__term">' + esc(r.term) + "</span>" +
         '<span class="related__note">' + esc(r.note) + "</span></button>";
     }).join("");
@@ -792,7 +961,7 @@
   /* 본문이 아직 안 온 사이에 내놓는 화면.
 
      빈 화면 대신 이미 아는 것(제목·한 줄 뜻)을 먼저 보여준다. 인덱스에 들어
-     있으니 공짜다. 본문이 도착하면 App.render() 가 같은 주소를 다시 그린다.
+     있으니 공짜다. 본문이 도착하면 App.refresh() 가 같은 주소를 제자리에서 갈아 끼운다.
      같은 권의 다음 단어는 청크가 이미 있어서 이 화면을 두 번 보지 않는다. */
   function termLoading(term) {
     return topbar({ back: true }) +
@@ -820,11 +989,13 @@
       "</main>";
   }
 
+  /* 다시 시도도 이동이 아니다 — 같은 단어의 같은 주소에 그대로 있다.
+     기다리는 화면으로 한 번, 본문이 오면 또 한 번 갈아 끼운다. */
   App.on("retry-body", function (data) {
     Store.loadBody(data.book, function () {
-      if (App.currentPath() === "/term/" + data.id) App.render();
+      if (App.currentPath() === "/term/" + data.id) App.refresh();
     }, true);
-    App.render();
+    App.refresh();
   });
 
   App.register("/term/:termId", function (params) {
@@ -845,13 +1016,14 @@
 
        실패는 반드시 성공과 갈라서 다뤄야 한다. 실패했는데 그냥 다시 그리면
        hasBody 가 여전히 false 라 또 요청하고, 또 실패하고, 또 그린다.
-       처음에 ok 를 안 보고 무조건 App.render() 를 불렀다가 6초에 2만 번을 돌았다. */
+       처음에 ok 를 안 보고 무조건 다시 그렸다가 6초에 2만 번을 돌았다. */
     if (Store.bodyFailed(term.bookId)) return termLoadFailed(term);
 
     if (!Store.hasBody(term.bookId)) {
       Store.loadBody(term.bookId, function (ok) {
         if (!ok && !Store.bodyFailed(term.bookId)) return;
-        if (App.currentPath() === "/term/" + params.termId) App.render();
+        // 기다리는 화면을 본문으로 바꾸는 것뿐이다. 주소는 그대로이므로 제자리 갱신.
+        if (App.currentPath() === "/term/" + params.termId) App.refresh();
       });
       return termLoading(term);
     }
@@ -867,8 +1039,9 @@
     TARGETS = {};
     aimAll(DEFINITION_NAMES, "p-정의");
     var figureHtml = figureSection(term);
-    var pinnedHtml = pinnedSections(term);
-    var panelsHtml = disclosureSections(term) + relatedSection(term);
+    var pinned = pinnedParts(term);
+    var pinnedHtml = pinnedSections(pinned);
+    var panelsHtml = disclosureSections(term, pinned) + relatedSection(term);
     var recapHtml = recapBlock(term);
     var checkHtml = checkSection(term);
     var kidHtml = kidCard(term);
@@ -912,13 +1085,22 @@
         ? '<div class="prose prose--def">' + UI.markdown(term.definition) + "</div>"
         : "") +
       figureHtml +
-      /* 순서가 질문을 따라간다 — 무엇인가 → 어떻게 되나(그림) →
-         왜 필요한가 → 무엇으로 되어 있나. 그다음이 심화(접이식)다. */
+      /* 순서가 질문을 따라간다 — 무엇인가(정의·그림) → 어떻게 작동하나 →
+         왜 필요한가 → 무엇으로 되어 있나 → 흔히 잘못 아는 것.
+         그다음이 곁가지(접이식)다. */
       pinnedHtml +
       '<div class="panels">' +
-      /* 접힌 칸 무더기 위에 한 줄. 접힘이 숙제가 아니라 선택임을 말해 준다. */
+      /* 접힌 칸 무더기 위에 한 줄.
+
+         전에는 "몰라도 판은 읽히고, 궁금해지면 연다" 였는데, 그때는 이 밑에
+         작동 원리와 흔한 오해가 들어 있었다. 확인 문제가 가장 많이 가리키는
+         두 칸을 놓고 몰라도 된다고 말한 셈이다. 그 둘이 위로 올라간 지금은
+         남은 것이 정말로 곁가지(사례·견주기·주의)이니 그대로 적는다.
+         다만 확인 문제가 여기를 가리키기도 하므로 "안 열어도 된다" 로 끝내지
+         않는다 — 가리키면 그 단추가 이 칸을 저절로 연다(land 참고). */
       (panelsHtml
-        ? '<p class="panelhint">여기부터는 접혀 있다 — 몰라도 판은 읽히고, 궁금해지면 연다</p>'
+        ? '<p class="panelhint">여기부터는 곁가지다 — 지금 안 열어도 되고, ' +
+          "아래 확인 문제가 가리키면 그때 저절로 열린다</p>"
         : "") +
       panelsHtml + "</div>" +
       recapHtml +
@@ -929,16 +1111,21 @@
       primaryAction(term, status) + stepBtn(near.next, "next") + "</div>";
   });
 
+  /* 이 둘은 화면을 옮기지 않는다 — 방금 읽은 그 단어에 그대로 있다.
+     그런데 App.render() 를 부르고 있어서, 긴 본문을 3,400px 내려 읽고 하단 바의
+     "학습 완료" 를 누르면 맨 위로 튀고 펼쳐 둔 접이식이 전부 닫혔다.
+     다 읽은 사람이 누르라고 만든 단추가 다 읽은 흔적을 지우고 있었다.
+     바뀌는 것은 배지와 하단 단추 하나뿐이므로 제자리에서 갈아 끼운다. */
   App.on("mark-learned", function (data) {
     Store.markLearned(data.id);
     UI.toast("학습 완료로 표시했습니다", "check");
-    App.render();
+    App.refresh();
   });
 
   App.on("mark-review", function (data) {
     Store.markWrong(data.id);
     UI.toast("복습 목록에 넣었습니다", "rotate");
-    App.render();
+    App.refresh();
   });
 
   /* ---- 확인 질문에서 답이 있는 자리로 ----
@@ -983,7 +1170,8 @@
       UI.toast("아직 단어장에 없는 단어입니다");
       return;
     }
-    App.navigate("/term/" + found.id);
+    // 본문 안에서 건너뛰는 것도 옆걸음이다. 위 go-term 주석 참고.
+    App.navigateLateral("/term/" + found.id);
   });
 
   /* @ 난간이 마지막 마디의 원 중심에서 끝나게 한다.
@@ -1252,11 +1440,14 @@
 
   App.on("reset-cancel", closeReset);
 
+  /* 지우고 나서도 있던 자리는 진도 화면 그대로다. 초기화 단추는 화면 맨 아래에
+     있어서, 화면 전환으로 다시 그리면 누른 자리가 통째로 사라지고 맨 위로 튄다.
+     숫자만 0 으로 바뀌면 되는 일이다. */
   App.on("reset-confirm", function () {
     closeReset();
     Store.reset();
     UI.toast("전부 지웠습니다", "rotate");
-    App.render();
+    App.refresh();
   });
 
   // Esc 로도 닫는다. 상자를 띄워놓고 빠져나갈 길이 하나뿐이면 안 된다.

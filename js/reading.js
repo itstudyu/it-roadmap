@@ -14,10 +14,11 @@
       배워진다(Mayer, 공간 근접).
 
    ② 그림 단계 보기
-      흐름 그림을 탭으로 한 마디씩 밝혀 간다. 지나온 마디는 사라지지
-      않고, 자동 재생은 없다. 속도를 학습자가 정할 때 더 깊이 배우고
-      (Mayer, 분절), 저절로 움직이는 그림은 기억에서 먼저 사라져
-      정지 그림보다 못하다(Tversky·Morrison 2002).
+      흐름 그림을 한 마디씩 밝혀 간다 — 그림을 탭해도 되고, 그림 아래
+      단추를 눌러도 된다(손가락 말고 다른 것으로 오는 사람이 있다).
+      지나온 마디는 사라지지 않고, 자동 재생은 없다. 속도를 학습자가
+      정할 때 더 깊이 배우고(Mayer, 분절), 저절로 움직이는 그림은
+      기억에서 먼저 사라져 정지 그림보다 못하다(Tversky·Morrison 2002).
    ============================================================ */
 
 window.Reading = (function () {
@@ -335,7 +336,122 @@ window.Reading = (function () {
     return units;
   }
 
-  var WALK_HINT = "그림을 탭하면 다음 단계가 밝아진다";
+  var WALK_HINT = "다음 단계 보기";
+
+  /* 안내가 <span> 이었을 때는 그림을 넘기는 길이 탭 하나뿐이었다. figure 에는
+     tabindex 도 role 도 없고 이 앱의 keydown 은 모달 Escape 하나뿐이라,
+     키보드·스위치로 오는 사람은 첫 마디만 읽고 끝났다. 그림이 그 편에서
+     "어떻게 되나" 를 맡은 유일한 자리인데 그랬다.
+
+     figure 에 role="button" 을 씌우는 길은 택하지 않았다. 그 역할은 자손을
+     표시용으로 만들어서, 그림 안에 있는 점선 단추(.tmark)가 보조기기에서
+     통째로 사라진다 — 못 쓰던 것 하나 고치려다 쓰던 것 여럿을 잃는다.
+     대신 진짜 단추를 세운다. 눌린 클릭은 그림까지 올라오므로 아래 리스너가
+     그대로 받고, Enter·Space 는 단추가 알아서 챙긴다. */
+  function walkButton() {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "walkhint";
+    b.textContent = WALK_HINT;
+    return b;
+  }
+
+  /* 마디가 밝아지는 것은 색으로만 말한다. 화면을 못 보는 사람에게는 아무 일도
+     안 일어난 것과 같아서, 방금 밝아진 마디를 소리로 한 번 읽어 줄 자리를 둔다. */
+  function liveRegion() {
+    var p = document.createElement("p");
+    p.className = "visually-hidden";
+    p.setAttribute("aria-live", "polite");
+    return p;
+  }
+
+  /* 어디까지 밝혔는지는 클래스로만 남는 값이라, 화면을 다시 그리면 사라진다.
+     그래서 5마디 중 3마디까지 밝혀 두고 "학습 완료" 를 누르면 그림이 1마디로
+     되감겼다 — 다 읽은 사람더러 누르라고 만든 단추가 다 읽은 흔적을 지웠다.
+     Store 에 남는 것은 "끝까지 밟았다" 하나뿐이라 중간 자리는 여기서 챙긴다.
+
+     저장하지 않는 것은 일부러다. 이건 진도가 아니라 읽던 자리라서, 앱을 닫고
+     다음 날 다시 열면 처음부터 밟는 편이 맞다. 대신 이 판이 살아 있는 동안에는
+     제자리 갱신이든 화면 전환이든 되감기지 않는다 — 되감을 이유가 어느 쪽에도
+     없기 때문이다. 이미 끝까지 본 단어는 Store 가 따로 기억한다. */
+  var walkAt = {}; // { 단어id: 밝혀 둔 마디 번호 }
+
+  /* 보다 만 자리가 있으면 거기서 잇고, 지난번에 끝까지 봤으면 전체가 보인 채로 연다.
+     마디 수가 달라져도 범위를 벗어나지 않게 잘라 둔다. */
+  function startAt(termId, count) {
+    if (typeof walkAt[termId] === "number") return Math.min(walkAt[termId], count - 1);
+    return window.Store.readState().walked[termId] ? count - 1 : 0;
+  }
+
+  function walkOf(fig, units, termId) {
+    return {
+      fig: fig,
+      units: units,
+      termId: termId,
+      sum: fig.querySelector(".dia__sum"),
+      hint: fig.appendChild(walkButton()),
+      say: fig.appendChild(liveRegion()),
+      at: startAt(termId, units.length),
+    };
+  }
+
+  function stepText(w, n) {
+    var body = w.units[n].li.querySelector(".dia__body") || w.units[n].li;
+    return n + 1 + "단계. " + (body.textContent || "").trim();
+  }
+
+  /* 마지막 마디를 밝히면 단추가 사라진다. 그때 초점이 그 단추에 있었으면 갈 곳을
+     잃고 문서 맨 위로 떨어지므로, 다 밝혀진 그림으로 옮겨 준다. */
+  function restFocus(w, done) {
+    var hadFocus = w.hint.contains(document.activeElement);
+    w.hint.hidden = done;
+    if (!done || !hadFocus) return;
+    w.fig.setAttribute("tabindex", "-1");
+    w.fig.focus({ preventScroll: true });
+  }
+
+  function paint(w, aloud) {
+    var done = w.at >= w.units.length - 1;
+    w.units.forEach(function (u, n) {
+      var later = n > w.at;
+      u.li.classList.toggle("is-later", later);
+      u.li.classList.toggle("is-now", n === w.at && !done);
+      if (u.turn) u.turn.classList.toggle("is-later", later);
+    });
+    if (w.sum) w.sum.classList.toggle("is-later", !done);
+    w.fig.classList.toggle("is-walking", !done);
+    walkAt[w.termId] = w.at;
+    restFocus(w, done);
+    if (aloud) w.say.textContent = stepText(w, w.at) + (done ? " 마지막 단계입니다." : "");
+    if (done) window.Store.markWalked(w.termId);
+  }
+
+  /* 그 마디까지 밝힌다. 이미 밝은 자리를 가리키면 아무 일도 하지 않는다. */
+  function walkUpTo(w, el) {
+    var li = el.closest("li.is-later");
+    if (!li) return;
+    for (var n = 0; n < w.units.length; n++) {
+      if (w.units[n].li === li || w.units[n].turn === li) { w.at = n; paint(w, true); return; }
+    }
+  }
+
+  /* 그림 어디를 탭해도 다음 단계. 흐린 줄을 탭하면 거기까지 한 번에.
+     다 밝힌 그림은 그냥 그림이다 — 더 반응하지 않는다. */
+  function onWalkClick(w, e) {
+    /* 점선 용어에서 그냥 빠져나가던 자리다. 그래서 아직 안 밝힌 마디의 점선을
+       누르면 풀이 카드만 그 흐린 줄 안에 열리고 마디는 흐린 채로 남았다 —
+       2마디 이상인 흐름 그림 439편 중 136편은 첫 마디 밖에도 점선이 있으니
+       어쩌다 있는 일이 아니었다. 먼저 그 마디까지 밝히고, 카드를 여는 일은
+       뒤이어 문서 쪽 위임 리스너가 한다(클릭은 여기를 지나 거기까지 올라간다). */
+    var mark = e.target.closest(".tmark");
+    if (mark) { walkUpTo(w, mark); return; }
+    if (e.target.closest(".gloss")) return; // 열린 풀이 안을 짚는 것은 넘기는 뜻이 아니다
+    if (w.at >= w.units.length - 1) return;
+    var li = e.target.closest("li.is-later");
+    if (li) { walkUpTo(w, li); return; }
+    w.at++;
+    paint(w, true);
+  }
 
   function setupWalk(root, termId) {
     var fig = root.querySelector(".figure-slot .dia--flow");
@@ -345,45 +461,10 @@ window.Reading = (function () {
     var units = unitsOf(list);
     if (units.length < 2) return;
 
-    var sum = fig.querySelector(".dia__sum");
     fig.classList.add("dia--walk");
-
-    var hint = document.createElement("span");
-    hint.className = "walkhint";
-    hint.textContent = WALK_HINT;
-    fig.appendChild(hint);
-
-    // 지난번에 끝까지 봤으면 전체가 보인 채로 연다
-    var at = window.Store.readState().walked[termId] ? units.length - 1 : 0;
-
-    function paint() {
-      var done = at >= units.length - 1;
-      units.forEach(function (u, n) {
-        var later = n > at;
-        u.li.classList.toggle("is-later", later);
-        u.li.classList.toggle("is-now", n === at && !done);
-        if (u.turn) u.turn.classList.toggle("is-later", later);
-      });
-      if (sum) sum.classList.toggle("is-later", !done);
-      hint.hidden = done;
-      fig.classList.toggle("is-walking", !done);
-      if (done) window.Store.markWalked(termId);
-    }
-
-    /* 그림 어디를 탭해도 다음 단계. 흐린 줄을 탭하면 거기까지 한 번에.
-       다 밝힌 그림은 그냥 그림이다 — 더 반응하지 않는다. */
-    fig.addEventListener("click", function (e) {
-      if (e.target.closest(".tmark, .gloss")) return; // 용어 점선은 제 일을 한다
-      if (at >= units.length - 1) return;
-      var li = e.target.closest("li.is-later");
-      if (!li) { at++; paint(); return; }
-      for (var n = 0; n < units.length; n++) {
-        if (units[n].li === li || units[n].turn === li) { at = n; break; }
-      }
-      paint();
-    });
-
-    paint();
+    var w = walkOf(fig, units, termId);
+    fig.addEventListener("click", function (e) { onWalkClick(w, e); });
+    paint(w, false);
   }
 
   /* ---------------------------------------------------------- 붙이기 */

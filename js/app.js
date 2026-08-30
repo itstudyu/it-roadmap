@@ -40,6 +40,20 @@ window.App = (function () {
   var navSeq = 0;
   var lastSeq = 0;
 
+  /* 옆걸음 — 단어에서 단어로 건너뛴 이동. 본문 [[링크]], 관련 용어,
+     퀴즈 해설의 "다시 읽기", 떠올리기 카드가 여기 해당한다.
+
+     ← 는 원래 계층을 올라간다. 그런데 옆걸음으로 도착한 자리에서는
+     "위" 가 사용자가 기대하는 곳이 아니다 — HTTP 를 읽다 [[TCP]] 로
+     건너뛴 사람이 ← 를 누르면 네트워크 목록이 아니라 HTTP 로 돌아가야 한다.
+     TCP 가 다른 권이면 아예 처음 보는 단어장에 떨어졌다.
+
+     그래서 옆걸음 여부를 이력 항목에 함께 찍어 두고, 그 자리에서만
+     이력을 되감는다. 표시가 있다는 것 자체가 "우리가 민 항목이 앞에 있다"
+     는 뜻이라, history.back() 이 앱 밖으로 나갈 걱정도 없다. */
+  var pendingLateral = false;
+  var arrivedLateral = false;
+
   function seqOf(state) {
     return state && typeof state.seq === "number" ? state.seq : 0;
   }
@@ -47,18 +61,24 @@ window.App = (function () {
   /* 지금 이력 항목에 번호를 찍는다. 이미 번호가 있으면(뒤로 와서 다시 보는
      항목이면) 그대로 두고 기준만 옮긴다 — 다시 찍으면 순서가 뒤집힌다. */
   function stampSeq() {
-    var seq = seqOf(history.state);
+    var st = history.state;
+    var seq = seqOf(st);
+    /* 이미 찍힌 항목이면 그때의 옆걸음 표시를 그대로 믿는다. 새 항목이면
+       방금 일어난 이동이 옆걸음이었는지를 쓴다. */
+    var lat = st && typeof st.lat === "boolean" ? st.lat : pendingLateral;
     if (!seq) {
       navSeq += 1;
       seq = navSeq;
-      try {
-        history.replaceState({ seq: seq }, "");
-      } catch (err) {
-        /* file:// 이나 사생활 보호 모드에서 막힐 수 있다. 막히면 방향 판정만
-           둔해지고 화면은 그대로 그려진다. */
-      }
+    }
+    try {
+      history.replaceState({ seq: seq, lat: lat }, "");
+    } catch (err) {
+      /* file:// 이나 사생활 보호 모드에서 막힐 수 있다. 막히면 방향 판정만
+         둔해지고 화면은 그대로 그려진다. */
     }
     lastSeq = seq;
+    arrivedLateral = !!lat;
+    pendingLateral = false;
   }
 
   function register(pattern, render) {
@@ -114,6 +134,13 @@ window.App = (function () {
     }
   }
 
+  /* 단어에서 단어로 건너뛸 때 쓴다. 도착한 자리의 ← 가 "위" 대신
+     "아까 그 화면" 으로 가게 표시를 남긴다. */
+  function navigateLateral(path) {
+    pendingLateral = true;
+    navigate(path);
+  }
+
   /* 이 화면의 한 단계 위. 상단바의 ← 가 가는 곳이다.
 
      history.back() 을 쓰면 안 된다. ← 는 계층을 올라가는 모양인데 이력을
@@ -131,11 +158,22 @@ window.App = (function () {
       return found ? "/books/" + found.bookId : "/books";
     }
     if (/^\/books\/.+/.test(path)) return "/books";
+    /* 결과·진행 화면의 위는 그 탭의 뿌리다. 안 적어 두면 아래 return 으로
+       떨어져 ← 가 홈으로 튄다 — 퀴즈를 보고 나온 사람이 갈 곳은 퀴즈다. */
+    if (/^\/quiz\/.+/.test(path)) return "/quiz";
+    if (/^\/recall\/.+/.test(path)) return "/recall";
     return "/home";
   }
 
   function back() {
     var here = currentPath();
+    /* 옆걸음으로 온 자리에서는 "위" 가 아니라 "아까 그 화면" 이 맞다.
+       이 표시는 우리가 민 항목에만 붙으므로 되감을 곳이 반드시 있다. */
+    if (arrivedLateral) {
+      pendingDir = "back";
+      history.back();
+      return;
+    }
     var up = parentOf(here);
     // ← 는 이력을 쌓지 않는다. 위로 올라간 자리에서 OS 뒤로가기를 누르면
     // 방금 올라온 화면으로 되돌아가는 고리가 생기기 때문이다.
@@ -146,7 +184,13 @@ window.App = (function () {
      읽기 화면과 퀴즈 진행 화면은 하나의 일에 집중하는 모달성 화면이라
      Apple HIG 가 탭바를 감추는 것을 허용하는 경우에 해당한다. */
   function showsTabbar(path) {
-    return TABS.some(function (t) { return path === t.path; }) || /^\/books\//.test(path);
+    /* 결과·마무리는 한 일이 끝난 자리다. 집중용 모달이 아니므로 탭바를 준다.
+       없을 때는 결과 화면에 ← 도 탭바도 없어서 읽던 단어로 돌아갈 길이
+       앱 안에 아예 없었다. */
+    return TABS.some(function (t) { return path === t.path; }) ||
+      /^\/books\//.test(path) ||
+      path === "/quiz/result" ||
+      path === "/recall/done";
   }
 
   function activeTab(path) {
@@ -167,15 +211,28 @@ window.App = (function () {
     var active = activeTab(path);
     var dueCount = window.Store.reviewQueue().length;
 
+    /* 칸 수를 CSS 에 넘긴다. CSS 는 repeat(var(--tabs, 4), 1fr) 로 받는데,
+       넘기는 코드가 없어서 여태 폴백 4 로만 버티고 있었다 — 탭이 다섯이 되는
+       날 다섯째가 조용히 아랫줄로 접힌다. 주석이 약속한 것을 이제 지킨다. */
+    tabbarEl.style.setProperty("--tabs", String(TABS.length));
+
     // security-ok: OWASP-A03-4 — TABS 는 이 파일 상단의 고정 배열이고, 라벨은 UI.esc 를 거친다.
     tabbarEl.innerHTML = TABS.map(function (tab) {
       var isActive = tab.path === active;
+      /* 숫자 알약은 그림으로만 둔다. 스크린리더에는 "퀴즈 3" 처럼 떨어져
+         읽히면 뜻이 안 서므로, 탭 전체의 이름에 문장으로 넣는다.
+         aria-hidden 만 걸어두면 복습이 밀렸다는 사실 자체가 안 들린다. */
       var badge =
         tab.path === "/quiz" && dueCount
           ? '<span class="tab__badge" aria-hidden="true">' + dueCount + "</span>"
           : "";
+      var name =
+        tab.path === "/quiz" && dueCount
+          ? tab.label + ", 복습할 단어 " + dueCount + "개"
+          : tab.label;
       return (
         '<a class="tab" href="#' + tab.path + '"' +
+        ' aria-label="' + window.UI.esc(name) + '"' +
         (isActive ? ' aria-current="page"' : "") + ">" +
         window.UI.icon(tab.icon, 22) + badge +
         "<span>" + window.UI.esc(tab.label) + "</span></a>"
@@ -183,21 +240,67 @@ window.App = (function () {
     }).join("");
   }
 
-  function render() {
+  /* ---------------------------------------------------------- 그리기
+
+     화면을 그리는 길은 둘이다.
+
+       render()  — 화면 전환. 방향을 정하고, 스크롤을 새로 잡고, 초점을 옮긴다.
+       refresh() — 같은 화면 제자리 갱신. 배지 하나 바뀌었다고 읽던 자리를
+                   빼앗지 않는다.
+
+     나누기 전에는 둘이 한 함수였다. 그래서 긴 본문을 3,400px 내려 읽고
+     하단 고정 바의 "학습 완료" 를 누르면 맨 위로 튀고, 펼쳐 둔 접이식이
+     전부 닫혔다 — 다 읽은 사람이 누르라고 만든 단추가 다 읽은 흔적을 지웠다.
+     퀴즈 화면만 이 문제를 알고 render() 뒤에 스크롤을 도로 옮기고 있었다. */
+
+  /* 다시 그리면 <details> 의 열림은 DOM 에만 있던 값이라 함께 사라진다.
+     id 가 있으면 id 로, 없으면 순서로 짝을 짓는다. */
+  function openStates() {
+    var map = {};
+    var all = root.querySelectorAll("details");
+    for (var i = 0; i < all.length; i++) {
+      map[all[i].id || "@" + i] = all[i].open;
+    }
+    return map;
+  }
+
+  function applyOpenStates(map) {
+    if (!map) return;
+    var all = root.querySelectorAll("details");
+    for (var i = 0; i < all.length; i++) {
+      if (map[all[i].id || "@" + i]) all[i].open = true;
+    }
+  }
+
+  /* 갈아끼운 뒤 초점을 도로 놓는다. 같은 id 가 살아 있으면 거기로,
+     아니면 화면의 제목으로. 스크롤은 건드리지 않는다 — 초점을 되찾자고
+     읽던 자리를 옮기면 고치려던 것을 다시 부순다. */
+  function restoreFocus(id) {
+    if (id === null) return;
+    var el = id ? root.querySelector("#" + CSS.escape(id)) : null;
+    if (!el) el = root.querySelector("[data-focus], h1, h2");
+    if (!el) return;
+    if (!el.hasAttribute("tabindex")) el.setAttribute("tabindex", "-1");
+    el.focus({ preventScroll: true });
+  }
+
+  function draw(inPlace) {
     var path = currentPath();
 
-    // 방향은 여기 한 곳에서만 정한다. 우리가 일으킨 이동이면 그 방향을 쓰고,
-    // 밖에서 온 이동이면 이력 번호로 가른다.
-    if (pendingDir) {
-      goingBack = pendingDir === "back";
-      pendingDir = null;
-    } else {
-      var seq = seqOf(history.state);
-      goingBack = seq !== 0 && seq < lastSeq;
-    }
+    if (!inPlace) {
+      // 방향은 여기 한 곳에서만 정한다. 우리가 일으킨 이동이면 그 방향을 쓰고,
+      // 밖에서 온 이동이면 이력 번호로 가른다.
+      if (pendingDir) {
+        goingBack = pendingDir === "back";
+        pendingDir = null;
+      } else {
+        var seq = seqOf(history.state);
+        goingBack = seq !== 0 && seq < lastSeq;
+      }
 
-    // 떠나는 화면의 스크롤 위치를 기억해 둔다. 뒤로 왔을 때 그 자리에 있어야 한다.
-    if (lastPath) scrollMemory[lastPath] = window.scrollY;
+      // 떠나는 화면의 스크롤 위치를 기억해 둔다. 뒤로 왔을 때 그 자리에 있어야 한다.
+      if (lastPath) scrollMemory[lastPath] = window.scrollY;
+    }
 
     var found = match(path);
     if (!found) {
@@ -205,8 +308,21 @@ window.App = (function () {
       return;
     }
 
+    // 제자리 갱신이면 사용자가 만들어 둔 것을 먼저 챙긴다.
+    var keepScroll = inPlace ? window.scrollY : 0;
+    var keepOpen = inPlace ? openStates() : null;
+    /* 초점도 챙긴다. 기다리는 화면의 제목은 data-focus 로 초점을 받아 둔
+       상태인데, 본문이 도착해 통째로 갈아끼우면 그 요소가 사라지면서
+       초점이 문서 맨 앞으로 조용히 떨어진다. 화면을 보는 사람은 못 느끼지만
+       스크린리더로 읽던 사람은 있던 자리를 잃는다. */
+    var keepFocus = inPlace && root.contains(document.activeElement)
+      ? document.activeElement.id || ""
+      : null;
+
     var html = found.render(found.params);
-    root.className = goingBack ? "screen-enter screen-enter--back" : "screen-enter";
+    if (!inPlace) {
+      root.className = goingBack ? "screen-enter screen-enter--back" : "screen-enter";
+    }
     // 화면 함수는 문자열 템플릿으로 조립하되, 데이터가 들어가는 모든 지점에서
     // UI.esc 또는 UI.markdown(내부에서 먼저 이스케이프)을 통과시킨다.
     // 이스케이프 없이 값을 끼워 넣는 화면 함수는 이 프로젝트에서 버그로 취급한다.
@@ -215,22 +331,42 @@ window.App = (function () {
     renderTabbar(path);
     document.body.dataset.route = path;
 
-    // 앞으로 갈 때는 맨 위에서 시작하고, 뒤로 올 때는 보던 자리로 돌아간다.
-    var restore = goingBack ? scrollMemory[path] || 0 : 0;
-    window.scrollTo(0, restore);
+    if (inPlace) {
+      applyOpenStates(keepOpen);
+      window.scrollTo(0, keepScroll);
+      restoreFocus(keepFocus);
+    } else {
+      // 앞으로 갈 때는 맨 위에서 시작하고, 뒤로 올 때는 보던 자리로 돌아간다.
+      window.scrollTo(0, goingBack ? scrollMemory[path] || 0 : 0);
 
-    // 화면이 바뀌면 스크린리더 초점을 본문으로 옮긴다
-    var heading = root.querySelector("h1, h2, [data-focus]");
-    if (heading) {
-      heading.setAttribute("tabindex", "-1");
-      heading.focus({ preventScroll: true });
+      // 화면이 바뀌면 스크린리더 초점을 본문으로 옮긴다.
+      // 제자리 갱신에서는 옮기지 않는다 — 읽던 자리에서 초점만 튀어 오른다.
+      var heading = root.querySelector("h1, h2, [data-focus]");
+      if (heading) {
+        heading.setAttribute("tabindex", "-1");
+        heading.focus({ preventScroll: true });
+      }
+
+      lastPath = path;
+      stampSeq();
     }
 
-    lastPath = path;
-    stampSeq();
+    document.dispatchEvent(new CustomEvent("screen:rendered", {
+      detail: { path: path, inPlace: !!inPlace },
+    }));
 
-    if (typeof found.mounted === "function") found.mounted();
-    document.dispatchEvent(new CustomEvent("screen:rendered", { detail: { path: path } }));
+    /* screen:rendered 를 듣는 쪽이 DOM 을 더 붙여 높이를 바꾼다.
+       그 뒤에 한 번 더 자리를 잡아야 읽던 곳에 그대로 남는다. */
+    if (inPlace) window.scrollTo(0, keepScroll);
+  }
+
+  function render() {
+    draw(false);
+  }
+
+  /* 상태만 바뀌었을 때 부른다. 주소가 그대로일 때만 뜻이 있다. */
+  function refresh() {
+    draw(true);
   }
 
   /* ---------------------------------------------------------- 테마 */
@@ -257,7 +393,7 @@ window.App = (function () {
     } catch (err) {
       /* 저장 실패해도 이번 세션에는 적용된다 */
     }
-    render();
+    refresh();
   }
 
   /* ---------------------------------------------------------- 위임 이벤트
@@ -301,6 +437,8 @@ window.App = (function () {
     on: on,
     start: start,
     render: render,
+    refresh: refresh,
+    navigateLateral: navigateLateral,
     currentPath: currentPath,
   };
 })();

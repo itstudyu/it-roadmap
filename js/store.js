@@ -261,20 +261,62 @@ window.Store = (function () {
     return allTerms().filter(function (t) { return statusOf(t.id) === STATUS.REVIEW; });
   }
 
-  /* "지금 뭘 하면 되지"에 대한 앱의 대답.
-     복습이 밀렸으면 복습, 읽던 게 있으면 그것, 없으면 다음 새 단어. */
-  function nextUp() {
-    var reading = allTerms().filter(function (t) { return statusOf(t.id) === STATUS.READING; });
-    if (reading.length) return { term: reading[0], reason: "reading" };
+  /* "읽는 중" 가운데 가장 최근에 손댄 하나.
 
-    var learned = allTerms().filter(function (t) { return statusOf(t.id) === STATUS.LEARNED; });
-    if (learned.length >= 3) return { term: learned[0], reason: "quiz-ready" };
+     예전에는 그냥 allTerms() 의 첫 번째를 집었다. 그건 색인 순서라 실제로는
+     "아직 학습 완료를 안 누른, 색인 맨 앞 단어" 가 뽑힌다. 홈 화면은 이 카드
+     바로 밑에 "최근에 본 단어" 를 시간 순서로 붙이는데, 그래서 위아래 두 블록이
+     서로 다른 단어를 가리키며 각자 최근이라고 우겼다.
+
+     기록(history)을 먼저 본다 — unshift 로 쌓이므로 앞이 최신이다. 기록은 40개에서
+     잘리니 거기서 밀려난 단어는 readAt 으로 받친다. 둘 다 없으면 색인 순서다. */
+  function latestReading() {
+    var reading = allTerms().filter(function (t) { return statusOf(t.id) === STATUS.READING; });
+    if (!reading.length) return null;
+
+    var rank = {};
+    state.history.forEach(function (h, i) {
+      if (!(h.termId in rank)) rank[h.termId] = i;
+    });
+
+    var best = null, bestRank = Infinity, bestReadAt = -Infinity;
+    reading.forEach(function (t) {
+      var r = (t.id in rank) ? rank[t.id] : Infinity;
+      var rec = state.terms[t.id];
+      var readAt = (rec && rec.readAt) || 0;
+      if (r < bestRank || (r === bestRank && readAt > bestReadAt)) {
+        best = t;
+        bestRank = r;
+        bestReadAt = readAt;
+      }
+    });
+    return best;
+  }
+
+  /* "지금 뭘 하면 되지"에 대한 앱의 대답.
+     읽던 게 있으면 그것, 없으면 다음 새 단어, 그다음이 복습.
+
+     예전에는 "학습 완료가 3개 이상" 갈래가 새 단어보다 위에 있었다. 학습 완료는
+     퀴즈를 통과해야만 줄어드는데, 퀴즈를 미루면 그 수가 줄지 않으니 새 단어가
+     큰 카드에 영영 못 올라왔다. 큰 카드는 "다음에 읽을 것" 을 내미는 자리고,
+     "퀴즈 볼 때가 됐다" 는 nextStep() 이 이미 따로 말한다.
+
+     그래도 갈래를 지우지는 않고 맨 아래로 내렸다. 여기서 null 을 돌려주면 홈이
+     "단어장의 모든 단어를 한 번씩 통과했습니다" 라고 하는데, 읽기만 하고 퀴즈를
+     안 본 사람에게 그건 사실이 아니다. 3개라는 문턱도 뺐다 — 마지막 갈래에서는
+     한 개만 남아도 그 한 개를 내밀어야 한다. */
+  function nextUp() {
+    var reading = latestReading();
+    if (reading) return { term: reading, reason: "reading" };
 
     var fresh = allTerms().filter(function (t) { return statusOf(t.id) === STATUS.NEW; });
     if (fresh.length) return { term: fresh[0], reason: "new" };
 
     var review = reviewQueue();
     if (review.length) return { term: review[0], reason: "review" };
+
+    var learned = allTerms().filter(function (t) { return statusOf(t.id) === STATUS.LEARNED; });
+    if (learned.length) return { term: learned[0], reason: "quiz-ready" };
     return null;
   }
 
@@ -388,6 +430,46 @@ window.Store = (function () {
     save();
   }
 
+  /* 한 판을 통째로 반영한다. 단어마다 상자가 딱 한 번만 움직인다.
+
+     예전에는 퀴즈 화면이 문제를 맞힐 때마다 markPassed 를 불렀다. 그런데 한 단어에서
+     문제가 열한 개까지 나오고, markPassed 는 부를 때마다 상자를 한 칸 올린다. 그래서
+     앞에서 한 번 틀린 단어를 뒤에서 아홉 번 맞히면 상자가 0에서 끝까지 올라가
+     "35일 뒤" 로 예약됐다. 순서가 반대면 쌓아둔 간격이 0 으로 날아갔다.
+     같은 판 안에서 답한 순서가 복습 일정을 정해 버린 셈이다.
+
+     verdicts: [{ termId: "net--tcp", correct: true }]
+     correct 는 그 단어에서 나온 문제를 전부 맞혔는가다. 판에서 한 번도 안 나온 단어는
+     넣지 않는다 — 중간에 그만두면 아직 안 푼 단어가 남는데, 그걸 틀렸다고 치면 안 된다.
+
+     돌려주는 값은 결과 화면이 "며칠 뒤에 다시 봅니다" 를 적는 데 쓴다.
+     틀린 단어는 days 가 null 이다. */
+  function settleQuiz(verdicts) {
+    if (!Array.isArray(verdicts)) return [];
+
+    var done = {};
+    var out = [];
+    verdicts.forEach(function (v) {
+      if (!v || !v.termId) return;
+      // 같은 단어가 두 번 들어와도 한 번만 반영한다. 이 방어가 없으면
+      // 부르는 쪽이 문제 단위 목록을 그대로 넘겼을 때 예전 버그가 되살아난다.
+      if (done[v.termId]) return;
+      done[v.termId] = true;
+
+      if (v.correct) {
+        out.push({ termId: v.termId, correct: true, days: markPassed(v.termId) });
+      } else {
+        markWrong(v.termId);
+        out.push({ termId: v.termId, correct: false, days: null });
+      }
+    });
+
+    // markPassed/markWrong 이 각자 저장하지만, 한 판이 통째로 끝났다는 사실은
+    // 여기서 한 번 더 못 박아 둔다. 위에서 아무것도 안 걸렸으면 쓸 것도 없다.
+    if (out.length) save();
+    return out;
+  }
+
   /* 전부 지운다. 예전에는 지운 뒤 "며칠 써본 사람" 을 흉내 낸 가짜 진도를
      다시 채웠는데, 그건 화면을 판단하려고 목업 시절에 넣은 장치였다.
      실제로 공부하는 자리에서 그러면 지웠다고 말해놓고 남의 기록을 보여주는 셈이다.
@@ -458,6 +540,7 @@ window.Store = (function () {
     markLearned: markLearned,
     markPassed: markPassed,
     markWrong: markWrong,
+    settleQuiz: settleQuiz,
     readState: readState,
     markGlossSeen: markGlossSeen,
     markHintSeen: markHintSeen,

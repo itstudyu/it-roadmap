@@ -1030,10 +1030,17 @@ a {
   color: var(--ink-inverse);
 }
 
+/* opacity 로 눌러 두면 대비가 2.93:1 로 떨어진다. 11px 이라 큰 글자 예외도
+   못 쓴다. tokens.css 가 --ink-3 를 "실제로 읽어야 하는 글" 이라며 일부러
+   4.66:1 로 올려 뒀는데 투명도가 그 노력을 도로 깎고 있었다. */
 .chip__count {
   font-size: var(--fs-11);
-  opacity: 0.65;
+  color: var(--ink-3);
   font-variant-numeric: tabular-nums;
+}
+
+.chip[aria-pressed="true"] .chip__count {
+  color: var(--ink-inverse);
 }
 
 /* ============================================================
@@ -3139,12 +3146,17 @@ a {
    도해의 "누가 :: 무엇을" 화법을 그림으로 잇는다. 코드로 그린 벡터라
    다크 모드에서 저절로 제 색을 입는다.
 
-   폭을 다 쓴다 — 컷 안의 글자가 11px 이라 좁히면 못 읽는다. */
+   폭을 진짜로 다 쓴다. 예전에는 화면 좌우 여백 40px 에 자기 패딩 24px 을
+   더 얹어서, 390px 폰에서 SVG 가 324px 로 눌렸다 — 배율 0.81 이라 배우
+   이름표(9.5)가 7.7px, 320px 기기에서는 6.0px 이었다. 안 좁힌다고 적어 둔
+   주석 바로 아래에서 매번 좁히고 있었다.
+   그래서 화면 여백 밖으로 내보내고 좌우 패딩을 걷는다. */
 .scene {
-  margin: var(--sp-4) 0 0;
-  padding: var(--sp-4) var(--sp-3);
+  margin: var(--sp-4) calc(var(--gutter) * -1) 0;
+  padding: var(--sp-4) 0;
   border: 1px solid var(--line);
-  border-radius: var(--r-container);
+  border-inline: none;
+  border-radius: 0;
   background: var(--surface);
 }
 
@@ -3154,6 +3166,49 @@ a {
   max-width: 400px;
   height: auto;
   margin: 0 auto;
+}
+
+/* ---- 컷 캡션 ----
+
+   그림 안의 글자는 viewBox 400 안의 절대값이라 화면이 좁아지면 같이 줄고,
+   폰의 글자 크기 설정도 따르지 않는다. 그래서 각 컷이 하는 말을 본문
+   크기 HTML 로 그림 아래에 한 번 더 세운다.
+   빌드가 이미 굽고 있던 값이다(tools/build_scenes.py) — 내려받기만 하고
+   읽는 코드가 없어서 버려지던 것을 여기서 쓴다. */
+.scenecaps {
+  margin: var(--sp-3) var(--gutter) 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.scenecaps__item {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: baseline;
+  font-size: var(--fs-15);
+  line-height: var(--lh-snug);
+  color: var(--ink-2);
+}
+
+.scenecaps__n {
+  flex: none;
+  min-width: 1.35em;
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: var(--ink-3);
+}
+
+/* 마지막 컷은 경계다 — 그 한 줄이 나머지 셋과 다른 일을 한다.
+   :last-child 로 잡으면 안 된다. 캡션이 빈 컷은 아예 안 그려지므로
+   4컷 중 4번째가 비는 날 3번 줄이 경계색을 입는다. 몇 번째 컷인지는
+   그리는 쪽만 아니까 거기서 표시를 받는다. */
+.scenecaps__item--edge .scenecaps__n {
+  color: var(--st-review);
 }
 
 /* ---- 배우 아이콘 ----
@@ -3275,7 +3330,7 @@ a {
 .dia--walk .dia__turn,
 .dia--walk .dia__loop,
 .dia--walk .dia__sum {
-  transition: opacity var(--dur-slow) var(--ease);
+  transition: color var(--dur-slow) var(--ease);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -3287,10 +3342,27 @@ a {
   }
 }
 
+/* 마지막 마디를 밝히면 단추가 사라지고 초점이 그림으로 옮겨 온다.
+   전역 규칙이 tabindex="-1" 의 테두리를 지우는 것은 "화면이 바뀔 때 제목에
+   프로그램적으로 옮긴 초점" 을 위한 것인데, 여기는 사용자가 방금 키를 눌러
+   스스로 온 자리다. 어디에 있는지 안 보이면 다음에 어디로 갈지도 모른다. */
+.dia[tabindex="-1"]:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+  border-radius: var(--r-container);
+}
+
 /* 아직 안 온 마디. 지우지 않고 눌러만 둔다 — 전체가 몇 마디인지는
-   처음부터 보여야 어디쯤 왔는지 알 수 있다. */
+   처음부터 보여야 어디쯤 왔는지 알 수 있다.
+
+   눌러 두는 방법이 opacity 면 안 된다. 두 가지가 걸렸다.
+     ① 0.32 는 대비 1.61:1 이라 사실상 안 보인다.
+     ② opacity 는 자식이 되살릴 수 없다 — 그 안에 열리는 풀이 카드까지
+        같이 흐려져서, 알고 싶어서 누른 글이 그림보다 안 읽혔다.
+   그래서 투명도 대신 색으로 눌러 둔다. --ink-3 는 4.66:1 이라 읽히고,
+   --ink 인 "지금" 마디와는 여전히 뚜렷하게 갈린다. */
 .dia--walk .is-later {
-  opacity: 0.32;
+  color: var(--ink-3);
 }
 
 .dia--walk li.is-later {
@@ -3307,17 +3379,51 @@ a {
   color: var(--st-reading);
 }
 
-/* 진행 장치를 따로 두지 않는다 — 그림 자체가 단추다.
-   밝아진 줄 수가 곧 진행이라 숫자도 점도 필요 없다. */
+/* 밝아진 줄 수가 곧 진행이라 숫자도 점도 따로 안 둔다.
+   그림 아무 데나 눌러도 넘어가는 것은 손가락을 위한 지름길이다. */
 .dia--walk.is-walking {
   cursor: pointer;
 }
 
+/* 안내문이던 <span> 이 진짜 <button> 이 됐다. 그림을 넘기는 길이 탭 하나뿐이라
+   키보드·스위치로 오는 사람은 첫 마디만 읽고 끝났기 때문이다.
+   단추가 됐으니 단추처럼 보이고 단추만큼 커야 한다 — 브라우저 기본 모양은
+   걷어내고 세로 44px 을 준다. 포커스 링은 전역 :focus-visible 이 그린다. */
 .walkhint {
-  display: block;
-  margin-top: var(--sp-3);
-  font-size: var(--fs-12);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: 44px;
+  margin-top: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-chip);
+  background: var(--surface);
+  font: inherit;
+  font-size: var(--fs-13);
+  font-weight: 600;
+  color: var(--st-reading);
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease);
+}
+
+.walkhint::after {
+  content: "→";
   color: var(--ink-3);
+}
+
+.walkhint:hover {
+  border-color: var(--line-strong);
+}
+
+.walkhint:active {
+  transform: translateY(1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .walkhint:active {
+    transform: none;
+  }
 }
 
 .walkhint[hidden] {
@@ -3534,8 +3640,13 @@ a {
 }
 
 /* summary 의 기본 삼각형을 지운다. 알약 하나가 곧 단추다. */
+/* 40px 이었다 — 이 앱에서 최소 크기를 놓친 유일한 단추였다.
+   .chip 처럼 ::before 로 넓히려다 아래쪽이 안 잡혀서, 그냥 진짜로 키웠다.
+   필터 알약과 달리 이건 카드 하나에 하나뿐인 주 행동이라 커도 안 무겁다. */
 .kidcard__btn {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   padding: var(--sp-2) var(--sp-4);
   border: 1px solid var(--line);
   border-radius: var(--r-full);

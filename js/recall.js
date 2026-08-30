@@ -155,9 +155,17 @@
       (ask.at
         ? "이 질문의 답은 〈" + esc(ask.at) + "〉에 있습니다"
         : "이 질문의 답은 본문에 있습니다") + "</p>" +
-      '<button class="link-btn recall__reread" data-action="go" data-to="/term/' +
+      '<button class="link-btn recall__reread" data-action="recall-reread" data-to="/term/' +
       esc(term.id) + '">다시 읽기</button>';
   }
+
+  /* 여기서 나가는 길은 "위" 가 아니라 "옆" 이다. 흔한 go 를 쓰면 도착한 단어의 ←
+     가 그 단어의 단어장 목록으로 나가 버려서, 답을 확인하러 잠깐 들른 사람이
+     떠올리던 카드를 잃었다 — 돌아올 길이 브라우저 뒤로가기밖에 없었다.
+     옆걸음으로 가면 ← 가 아까 그 카드로 돌아온다. */
+  App.on("recall-reread", function (data) {
+    App.navigateLateral(data.to);
+  });
 
   /* ---------------------------------------------------------- 카드 */
 

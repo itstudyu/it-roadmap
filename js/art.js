@@ -166,21 +166,61 @@ window.Art = (function () {
 
   /* ---------------------------------------------------------- 장면 컷 만화
 
-     data/scenes/<권>.js 가 window.VOCAB_SCENES[권] = { 단어id: svg } 를
-     채운다. 아직 안 왔거나 그 편에 장면이 없으면 빈 문자열이다 —
-     자리를 비워두는 것이지 오류가 아니다. 327편 전부에 장면이 서는 것을
-     목표로 하지만, 억지로 그린 그림은 없느니만 못하다. */
+     data/scenes/<권>.js 가 두 가지를 채운다.
+       window.VOCAB_SCENES[권][단어id]     = svg 문자열
+       window.VOCAB_SCENE_CUTS[권][단어id] = ["컷1 캡션", "컷2 캡션", …]
+     아직 안 왔거나 그 편에 장면이 없으면 빈 문자열이다 — 자리를 비워두는
+     것이지 오류가 아니다. 327편 전부에 장면이 서는 것을 목표로 하지만,
+     억지로 그린 그림은 없느니만 못하다. */
 
   function sceneSvg(term) {
     var book = (window.VOCAB_SCENES || {})[term.bookId];
     return (book && book[term.id]) || "";
   }
 
+  /* 컷 캡션을 본문 크기 글로 다시 세운다.
+
+     빌드는 진작부터 VOCAB_SCENE_CUTS 를 함께 굽고 있었는데(tools/build_scenes.py)
+     읽는 코드가 어디에도 없었다 — 12권 78KB 를 매번 내려받고 그대로 버렸다.
+     그동안 컷이 하는 말은 그림 안 글자뿐이었고, 그 글자는 viewBox 400 의
+     절대값이라 390px 폰에서 이름표가 7.7px, 320px 기기에서는 6.0px 로
+     눌렸다. SVG 안이라 폰의 글자 크기 설정도 안 따른다. 그래서 같은 말을
+     화면 글자 크기를 따르는 HTML 로 그림 아래에 한 번 더 세운다.
+
+     캡션 목록은 스크린리더에서 숨긴다. SVG 가 이미 role="img" 에
+     네 컷을 한 문장으로 풀어 쓴 aria-label 을 달고 있어서, 여기를 열어
+     두면 같은 이야기를 온전한 문장으로 한 번, 토막 넉 줄로 또 한 번
+     듣게 된다. 둘 중 남길 쪽은 문장이다 — 토막은 그림을 볼 때만 뜻이
+     서지, 소리로만 들으면 이어지지 않는다. */
+  function sceneCaptions(term) {
+    var book = (window.VOCAB_SCENE_CUTS || {})[term.bookId];
+    var cuts = book && book[term.id];
+    if (!cuts || !cuts.length) return "";
+    var rows = "";
+    for (var i = 0; i < cuts.length; i++) {
+      var text = typeof cuts[i] === "string" ? cuts[i].trim() : "";
+      // 캡션이 빈 컷은 통째로 건너뛴다. 번호만 남은 줄은 읽을 것이 없다.
+      // 번호는 남은 줄에 다시 매기지 않고 컷 번호 그대로 둔다 — 그림의
+      // 몇 번째 칸을 가리키는 번호여야 한다.
+      if (!text) continue;
+      /* 마지막 컷이 경계다. CSS 의 :last-child 로는 못 잡는다 — 빈 컷을
+         건너뛰므로 마지막에 그려진 줄이 마지막 컷이 아닐 수 있다. */
+      var edge = i === cuts.length - 1 ? " scenecaps__item--edge" : "";
+      rows += '<li class="scenecaps__item' + edge + '"><span class="scenecaps__n">' + (i + 1) +
+        "</span><span>" + UI.esc(text) + "</span></li>";
+    }
+    // 캡션이 하나도 없으면 빈 목록 대신 아무것도 안 그린다.
+    return rows ? '<ol class="scenecaps" aria-hidden="true">' + rows + "</ol>" : "";
+  }
+
   function scene(term) {
     var svg = sceneSvg(term);
+    // 그림이 없으면 캡션도 없다. 번호만 붙은 문장 넉 줄은 가리킬 칸이 없다.
+    if (!svg) return "";
     // security-ok: OWASP-A03-4 — data/scenes/*.js 는 tools/build_scenes.py 가
     // 굽는 저장소 안의 생성물이고, 사용자 입력이 닿는 경로가 없다.
-    return svg ? '<figure class="scene">' + svg + "</figure>" : "";
+    // 캡션 쪽은 그래도 UI.esc 를 거친다 — 여기는 SVG 조각이 아니라 글이다.
+    return '<figure class="scene">' + svg + sceneCaptions(term) + "</figure>";
   }
 
   return { icon: icon, attachIcons: attachIcons, scene: scene, hasScene: sceneSvg };
