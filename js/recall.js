@@ -323,7 +323,7 @@
 
       '<div class="stack" style="margin-top:36px">' +
       (readyForQuiz
-        ? '<button class="btn btn--primary btn--block" data-action="go" data-to="/quiz">' +
+        ? '<button class="btn btn--primary btn--block" data-action="go" data-to="/review">' +
           UI.icon("quiz", 18) + "퀴즈로 확인하기</button>"
         : "") +
       '<button class="btn btn--secondary btn--block" data-action="go" data-to="/home">홈으로</button>' +

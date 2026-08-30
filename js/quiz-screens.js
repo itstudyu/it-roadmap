@@ -31,7 +31,7 @@
       answers: [],
       picked: null,
     };
-    App.navigate("/quiz/run");
+    App.navigate("/review/run");
   }
 
   /* ---------------------------------------------------------- 본문 미리 받기
@@ -152,12 +152,12 @@
       '<span class="row__chevron">' + UI.icon("right", 16) + "</span></button>";
   }
 
-  App.register("/quiz", function () {
+  App.register("/review", function () {
     /* 본문이 도착하면 문항 수를 다시 센다. 다시 그리는 건 한 번뿐이다 —
        두 번째부터는 받을 게 없어서 여기서 그냥 돌아간다.
        보던 자리는 지켜준다. 숫자가 바뀌었다고 목록이 맨 위로 튀면 안 된다. */
     warmBodies(function () {
-      if (App.currentPath() !== "/quiz") return;
+      if (App.currentPath() !== "/review") return;
       var y = window.scrollY;
       App.render();
       window.scrollTo(0, y);
@@ -320,9 +320,9 @@
       "</div></div>";
   }
 
-  App.register("/quiz/run", function () {
+  App.register("/review/run", function () {
     if (!session) {
-      App.navigate("/quiz", true);
+      App.navigate("/review", true);
       return "";
     }
     /* 마지막 문제를 풀면 index 가 문제 수와 같아진 채로 결과 화면으로 넘어간다.
@@ -330,7 +330,7 @@
        undefined 라 아래에서 터진다. 예외가 나면 render 가 innerHTML 을 대입하지
        못해서 주소는 /quiz/run 인데 화면은 결과 화면인 채로 어긋난다. */
     if (session.index >= session.questions.length) {
-      App.navigate("/quiz/result", true);
+      App.navigate("/review/result", true);
       return "";
     }
 
@@ -403,7 +403,7 @@
     session.index++;
 
     if (session.index >= session.questions.length) {
-      App.navigate("/quiz/result");
+      App.navigate("/review/result");
       return;
     }
     App.render();
@@ -411,7 +411,7 @@
 
   App.on("quit-quiz", function () {
     session = null;
-    App.navigate("/quiz");
+    App.navigate("/review");
   });
 
   /* 해설이 나타나면 그 자리까지 내려준다.
@@ -486,9 +486,9 @@
     return out;
   }
 
-  App.register("/quiz/result", function () {
+  App.register("/review/result", function () {
     if (!session) {
-      App.navigate("/quiz", true);
+      App.navigate("/review", true);
       return "";
     }
 
@@ -522,7 +522,7 @@
       "</div>" +
 
       '<div class="stack" style="margin-top:36px">' +
-      '<button class="btn btn--primary btn--block" data-action="go" data-to="/quiz">' +
+      '<button class="btn btn--primary btn--block" data-action="go" data-to="/review">' +
       "다른 범위로 한 번 더</button>" +
       (wrong.length
         ? '<button class="btn btn--secondary btn--block" data-action="start-review">' +

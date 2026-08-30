@@ -10,14 +10,37 @@ window.App = (function () {
   var root;
   var tabbarEl;
 
-  /* 목적지 4개. Apple HIG 3~5개, Material 3~5개 권장 범위 안이다.
-     라벨은 항상 보인다. 아이콘만 있는 내비게이션은 발견하기 어렵다. */
+  /* 목적지 5개. Apple HIG 3~5개, Material 3~5개 권장 범위의 위쪽 끝이다.
+     라벨은 항상 보인다. 아이콘만 있는 내비게이션은 발견하기 어렵다.
+
+     퀴즈가 따로 서 있지 않고 복습 안에 든다. 떠올리기(회상)와 고르기(퀴즈)는
+     둘 다 "기억을 꺼내는 일" 이라 사용자 머릿속에서 한 개인데, 탭을 갈라 두면
+     오늘 무엇을 해야 하는지가 두 곳으로 흩어진다. */
   var TABS = [
-    { path: "/home", label: "홈", icon: "home" },
-    { path: "/books", label: "단어장", icon: "book" },
-    { path: "/quiz", label: "퀴즈", icon: "quiz" },
+    { path: "/today", label: "오늘", icon: "home" },
+    { path: "/course", label: "코스", icon: "book" },
+    { path: "/search", label: "찾기", icon: "search" },
+    { path: "/review", label: "복습", icon: "quiz" },
     { path: "/progress", label: "진도", icon: "chart" },
   ];
+
+  /* 옛 주소를 새 주소로 넘긴다. 홈 화면에 바로가기를 만들어 둔 사람과
+     퀴즈 결과를 공유한 사람이 빈 화면을 보지 않게 한다. 단어 주소
+     (/term/:id) 는 안 바뀐다 — 그 주소가 진도의 열쇠이자 북마크다. */
+  var LEGACY = {
+    "/home": "/today",
+    "/books": "/course",
+    "/quiz": "/review",
+    "/quiz/run": "/review/run",
+    "/quiz/result": "/review/result",
+  };
+
+  function redirectOf(path) {
+    if (LEGACY[path]) return LEGACY[path];
+    var book = path.match(/^\/books\/(.+)$/);
+    if (book) return "/course/" + book[1];
+    return null;
+  }
 
   var routes = {};
   var scrollMemory = {};
@@ -67,7 +90,7 @@ window.App = (function () {
 
   function currentPath() {
     var hash = location.hash.replace(/^#/, "");
-    return hash || "/home";
+    return hash || "/today";
   }
 
   /* 주소는 사용자가 직접 고칠 수 있는 값이다. "%E0%A4%A" 처럼 반쪽짜리 인코딩이
@@ -128,10 +151,13 @@ window.App = (function () {
     var term = path.match(/^\/term\/(.+)$/);
     if (term) {
       var found = window.Store.termById(decodeParam(term[1]));
-      return found ? "/books/" + found.bookId : "/books";
+      return found ? "/course/" + found.bookId : "/course";
     }
-    if (/^\/books\/.+/.test(path)) return "/books";
-    return "/home";
+    var route = path.match(/^\/course\/([^/]+)\/[^/]+$/);
+    if (route) return "/course/" + route[1];
+    if (/^\/terms\/.+/.test(path)) return "/course/" + path.split("/")[2];
+    if (/^\/course\/.+/.test(path)) return "/course";
+    return "/today";
   }
 
   function back() {
@@ -146,13 +172,19 @@ window.App = (function () {
      읽기 화면과 퀴즈 진행 화면은 하나의 일에 집중하는 모달성 화면이라
      Apple HIG 가 탭바를 감추는 것을 허용하는 경우에 해당한다. */
   function showsTabbar(path) {
-    return TABS.some(function (t) { return path === t.path; }) || /^\/books\//.test(path);
+    if (TABS.some(function (t) { return path === t.path; })) return true;
+    // 카테고리 허브와 단어 목록은 아직 둘러보는 자리다. 탭바를 남긴다.
+    // 경로 학습(/course/권/번호)과 단어 상세, 복습 진행은 한 가지 일에
+    // 집중하는 자리라 감춘다 — Apple HIG 가 탭바를 감추도록 허용하는 경우다.
+    return /^\/course\/[^/]+$/.test(path) || /^\/terms\//.test(path);
   }
 
   function activeTab(path) {
-    if (path === "/home") return "/home";
-    if (path.indexOf("/books") === 0 || path.indexOf("/term") === 0) return "/books";
-    if (path.indexOf("/quiz") === 0 || path.indexOf("/recall") === 0) return "/quiz";
+    if (path === "/today") return "/today";
+    if (path.indexOf("/course") === 0 || path.indexOf("/terms") === 0 ||
+        path.indexOf("/term") === 0) return "/course";
+    if (path.indexOf("/search") === 0) return "/search";
+    if (path.indexOf("/review") === 0 || path.indexOf("/recall") === 0) return "/review";
     if (path.indexOf("/progress") === 0) return "/progress";
     return null;
   }
@@ -163,6 +195,7 @@ window.App = (function () {
       return;
     }
     tabbarEl.hidden = false;
+    tabbarEl.style.setProperty("--tabs", TABS.length);
 
     var active = activeTab(path);
     var dueCount = window.Store.reviewQueue().length;
@@ -171,7 +204,7 @@ window.App = (function () {
     tabbarEl.innerHTML = TABS.map(function (tab) {
       var isActive = tab.path === active;
       var badge =
-        tab.path === "/quiz" && dueCount
+        tab.path === "/review" && dueCount
           ? '<span class="tab__badge" aria-hidden="true">' + dueCount + "</span>"
           : "";
       return (
@@ -185,6 +218,12 @@ window.App = (function () {
 
   function render() {
     var path = currentPath();
+
+    var moved = redirectOf(path);
+    if (moved) {
+      navigate(moved, true, pendingDir || "forward");
+      return;
+    }
 
     // 방향은 여기 한 곳에서만 정한다. 우리가 일으킨 이동이면 그 방향을 쓰고,
     // 밖에서 온 이동이면 이력 번호로 가른다.
@@ -201,7 +240,7 @@ window.App = (function () {
 
     var found = match(path);
     if (!found) {
-      navigate("/home", true);
+      navigate("/today", true);
       return;
     }
 

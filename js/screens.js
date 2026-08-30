@@ -166,7 +166,7 @@
     var step = toRecall
       ? { action: "start-recall", icon: "layers", label: "읽은 단어 " + toRecall + "개, 뜻을 떠올려볼까요" }
       : toQuiz
-        ? { action: "go", to: "/quiz", icon: "quiz", label: "학습 완료한 " + toQuiz + "개, 퀴즈로 확인할까요" }
+        ? { action: "go", to: "/review", icon: "quiz", label: "학습 완료한 " + toQuiz + "개, 퀴즈로 확인할까요" }
         : null;
 
     if (!step) return "";

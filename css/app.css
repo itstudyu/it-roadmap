@@ -282,7 +282,9 @@ a {
   max-width: var(--app-max);
   z-index: var(--z-nav);
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  /* 칸 수를 자바스크립트가 --tabs 로 넘긴다. 4 를 여기 박아 두면 탭이 늘어난
+     날 다섯째가 조용히 아랫줄로 접힌다 — 실제로 그렇게 깨진 것을 보고 고쳤다. */
+  grid-template-columns: repeat(var(--tabs, 4), 1fr);
   background: color-mix(in srgb, var(--paper) 92%, transparent);
   backdrop-filter: blur(16px);
   border-top: 1px solid var(--line);
