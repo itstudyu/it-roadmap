@@ -177,6 +177,19 @@
   bottom: calc(var(--tabbar-h) + var(--sp-3) + env(safe-area-inset-bottom, 0px));
   box-shadow: var(--shadow-raised);
 }
+/* 짧은 화면에서는 이 단추가 목록 한 줄 위에 앉는다. 그냥 두면 글자가 반쯤
+   잘려 읽히는 것처럼 보이므로, 위쪽에 종이색을 깔아 "덮은 것" 이 아니라
+   "떠 있는 것" 으로 읽히게 한다. 320×700 에서 실제로 겹치는 것을 보고 넣었다. */
+.cta--sticky::before {
+  position: absolute;
+  right: 0;
+  bottom: 100%;
+  left: 0;
+  height: var(--sp-6);
+  pointer-events: none;
+  background: linear-gradient(to top, var(--paper), transparent);
+  content: "";
+}
 
 /* ---------------------------------------------------------- 오늘 */
 
@@ -237,11 +250,9 @@
 .today-recent h2 {
   margin: 0 0 var(--sp-3);
   color: var(--ink-3);
-  font-family: var(--font-mono);
-  font-size: var(--fs-12);
+  font-size: var(--fs-13);
   font-weight: 500;
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
 }
 .today-recent div { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
 .today-recent a {
@@ -296,19 +307,21 @@
 .book-row > span:nth-child(2) { flex: 1; min-width: 0; }
 .book-row b { display: block; font-size: var(--fs-16); }
 .book-row small { display: block; color: var(--ink-2); font-size: var(--fs-13); line-height: var(--lh-snug); }
-.book-row__count { color: var(--ink-3) !important; font-family: var(--font-mono); font-size: var(--fs-11) !important; }
+.book-row__count { color: var(--ink-3) !important; font-size: var(--fs-12) !important; }
 .book-row svg { flex: none; color: var(--ink-3); }
 
 /* ---------------------------------------------------------- 카테고리 허브 */
 
+/* 절 제목은 한글 구절이라 고정폭을 안 쓴다. 고정폭은 글자마다 칸이 같아서
+   "단어장에서 고르기" 가 "단어장에서  고르기" 처럼 벌어져 보인다.
+   uppercase 도 뺀다 — 한글에는 아무 효과가 없으면서 규칙만 늘린다. */
+
 .hub-paths h2, .route h2 {
   margin: 0 0 var(--sp-3);
   color: var(--ink-3);
-  font-family: var(--font-mono);
-  font-size: var(--fs-12);
+  font-size: var(--fs-13);
   font-weight: 500;
   letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
 }
 
 .path-row {
@@ -326,7 +339,7 @@
 .path-row + .path-row { margin-top: var(--sp-2); }
 .path-row > span:nth-child(2) { flex: 1; min-width: 0; }
 .path-row b { display: block; font-size: var(--fs-16); }
-.path-row small { color: var(--ink-3); font-size: var(--fs-12); font-family: var(--font-mono); }
+.path-row small { color: var(--ink-3); font-size: var(--fs-13); }
 .path-row svg { flex: none; color: var(--ink-3); }
 
 .hub-all {
@@ -392,8 +405,7 @@
 .node__borrowed {
   display: block;
   color: var(--ink-3);
-  font-size: var(--fs-11);
-  font-family: var(--font-mono);
+  font-size: var(--fs-12);
 }
 
 .route-done {
@@ -872,3 +884,76 @@
 @media (prefers-reduced-motion: reduce) {
   .learn-mask, .learn-bar i, .learn-checks button svg { transition: none; }
 }
+
+/* ---------------------------------------------------------- 복습 허브 */
+
+.review-lead { margin: 0; max-width: var(--measure); color: var(--ink-2); font-size: var(--fs-16); line-height: var(--lh-body); }
+.review-lead b { color: var(--ink); }
+
+.mode {
+  margin-bottom: var(--sp-4);
+  padding: var(--sp-5);
+  border: 1px solid var(--line);
+  border-radius: var(--r-container);
+  background: var(--surface);
+}
+.mode header { display: flex; align-items: flex-start; gap: var(--sp-3); }
+.mode__no {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--r-full);
+  background: var(--surface-sunken);
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+}
+.mode header b { display: block; font-size: var(--fs-17); font-weight: 650; }
+.mode header small { display: block; margin-top: 2px; color: var(--ink-2); font-size: var(--fs-13); line-height: var(--lh-snug); }
+/* 한글 문장에 고정폭을 쓰면 글자마다 칸이 같아져 자간이 벌어져 보인다.
+   고정폭은 숫자가 세로로 맞아야 하는 자리에만 쓴다. */
+.mode__meta {
+  margin: var(--sp-3) 0 0;
+  color: var(--ink-3);
+  font-size: var(--fs-13);
+}
+/* 할 수 없는 모드도 지우지 않는다. 사라지면 "여기를 아직 안 했구나" 를
+   볼 자리가 없어진다. 흐리게 두고 무엇을 하면 열리는지 적는다. */
+.mode.is-off { border-style: dashed; }
+.mode.is-off .mode__no, .mode.is-off header b { color: var(--ink-3); }
+
+.scope-list { margin-top: var(--sp-8); }
+.scope-list h2 {
+  margin: 0 0 var(--sp-2);
+  color: var(--ink-3);
+  font-size: var(--fs-13);
+  font-weight: 500;
+  letter-spacing: var(--tracking-label);
+}
+.scope-line {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  width: 100%;
+  min-height: 48px;
+  padding: 0 var(--sp-2);
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  color: inherit;
+  font-size: var(--fs-15);
+  text-align: left;
+  cursor: pointer;
+}
+.scope-line span { flex: 1; }
+.scope-line em {
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  font-style: normal;
+}
+.scope-line svg { color: var(--ink-3); }
+.scope-line[disabled] { color: var(--ink-3); cursor: default; }
+.scope-line[disabled] svg { opacity: 0.4; }

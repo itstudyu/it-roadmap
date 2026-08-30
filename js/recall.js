@@ -163,7 +163,7 @@
 
   App.register("/recall/run", function () {
     if (!session || !session.queue.length) {
-      App.navigate(session ? "/recall/done" : "/home", true);
+      App.navigate(session ? "/recall/done" : "/today", true);
       return "";
     }
 
@@ -277,7 +277,7 @@
     var had = session && (session.done.length || session.again.length);
     if (!had) {
       session = null;
-      App.navigate("/home");
+      App.navigate("/today");
       return;
     }
     App.navigate("/recall/done");
@@ -289,7 +289,7 @@
 
   App.register("/recall/done", function () {
     if (!session) {
-      App.navigate("/home", true);
+      App.navigate("/today", true);
       return "";
     }
 
@@ -326,7 +326,7 @@
         ? '<button class="btn btn--primary btn--block" data-action="go" data-to="/review">' +
           UI.icon("quiz", 18) + "퀴즈로 확인하기</button>"
         : "") +
-      '<button class="btn btn--secondary btn--block" data-action="go" data-to="/home">홈으로</button>' +
+      '<button class="btn btn--secondary btn--block" data-action="go" data-to="/today">홈으로</button>' +
       "</div>" +
 
       (again

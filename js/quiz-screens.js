@@ -99,87 +99,9 @@
   /* 범위마다 재고를 미리 센다. 눌러보고 나서야 몇 문제짜리인지 알게 되면 안 된다.
      상한이 없으니 이 숫자가 곧 그 범위의 크기다 — 권마다 98~372문제로 다르고,
      그 차이가 어느 단어장을 고를지 정하는 정보가 된다. */
-  function scopeOptions() {
-    var pool = Store.allTerms();
-    var review = Store.reviewQueue();
-    var learned = pool.filter(function (t) {
-      var s = Store.statusOf(t.id);
-      return s === Store.STATUS.LEARNED || s === Store.STATUS.PASSED;
-    });
-
-    var entry = function (key, name, icon, targets, emptyNote) {
-      // 상한 없이 센다. 여기 적힌 수가 그대로 그 범위의 재고이고, 시작하면
-      // 그만큼 나온다. 화면이 코드가 하지 않는 말을 하지 않게 하려면 둘이 같아야 한다.
-      var n = window.Quiz.countQuestions(targets, pool, NO_LIMIT);
-      return {
-        key: key,
-        name: name,
-        icon: icon,
-        count: n,
-        meta: n ? n + "문제" : emptyNote,
-      };
-    };
-
-    var list = [
-      entry("review", "복습이 필요한 단어", "rotate", review, "지금은 없습니다"),
-      entry("learned", "학습 완료한 단어", "check", learned, "먼저 단어를 읽어주세요"),
-    ];
-
-    Store.books().forEach(function (b) {
-      var targets = pool.filter(function (t) { return t.bookId === b.id; });
-      list.push(entry("book:" + b.id, b.name, "book", targets, "출제할 단어 없음"));
-    });
-
-    return list;
-  }
-
-  function scopeCard(o) {
-    var disabled = o.count < 1;
-    return '<button class="scope" data-action="start-scope" data-key="' + esc(o.key) + '"' +
-      (disabled ? " disabled" : "") + ">" +
-      UI.icon(o.icon, 20) +
-      '<span class="scope__body">' +
-      '<span class="scope__name">' + esc(o.name) + "</span>" +
-      '<span class="scope__meta">' + esc(o.meta) + "</span></span>" +
-      '<span class="scope__check">' + UI.icon("right", 18) + "</span></button>";
-  }
-
-  function scopeRow(o) {
-    return '<button class="scope-row" data-action="start-scope" data-key="' + esc(o.key) + '"' +
-      (o.count ? "" : " disabled") + ">" +
-      '<span class="scope-row__name">' + esc(o.name) + "</span>" +
-      '<span class="scope-row__count num">' + (o.count ? o.count + "문제" : "—") + "</span>" +
-      '<span class="row__chevron">' + UI.icon("right", 16) + "</span></button>";
-  }
-
-  App.register("/review", function () {
-    /* 본문이 도착하면 문항 수를 다시 센다. 다시 그리는 건 한 번뿐이다 —
-       두 번째부터는 받을 게 없어서 여기서 그냥 돌아간다.
-       보던 자리는 지켜준다. 숫자가 바뀌었다고 목록이 맨 위로 튀면 안 된다. */
-    warmBodies(function () {
-      if (App.currentPath() !== "/review") return;
-      var y = window.scrollY;
-      App.render();
-      window.scrollTo(0, y);
-    });
-
-    var all = scopeOptions();
-    // 상태로 고르는 두 가지가 대부분의 경우 정답이므로 앞에 크게 둔다.
-    // 단어장 목록은 그 다음이라 가벼운 줄로 내린다.
-    // 같은 크기 카드를 여덟 개 늘어놓으면 무엇을 먼저 눌러야 할지 알 수 없다.
-    var suggested = all.slice(0, 2);
-    var books = all.slice(2);
-
-    return Parts.topbar({ title: "퀴즈", right: Parts.themeButton() }) +
-      '<main class="screen"><div class="quiz-intro">' +
-      '<h1 class="screen-title">무엇을 확인할까요</h1>' +
-      '<p class="quiz-intro__lead">뜻을 외웠는지가 아니라 개념을 구분할 수 있는지 묻습니다. ' +
-      "선택지는 같은 분야에서 뽑기 때문에 대충 찍기는 어렵습니다.</p>" +
-      '<div class="stack" style="margin-top:28px">' + suggested.map(scopeCard).join("") + "</div>" +
-      '<section class="block"><h2 class="section-title" style="margin-bottom:4px">단어장에서 고르기</h2>' +
-      '<div class="scope-rows">' + books.map(scopeRow).join("") + "</div></section>" +
-      "</div></main>";
-  });
+  /* /review 허브는 js/review.js 가 맡는다. 떠올리기와 고르기를 한 화면에
+     모으면서 옮겼다. 여기 남겨 두면 로드 순서에 따라 어느 쪽이 이기는지가
+     갈려서, 파일 순서를 바꾼 날 조용히 옛 화면이 돌아온다. */
 
 
   App.on("start-scope", function (data) {
