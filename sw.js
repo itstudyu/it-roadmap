@@ -12,7 +12,7 @@
       tools/build.py 를 돌린 커밋에는 반드시 이 줄이 같이 들어가야 한다.
    ============================================================ */
 
-var CACHE_VERSION = "3acab359cd2e";
+var CACHE_VERSION = "07a739e9e701";
 var CACHE = "it-vocab-" + CACHE_VERSION;
 
 /* 설치할 때 받아둘 것 전부.
@@ -25,7 +25,6 @@ var PRECACHE = [
 
   "css/tokens.css",
   "css/app.css",
-  "css/atlas.css",
 
   "fonts/pretendard-subset.woff2",
 
@@ -33,18 +32,13 @@ var PRECACHE = [
   "js/store.js",
   "js/quiz.js",
   "js/app.js",
-  "js/paths.js",
   "js/art.js",
   "js/screens.js",
-  "js/screens-course.js",
-  "js/learn.js",
   "js/reading.js",
   "js/recall.js",
   "js/quiz-screens.js",
-  "js/review.js",
 
   "data/index.js",
-  "data/paths.js",
   "data/terms/cs.js",
   "data/terms/lang.js",
   "data/terms/net.js",

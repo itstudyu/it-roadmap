@@ -229,26 +229,17 @@ window.Store = (function () {
   }
 
   /* 단어장 하나의 진행 상황. 진도 화면과 목록 화면이 같은 숫자를 쓰게 한다. */
-  /* '설명 가능' 이 무엇을 세는지는 한 곳에서만 정한다. 화면마다 따로 더하면
-     같은 이름 아래 다른 숫자가 서고, 사용자는 어느 쪽이 맞는지 알 수 없다.
-     여섯 칸을 지난 것(LEARNED)과 퀴즈까지 통과한 것(PASSED) 둘 다 설명할 수
-     있는 상태다. 복습 차례가 돌아온 것은 아직 세지 않는다. */
-  function ableCount(counts) {
-    return counts.learned + counts.passed;
-  }
-
   function bookStats(book) {
     var counts = { new: 0, reading: 0, learned: 0, passed: 0, review: 0 };
     book.terms.forEach(function (t) {
       counts[statusOf(t.id)]++;
     });
-    var able = ableCount(counts);
     return {
       total: book.terms.length,
       counts: counts,
       touched: book.terms.length - counts.new,
-      done: able,
-      percent: book.terms.length ? Math.round((able / book.terms.length) * 100) : 0,
+      done: counts.passed,
+      percent: book.terms.length ? Math.round((counts.passed / book.terms.length) * 100) : 0,
     };
   }
 
@@ -260,7 +251,7 @@ window.Store = (function () {
       total: terms.length,
       counts: counts,
       studied: counts.reading + counts.learned + counts.passed + counts.review,
-      passed: ableCount(counts),
+      passed: counts.passed,
       review: counts.review,
     };
   }
@@ -456,7 +447,6 @@ window.Store = (function () {
     hasBody: hasBody,
     loadBody: loadBody,
     bodyFailed: bodyFailed,
-    ableCount: ableCount,
     bookStats: bookStats,
     overallStats: overallStats,
     reviewQueue: reviewQueue,
