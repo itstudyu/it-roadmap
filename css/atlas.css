@@ -435,6 +435,9 @@
 .find input {
   flex: 1;
   min-width: 0;
+  /* 감싼 라벨이 48px 이라 손가락은 이미 닿지만, 입력칸 자체가 30px 이면
+     재는 쪽과 실제가 어긋난다. 다음에 재는 사람이 또 헷갈리지 않게 채운다. */
+  align-self: stretch;
   border: 0;
   background: none;
   color: var(--ink);

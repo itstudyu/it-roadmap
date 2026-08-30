@@ -3444,6 +3444,9 @@ a {
   display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
+  /* 홀로 선 단추다. 본문 속 인라인 표시(.tmark)와 달리 줄 간격에 매이지
+     않으므로 44px 을 그대로 지킬 수 있다. 실측에서 31px 로 나와 올렸다. */
+  min-height: 44px;
   padding: var(--sp-1) var(--sp-3);
   border: 1px solid var(--line);
   border-radius: var(--r-full);
