@@ -29,58 +29,81 @@
   src: url("../fonts/pretendard-subset.woff2") format("woff2-variations");
 }
 
-@font-face {
-  font-family: "Source Serif 4";
-  font-style: normal;
-  font-weight: 200 900;
-  font-display: swap;
-  src: url("../fonts/source-serif-4-latin.woff2") format("woff2-variations");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
-    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191,
-    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
+
 
 :root {
   color-scheme: light dark;
 
-  /* ---------- 표면 ---------- */
-  --paper: #fbfaf8;          /* 앱 배경. 순백이 아니라 살짝 따뜻하다 */
+  /* ---------- 표면 ----------
+     따뜻한 종이에서 차가운 회청색으로 옮겼다. 흰 카드가 그 위에 뜬다. */
+  --paper: #f5f7f8;          /* 앱 배경 */
   --surface: #ffffff;        /* 카드 */
-  --surface-sunken: #f3f1ec; /* 입력창, 코드블록 */
-  --line: #e9e5de;           /* 기본 헤어라인 */
-  --line-strong: #d5cfc4;    /* 강조 구분선 */
+  --surface-sunken: #eceff1; /* 입력창, 코드블록 */
+  --line: #e2e7ea;           /* 기본 헤어라인 */
+  --line-strong: #c5ced3;    /* 강조 구분선 */
 
-  /* ---------- 잉크 (텍스트 + 주요 액션) ---------- */
-  --ink: #1a1917;      /* 본문, 표제어, primary 버튼 배경. 대비 15.6:1 */
-  --ink-2: #57524a;    /* 보조 텍스트. 대비 7.4:1 */
-  --ink-3: #726c60;    /* 메타/캡션. 대비 4.9:1, AA 통과 */
-  --ink-inverse: #fbfaf8;
+  /* ---------- 잉크 ---------- */
+  --ink: #263238;      /* 본문, 표제어. 흰 바탕 대비 13.6:1 */
+  --ink-2: #546067;    /* 보조 텍스트. 7.2:1 */
+  /* 목업의 #8a959b 는 종이 위에서 2.85:1 이라 큰 글자 기준도 못 넘는다.
+     캡션·경로 요약·단어 수처럼 실제로 읽어야 하는 글이 이 색을 쓰므로 낮췄다. */
+  --ink-3: #667177;    /* 메타·캡션. 종이 4.66:1 · 흰 카드 5.01:1 */
+  --ink-inverse: #ffffff;
+
+  /* ---------- 브랜드 ----------
+     색을 쓰는 자리는 여기 하나다. 주요 행동과 나아간 정도가 이 색을 입는다.
+     하나로 묶어 두어야 "초록이 보이면 앞으로 가는 것" 이 학습된다. */
+  /* 목업의 초록은 #3aa14b 인데, 흰 글자를 얹으면 3.29:1 로 기준(4.5:1) 아래다.
+     단추 글자가 안 읽히는 것은 취향의 문제가 아니라 못 쓰는 것이므로, 색상과
+     채도는 그대로 두고 명도만 낮췄다. 눈으로는 거의 같은 초록이다.
+
+       흰 글자 / 이 초록   4.92:1
+       이 초록 / 흰 카드   4.92:1
+       이 초록 / 회청 종이 4.58:1   ← 활성 탭 라벨이 앉는 자리 */
+  --accent: #2e803c;
+  --accent-soft: #e6f4e8;
+  --accent-deep: #256a31;
 
   /* ---------- 학습 상태 ----------
-     색 하나로만 뜻을 전달하지 않는다. 항상 아이콘 + 라벨과 같이 쓴다. */
-  --st-new: #726c60;
-  --st-new-bg: #f0eee9;
-  --st-reading: #2c5f7c;     /* 읽는 중 */
-  --st-reading-bg: #e9f1f5;
-  --st-learned: #3a6b4c;     /* 학습 완료 */
-  --st-learned-bg: #eaf2ec;
-  --st-passed: #235c43;      /* 퀴즈 통과 */
-  --st-passed-bg: #e0ece5;
+     상태는 색이 아니라 **잉크 농도**로 말한다. 초록은 브랜드가 독점했으므로
+     상태까지 초록을 쓰면 "앞으로 가는 것" 과 "이미 된 것" 이 같은 색이 된다.
+     옅은 회색 → 진한 잉크로 갈수록 더 아는 것이다.
+
+     둘만 예외다.
+       읽는 중 — 그림 634편이 --st-reading 을 '지금 옮겨지는 것' 의 색으로
+                 쓴다. 이름도 값도 못 바꾼다. 화면의 뱃지도 같은 파랑을 써서
+                 그림과 목록이 같은 말을 하게 둔다.
+       복습   — 눈에 걸려야 하는 유일한 상태다. 회색으로 묻으면 오늘 할 일이
+                 안 보인다. 초록과 안 부딪히는 호박색을 남긴다. */
+  --st-new: #667177;
+  --st-new-bg: #eceff1;
+  --st-reading: #2c5f7c;     /* 읽는 중 — 그림이 같이 쓴다 */
+  --st-reading-bg: #e7eff3;
+  --st-learned: #546067;     /* 학습 완료 */
+  --st-learned-bg: #e2e7ea;
+  --st-passed: #263238;      /* 설명 가능 */
+  --st-passed-bg: #d3dade;
   --st-review: #8a5a18;      /* 복습 필요 */
   --st-review-bg: #f7efe0;
 
   /* ---------- 피드백 ---------- */
-  --ok: #235c43;
-  --ok-bg: #e0ece5;
-  --danger: #a33a31;
-  --danger-bg: #f8eae7;
+  --ok: #256a31;
+  --ok-bg: #e6f4e8;
+  --danger: #b3392f;
+  --danger-bg: #fbeae8;
 
   /* ---------- 타이포 ----------
-     표제어만 세리프를 쓴다. 사전이라는 장르의 관습이고,
-     영문 용어와 한글 설명을 시각적으로 분리해준다. */
+     세리프를 걷었다. 사전의 관습이긴 하지만, 이 앱이 하려는 일은 단어를
+     찾아 주는 것이 아니라 설명할 수 있게 만드는 것이다. 한 벌의 산세리프를
+     굵기로만 부려서 제목과 본문을 가른다 — 표제어 800, 라벨 700, 본문 400. */
   --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
     "Apple SD Gothic Neo", "Segoe UI", "Noto Sans KR", system-ui, sans-serif;
-  --font-head: "Source Serif 4", "Iowan Old Style", Charter, Georgia, "Times New Roman", serif;
+  /* 이름은 남긴다. 쓰는 자리가 화면 곳곳이라 이름을 바꾸면 그 자리를 다
+     찾아 고쳐야 하고, 다음에 다시 세리프로 돌리고 싶을 때도 여기 한 줄이다. */
+  --font-head: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+    "Apple SD Gothic Neo", system-ui, sans-serif;
+  --weight-head: 800;   /* 표제어 */
+  --weight-label: 700;  /* 라벨·단추 */
   /* 라틴 고정폭 뒤에 한글 폰트를 붙인다. 이게 없으면 코드 주석의 한글이
      글리프 없는 고정폭을 지나 아무 폰트로나 떨어지면서 자간이 들쭉날쭉해진다. */
   --font-mono: ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo,
@@ -123,9 +146,9 @@
   /* ---------- 모서리 ----------
      규칙: 컨테이너 16 / 인터랙티브 12 / 칩 8 / 알약은 full.
      이 규칙 밖의 값은 쓰지 않는다. */
-  --r-chip: 8px;
-  --r-control: 12px;
-  --r-container: 16px;
+  --r-chip: 999px;
+  --r-control: 8px;      /* 단추 */
+  --r-container: 12px;   /* 카드 */
   --r-full: 999px;
 
   /* ---------- 그림자 ----------
@@ -161,32 +184,39 @@
 /* 어두운 곳에서 읽는 시간이 길다. 시스템 설정을 따르고 수동 토글도 둔다. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --paper: #141310;
-    --surface: #1c1b17;
-    --surface-sunken: #232219;
-    --line: #2f2d26;
-    --line-strong: #45423a;
+    /* 개편안 C 에는 다크가 없다. 성격을 이어 만들었다 — 따뜻한 갈색이 아니라
+       차가운 회청색으로 어두워지고, 초록은 어두운 바탕에서 대비를 얻으려고
+       한 단계 밝힌다. 잉크 농도로 말하는 상태는 방향만 뒤집는다. */
+    --paper: #12171a;
+    --surface: #1a2126;
+    --surface-sunken: #212a2f;
+    --line: #2a343a;
+    --line-strong: #3e4a51;
 
-    --ink: #f2efe8;
-    --ink-2: #b0aa9c;
-    --ink-3: #8b8578;
-    --ink-inverse: #141310;
+    --ink: #e8eef0;
+    --ink-2: #a7b4ba;
+    --ink-3: #7d8b92;
+    --ink-inverse: #12171a;
 
-    --st-new: #8b8578;
-    --st-new-bg: #26241e;
-    --st-reading: #8cbdd6;
+    --accent: #5cc46e;
+    --accent-soft: #16301c;
+    --accent-deep: #86d996;
+
+    --st-new: #7d8b92;
+    --st-new-bg: #212a2f;
+    --st-reading: #8cbdd6;     /* 그림 634편이 같이 쓴다 */
     --st-reading-bg: #1b2a32;
-    --st-learned: #86c2a0;
-    --st-learned-bg: #1b2a22;
-    --st-passed: #9ad3b2;
-    --st-passed-bg: #17281f;
+    --st-learned: #a7b4ba;
+    --st-learned-bg: #2a343a;
+    --st-passed: #e8eef0;
+    --st-passed-bg: #3e4a51;
     --st-review: #e0ac5e;
     --st-review-bg: #2c2317;
 
-    --ok: #9ad3b2;
-    --ok-bg: #17281f;
-    --danger: #e08b81;
-    --danger-bg: #2e1d1a;
+    --ok: #86d996;
+    --ok-bg: #16301c;
+    --danger: #e58f84;
+    --danger-bg: #33201d;
 
     --shadow-raised: 0 1px 2px rgba(0, 0, 0, 0.3);
     --shadow-sheet: 0 -2px 16px -6px rgba(0, 0, 0, 0.5);
@@ -194,32 +224,39 @@
 }
 
 :root[data-theme="dark"] {
-  --paper: #141310;
-  --surface: #1c1b17;
-  --surface-sunken: #232219;
-  --line: #2f2d26;
-  --line-strong: #45423a;
+  /* 개편안 C 에는 다크가 없다. 성격을 이어 만들었다 — 따뜻한 갈색이 아니라
+     차가운 회청색으로 어두워지고, 초록은 어두운 바탕에서 대비를 얻으려고
+     한 단계 밝힌다. 잉크 농도로 말하는 상태는 방향만 뒤집는다. */
+  --paper: #12171a;
+  --surface: #1a2126;
+  --surface-sunken: #212a2f;
+  --line: #2a343a;
+  --line-strong: #3e4a51;
 
-  --ink: #f2efe8;
-  --ink-2: #b0aa9c;
-  --ink-3: #8b8578;
-  --ink-inverse: #141310;
+  --ink: #e8eef0;
+  --ink-2: #a7b4ba;
+  --ink-3: #7d8b92;
+  --ink-inverse: #12171a;
 
-  --st-new: #8b8578;
-  --st-new-bg: #26241e;
-  --st-reading: #8cbdd6;
+  --accent: #5cc46e;
+  --accent-soft: #16301c;
+  --accent-deep: #86d996;
+
+  --st-new: #7d8b92;
+  --st-new-bg: #212a2f;
+  --st-reading: #8cbdd6;     /* 그림 634편이 같이 쓴다 */
   --st-reading-bg: #1b2a32;
-  --st-learned: #86c2a0;
-  --st-learned-bg: #1b2a22;
-  --st-passed: #9ad3b2;
-  --st-passed-bg: #17281f;
+  --st-learned: #a7b4ba;
+  --st-learned-bg: #2a343a;
+  --st-passed: #e8eef0;
+  --st-passed-bg: #3e4a51;
   --st-review: #e0ac5e;
   --st-review-bg: #2c2317;
 
-  --ok: #9ad3b2;
-  --ok-bg: #17281f;
-  --danger: #e08b81;
-  --danger-bg: #2e1d1a;
+  --ok: #86d996;
+  --ok-bg: #16301c;
+  --danger: #e58f84;
+  --danger-bg: #33201d;
 
   --shadow-raised: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-sheet: 0 -2px 16px -6px rgba(0, 0, 0, 0.5);

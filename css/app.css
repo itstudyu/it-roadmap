@@ -311,10 +311,14 @@ a {
   transition: color var(--dur-fast) var(--ease);
 }
 
+/* 개편안 C 는 활성 탭을 잉크가 아니라 브랜드 초록으로 말한다. 아이콘도
+   테두리만 있던 것이 채워진다 — 색과 채움 둘로 말해야 색만으로 뜻을
+   전하지 않는다는 규칙을 지킨다. */
 .tab[aria-current="page"] {
-  color: var(--ink);
-  font-weight: 600;
+  color: var(--accent);
+  font-weight: var(--weight-label);
 }
+.tab[aria-current="page"] svg { fill: color-mix(in srgb, var(--accent) 16%, transparent); }
 
 .tab__badge {
   position: absolute;
@@ -384,7 +388,7 @@ a {
 }
 
 .btn--primary {
-  background: var(--ink);
+  background: var(--accent);
   color: var(--ink-inverse);
 }
 
@@ -624,7 +628,7 @@ a {
 .progress__fill {
   height: 100%;
   border-radius: var(--r-full);
-  background: var(--ink);
+  background: var(--accent);
 }
 
 .progress--thin {
@@ -707,6 +711,8 @@ a {
 .today__term {
   margin-top: var(--sp-3);
   font-family: var(--font-head);
+  font-weight: var(--weight-head);
+  letter-spacing: -0.028em;
   font-size: var(--fs-28);
   font-weight: 600;
   line-height: var(--lh-head);
@@ -1017,7 +1023,7 @@ a {
 }
 
 .chip[aria-pressed="true"] {
-  background: var(--ink);
+  background: var(--accent);
   border-color: var(--ink);
   color: var(--ink-inverse);
 }
@@ -1062,6 +1068,8 @@ a {
   text-overflow: ellipsis;
   white-space: nowrap;
   font-family: var(--font-head);
+  font-weight: var(--weight-head);
+  letter-spacing: -0.028em;
   font-size: var(--fs-17);
   font-weight: 600;
   letter-spacing: -0.01em;
@@ -1142,6 +1150,8 @@ a {
 .detail__term {
   margin-top: var(--sp-3);
   font-family: var(--font-head);
+  font-weight: var(--weight-head);
+  letter-spacing: -0.028em;
   font-size: var(--fs-34);
   font-weight: 600;
   line-height: var(--lh-head);
@@ -1599,6 +1609,8 @@ a {
 
 .related__term {
   font-family: var(--font-head);
+  font-weight: var(--weight-head);
+  letter-spacing: -0.028em;
   font-size: var(--fs-15);
   font-weight: 600;
   white-space: nowrap;
@@ -1727,7 +1739,7 @@ a {
 
 .read-progress__fill {
   height: 100%;
-  background: var(--ink);
+  background: var(--accent);
   width: 0;
 }
 
@@ -1903,6 +1915,8 @@ a {
 .recall__term {
   margin-top: var(--sp-2);
   font-family: var(--font-head);
+  font-weight: var(--weight-head);
+  letter-spacing: -0.028em;
   font-size: var(--fs-34);
   font-weight: 600;
   line-height: var(--lh-head);
@@ -2299,6 +2313,8 @@ a {
 
 .result__score {
   font-family: var(--font-head);
+  font-weight: var(--weight-head);
+  letter-spacing: -0.028em;
   font-size: 4rem;
   font-weight: 600;
   line-height: 1;
@@ -2359,6 +2375,8 @@ a {
   flex: 1;
   min-width: 0;
   font-family: var(--font-head);
+  font-weight: var(--weight-head);
+  letter-spacing: -0.028em;
   font-size: var(--fs-16);
   font-weight: 600;
 }
@@ -2411,9 +2429,27 @@ a {
   background: var(--surface);
 }
 
+/* 글 쪽이 남는 자리를 갖고, 점은 자기 크기만 지킨다. 이게 없으면 점 일곱이
+   184px 을 붙들고 글이 "매일 / 조금씩이 / 오래 / 갑니다" 로 짓눌린다.
+   좁은 화면에서만 드러나던 것이라 여태 안 보였다. */
+.streak > div:first-child {
+  flex: 1;
+  min-width: 0;
+}
+
 .streak__days {
   display: flex;
+  flex: none;
   gap: 5px;
+}
+
+/* 아주 좁은 화면에서는 나란히 두는 것 자체가 안 된다. 위아래로 쌓는다. */
+@media (max-width: 22.5rem) {
+  .streak {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-3);
+  }
 }
 
 .streak__day {
@@ -2425,7 +2461,7 @@ a {
 }
 
 .streak__day--on {
-  background: var(--ink);
+  background: var(--accent);
   border-color: var(--ink);
 }
 

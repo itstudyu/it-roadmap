@@ -12,7 +12,7 @@
       tools/build.py 를 돌린 커밋에는 반드시 이 줄이 같이 들어가야 한다.
    ============================================================ */
 
-var CACHE_VERSION = "0cba4aad1e52";
+var CACHE_VERSION = "3acab359cd2e";
 var CACHE = "it-vocab-" + CACHE_VERSION;
 
 /* 설치할 때 받아둘 것 전부.
@@ -28,7 +28,6 @@ var PRECACHE = [
   "css/atlas.css",
 
   "fonts/pretendard-subset.woff2",
-  "fonts/source-serif-4-latin.woff2",
 
   "js/ui.js",
   "js/store.js",
