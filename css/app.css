@@ -999,7 +999,9 @@ a {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  min-height: 34px;
+  /* 34px 이었다. 홀로 선 알약 단추라 본문 줄 간격에 매이지 않으므로
+     44px 을 그대로 지킬 수 있다. 실측에서 걸려 올렸다. */
+  min-height: 44px;
   padding: 0 var(--sp-3);
   border: 1px solid var(--line);
   border-radius: var(--r-chip);

@@ -68,6 +68,11 @@
     start(candidates(), "떠올리기");
   });
 
+  App.on("recall-one", function (data) {
+    var term = Store.termById(data.id);
+    if (term) start([term], term.term);
+  });
+
   /* ---------------------------------------------------------- 저자의 확인 질문
 
      노트마다 저자가 "이 셋에 답할 수 있으면 이해한 것이다" 라며 질문을 셋씩 적어뒀다
@@ -158,7 +163,7 @@
 
   App.register("/recall/run", function () {
     if (!session || !session.queue.length) {
-      App.navigate(session ? "/recall/done" : "/today", true);
+      App.navigate(session ? "/recall/done" : "/home", true);
       return "";
     }
 
@@ -272,8 +277,7 @@
     var had = session && (session.done.length || session.again.length);
     if (!had) {
       session = null;
-      // 같은 이유로 replace 다 — 뒤로가기가 빈 세션 화면으로 돌아가면 안 된다.
-      App.navigate("/today", true, "back");
+      App.navigate("/home");
       return;
     }
     App.navigate("/recall/done");
@@ -285,7 +289,7 @@
 
   App.register("/recall/done", function () {
     if (!session) {
-      App.navigate("/today", true);
+      App.navigate("/home", true);
       return "";
     }
 
@@ -319,10 +323,10 @@
 
       '<div class="stack" style="margin-top:36px">' +
       (readyForQuiz
-        ? '<button class="btn btn--primary btn--block" data-action="go" data-to="/review">' +
+        ? '<button class="btn btn--primary btn--block" data-action="go" data-to="/quiz">' +
           UI.icon("quiz", 18) + "퀴즈로 확인하기</button>"
         : "") +
-      '<button class="btn btn--secondary btn--block" data-action="go" data-to="/today">홈으로</button>' +
+      '<button class="btn btn--secondary btn--block" data-action="go" data-to="/home">홈으로</button>' +
       "</div>" +
 
       (again

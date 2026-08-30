@@ -60,7 +60,7 @@
      그 2개를 안 그린 채 절반만 차 있었다. 상태 네 개를 모두 쌓는다.
      순서는 학습이 나아가는 순서 그대로다. */
   var BAR_SEGMENTS = [
-    { key: "passed", label: "설명 가능" },
+    { key: "passed", label: "퀴즈 통과" },
     { key: "learned", label: "학습 완료" },
     { key: "reading", label: "읽는 중" },
     { key: "review", label: "복습 필요" },
@@ -166,7 +166,7 @@
     var step = toRecall
       ? { action: "start-recall", icon: "layers", label: "읽은 단어 " + toRecall + "개, 뜻을 떠올려볼까요" }
       : toQuiz
-        ? { action: "go", to: "/review", icon: "quiz", label: "학습 완료한 " + toQuiz + "개, 퀴즈로 확인할까요" }
+        ? { action: "go", to: "/quiz", icon: "quiz", label: "학습 완료한 " + toQuiz + "개, 퀴즈로 확인할까요" }
         : null;
 
     if (!step) return "";
@@ -218,13 +218,13 @@
 
     return '<section class="block"><div class="block__head">' +
       '<h2 class="section-title">공부 중인 단어장</h2>' +
-      '<button class="link-btn" data-action="go" data-to="/course">전체</button></div>' +
+      '<button class="link-btn" data-action="go" data-to="/books">전체</button></div>' +
       '<div class="stack">' + books.map(function (x) {
-        return '<button class="book" data-action="go" data-to="/course/' + esc(x.book.id) + '">' +
+        return '<button class="book" data-action="go" data-to="/books/' + esc(x.book.id) + '">' +
           '<div class="book__top"><div>' +
           '<div class="book__name">' + esc(x.book.name) + "</div>" +
           '<div class="book__blurb">' + esc(x.book.blurb) + "</div></div>" +
-          '<div class="book__count num">설명 가능 ' + x.stats.done + " / " + x.stats.total + "</div></div>" +
+          '<div class="book__count num">통과 ' + x.stats.done + " / " + x.stats.total + "</div></div>" +
           '<div class="book__bar">' + stackedBar(x.stats) + "</div></button>";
       }).join("") + "</div></section>";
   }
@@ -249,6 +249,38 @@
       '<h1 class="home__headline">' + headline + "</h1></div>";
   }
 
+  App.register("/home", function () {
+    return topbar({ right: themeButton() }) +
+      '<main class="screen">' +
+      greetingLine() +
+      '<div class="stack stack--lg">' + todayCard() + reviewCall() + "</div>" +
+      inProgressBlock() +
+      recentBlock() +
+      "</main>";
+  });
+
+  /* ---------------------------------------------------------- 단어장 목록 */
+
+  App.register("/books", function () {
+    var books = Store.books();
+    var total = Store.overallStats();
+
+    return topbar({ title: "단어장", right: themeButton() }) +
+      '<main class="screen">' +
+      '<p class="meta" style="margin-bottom:20px">전체 ' + total.total + "개 중 " +
+      total.passed + "개 통과</p>" +
+      '<div class="stack stack--lg">' + books.map(function (b) {
+        var stats = Store.bookStats(b);
+        return '<button class="book" data-action="go" data-to="/books/' + esc(b.id) + '">' +
+          '<div class="book__top"><div>' +
+          '<div class="book__name">' + esc(b.name) + "</div>" +
+          '<div class="book__blurb">' + esc(b.blurb) + "</div></div>" +
+          '<div class="book__count num">통과 ' + stats.done + " / " + stats.total + "</div></div>" +
+          '<div class="book__bar">' + stackedBar(stats) + "</div>" +
+          bookLegend(stats) + "</button>";
+      }).join("") + "</div></main>";
+  });
+
   /* ---------------------------------------------------------- 단어 목록
      단어가 많아질 때를 대비해 검색과 상태 필터를 같이 둔다.
      필터는 상태 이름 그대로 쓴다. 앱 전체가 같은 어휘를 쓴다. */
@@ -259,7 +291,7 @@
     { key: "all", label: "전체" },
     { key: "review", label: "복습" },
     { key: "learned", label: "학습 완료" },
-    { key: "passed", label: "설명 가능" },
+    { key: "passed", label: "퀴즈 통과" },
     { key: "new", label: "안 봄" },
   ];
 
@@ -289,6 +321,50 @@
         '<span class="row__chevron">' + UI.icon("right", 18) + "</span></button>";
     }).join("");
   }
+
+  App.register("/books/:bookId", function (params) {
+    var book = Store.bookById(params.bookId);
+    if (!book) return emptyState("inbox", "단어장을 찾을 수 없습니다", "단어장 목록에서 다시 선택해 주세요.");
+
+    /* 목록을 보는 사람은 곧 그중 하나를 연다. 지금 본문을 받아두면 탭했을 때
+       기다리는 화면을 안 본다. 이 화면 자체는 인덱스만으로 이미 다 그려진다. */
+    Store.loadBody(book.id);
+
+    // 다른 단어장으로 들어오면 검색과 필터를 초기화한다
+    if (listState.bookId !== book.id) {
+      listState = { query: "", filter: "all", bookId: book.id };
+    }
+
+    var counts = Store.bookStats(book).counts;
+    var list = filteredTerms(book);
+
+    var chips = FILTERS.map(function (f) {
+      var n = f.key === "all" ? book.terms.length : counts[f.key];
+      var pressed = listState.filter === f.key;
+      return '<button class="chip" data-action="filter" data-key="' + f.key + '" aria-pressed="' +
+        pressed + '"' + (n === 0 && f.key !== "all" ? " disabled" : "") + ">" +
+        esc(f.label) + '<span class="chip__count num">' + n + "</span></button>";
+    }).join("");
+
+    var body = list.length
+      ? '<div class="rows">' + termRows(list) + "</div>"
+      : emptyState("search", "해당하는 단어가 없습니다", "검색어나 필터를 바꿔보세요.");
+
+    return topbar({ back: true, title: book.name, bordered: false }) +
+      '<div class="toolbar">' +
+      '<label class="search">' + UI.icon("search", 18) +
+      '<input type="search" id="term-search" placeholder="단어나 뜻으로 검색" value="' +
+      esc(listState.query) + '" aria-label="단어 검색">' +
+      "</label>" +
+      '<div class="chips" role="group" aria-label="학습 상태로 거르기">' + chips + "</div>" +
+      "</div>" +
+      '<main class="screen screen--flush">' + body + "</main>";
+  });
+
+  App.on("filter", function (data) {
+    listState.filter = data.key;
+    App.render();
+  });
 
   // 입력할 때마다 화면을 통째로 다시 그리면 포커스가 날아간다.
   // 목록만 갈아 끼우고 입력창은 그대로 둔다.
@@ -759,7 +835,7 @@
       return topbar({ back: true }) +
         '<main class="screen">' +
         emptyState("inbox", "단어를 찾을 수 없습니다", "주소가 잘못됐거나 지워진 단어다.") +
-        '<div class="empty__act"><button class="btn btn--primary" data-action="go" data-to="/course">' +
+        '<div class="empty__act"><button class="btn btn--primary" data-action="go" data-to="/books">' +
         "단어장으로 가기</button></div></main>";
     }
 
@@ -1042,7 +1118,7 @@
     var ACTION_COPY = {
       reading: "읽기 시작",
       learned: "학습 완료",
-      passed: "설명 가능",
+      passed: "퀴즈 통과",
       review: "복습 표시",
     };
 
@@ -1051,8 +1127,8 @@
       /* 가장 큰 숫자 자리에 "전체 단어 36"이 있었다. 그건 내 성취가 아니라
          단어장의 크기다. 내가 한 일을 앞에 두고, 전체는 그 기준으로 뒤에 둔다. */
       '<div class="summary-grid" style="margin-top:8px">' +
-      statTile(s.passed, "설명 가능", "check-double", "passed") +
-      statTile(s.studied, "손댄 단어", "book") +
+      statTile(s.passed, "퀴즈 통과", "check-double", "passed") +
+      statTile(s.studied, "공부한 단어", "book") +
       statTile(s.review, "복습 필요", "rotate", "review") +
       statTile(s.total, "전체 단어", "layers") +
       "</div>" +
@@ -1074,9 +1150,9 @@
          숫자가 무엇을 세는지 이름을 붙이고, 나머지 칸이 무엇인지는 범례로 밝힌다. */
       '<div class="stack">' + books.map(function (b) {
         var st = Store.bookStats(b);
-        return '<button class="book" data-action="go" data-to="/course/' + esc(b.id) + '">' +
+        return '<button class="book" data-action="go" data-to="/books/' + esc(b.id) + '">' +
           '<div class="book__top"><div class="book__name" style="font-size:15px">' + esc(b.name) + "</div>" +
-          '<div class="book__count num">설명 가능 ' + st.done + " / " + st.total + "</div></div>" +
+          '<div class="book__count num">통과 ' + st.done + " / " + st.total + "</div></div>" +
           '<div class="book__bar">' + stackedBar(st) + "</div>" +
           bookLegend(st) + "</button>";
       }).join("") + "</div></section>" +
@@ -1139,8 +1215,8 @@
   function resetModalHtml() {
     var stats = Store.overallStats();
     var rows = [
-      { label: "설명 가능", n: stats.passed },
-      { label: "손댄 단어", n: stats.studied },
+      { label: "퀴즈 통과", n: stats.passed },
+      { label: "공부한 단어", n: stats.studied },
       { label: "복습 대기", n: stats.review },
       { label: "학습 기록", n: Store.history(999).length },
     ].filter(function (r) { return r.n; });
