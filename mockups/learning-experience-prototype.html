@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#f2efe8">
+  <title>IT 단어 학습 · 모바일 최종 목업</title>
+  <link rel="icon" href="../icons/icon-192.png">
+  <link rel="stylesheet" href="learning-experience-prototype.css?v=final-mobile-8">
+</head>
+<body>
+  <!--
+    PROTOTYPE — 검증 질문:
+    "어떤 정보 구조가 사용자를 DNS를 남에게 설명할 수 있는 상태까지 가장 빠르게 데려가는가?"
+    FINAL MOCKUP — A의 단계형 학습과 B의 개념 경로를 모바일 우선으로 융합한다.
+  -->
+  <a class="skip-link" href="#prototype-main">본문으로 건너뛰기</a>
+  <div id="prototype-root" aria-live="polite"></div>
+
+  <aside class="prototype-switcher" id="prototype-switcher" aria-label="디자인 시안 전환" hidden>
+    <button class="prototype-switcher__arrow" type="button" data-switch="prev" aria-label="이전 시안">←</button>
+    <div class="prototype-switcher__label">
+      <span>PROTOTYPE</span>
+      <strong id="prototype-label">A — Guided Trail</strong>
+    </div>
+    <button class="prototype-switcher__arrow" type="button" data-switch="next" aria-label="다음 시안">→</button>
+  </aside>
+
+  <div class="prototype-toast" id="prototype-toast" role="status" aria-live="polite"></div>
+
+  <script src="../data/index.js"></script>
+  <script src="../data/scenes/net.js"></script>
+  <script src="_mockdata.js"></script>
+  <script src="learning-experience-prototype.js?v=final-mobile-8"></script>
+</body>
+</html>
