@@ -64,17 +64,26 @@ def load(book: str) -> dict:
 def build(book: str) -> tuple[int, list[str]]:
     """한 권. (그린 편 수, 실패 목록)"""
     scripts = load(book)
-    drawn, broken = {}, []
+    drawn, cuts, broken = {}, {}, []
     for term_id, script in sorted(scripts.items()):
         try:
             drawn[term_id] = R.render(script)
         except R.SceneError as exc:
             broken.append(f"{term_id}: {exc}")
+            continue
+        # 캡션도 같이 내보낸다. 앱의 학습 3단계가 컷을 하나씩 여는데, 그때
+        # 그림 안의 작은 글자만으로는 뜻이 안 전해진다 — 폰에서 9px 남짓이다.
+        # 같은 문장을 16px HTML 로 그림 옆에 세우려면 여기서 나와야 한다.
+        # 컷 수도 함께 나간다. 마스크가 몇 칸으로 갈릴지 정하는 값이다.
+        cuts[term_id] = [c.get("caption", "") for c in (script.get("cuts") or [])]
 
     os.makedirs(OUT, exist_ok=True)
     payload = json.dumps(drawn, ensure_ascii=False, separators=(",", ":"))
+    caption_payload = json.dumps(cuts, ensure_ascii=False, separators=(",", ":"))
     body = (BANNER + "window.VOCAB_SCENES = window.VOCAB_SCENES || {};\n"
-            f"window.VOCAB_SCENES[{json.dumps(book)}] = {payload};\n")
+            f"window.VOCAB_SCENES[{json.dumps(book)}] = {payload};\n"
+            "window.VOCAB_SCENE_CUTS = window.VOCAB_SCENE_CUTS || {};\n"
+            f"window.VOCAB_SCENE_CUTS[{json.dumps(book)}] = {caption_payload};\n")
     with open(os.path.join(OUT, f"{book}.js"), "w", encoding="utf-8") as f:
         f.write(body)
     return len(drawn), broken
