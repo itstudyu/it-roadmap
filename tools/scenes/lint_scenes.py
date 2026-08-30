@@ -12,14 +12,22 @@
 이야기가 되게 하는 장치라, 둘이 되는 순간 눈이 어느 쪽을 따라갈지 잃는다.
 마지막 컷만 사물과 마침 체크 둘을 허용한다.
 
-컷 수는 3~6 이다. 예전에는 3컷(왕복이면 4컷)만 허용했는데, 단계가 정말
-여럿인 단어 — OAuth 의 넘겨주고 로그인하고 표를 받는 춤 같은 것 — 을
-세 칸에 우겨 넣으면 가운데 단계가 통째로 사라졌다. 그래서 풀었다.
+컷 수는 **4 다.** 넷도 셋도 여섯도 아니라 정확히 넷이다.
 
-그래도 위를 6 으로 막아 둔다. 일곱 컷을 넘어가면 읽는 사람이 줄거리를
-놓치고, 그쯤 되면 대개 한 단어가 아니라 두 단어다. 제한이 없으면 다음에
-어려운 단어를 만날 때마다 컷을 한 칸씩 늘리게 되고, 스무 편쯤 뒤에는
-편마다 길이가 제각각인 책이 된다.
+    1컷 입력   — 무엇이 들어오나
+    2컷 일     — 이 단어가 하는 일
+    3컷 출력   — 무엇이 나오나
+    4컷 경계   — 여기서 끝나고, 다음은 누구 일인가
+
+넷째 칸이 있어야 하는 이유가 이 자의 존재 이유와 같다. 열 살에게 설명할 때
+가장 많이 틀리는 것은 그 단어가 무엇인지가 아니라 **어디까지 하는가** 다.
+DNS 를 "웹사이트를 열어 주는 것" 이라고 말하는 오해가 정확히 여기서 난다.
+셋으로 그리면 그 자리가 없어서, 틀린 채로 끝나는 편이 나온다.
+
+수를 고정하는 이유는 따로 있다. 3~6 으로 열어 두었더니 어려운 단어를 만날
+때마다 컷을 한 칸씩 늘리게 되고, 편마다 길이가 제각각인 책이 됐다. 넷으로
+못박으면 "칸이 모자라다" 가 "무엇을 뺄까" 로 바뀐다. 그리고 넷은 390×844
+에서 접힌 선 위에 그대로 들어가는 마지막 수다(4컷 448px, 5컷 562px).
 """
 
 from __future__ import annotations
@@ -40,13 +48,12 @@ SOURCE = os.path.join(ROOT, "scenes")
 CAPTION_MAX = 10   # 컷 아래 한 줄
 BUBBLE_MAX = 8     # 말풍선
 TAG_MAX = 12       # 이름표
-CUTS_MIN = 3       # 문제 · 동작 · 결과. 이보다 적으면 이야기가 아니다
-CUTS_MAX = 6       # 아래 주석 참고
+CUTS = 4           # 입력 · 일 · 출력 · 경계. 위 설명 참고
 
-# 한 편의 캡션 + 말풍선 글자 총합. 컷이 늘면 같이 늘되, 컷당 몫은 오히려
-# 줄인다 — 컷이 많을수록 한 컷이 지는 말이 적어야 눈이 안 지친다.
-def letters_max(cuts: int) -> int:
-    return max(48, 13 * cuts)
+# 한 편의 캡션 + 말풍선 글자 총합. 컷이 넷으로 굳었으니 상수다.
+# 52 는 3컷 시절의 실측에서 나왔다 — 608편 중 가장 말이 많은 편이 40자였고,
+# 거기에 넷째 캡션(10자 이내)을 더해도 넘지 않는 값이다.
+LETTERS_MAX = 52
 BLUE_TONES = ("blue", "blue-dash")
 
 
@@ -101,8 +108,8 @@ def check_cut(cut: dict, i: int, last: bool, out: list[str]) -> None:
 def check_script(term_id: str, script: dict) -> list[str]:
     out: list[str] = []
     cuts = script.get("cuts") or []
-    if not CUTS_MIN <= len(cuts) <= CUTS_MAX:
-        out.append(f"컷이 {len(cuts)}개다 ({CUTS_MIN}~{CUTS_MAX}컷)")
+    if len(cuts) != CUTS:
+        out.append(f"컷이 {len(cuts)}개다 (입력·일·출력·경계 {CUTS}컷)")
         return [f"{term_id} — {m}" for m in out]
 
     if not script.get("alt"):
@@ -122,19 +129,12 @@ def check_script(term_id: str, script: dict) -> list[str]:
 
     letters = sum(len(c.get("caption", "")) for c in cuts)
     letters += sum(len((c.get("bubble") or {}).get("text", "")) for c in cuts)
-    cap = letters_max(len(cuts))
-    if letters > cap:
-        out.append(f"글자가 {letters}자다 ({cap}자 안팎) — 그림이 못 하는 말만 남긴다")
+    if letters > LETTERS_MAX:
+        out.append(f"글자가 {letters}자다 ({LETTERS_MAX}자 안팎) — 그림이 못 하는 말만 남긴다")
 
-    # 다섯 컷부터는 폰에서 접힌 선 아래로 내려간다(390×844 에서 실측:
-    # 4컷 448px 은 들어가고 5컷 562px 은 넘친다). 그러니 **앞 네 컷만으로도
-    # 이야기가 서야 한다.** 마침 체크가 다섯째 컷 뒤에만 있으면 스크롤을
-    # 안 한 사람은 결말을 못 본다.
-    if len(cuts) > 4:
-        early = any(c.get("check") for c in cuts[:4])
-        if not early:
-            out.append("다섯 컷을 넘는데 앞 네 컷 안에 마침 표시가 없다 — "
-                       "접힌 선 위에서 이야기가 끝나야 한다")
+    # 접힌 선 규칙은 컷 수를 넷으로 못박으면서 검사할 것이 없어졌다.
+    # 4컷 448px 은 390×844 의 접힌 선 위에 그대로 들어간다. 이야기가 화면
+    # 밖에서 끝나는 일이 구조적으로 안 생긴다.
 
     try:
         R.render(script)
@@ -166,6 +166,37 @@ def check_names() -> list[str]:
     return out
 
 
+def coverage() -> tuple[list[str], list[str]]:
+    """단어 목록과 각본 목록이 짝이 맞는가.
+
+    build_scenes.py 는 "각본이 없는 편은 그냥 없다, 빈 자리는 오류가 아니라
+    판단이다" 라고 적어 두었다. 그 판단은 그림이 곁들임이던 때의 것이다.
+    개편에서 그림은 6단계 학습의 뼈대가 된다 — 입력·일·출력·경계 네 컷이
+    곧 학습 단계 넷이라, 그림이 없는 단어는 코스를 돌 수가 없다.
+
+    그래서 아직 어긋남으로 세지 않고 따로 센다. 판단을 조용히 뒤집는 대신
+    수를 눈에 보이게 두고, Phase 1 이 끝나면 이 수가 0 이 되어야 한다.
+    """
+    index = os.path.join(ROOT, "data", "index.js")
+    if not os.path.exists(index):
+        return [], []
+    with open(index, encoding="utf-8") as f:
+        body = f.read()
+    head = "window.VOCABULARY_INDEX = "
+    if head not in body:
+        return [], []
+    books = json.loads(body.split(head, 1)[1].rsplit(";", 1)[0].strip().rstrip(";"))
+    words = {t["id"] for b in books for t in b.get("terms", [])}
+
+    drawn = set()
+    for name in sorted(os.listdir(SOURCE)):
+        if name.endswith(".json"):
+            with open(os.path.join(SOURCE, name), encoding="utf-8") as f:
+                drawn |= set(json.load(f).keys())
+
+    return sorted(words - drawn), sorted(drawn - words)
+
+
 def paths_from(argv: list[str]) -> list[str]:
     """무엇을 잴지 고른다.
 
@@ -193,6 +224,21 @@ def main(argv: list[str]) -> int:
     for line in bad:
         sys.stdout.write(f"  ✗ {line}\n")
     sys.stdout.write(f"각본 {total}편 — 어긋남 {len(bad)}건\n")
+
+    # 권을 골라 잰 때는 짝을 못 센다. 전수로 잴 때만 보고한다.
+    if len(argv) <= 1:
+        undrawn, orphan = coverage()
+        if undrawn:
+            sys.stdout.write(f"  · 그림 없는 단어 {len(undrawn)}편 — "
+                             + ", ".join(undrawn[:6])
+                             + (" …" if len(undrawn) > 6 else "") + "\n")
+        if orphan:
+            sys.stdout.write(f"  ✗ 단어가 없는 각본 {len(orphan)}편 — "
+                             + ", ".join(orphan[:6]) + "\n")
+            bad += orphan
+        if not undrawn and not orphan:
+            sys.stdout.write("  · 단어와 각본이 짝이 맞는다\n")
+
     return 1 if bad else 0
 
 
