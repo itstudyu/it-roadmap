@@ -3146,18 +3146,22 @@ a {
    도해의 "누가 :: 무엇을" 화법을 그림으로 잇는다. 코드로 그린 벡터라
    다크 모드에서 저절로 제 색을 입는다.
 
-   폭을 진짜로 다 쓴다. 예전에는 화면 좌우 여백 40px 에 자기 패딩 24px 을
-   더 얹어서, 390px 폰에서 SVG 가 324px 로 눌렸다 — 배율 0.81 이라 배우
-   이름표(9.5)가 7.7px, 320px 기기에서는 6.0px 이었다. 안 좁힌다고 적어 둔
-   주석 바로 아래에서 매번 좁히고 있었다.
-   그래서 화면 여백 밖으로 내보내고 좌우 패딩을 걷는다. */
+   자기 테두리를 두르지 않는다. 컷 넷은 SVG 가 이미 저마다 판을 그리므로
+   바깥에 한 겹 더 두르면 상자 안의 상자가 된다.
+
+   폭은 글 기둥에 맞춘다. 한때 화면 끝까지 내보낸 적이 있는데 — 컷 안 글자가
+   viewBox 400 의 절대값이라 좁히면 같이 줄어서였다 — 그러니 판이 화면
+   양 끝에 0px 로 딱 붙었다. 페이지의 다른 글은 전부 20px 안쪽에 있는데
+   그림만 튀어나오니, 시원한 게 아니라 답답해 보였다.
+
+   글자 크기는 이제 그림에만 기대지 않는다. 컷이 하는 말은 바로 아래
+   .scenecaps 가 본문 크기 HTML 로 다시 한 번 세운다. 그림 안 글자는
+   배우 이름 같은 곁들이라 조금 작아도 된다. */
 .scene {
-  margin: var(--sp-4) calc(var(--gutter) * -1) 0;
-  padding: var(--sp-4) 0;
-  border: 1px solid var(--line);
-  border-inline: none;
-  border-radius: 0;
-  background: var(--surface);
+  margin: var(--sp-4) 0 0;
+  padding: 0;
+  border: none;
+  background: none;
 }
 
 .scene svg {
@@ -3176,7 +3180,7 @@ a {
    빌드가 이미 굽고 있던 값이다(tools/build_scenes.py) — 내려받기만 하고
    읽는 코드가 없어서 버려지던 것을 여기서 쓴다. */
 .scenecaps {
-  margin: var(--sp-3) var(--gutter) 0;
+  margin: var(--sp-3) 0 0;
   padding: 0;
   list-style: none;
   display: flex;
